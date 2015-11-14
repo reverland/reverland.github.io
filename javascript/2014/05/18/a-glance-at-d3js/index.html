@@ -1,0 +1,792 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="d3,visualization," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="这几天，嗯，跟着Dashing D3.js把传说中的D3.js入了个门。
+D3在创建基于浏览器的动态数据可视化并带交互真是方便。
+从一无所知到数据绑定为何数据可视化
+一图胜千言，图形是直观的。
+图形是简洁明了的表达方式
+世界的数据量是巨大的，图形是好的分析和展示方式
+数据是新的石油
+
+为何选择D3.js
+D3.js 是基于数据操作文档的JavaScript库。D3帮助你使用HTML，SVG和CSS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="A Glance at D3.js">
+<meta property="og:url" content="http://reverland.org/javascript/2014/05/18/a-glance-at-d3js/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="这几天，嗯，跟着Dashing D3.js把传说中的D3.js入了个门。
+D3在创建基于浏览器的动态数据可视化并带交互真是方便。
+从一无所知到数据绑定为何数据可视化
+一图胜千言，图形是直观的。
+图形是简洁明了的表达方式
+世界的数据量是巨大的，图形是好的分析和展示方式
+数据是新的石油
+
+为何选择D3.js
+D3.js 是基于数据操作文档的JavaScript库。D3帮助你使用HTML，SVG和CSS">
+<meta property="og:updated_time" content="2015-11-12T16:34:09.216Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="A Glance at D3.js">
+<meta name="twitter:description" content="这几天，嗯，跟着Dashing D3.js把传说中的D3.js入了个门。
+D3在创建基于浏览器的动态数据可视化并带交互真是方便。
+从一无所知到数据绑定为何数据可视化
+一图胜千言，图形是直观的。
+图形是简洁明了的表达方式
+世界的数据量是巨大的，图形是好的分析和展示方式
+数据是新的石油
+
+为何选择D3.js
+D3.js 是基于数据操作文档的JavaScript库。D3帮助你使用HTML，SVG和CSS">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> A Glance at D3.js | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                A Glance at D3.js
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-05-18T00:00:00+08:00" content="2014-05-18">
+              2014-05-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>这几天，嗯，跟着<a href="https://www.dashingd3js.com/" target="_blank" rel="external">Dashing D3.js</a>把传说中的D3.js入了个门。</p>
+<p>D3在创建基于浏览器的动态数据可视化并带交互真是方便。</p>
+<h2 id="从一无所知到数据绑定">从一无所知到数据绑定</h2><h3 id="为何数据可视化">为何数据可视化</h3><ul>
+<li>一图胜千言，图形是直观的。</li>
+<li>图形是简洁明了的表达方式</li>
+<li>世界的数据量是巨大的，图形是好的分析和展示方式</li>
+<li>数据是新的石油</li>
+</ul>
+<h3 id="为何选择D3-js">为何选择D3.js</h3><ul>
+<li>D3.js 是基于数据操作文档的JavaScript库。D3帮助你使用HTML，SVG和CSS生动地展现数据。D3不需要你使用某个特定的框架，它的重点在于对主流浏览器的兼容，同时结合了强大的虚拟化组件，以数据驱动的方式去操作DOM。</li>
+<li>D3.js由Mike Bostock基于他在斯坦福可视化小组的工作开发，现由其所在的纽约时报赞助。很多贡献者参与到项目的开发，你可以在github上找到这个项目。</li>
+<li>D3.js是指Data Driven Documents。当你的网页想要和数据进行交互时，D3是个好的选择。</li>
+<li>D3.js被应用到web应用的前端，即用户交互部分。</li>
+</ul>
+<h3 id="数据可视化流程">数据可视化流程</h3><p>Ben Fry数据可视化流程：</p>
+<ul>
+<li>获取</li>
+<li>解析</li>
+<li>过滤</li>
+<li>挖掘</li>
+<li>呈现</li>
+<li>提炼</li>
+<li>交互</li>
+</ul>
+<h3 id="基本构建模块">基本构建模块</h3><ul>
+<li>现代浏览器</li>
+<li>HTML</li>
+<li>CSS</li>
+<li>Javascript</li>
+<li>DOM</li>
+<li>SVG</li>
+<li>Web Inspector</li>
+</ul>
+<h3 id="D3第一步">D3第一步</h3><ul>
+<li>在HTML文件中引用云端或本地js库</li>
+<li>在Web Inspector控制台中测试</li>
+</ul>
+<h3 id="添加DOM元素">添加DOM元素</h3><ul>
+<li><code>select</code></li>
+<li><code>append</code></li>
+</ul>
+<h3 id="添加SVG元素">添加SVG元素</h3><ul>
+<li>js的分行特性</li>
+<li><code>style</code>操作符</li>
+<li>链式语法</li>
+<li><code>select</code>可以被保存赋值</li>
+</ul>
+<h3 id="将数据绑定到DOM元素上">将数据绑定到DOM元素上</h3><ul>
+<li><code>selectAll</code></li>
+<li><code>data</code>操作符</li>
+<li>虚选择–<a href="http://bost.ocks.org/mike/join/" target="_blank" rel="external">Thinking with Joins</a></li>
+<li><code>enter</code>/<code>exit</code>/update</li>
+<li>对虚选择的<code>append</code></li>
+<li><code>text</code>操作符</li>
+<li>数据在<code>__data__</code>属性中</li>
+</ul>
+<h3 id="使用在DOM元素中的数据">使用在DOM元素中的数据</h3><ul>
+<li>向D3.js操作符参数传递函数，</li>
+<li>函数第一个参数是<code>__data__</code>内容。</li>
+</ul>
+<h2 id="使用数据来可视化">使用数据来可视化</h2><h3 id="基于数据创建SVG元素">基于数据创建SVG元素</h3><ul>
+<li>创建SVG容器</li>
+<li>创建形状元素，比如<code>circle</code></li>
+<li>将数据绑定到形状元素(基本靠虚选择完成)</li>
+<li>使用<code>style</code>利用数据修饰SVG元素</li>
+</ul>
+<h3 id="使用SVG坐标空间">使用SVG坐标空间</h3><ul>
+<li><p>一图胜千言：</p>
+<p>  ———————-&gt; x<br>  | o<br>  |<br>  |<br>  |<br>  |<br>  |<br>  |<br>  |<br>  |<br>  v y</p>
+</li>
+<li><p><code>append(&#39;svg&#39;)</code>作为坐标空间</p>
+</li>
+<li>在SVG坐标空间内放置SVG元素。<code>attr</code></li>
+<li>创建SVG元素放置SVG元素</li>
+<li>将数据绑定到SVG元素上</li>
+<li>利用绑定的数据改变SVG元素的位置</li>
+<li>使用绑定的数据修饰SVG元素</li>
+</ul>
+<h3 id="D3-js接受的数据结构">D3.js接受的数据结构</h3><ul>
+<li><code>select</code>到的是数组</li>
+<li>D3可以加载外部资源，好多种类</li>
+<li>JSON(key一定是字符串)</li>
+<li>JSON数组</li>
+</ul>
+<h3 id="使用D3-js简化代码">使用D3.js简化代码</h3><ul>
+<li>将JSON对象绑定到<code>__data__</code>属性上</li>
+<li>使用绑定的JSON对象变更SVG元素</li>
+</ul>
+<h3 id="SVG基本形和D3-js">SVG基本形和D3.js</h3><p>流程固定，设置svg容器，绑定数据，append形状元素，设置必要属性和样式。</p>
+<ul>
+<li>circle</li>
+<li>rect</li>
+<li>ellipse</li>
+<li>line</li>
+<li>polyline/polygon</li>
+</ul>
+<h3 id="SVG_Path和D3-js">SVG Path和D3.js</h3><ul>
+<li>一个用来画画的SVG内置语言</li>
+<li>使用D3.js生成形状元素绘制程序(D3.js Path 数据生成器)</li>
+</ul>
+<h3 id="动态SVG坐标空间">动态SVG坐标空间</h3><p>论如何通过遍历所有数据找到图像边界。</p>
+<h3 id="D3-js缩放">D3.js缩放</h3><p>将某个Domain映射到一个Range上的对象/类/函数。</p>
+<ul>
+<li><code>d3.scale.linear.domain([1,100]).range([0,1])</code></li>
+<li><code>d3.max</code></li>
+<li><code>d3.min</code></li>
+<li>还有些其它量化的和非量化的缩放。</li>
+</ul>
+<h3 id="SVG_Group元素和D3-js">SVG Group元素和D3.js</h3><ul>
+<li>可嵌套的<code>&lt;g&gt;</code>用来分组</li>
+<li><code>transform</code>属性和从右到左执行各种tranforming(matrix/translate/scale/skewX/skewY)</li>
+<li>transform的转换是相对空间坐标的转换</li>
+<li>使用D3.js来分组SVG元素(<code>append</code>)</li>
+<li>使用D3.js来转换SVG元素(<code>attr</code>)</li>
+</ul>
+<h3 id="SVG_Text_元素">SVG Text 元素</h3><ul>
+<li><code>text</code>标签及属性, 比如<code>text-anchor</code>属性</li>
+<li>使用D3.js创建Text元素，绑定数据，使用数据。</li>
+</ul>
+<h3 id="SVG坐标轴元素">SVG坐标轴元素</h3><ul>
+<li>D3的坐标轴组件，包括水平与竖直坐标轴线、刻度、合适的分隔空间等等。</li>
+<li>坐标轴可以更清晰展现变量大小和关系</li>
+<li>坐标轴的范围，是否反转、类型、单位等</li>
+<li>生成D3.js坐标轴函数(<code>d3.svg.axis().scale($SCALE)</code>)</li>
+<li>调用坐标轴函数(<code>var xAxisGroup = svgContainer.append(&quot;g&quot;).call($FUNCTION);</code>)生成坐标轴元素组。</li>
+<li>最后创建坐标轴(最上层)</li>
+</ul>
+<p>然后忽然没了？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？</p>
+<p>准备继续看<a href="http://alignedleft.com/tutorials/d3/" target="_blank" rel="external">Scott Murray的D3.js教程</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/d3/" rel="tag">#d3</a>
+          
+            <a href="/tags/visualization/" rel="tag">#visualization</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/microcontroller/2014/05/10/gentoolaunchpad-msp430/" rel="next" title="在Gentoo下开发Launchpad MSP430程序">
+                <i class="fa fa-chevron-left"></i> 在Gentoo下开发Launchpad MSP430程序
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/SQL/2014/05/31/mysql-learning-notes/" rel="prev" title="MySQL Learning Notes">
+                MySQL Learning Notes <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#从一无所知到数据绑定"><span class="nav-number">1.</span> <span class="nav-text">从一无所知到数据绑定</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为何数据可视化"><span class="nav-number">1.1.</span> <span class="nav-text">为何数据可视化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为何选择D3-js"><span class="nav-number">1.2.</span> <span class="nav-text">为何选择D3.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据可视化流程"><span class="nav-number">1.3.</span> <span class="nav-text">数据可视化流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本构建模块"><span class="nav-number">1.4.</span> <span class="nav-text">基本构建模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#D3第一步"><span class="nav-number">1.5.</span> <span class="nav-text">D3第一步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加DOM元素"><span class="nav-number">1.6.</span> <span class="nav-text">添加DOM元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加SVG元素"><span class="nav-number">1.7.</span> <span class="nav-text">添加SVG元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#将数据绑定到DOM元素上"><span class="nav-number">1.8.</span> <span class="nav-text">将数据绑定到DOM元素上</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用在DOM元素中的数据"><span class="nav-number">1.9.</span> <span class="nav-text">使用在DOM元素中的数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用数据来可视化"><span class="nav-number">2.</span> <span class="nav-text">使用数据来可视化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基于数据创建SVG元素"><span class="nav-number">2.1.</span> <span class="nav-text">基于数据创建SVG元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用SVG坐标空间"><span class="nav-number">2.2.</span> <span class="nav-text">使用SVG坐标空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#D3-js接受的数据结构"><span class="nav-number">2.3.</span> <span class="nav-text">D3.js接受的数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用D3-js简化代码"><span class="nav-number">2.4.</span> <span class="nav-text">使用D3.js简化代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SVG基本形和D3-js"><span class="nav-number">2.5.</span> <span class="nav-text">SVG基本形和D3.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SVG_Path和D3-js"><span class="nav-number">2.6.</span> <span class="nav-text">SVG Path和D3.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态SVG坐标空间"><span class="nav-number">2.7.</span> <span class="nav-text">动态SVG坐标空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#D3-js缩放"><span class="nav-number">2.8.</span> <span class="nav-text">D3.js缩放</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SVG_Group元素和D3-js"><span class="nav-number">2.9.</span> <span class="nav-text">SVG Group元素和D3.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SVG_Text_元素"><span class="nav-number">2.10.</span> <span class="nav-text">SVG Text 元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SVG坐标轴元素"><span class="nav-number">2.11.</span> <span class="nav-text">SVG坐标轴元素</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

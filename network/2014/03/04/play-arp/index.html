@@ -1,0 +1,883 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="network," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="实验准备这是我的工具：
+
+一台linux机器，内核支持ip转发，arp代理。带无线网卡和有线网卡。比如一台笔记本电脑。
+linux机器装好scapy，tcpdump
+网线，不一定是双绞线，现代网卡都应该支持双向通信模式的转换。
+一台windows台式机，带有线网卡和接口。
+
+一点scapy的小基础scapy是一种基于python的包操作工具，在python上实现了一种DSL(领域特定语言)。定义一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Playing and Learning ARP in Action">
+<meta property="og:url" content="http://reverland.org/network/2014/03/04/play-arp/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="实验准备这是我的工具：
+
+一台linux机器，内核支持ip转发，arp代理。带无线网卡和有线网卡。比如一台笔记本电脑。
+linux机器装好scapy，tcpdump
+网线，不一定是双绞线，现代网卡都应该支持双向通信模式的转换。
+一台windows台式机，带有线网卡和接口。
+
+一点scapy的小基础scapy是一种基于python的包操作工具，在python上实现了一种DSL(领域特定语言)。定义一">
+<meta property="og:updated_time" content="2015-11-12T16:34:09.188Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Playing and Learning ARP in Action">
+<meta name="twitter:description" content="实验准备这是我的工具：
+
+一台linux机器，内核支持ip转发，arp代理。带无线网卡和有线网卡。比如一台笔记本电脑。
+linux机器装好scapy，tcpdump
+网线，不一定是双绞线，现代网卡都应该支持双向通信模式的转换。
+一台windows台式机，带有线网卡和接口。
+
+一点scapy的小基础scapy是一种基于python的包操作工具，在python上实现了一种DSL(领域特定语言)。定义一">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> Playing and Learning ARP in Action | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Playing and Learning ARP in Action
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-03-04T00:00:00+08:00" content="2014-03-04">
+              2014-03-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/network/" itemprop="url" rel="index">
+                    <span itemprop="name">network</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="实验准备">实验准备</h2><p>这是我的工具：</p>
+<ul>
+<li>一台linux机器，内核支持ip转发，arp代理。带无线网卡和有线网卡。比如一台笔记本电脑。</li>
+<li>linux机器装好scapy，tcpdump</li>
+<li>网线，不一定是双绞线，现代网卡都应该支持双向通信模式的转换。</li>
+<li>一台windows台式机，带有线网卡和接口。</li>
+</ul>
+<h2 id="一点scapy的小基础">一点scapy的小基础</h2><p>scapy是一种基于python的包操作工具，在python上实现了一种DSL(领域特定语言)。定义一个包很简单。比如一个<code>Ether</code>：</p>
+<pre><code><span class="function"><span class="title">Ether</span><span class="params">(dst=<span class="string">"ff:ff:ff:ff:ff:ff"</span>)</span></span>
+</code></pre><p>封包里的字段可以<code>ls</code>来查看：</p>
+<pre><code><span class="function"><span class="title">ls</span><span class="params">(Ether)</span></span>
+</code></pre><p>当我们想让一个Ethernet包封装一个IP包时，仅仅使用一个<code>/</code>:</p>
+<pre><code>ip = <span class="function"><span class="title">Ether</span><span class="params">()</span></span>/<span class="function"><span class="title">IP</span><span class="params">()</span></span>
+</code></pre><p>当我们想发包时，如果想在第三层上网络层以上发包：</p>
+<pre><code><span class="function"><span class="title">send</span><span class="params">(ip)</span></span>
+</code></pre><p>但你要发一个ARP包(在第二层上发包)的话，要用<code>srp</code>或<code>srp1</code>。</p>
+<h2 id="arp如何工作">arp如何工作</h2><p>计算机仅仅知道ip地址是无法通信的，ip数据报在封装到数据链路层中时需要加上比如以太网报头，报头中应该含有数据链路层能理解的地址即MAC地址。ARP就是着么一种将IP转换成MAC地址的协议。</p>
+<p>如下例子，当我们Ping一台机器时，如果该ip在arp缓存中有，就可以直接找到mac地址，如果没有，就会广播一个请求询问对应ip的mac地址。</p>
+<pre><code>~/Work/project/arp-pos ⮀ sudo arp -d <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span>
+~/Work/project/arp-pos ⮀ ping -c <span class="number">1</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span>
+PING <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span> (<span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span>) <span class="number">56</span>(<span class="number">84</span>) <span class="keyword">bytes</span> <span class="operator">of</span> data.
+<span class="number">64</span> <span class="keyword">bytes</span> <span class="built_in">from</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span>: icmp_seq=<span class="number">1</span> ttl=<span class="number">64</span> <span class="built_in">time</span>=<span class="number">142</span> ms
+
+<span class="comment">--- 192.168.1.113 ping statistics ---</span>
+<span class="number">1</span> packets transmitted, <span class="number">1</span> received, <span class="number">0</span>% packet loss, <span class="built_in">time</span> <span class="number">0</span>ms
+rtt <span class="built_in">min</span>/<span class="built_in">avg</span>/<span class="built_in">max</span>/mdev = <span class="number">142.484</span>/<span class="number">142.484</span>/<span class="number">142.484</span>/<span class="number">0.000</span> ms
+
+ ~ ⮀ sudo tcpdump -vv -eqtnni wlan0 arp
+tcpdump: listening <span class="command"><span class="keyword">on</span> <span class="title">wlan0</span>, <span class="title">link-type</span> <span class="title">EN10MB</span> (<span class="title">Ethernet</span>), <span class="title">capture</span> <span class="title">size</span> <span class="title">65535</span> <span class="title">bytes</span></span>
+<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> &gt; ff:ff:ff:ff:ff:ff, ARP, <span class="built_in">length</span> <span class="number">42</span>: Ethernet (<span class="built_in">len</span> <span class="number">6</span>), IPv4 (<span class="built_in">len</span> <span class="number">4</span>), Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span> tell <span class="number">192.168</span><span class="number">.1</span><span class="number">.106</span>, <span class="built_in">length</span> <span class="number">28</span>
+<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span> &gt; <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>, ARP, <span class="built_in">length</span> <span class="number">42</span>: Ethernet (<span class="built_in">len</span> <span class="number">6</span>), IPv4 (<span class="built_in">len</span> <span class="number">4</span>), Reply <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span> is-<span class="keyword">at</span> <span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>, <span class="built_in">length</span> <span class="number">28</span>
+</code></pre><h2 id="抓包观察">抓包观察</h2><p>让我们看看机器获取IP的过程。这里我们用tcpdump，你可以在任何linux发行版的源里找到它。当然，也可以用wireshark。</p>
+<pre><code> ~ ⮀ sudo tcpdump -e -i wlan0 port bootps or port bootpc or arp
+tcpdump: WARNING: wlan0: no IPv4 address assigned
+tcpdump: verbose output suppressed, <span class="operator"><span class="keyword">use</span> -v <span class="keyword">or</span> -vv <span class="keyword">for</span> <span class="keyword">full</span> protocol <span class="keyword">decode</span>
+listening <span class="keyword">on</span> wlan0, <span class="keyword">link</span>-<span class="keyword">type</span> EN10MB (Ethernet), capture <span class="keyword">size</span> <span class="number">65535</span> <span class="keyword">bytes</span>
+<span class="number">21</span>:<span class="number">54</span>:<span class="number">19.202074</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype IPv4 (<span class="number">0x0800</span>), <span class="keyword">length</span> <span class="number">371</span>: <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>.bootpc &gt; <span class="number">255.255</span><span class="number">.255</span><span class="number">.255</span>.bootps: BOOTP/DHCP, Request <span class="keyword">from</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>), <span class="keyword">length</span> <span class="number">329</span>
+<span class="number">21</span>:<span class="number">54</span>:<span class="number">19.277875</span> ec:<span class="number">88</span>:<span class="number">8</span><span class="keyword">f</span>:b4:d6:<span class="number">68</span> (oui <span class="keyword">Unknown</span>) &gt; <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>), ethertype IPv4 (<span class="number">0x0800</span>), <span class="keyword">length</span> <span class="number">590</span>: <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span>.bootps &gt; <span class="number">192.168</span><span class="number">.1</span><span class="number">.101</span>.bootpc: BOOTP/DHCP, Reply, <span class="keyword">length</span> <span class="number">548</span>
+<span class="number">21</span>:<span class="number">54</span>:<span class="number">19.352068</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span> tell <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>, <span class="keyword">length</span> <span class="number">28</span>
+<span class="number">21</span>:<span class="number">54</span>:<span class="number">20.720541</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span> tell <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>, <span class="keyword">length</span> <span class="number">28</span>
+<span class="number">21</span>:<span class="number">54</span>:<span class="number">22.155087</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span> tell <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>, <span class="keyword">length</span> <span class="number">28</span>
+<span class="number">21</span>:<span class="number">54</span>:<span class="number">24.232076</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span> tell <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span>, <span class="keyword">length</span> <span class="number">28</span>
+<span class="number">21</span>:<span class="number">54</span>:<span class="number">26.234201</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span> tell <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span>, <span class="keyword">length</span> <span class="number">28</span>
+<span class="number">21</span>:<span class="number">54</span>:<span class="number">27.502047</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span> tell <span class="number">192.168</span><span class="number">.1</span><span class="number">.101</span>, <span class="keyword">length</span> <span class="number">28</span>
+<span class="number">21</span>:<span class="number">54</span>:<span class="number">27.514492</span> ec:<span class="number">88</span>:<span class="number">8</span><span class="keyword">f</span>:b4:d6:<span class="number">68</span> (oui <span class="keyword">Unknown</span>) &gt; <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>), ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Reply <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span> <span class="keyword">is</span>-<span class="keyword">at</span> ec:<span class="number">88</span>:<span class="number">8</span><span class="keyword">f</span>:b4:d6:<span class="number">68</span> (oui <span class="keyword">Unknown</span>), <span class="keyword">length</span> <span class="number">28</span></span>
+</code></pre><p>可以看到，先是dhcp的过程，下次我们再讲。紧接着我们的机器发出一个ARP探针(Probe)，哦，发了好几次来确认没有机器使用<code>192.168.1.1</code>，于是接着发了两个announcement宣告拥有了这个ip。接着询问<code>192.168.1.1</code>的MAC地址并收到来自<code>192.168.1.1</code>的回复。</p>
+<h2 id="一个广播的ARP请求">一个广播的ARP请求</h2><p>为了实验正确，我们先删除arp缓存内容：</p>
+<pre><code>~/Work/project/arp ⮀ sudo arp -d <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
+~/Work/project/arp ⮀ sudo arp -n
+Address                  HWtype  HWaddress           Flags Mask            Iface
+  <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>                    (incomplete)                              eth0
+</code></pre><p>首先，我们作为<code>10.210.96.200</code>，想知道<code>10.210.96.193</code>的MAC地址，我们广播一个ARP请求：</p>
+<pre><code>我是<span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>,我的MAC地址是<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>,我想知道<span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>的IP地址是什么。
+</code></pre><p>让我们先探索下ARP包的结构。</p>
+<pre><code>&gt;&gt;&gt; ls(ARP)
+<span class="string">hwtype     :</span> XShortField          = (<span class="number">1</span>)
+<span class="string">ptype      :</span> XShortEnumField      = (<span class="number">2048</span>)
+<span class="string">hwlen      :</span> ByteField            = (<span class="number">6</span>)
+<span class="string">plen       :</span> ByteField            = (<span class="number">4</span>)
+<span class="string">op         :</span> ShortEnumField       = (<span class="number">1</span>)
+<span class="string">hwsrc      :</span> ARPSourceMACField    = (None)
+<span class="string">psrc       :</span> SourceIPField        = (None)
+<span class="string">hwdst      :</span> MACField             = (<span class="string">'00:00:00:00:00:00'</span>)
+<span class="string">pdst       :</span> IPField              = (<span class="string">'0.0.0.0'</span>)
+</code></pre><p>参见<a href="http://en.wikipedia.org/wiki/Address_Resolution_Protocol#Packet_structure" target="_blank" rel="external">ARP协议封包结构</a></p>
+<p>首先我们构造一个ARP请求。该请求工作在Ethernet上(<code>0x0001</code>)，协议类型是IPv4(<code>0x0800</code>), 是一个请求(<code>0x0001</code>或<code>who-has</code>)，发送者的MAC地址是<code>11:11:11:11:11:11</code>, 发送者的协议地址是<code>10.210.96.200</code>，想要知道MAC地址的协议地址是<code>10.210.96.193</code>。根据以太网包字段，该消息通过广播发送。</p>
+<pre><code>arp_request = <span class="function"><span class="title">Ether</span><span class="params">(dst=<span class="string">"ff:ff:ff:ff:ff:ff"</span>)</span></span>/<span class="function"><span class="title">ARP</span><span class="params">(hwtype=<span class="number">0</span>x0001,ptype=<span class="number">0</span>x0800,op=<span class="number">0</span>x0001,hwsrc=<span class="string">'11:11:11:11:11:11'</span>, psrc=<span class="string">'10.210.96.200'</span>, pdst=<span class="string">'10.210.96.193'</span>)</span></span>
+</code></pre><p>scapy会自动为我们设置<code>Ether</code>的某些字段，所以我们不用都指定。</p>
+<pre><code>&gt;&gt;&gt; arp_request.show()
+<span class="preprocessor">###[ Ethernet ]###</span>
+  dst= ff:ff:ff:ff:ff:ff
+  src= <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>
+  type= <span class="number">0x806</span>
+<span class="preprocessor">###[ ARP ]###</span>
+     hwtype= <span class="number">0x1</span>
+     ptype= <span class="number">0x800</span>
+     hwlen= <span class="number">6</span>
+     plen= <span class="number">4</span>
+     op= who-has
+     hwsrc= <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>
+     psrc= <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>
+     hwdst= <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>
+     pdst= <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
+</code></pre><p>紧接着发送它：</p>
+<pre><code>&gt;&gt;&gt; recv = srp(arp_request)
+Begin emission:
+Finished to send <span class="number">1</span> packets.
+*
+Received <span class="number">1</span> packets, got <span class="number">1</span> answers, remaining <span class="number">0</span> packets
+&gt;&gt;&gt; recv
+(&lt;Results: TCP:<span class="number">0</span> UDP:<span class="number">0</span> ICMP:<span class="number">0</span> Other:<span class="number">1</span>&gt;, &lt;Unanswered: TCP:<span class="number">0</span> UDP:<span class="number">0</span> ICMP:<span class="number">0</span> Other:<span class="number">0</span>&gt;)
+&gt;&gt;&gt; recv[<span class="number">0</span>].show()
+<span class="number">0000</span> Ether / ARP who has <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span> says <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> ==&gt; Ether / ARP is at <span class="number">3</span>c:e5:a6:d2:<span class="number">39</span>:ad says <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span> / Padding
+</code></pre><p>可见我们得到了它的MAC地址。检查ARP缓存：</p>
+<pre><code>~/Work/project/arp ⮀ sudo arp -n
+Address                  HWtype  HWaddress           Flags Mask            Iface
+<span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>            ether   <span class="number">3</span>c:e5:a6:d2:<span class="number">39</span>:ad   C                     eth0
+</code></pre><p>Bingo!</p>
+<h2 id="一个ARP应答">一个ARP应答</h2><p>首先要设置静态IP。将一台win7机器设置为<code>172.16.0.17</code>.</p>
+<p>接着我们要发一个不请自答的ARP reply，这一技术常用来进行ARP Poison。</p>
+<pre><code>&gt;&gt;&gt; arp_reply = <span class="function"><span class="title">Ether</span><span class="params">(src=<span class="string">'11:11:11:11:11:11'</span>, dst=<span class="string">'C8:1F:66:05:E2:6A'</span>)</span></span>/<span class="function"><span class="title">ARP</span><span class="params">(hwtype=<span class="number">0</span>x0001,ptype=<span class="number">0</span>x0800,op=<span class="number">0</span>x0002,hwsrc=<span class="string">'11:11:11:11:11:11'</span>, hwdst=<span class="string">'C8:1F:66:05:E2:6A'</span>, psrc=<span class="string">'172.16.0.28'</span>, pdst=<span class="string">'172.16.0.17'</span>)</span></span>
+recv = <span class="function"><span class="title">srp</span><span class="params">(arp_reply, timeout=<span class="number">1</span>, iface=<span class="string">'eth0'</span>)</span></span>
+</code></pre><p>查看我们的监听：</p>
+<pre><code> ~ ⮀ sudo  tcpdump -nni eth0 arp 
+tcpdump: verbose output suppressed, <span class="operator"><span class="keyword">use</span> -v <span class="keyword">or</span> -vv <span class="keyword">for</span> <span class="keyword">full</span> protocol <span class="keyword">decode</span>
+listening <span class="keyword">on</span> eth0, <span class="keyword">link</span>-<span class="keyword">type</span> EN10MB (Ethernet), capture <span class="keyword">size</span> <span class="number">65535</span> <span class="keyword">bytes</span>
+<span class="number">17</span>:<span class="number">22</span>:<span class="number">10.465636</span> ARP, Reply <span class="number">172.16</span><span class="number">.0</span><span class="number">.28</span> <span class="keyword">is</span>-<span class="keyword">at</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>, <span class="keyword">length</span> <span class="number">28</span></span>
+</code></pre><p>然而检查另一台机器的arp缓存可能并没有<code>172.16.0.28</code>的项。这是因为操作系统可能不欢迎不请自来的arp应答。</p>
+<p>我们试着使用不请自来的arp请求看看：</p>
+<pre><code>&gt;&gt;&gt; arp_request = <span class="function"><span class="title">Ether</span><span class="params">(dst=<span class="string">"ff:ff:ff:ff:ff:ff"</span>)</span></span>/<span class="function"><span class="title">ARP</span><span class="params">(hwtype=<span class="number">0</span>x0001,ptype=<span class="number">0</span>x0800,op=<span class="number">0</span>x0001,hwsrc=<span class="string">'11:11:11:11:11:11'</span>, psrc=<span class="string">'172.16.0.22'</span>, pdst=<span class="string">'172.16.0.17'</span>)</span></span>
+&gt;&gt;&gt; recv = <span class="function"><span class="title">srp</span><span class="params">(arp_request)</span></span>
+</code></pre><p>则可以在另一台机器上的缓存表中发现<code>172.16.0.22</code>的项。说明操作系统默默接受了不请自来的请求。</p>
+<p>为了查看ARP响应的效果，我们同时打开两边机器，创造一个请求。先清空windows机器的缓存表。</p>
+<p>我们让windows机器ping<code>172.16.0.30</code>。同时开始抓包和准备应答(在win7上ping的同时执行下列命令)：</p>
+<pre><code>&gt;&gt;&gt; arp_reply = <span class="function"><span class="title">Ether</span><span class="params">(src=<span class="string">'11:11:11:11:11:11'</span>, dst=<span class="string">'C8:1F:66:05:E2:6A'</span>)</span></span>/<span class="function"><span class="title">ARP</span><span class="params">(hwtype=<span class="number">0</span>x0001,ptype=<span class="number">0</span>x0800,op=<span class="number">0</span>x0002,hwsrc=<span class="string">'11:11:11:11:11:11'</span>, hwdst=<span class="string">'C8:1F:66:05:E2:6A'</span>, psrc=<span class="string">'172.16.0.30'</span>, pdst=<span class="string">'172.16.0.17'</span>)</span></span>
+&gt;&gt;&gt; recv = <span class="function"><span class="title">srp</span><span class="params">(arp_reply, timeout=<span class="number">1</span>, iface=<span class="string">'eth0'</span>)</span><span class="title">Begin</span></span> emission:
+Finished to send <span class="number">1</span> packets.
+...
+Received <span class="number">3</span> packets, got <span class="number">0</span> answers, remaining <span class="number">1</span> packets
+</code></pre><p>可以观察到包的前两个正是我们想要的。</p>
+<pre><code>~ ⮀ <span class="tag">sudo</span>  <span class="tag">tcpdump</span> <span class="tag">-nni</span> <span class="tag">eth0</span> <span class="tag">arp</span> 
+<span class="tag">tcpdump</span>: <span class="tag">verbose</span> <span class="tag">output</span> <span class="tag">suppressed</span>, <span class="tag">use</span> <span class="tag">-v</span> <span class="tag">or</span> <span class="tag">-vv</span> <span class="tag">for</span> <span class="tag">full</span> <span class="tag">protocol</span> <span class="tag">decode</span>
+<span class="tag">listening</span> <span class="tag">on</span> <span class="tag">eth0</span>, <span class="tag">link-type</span> <span class="tag">EN10MB</span> (<span class="tag">Ethernet</span>), <span class="tag">capture</span> <span class="tag">size</span> 65535 <span class="tag">bytes</span>
+17<span class="pseudo">:28</span><span class="pseudo">:55</span><span class="class">.041968</span> <span class="tag">ARP</span>, <span class="tag">Request</span> <span class="tag">who-has</span> 172<span class="class">.16</span><span class="class">.0</span><span class="class">.30</span> <span class="tag">tell</span> 172<span class="class">.16</span><span class="class">.0</span><span class="class">.17</span>, <span class="tag">length</span> 46
+17<span class="pseudo">:28</span><span class="pseudo">:55</span><span class="class">.165561</span> <span class="tag">ARP</span>, <span class="tag">Reply</span> 172<span class="class">.16</span><span class="class">.0</span><span class="class">.30</span> <span class="tag">is-at</span> 11<span class="pseudo">:11</span><span class="pseudo">:11</span><span class="pseudo">:11</span><span class="pseudo">:11</span><span class="pseudo">:11</span>, <span class="tag">length</span> 28
+</code></pre><p>同时发现win7的arp缓存中已经有了<code>172.16.0.30</code>。</p>
+<h2 id="ARP_Announcement">ARP Announcement</h2><p>这是一种特殊的ARP请求，目标协议地址填入发送者的协议地址，将目标硬件地址设为0.</p>
+<p>或者，是一种特殊的ARP响应，目标协议地址和目标硬件地址都是发送者的协议和目标硬件地址。</p>
+<p>ARP announcement意在更新其它收到这个包的机器的ARP缓存。这种免费的ARP(不请自来)常用来在机器启动或换网卡时通知其它机器。也用来做负载平衡。</p>
+<pre><code>&gt;&gt;&gt; arp_announcement = <span class="function"><span class="title">Ether</span><span class="params">(src=<span class="string">'11:11:11:11:11:11'</span>, dst=<span class="string">"ff:ff:ff:ff:ff:ff"</span>)</span></span>/<span class="function"><span class="title">ARP</span><span class="params">(hwtype=<span class="number">0</span>x0001,ptype=<span class="number">0</span>x0800,op=<span class="number">0</span>x0001,hwsrc=<span class="string">'11:11:11:11:11:11'</span>, hwdst=<span class="string">'00:00:00:00:00:00'</span>, psrc=<span class="string">'172.16.0.40'</span>, pdst=<span class="string">'172.16.0.40'</span>)</span></span>
+&gt;&gt;&gt; recv = <span class="function"><span class="title">srp1</span><span class="params">(arp_announcement, timeout=<span class="number">2</span>)</span></span>
+Begin emission:
+Finished to send <span class="number">1</span> packets.
+
+Received <span class="number">0</span> packets, got <span class="number">0</span> answers, remaining <span class="number">1</span> packets
+
+ ~ ⮀ sudo  tcpdump -enni eth0 arp 
+tcpdump: verbose output suppressed, use -v or -vv <span class="keyword">for</span> full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), capture size <span class="number">65535</span> bytes
+<span class="number">22</span>:<span class="number">15</span>:<span class="number">39.645293</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> &gt; ff:ff:ff:ff:ff:ff, ethertype ARP (<span class="number">0</span>x0806), length <span class="number">42</span>: Request who-has <span class="number">172.16</span>.<span class="number">0.40</span> tell <span class="number">172.16</span>.<span class="number">0.40</span>, length <span class="number">28</span>
+</code></pre><p>遗憾的是，win7的ARP缓存没有接受<code>172.16.0.40</code>.</p>
+<p>一个响应Announcement：</p>
+<pre><code>&gt;&gt;&gt; arp_announcement = <span class="function"><span class="title">Ether</span><span class="params">(src=<span class="string">'11:11:11:11:11:11'</span>, dst=<span class="string">"ff:ff:ff:ff:ff:ff"</span>)</span></span>/<span class="function"><span class="title">ARP</span><span class="params">(hwtype=<span class="number">0</span>x0001,ptype=<span class="number">0</span>x0800,op=<span class="number">0</span>x0002,hwsrc=<span class="string">'11:11:11:11:11:11'</span>, hwdst=<span class="string">'11:11:11:11:11:11'</span>, psrc=<span class="string">'172.16.0.40'</span>, pdst=<span class="string">'172.16.0.40'</span>)</span></span>
+&gt;&gt;&gt; recv = <span class="function"><span class="title">srp1</span><span class="params">(arp_announcement, timeout=<span class="number">2</span>)</span></span>
+
+ ~ ⮀ sudo  tcpdump -enni eth0 arp 
+tcpdump: verbose output suppressed, use -v or -vv <span class="keyword">for</span> full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), capture size <span class="number">65535</span> bytes
+<span class="number">22</span>:<span class="number">18</span>:<span class="number">21.655256</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> &gt; ff:ff:ff:ff:ff:ff, ethertype ARP (<span class="number">0</span>x0806), length <span class="number">42</span>: Reply <span class="number">172.16</span>.<span class="number">0.40</span> is-at <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>, length <span class="number">28</span>
+</code></pre><h2 id="ARP_probe">ARP probe</h2><p>ARP探针是一个全0 IP地址的广播请求，用来检测IPv4地址冲突。在开始使用一个IP地址之前，实现这个规范(RFC5227)的主机必须通过ARP探针测试地址是否被使用。</p>
+<p>具体过程参见RFC5227.</p>
+<blockquote>
+<p>A host probes to see if an address is already in use by broadcasting<br>an ARP Request for the desired address.  The client MUST fill in the<br>‘sender hardware address’ field of the ARP Request with the hardware<br>address of the interface through which it is sending the packet.  The<br>‘sender IP address’ field MUST be set to all zeroes; this is to avoid<br>polluting ARP caches in other hosts on the same link in the case<br>where the address turns out to be already in use by another host.<br>The ‘target hardware address’ field is ignored and SHOULD be set to<br>all zeroes.  The ‘target IP address’ field MUST be set to the address<br>being probed.  An ARP Request constructed this way, with an all-zero<br>‘sender IP address’, is referred to as an ‘ARP Probe’.</p>
+</blockquote>
+<p>类似这样：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; arp_probe = (<span class="constant">Ether</span>(dst=<span class="string">'ff:ff:ff:ff:ff:ff'</span>)/<span class="constant">ARP</span>(psrc=<span class="string">'0.0.0.0'</span>, pdst=<span class="string">'172.16.0.17'</span>))
+<span class="prompt">&gt;&gt;</span>&gt; arp_probe.show()
+<span class="comment">###[ Ethernet ]###</span>
+  dst= <span class="symbol">ff:</span><span class="symbol">ff:</span><span class="symbol">ff:</span><span class="symbol">ff:</span><span class="symbol">ff:</span>ff
+  src= <span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span>
+  type= <span class="number">0x806</span>
+<span class="comment">###[ ARP ]###</span>
+     hwtype= <span class="number">0x1</span>
+     ptype= <span class="number">0x800</span>
+     hwlen= <span class="number">6</span>
+     plen= <span class="number">4</span>
+     op= who-has
+     hwsrc= <span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span>
+     psrc= <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>
+     hwdst= <span class="number">00</span><span class="symbol">:</span><span class="number">00</span><span class="symbol">:</span><span class="number">00</span><span class="symbol">:</span><span class="number">00</span><span class="symbol">:</span><span class="number">00</span><span class="symbol">:</span><span class="number">00</span>
+     pdst= <span class="number">172.16</span>.<span class="number">0</span>.<span class="number">17</span>
+<span class="prompt">&gt;&gt;</span>&gt; recv = srp(arp_probe, iface=<span class="string">'eth0'</span>)
+<span class="constant">Begin</span> <span class="symbol">emission:</span>
+<span class="constant">Finished</span> to send <span class="number">1</span> packets.
+*
+<span class="constant">Received</span> <span class="number">1</span> packets, got <span class="number">1</span> answers, remaining <span class="number">0</span> packets
+</code></pre><p>开始监听然后发送：</p>
+<pre><code> ~ ⮀ <span class="tag">sudo</span>  <span class="tag">tcpdump</span> <span class="tag">-nni</span> <span class="tag">eth0</span> <span class="tag">arp</span> 
+<span class="tag">tcpdump</span>: <span class="tag">verbose</span> <span class="tag">output</span> <span class="tag">suppressed</span>, <span class="tag">use</span> <span class="tag">-v</span> <span class="tag">or</span> <span class="tag">-vv</span> <span class="tag">for</span> <span class="tag">full</span> <span class="tag">protocol</span> <span class="tag">decode</span>
+<span class="tag">listening</span> <span class="tag">on</span> <span class="tag">eth0</span>, <span class="tag">link-type</span> <span class="tag">EN10MB</span> (<span class="tag">Ethernet</span>), <span class="tag">capture</span> <span class="tag">size</span> 65535 <span class="tag">bytes</span>
+22<span class="pseudo">:08</span><span class="pseudo">:56</span><span class="class">.885470</span> <span class="tag">ARP</span>, <span class="tag">Request</span> <span class="tag">who-has</span> 172<span class="class">.16</span><span class="class">.0</span><span class="class">.17</span> <span class="tag">tell</span> 0<span class="class">.0</span><span class="class">.0</span><span class="class">.0</span>, <span class="tag">length</span> 28
+22<span class="pseudo">:08</span><span class="pseudo">:56</span><span class="class">.885831</span> <span class="tag">ARP</span>, <span class="tag">Reply</span> 172<span class="class">.16</span><span class="class">.0</span><span class="class">.17</span> <span class="tag">is-at</span> <span class="tag">c8</span><span class="pseudo">:1f</span><span class="pseudo">:66</span><span class="pseudo">:05</span><span class="pseudo">:e2</span><span class="pseudo">:6a</span>, <span class="tag">length</span> 46
+</code></pre><p>说明有<code>172.16.0.17</code>这个地址。但可以检查一下，<code>0.0.0.0</code>并没有污染win7机器的arp缓存。</p>
+<h2 id="ARP_mediation">ARP mediation</h2><p>在VPN中不同网络架构时使用ARP。略</p>
+<h2 id="ARP_Stuffing">ARP Stuffing</h2><p>某些嵌入式系统，没有配置界面，用户无法使用地址分配协议，设备没有合适的IP地址，这时候主机人工填充一个IP地址到它的地址表，然后向设备发送特殊的包。设备于是采用这个IP地址和主机通信。</p>
+<h2 id="ARP_Suppression">ARP Suppression</h2><p>禁用主机ARP，要求配置静态ARP缓存才能通信：</p>
+<pre><code>ip link <span class="keyword">set</span> dev eth0 arp <span class="keyword">off</span>
+<span class="comment"># ifconfig wlan0 -arp</span>
+</code></pre><h2 id="ARP_Proxy">ARP Proxy</h2><p>同一个IP网段被某台设备分成两个部分。arp代理可以让两端的机器好像在同一以太网内工作一样。</p>
+<p>举如下例子。</p>
+<p>当我们有一台linux机器。其中wlan0连接无线路由，另外有一台win7机器，没有无线网卡，和linux机器的eth0直接用网线相连。</p>
+<pre><code><span class="comment">Internet</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">无线路由</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">wlan0</span> <span class="title">[</span><span class="comment">Linux</span><span class="title">]</span> <span class="comment">eth0</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">windows</span> <span class="comment">7</span>
+</code></pre><p>为了让windows7机器能够联网，我们可以设置windows7机器和linux机器在同一网段。比如设置：</p>
+<p>先设置ip地址：</p>
+<ul>
+<li>路由器网关地址<code>192.168.1.1</code></li>
+<li>linux在wlan0被路由器分配地址，<code>192.168.1.103</code>，子网掩码<code>255.255.255.0</code></li>
+<li>windows7机器设置静态ip<code>192.168.1.114</code>，子网掩码<code>255.255.255.0</code></li>
+</ul>
+<p>下面我们开始设置ARP代理，在linux机器上设置内核允许代理和转发：</p>
+<pre><code>gentoo ~ # echo <span class="number">1</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/conf/eth0/proxy_arp<span class="symbol">
+gentoo</span> ~ #<span class="symbol"> echo</span> 1 &gt; /<span class="keyword">proc</span>/sys/net/ipv4/conf/wlan0/proxy_arp<span class="symbol">
+gentoo</span> ~ #<span class="symbol"> echo</span> 1 &gt; /<span class="keyword">proc</span>/sys/net/ipv4/ip_forward
+</code></pre><p>在wlan0上对应其MAC设置想要代理的对象的静态地址(<code>192.168.1.114</code>)，让linux对wlan0上以太网响应对<code>192.168.1.114</code>的响应，并把自己的无线网卡MAC作为响应内容。</p>
+<pre><code>sudo arp -i wlan0 -s <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> pub
+</code></pre><p>可以选择是否设置下一步，即使在eth0上没有ip地址也可以。</p>
+<p>设置eth0接口上的ip地址(默认netmask是<code>255.255.255.0</code>)：</p>
+<pre><code>sudo ifconfig eth0 inet <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span>
+</code></pre><p>添加路由：</p>
+<pre><code>sudo route add <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span> eth0
+</code></pre><p>linux和windows机器互ping以确保连接：</p>
+<pre><code>⮀ ~ ⮀ ping -c <span class="number">2</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span>
+PING <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span> (<span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span>) <span class="number">56</span>(<span class="number">84</span>) bytes of data.
+<span class="number">64</span> bytes from <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span>: icmp_seq=<span class="number">1</span> ttl=<span class="number">128</span> time=<span class="number">0.446</span> ms
+<span class="number">64</span> bytes from <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span>: icmp_seq=<span class="number">2</span> ttl=<span class="number">128</span> time=<span class="number">0.469</span> ms
+
+--- <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span> ping statistics ---
+<span class="number">2</span> packets transmitted, <span class="number">2</span> received, <span class="number">0</span>% packet loss, time <span class="number">999</span>ms
+rtt min/avg/max/mdev = <span class="number">0.446</span>/<span class="number">0.457</span>/<span class="number">0.469</span>/<span class="number">0.024</span> ms
+</code></pre><p>对<code>eth0</code>上将自己的有线网卡MAC设置为对<code>192.168.1.1</code>的响应。</p>
+<pre><code>sudo arp -i eth0 -s <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span> <span class="number">00</span>:<span class="number">24</span>:<span class="number">54</span>:<span class="number">9</span>a:<span class="number">05</span>:<span class="number">8</span>b pub
+</code></pre><p>接着在windows7上尝试<code>ping</code>一下<code>192.168.1.1</code>：</p>
+<p>如果在windows7机器上设置了正确的dns，就可以直接上网了。</p>
+<h2 id="Reference">Reference</h2><ul>
+<li><a href="en.wikipedia.org/wiki/Address_Resolution_Protocol">Address Resolution Protocol</a></li>
+<li><a href="http://linux-ip.net/html/ether-arp.html" target="_blank" rel="external">Address Resolution Protocol (ARP)</a></li>
+<li><a href="http://linux.vbird.org/linux_server/0230router.php#arp_proxy" target="_blank" rel="external">特殊狀況：路由器兩邊界面是同一個 IP 網段： ARP Proxy</a></li>
+</ul>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/network/" rel="tag">#network</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/security/2014/02/26/spoofing/" rel="next" title="网络上的欺骗">
+                <i class="fa fa-chevron-left"></i> 网络上的欺骗
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/network/2014/03/07/play-dhcp/" rel="prev" title="Playing and Learning DHCP in Action">
+                Playing and Learning DHCP in Action <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#实验准备"><span class="nav-number">1.</span> <span class="nav-text">实验准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一点scapy的小基础"><span class="nav-number">2.</span> <span class="nav-text">一点scapy的小基础</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#arp如何工作"><span class="nav-number">3.</span> <span class="nav-text">arp如何工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#抓包观察"><span class="nav-number">4.</span> <span class="nav-text">抓包观察</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个广播的ARP请求"><span class="nav-number">5.</span> <span class="nav-text">一个广播的ARP请求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个ARP应答"><span class="nav-number">6.</span> <span class="nav-text">一个ARP应答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARP_Announcement"><span class="nav-number">7.</span> <span class="nav-text">ARP Announcement</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARP_probe"><span class="nav-number">8.</span> <span class="nav-text">ARP probe</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARP_mediation"><span class="nav-number">9.</span> <span class="nav-text">ARP mediation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARP_Stuffing"><span class="nav-number">10.</span> <span class="nav-text">ARP Stuffing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARP_Suppression"><span class="nav-number">11.</span> <span class="nav-text">ARP Suppression</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARP_Proxy"><span class="nav-number">12.</span> <span class="nav-text">ARP Proxy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">13.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

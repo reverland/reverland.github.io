@@ -1,0 +1,1188 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python,scipy-lecture-notes," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="Image manipulation and processing using Numpy and Scipy翻译自：http://scipy-lectures.github.com/advanced/image_processing/index.html
+作者：Emmanuelle Gouillart, Gaël Varoquaux
+图像 = 2-D 数值数组
+
+(或者 3-D: CT, MRI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Numpy和Scipy处理图像">
+<meta property="og:url" content="http://reverland.org/python/2012/11/12/numpyscipy/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="Image manipulation and processing using Numpy and Scipy翻译自：http://scipy-lectures.github.com/advanced/image_processing/index.html
+作者：Emmanuelle Gouillart, Gaël Varoquaux
+图像 = 2-D 数值数组
+
+(或者 3-D: CT, MRI">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/axis_convention.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_geom_lena_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_sharpen_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_lena_denoise_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_denoising_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_lena_tv_denoise_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/morpho_mat.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_greyscale_dilation.html">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_propagation_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_find_edges_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_canny_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_histo_segmentation_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/image_GMM.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_clean_morpho_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/image_spectral_clustering.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_synthetic_data_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_measure_data_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_find_object_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_block_mean_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_radial_mean_1.png">
+<meta property="og:image" content="http://scipy-lectures.github.com/_images/plot_granulo_1.png">
+<meta property="og:updated_time" content="2015-11-12T16:34:08.680Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Numpy和Scipy处理图像">
+<meta name="twitter:description" content="Image manipulation and processing using Numpy and Scipy翻译自：http://scipy-lectures.github.com/advanced/image_processing/index.html
+作者：Emmanuelle Gouillart, Gaël Varoquaux
+图像 = 2-D 数值数组
+
+(或者 3-D: CT, MRI">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> 使用Numpy和Scipy处理图像 | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                使用Numpy和Scipy处理图像
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-11-12T00:00:00+08:00" content="2012-11-12">
+              2012-11-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="Image_manipulation_and_processing_using_Numpy_and_Scipy">Image manipulation and processing using Numpy and Scipy</h1><p>翻译自：<a href="http://scipy-lectures.github.com/advanced/image_processing/index.html" target="_blank" rel="external">http://scipy-lectures.github.com/advanced/image_processing/index.html</a></p>
+<p>作者：Emmanuelle Gouillart, Gaël Varoquaux</p>
+<pre><code>图像 = <span class="number">2</span>-D 数值数组
+
+(或者 <span class="number">3</span>-D: CT, MRI, <span class="number">2</span>D + 时间; <span class="number">4</span>-D, ...)
+
+这里 图像 == Numpy数组 np.<span class="built_in">array</span>
+</code></pre><p>这个教程中使用的工具：</p>
+<ul>
+<li>numpy：基本数组操作</li>
+<li><p>scipy：<code>scipy.ndimage</code>子模块致力于图像处理(n维图像)。参见<a href="http://docs.scipy.org/doc/scipy/reference/tutorial/ndimage.html" target="_blank" rel="external">http://docs.scipy.org/doc/scipy/reference/tutorial/ndimage.html</a></p>
+<pre><code><span class="keyword">from</span> scipy <span class="keyword">import</span> ndimage
+</code></pre></li>
+<li><p>一些例子用到了使用np.array的特殊的工具箱：</p>
+<ul>
+<li><a href="http://scikits-image.org/" target="_blank" rel="external">Scikit Image</a></li>
+<li><a href="http://scikit-learn.org/" target="_blank" rel="external">scikit-learn</a></li>
+</ul>
+</li>
+</ul>
+<p>图像中的常见问题有：</p>
+<ul>
+<li>输入/输出，呈现图像</li>
+<li>基本操作：裁剪、翻转、旋转……</li>
+<li>图像滤镜：消噪，锐化</li>
+<li>图像分割：不同对应对象的像素标记</li>
+</ul>
+<p>更有力和完整的模块：</p>
+<ul>
+<li><a href="http://opencv.willowgarage.com/documentation/python/cookbook.html" target="_blank" rel="external">OpenCV</a> (Python绑定)</li>
+<li><a href="http://www.cellprofiler.org/" target="_blank" rel="external">CellProfiler</a></li>
+<li><a href="http://www.itk.org/" target="_blank" rel="external">ITK</a>,Python绑定</li>
+<li>更多……</li>
+</ul>
+<p><strong>目录</strong></p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<h2 id="打开和读写图像文件">打开和读写图像文件</h2><p>将一个数组写入文件：</p>
+<pre><code><span class="keyword">In</span> [1]: from scipy import misc
+
+<span class="keyword">In</span> [2]: <span class="keyword">l</span> = misc.lena()
+
+<span class="keyword">In</span> [3]: misc.imsave('lena.png', <span class="keyword">l</span>)  # uses the Image module (PIL)
+
+<span class="keyword">In</span> [4]: import pylab <span class="keyword">as</span> <span class="keyword">pl</span>
+
+<span class="keyword">In</span> [5]: <span class="keyword">pl</span>.imshow(<span class="keyword">l</span>)
+<span class="keyword">Out</span>[5]: &lt;matplotlib.image.AxesImage at 0x4118110&gt;
+</code></pre><p>从一个图像文件创建数组：</p>
+<pre><code>In [<span class="number">7</span>]: lena = misc.<span class="function"><span class="title">imread</span><span class="params">(<span class="string">'lena.png'</span>)</span></span>
+
+In [<span class="number">8</span>]: <span class="function"><span class="title">type</span><span class="params">(lena)</span></span>
+Out[<span class="number">8</span>]: numpy<span class="class">.ndarray</span>
+
+In [<span class="number">9</span>]: lena<span class="class">.shape</span>, lena<span class="class">.dtype</span>
+Out[<span class="number">9</span>]: ((<span class="number">512</span>, <span class="number">512</span>), <span class="function"><span class="title">dtype</span><span class="params">(<span class="string">'uint8'</span>)</span></span>)
+</code></pre><p>8位图像(0-255)的dtype是uint8</p>
+<p>打开一个raw文件(相机， 3-D图像)</p>
+<pre><code><span class="keyword">In</span> [<span class="number">10</span>]: l.tofile(<span class="string">'lena.raw'</span>)  # 创建一个raw文件
+
+<span class="keyword">In</span> [<span class="number">14</span>]: lena_from_raw = np.fromfile(<span class="string">'lena.raw'</span>, dtype=np.int64)
+
+<span class="keyword">In</span> [<span class="number">15</span>]: lena_from_raw.shape
+<span class="keyword">Out</span>[<span class="number">15</span>]: (<span class="number">262144</span>,)
+
+<span class="keyword">In</span> [<span class="number">16</span>]: lena_from_raw.shape = (<span class="number">512</span>, <span class="number">512</span>)
+
+<span class="keyword">In</span> [<span class="number">17</span>]: import os
+
+<span class="keyword">In</span> [<span class="number">18</span>]: os.<span class="keyword">remove</span>(<span class="string">'lena.raw'</span>)
+</code></pre><p>需要知道图像的shape和dtype(如何区分隔数据字节)</p>
+<p>对于大数据，使用<code>np.memmap</code>进行内存映射：</p>
+<pre><code>In [<span class="number">21</span>]: lena_memmap = np.<span class="function"><span class="title">memmap</span><span class="params">(<span class="string">'lena.raw'</span>, dtype=np.int64, shape=(<span class="number">512</span>,<span class="number">512</span>)</span></span>)
+</code></pre><p>(数据从文件读取，而不是载入内存)</p>
+<p>处理一个列表的图像文件：</p>
+<pre><code>In [<span class="number">22</span>]: <span class="keyword">for</span> <span class="tag">i</span> <span class="keyword">in</span> <span class="function"><span class="title">range</span><span class="params">(<span class="number">10</span>)</span></span>:
+   ....:     im = np<span class="class">.random</span><span class="class">.random_integers</span>(<span class="number">0</span>, <span class="number">255</span>, <span class="number">10000</span>).<span class="function"><span class="title">reshape</span><span class="params">((<span class="number">100</span>, <span class="number">100</span>)</span></span>)
+   ....:     misc.<span class="function"><span class="title">imsave</span><span class="params">(<span class="string">'random_%02d.png'</span> % i, im)</span></span>
+   ....:     
+
+In [<span class="number">23</span>]: from glob import glob
+
+In [<span class="number">24</span>]: filelist = <span class="function"><span class="title">glob</span><span class="params">(<span class="string">'random*.png'</span>)</span></span>
+
+In [<span class="number">25</span>]: filelist.<span class="function"><span class="title">sort</span><span class="params">()</span></span>
+</code></pre><h2 id="呈现图像">呈现图像</h2><p>使用<code>matplotlib</code>和<code>imshow</code>将图像呈现在matplotlib图像(figure)中：</p>
+<pre><code>In [<span class="number">29</span>]: l = misc.<span class="function"><span class="title">lena</span><span class="params">()</span></span>
+
+In [<span class="number">30</span>]: import matplotlib<span class="class">.pyplot</span> as plt
+
+In [<span class="number">31</span>]: plt.<span class="function"><span class="title">imshow</span><span class="params">(l, cmap=plt.cm.gray)</span></span>
+Out[<span class="number">31</span>]: &lt;matplotlib<span class="class">.image</span><span class="class">.AxesImage</span> at <span class="number">0</span>x4964990&gt;
+</code></pre><p>通过设置最大最小之增加对比：</p>
+<pre><code><span class="keyword">In</span> [<span class="number">33</span>]: plt.imshow(l, cmap=plt.cm.gray, vmin=<span class="number">30</span>, vmax=<span class="number">200</span>)
+<span class="keyword">Out</span>[<span class="number">33</span>]: &lt;matplotlib.image.AxesImage <span class="preprocessor">at</span> <span class="number">0x50cb790</span>&gt;
+
+<span class="keyword">In</span> [<span class="number">34</span>]: plt.axis(<span class="string">'off'</span>)  # 移除axes和ticks
+<span class="keyword">Out</span>[<span class="number">34</span>]: (-<span class="number">0.5</span>, <span class="number">511.5</span>, <span class="number">511.5</span>, -<span class="number">0.5</span>)
+</code></pre><p>绘制等高线：<a href="占位">^1</a></p>
+<pre><code>ln[<span class="number">7</span>]: plt.contour(l, [<span class="number">60</span>, <span class="number">211</span>])
+</code></pre><p>更好地观察强度变化，使用<code>interpolate=‘nearest’</code>：</p>
+<pre><code>In [<span class="number">7</span>]: plt.<span class="function"><span class="title">imshow</span><span class="params">(l[<span class="number">200</span>:<span class="number">220</span>, <span class="number">200</span>:<span class="number">220</span>], cmap=plt.cm.gray)</span></span>
+Out[<span class="number">7</span>]: &lt;matplotlib<span class="class">.image</span><span class="class">.AxesImage</span> at <span class="number">0</span>x3bbe610&gt;
+
+In [<span class="number">8</span>]: plt.<span class="function"><span class="title">imshow</span><span class="params">(l[<span class="number">200</span>:<span class="number">220</span>, <span class="number">200</span>:<span class="number">220</span>], cmap=plt.cm.gray, interpolation=<span class="string">'nearest'</span>)</span></span>
+Out[<span class="number">8</span>]: &lt;matplotlib<span class="class">.image</span><span class="class">.AxesImage</span> at <span class="number">0</span>x3ed3250&gt;
+</code></pre><p>其它包有时使用图形工具箱来可视化(GTK，Qt)：[^2]</p>
+<pre><code>In [<span class="number">9</span>]: import skimage<span class="class">.io</span> as im_io
+
+In [<span class="number">21</span>]: im_io.<span class="function"><span class="title">use_plugin</span><span class="params">(<span class="string">'gtk'</span>, <span class="string">'imshow'</span>)</span></span>
+
+In [<span class="number">22</span>]: im_io.<span class="function"><span class="title">imshow</span><span class="params">(l)</span></span>
+</code></pre><p><strong>3-D可视化：Mayavi</strong></p>
+<p>参见<a href="http://scipy-lectures.github.com/advanced/3d_plotting/index.html#mayavi-label" target="_blank" rel="external">可用Mayavi进行3-D绘图</a>和<a href="http://scipy-lectures.github.com/advanced/3d_plotting/3d_plotting_functions.html#mayavi-voldata-label" target="_blank" rel="external">体积数据</a></p>
+<ul>
+<li>图形平面工具</li>
+<li>等值面</li>
+<li>……</li>
+</ul>
+<h2 id="基本操作">基本操作</h2><p>图像是数组：使用整个<code>numpy</code>机理。</p>
+<p><img src="http://scipy-lectures.github.com/_images/axis_convention.png" alt="basic"></p>
+<pre><code>&gt;&gt;&gt; lena = misc.lena()
+&gt;&gt;&gt; lena[<span class="number">0</span>, <span class="number">40</span>]
+<span class="number">166</span>
+&gt;&gt;&gt; <span class="preprocessor"># Slicing</span>
+&gt;&gt;&gt; lena[<span class="number">10</span>:<span class="number">13</span>, <span class="number">20</span>:<span class="number">23</span>]
+<span class="built_in">array</span>([[<span class="number">158</span>, <span class="number">156</span>, <span class="number">157</span>],
+[<span class="number">157</span>, <span class="number">155</span>, <span class="number">155</span>],
+[<span class="number">157</span>, <span class="number">157</span>, <span class="number">158</span>]])
+&gt;&gt;&gt; lena[<span class="number">100</span>:<span class="number">120</span>] = <span class="number">255</span>
+&gt;&gt;&gt;
+&gt;&gt;&gt; lx, ly = lena.shape
+&gt;&gt;&gt; X, Y = np.ogrid[<span class="number">0</span>:lx, <span class="number">0</span>:ly]
+&gt;&gt;&gt; mask = (X - lx/<span class="number">2</span>)**<span class="number">2</span> + (Y - ly/<span class="number">2</span>)**<span class="number">2</span> &gt; lx*ly/<span class="number">4</span>
+&gt;&gt;&gt; <span class="preprocessor"># Masks</span>
+&gt;&gt;&gt; lena[mask] = <span class="number">0</span>
+&gt;&gt;&gt; <span class="preprocessor"># Fancy indexing</span>
+&gt;&gt;&gt; lena[range(<span class="number">400</span>), range(<span class="number">400</span>)] = <span class="number">255</span>
+</code></pre><h3 id="统计信息">统计信息</h3><pre><code>&gt;&gt;&gt; lena = scipy.<span class="function"><span class="title">lena</span><span class="params">()</span></span>
+&gt;&gt;&gt; lena.<span class="function"><span class="title">mean</span><span class="params">()</span></span>
+<span class="number">124.04678344726562</span>
+&gt;&gt;&gt; lena.<span class="function"><span class="title">max</span><span class="params">()</span></span>, lena.<span class="function"><span class="title">min</span><span class="params">()</span></span>
+(<span class="number">245</span>, <span class="number">25</span>)
+</code></pre><p><code>np.histogram</code></p>
+<h3 id="几何转换">几何转换</h3><pre><code><span class="prompt">&gt;&gt;</span>&gt; lena = scipy.lena()
+<span class="prompt">&gt;&gt;</span>&gt; lx, ly = lena.shape
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># Cropping</span>
+<span class="prompt">&gt;&gt;</span>&gt; crop_lena = lena[lx/<span class="number">4</span><span class="symbol">:-lx/</span><span class="number">4</span>, ly/<span class="number">4</span><span class="symbol">:-ly/</span><span class="number">4</span>]
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># up &lt;-&gt; down flip</span>
+<span class="prompt">&gt;&gt;</span>&gt; flip_ud_lena = np.flipud(lena)
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># rotation</span>
+<span class="prompt">&gt;&gt;</span>&gt; rotate_lena = ndimage.rotate(lena, <span class="number">45</span>)
+<span class="prompt">&gt;&gt;</span>&gt; rotate_lena_noreshape = ndimage.rotate(lena, <span class="number">45</span>, reshape=<span class="constant">False</span>)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_geom_lena_1.png" alt="Geometrical transformations"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_geom_lena.html#example-plot-geom-lena-py" target="_blank" rel="external">示例源码</a></p>
+<h2 id="图像滤镜">图像滤镜</h2><p><strong>局部滤镜</strong>：用相邻像素值的函数替代当前像素的值。</p>
+<p>相邻：方形(指定大小)，圆形， 或者更多复杂的<em>结构元素</em>。</p>
+<h3 id="模糊/平滑">模糊/平滑</h3><p><code>scipy.ndimage</code>中的<em>高斯滤镜</em>：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from scipy import misc
+<span class="prompt">&gt;&gt;</span>&gt; from scipy import ndimage
+<span class="prompt">&gt;&gt;</span>&gt; lena = misc.lena()
+<span class="prompt">&gt;&gt;</span>&gt; blurred_lena = ndimage.gaussian_filter(lena, sigma=<span class="number">3</span>)
+<span class="prompt">&gt;&gt;</span>&gt; very_blurred = ndimage.gaussian_filter(lena, sigma=<span class="number">5</span>)
+</code></pre><p><em>均匀滤镜</em></p>
+<pre><code>&gt;&gt;&gt; local_mean = ndimage.<span class="function"><span class="title">uniform_filter</span><span class="params">(lena, size=<span class="number">11</span>)</span></span>
+</code></pre><p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_blur.html#example-plot-blur-py" target="_blank" rel="external">示例源码</a></p>
+<h3 id="锐化">锐化</h3><p>锐化模糊图像：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from scipy import misc
+<span class="prompt">&gt;&gt;</span>&gt; lena = misc.lena()
+<span class="prompt">&gt;&gt;</span>&gt; blurred_l = ndimage.gaussian_filter(lena, <span class="number">3</span>)
+</code></pre><p>通过增加拉普拉斯近似增加边缘权重：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; filter_blurred_l = ndimage.gaussian_filter(blurred_l, <span class="number">1</span>)
+<span class="prompt">&gt;&gt;</span>&gt; alpha = <span class="number">30</span>
+<span class="prompt">&gt;&gt;</span>&gt; sharpened = blurred_l + alpha * (blurred_l - filter_blurred_l)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_sharpen_1.png" alt="sharpen"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_sharpen.html#example-plot-sharpen-py" target="_blank" rel="external">示例源码</a></p>
+<h3 id="消噪">消噪</h3><p>向lena增加噪声：</p>
+<pre><code>&gt;&gt;&gt; from scipy import misc
+&gt;&gt;&gt; l = misc.<span class="function"><span class="title">lena</span><span class="params">()</span></span>
+&gt;&gt;&gt; l = l[<span class="number">230</span>:<span class="number">310</span>, <span class="number">210</span>:<span class="number">350</span>]
+&gt;&gt;&gt; noisy = l + <span class="number">0.4</span>*l.<span class="function"><span class="title">std</span><span class="params">()</span></span>*np<span class="class">.random</span><span class="class">.random</span>(l.shape)
+</code></pre><p><em>高斯滤镜</em>平滑掉噪声……还有边缘：</p>
+<pre><code>&gt;&gt;&gt; gauss_denoised = ndimage.<span class="function"><span class="title">gaussian_filter</span><span class="params">(noisy, <span class="number">2</span>)</span></span>
+</code></pre><p>大多局部线性各向同性滤镜都模糊图像(<code>ndimage.uniform_filter</code>)</p>
+<p><em>中值滤镜</em>更好地保留边缘：</p>
+<pre><code>&gt;&gt;&gt; med_denoised = ndimage.<span class="function"><span class="title">median_filter</span><span class="params">(noisy, <span class="number">3</span>)</span></span>
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_lena_denoise_1.png" alt="guassian&amp;median"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_lena_denoise.html#example-plot-lena-denoise-py" target="_blank" rel="external">示例源码</a></p>
+<p>中值滤镜：对直边界效果更好(低曲率)：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; im = np.zeros((<span class="number">20</span>, <span class="number">20</span>))
+<span class="prompt">&gt;&gt;</span>&gt; im[<span class="number">5</span><span class="symbol">:-</span><span class="number">5</span>, <span class="number">5</span><span class="symbol">:-</span><span class="number">5</span>] = <span class="number">1</span>
+<span class="prompt">&gt;&gt;</span>&gt; im = ndimage.distance_transform_bf(im)
+<span class="prompt">&gt;&gt;</span>&gt; im_noise = im + <span class="number">0</span>.<span class="number">2</span>*np.random.randn(*im.shape)
+<span class="prompt">&gt;&gt;</span>&gt; im_med = ndimage.median_filter(im_noise, <span class="number">3</span>)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_denoising_1.png" alt="median"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_denoising.html#example-plot-denoising-py" target="_blank" rel="external">示例源码</a></p>
+<p>其它排序滤波器：<code>ndimage.maximum_filter</code>,<code>ndimage.percentile_filter</code></p>
+<p>其它局部非线性滤波器：维纳滤波器(<code>scipy.signal.wiener</code>)等</p>
+<p><strong>非局部滤波器</strong></p>
+<p><em>总变差(TV)</em>消噪。找到新的图像让图像的总变差(正态L1梯度的积分)变得最小，当接近测量图像时：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># from skimage.filter import tv_denoise</span>
+<span class="prompt">&gt;&gt;</span>&gt; from tv_denoise import tv_denoise
+<span class="prompt">&gt;&gt;</span>&gt; tv_denoised = tv_denoise(noisy, weight=<span class="number">10</span>)
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># More denoising (to the expense of fidelity to data)</span>
+<span class="prompt">&gt;&gt;</span>&gt; tv_denoised = tv_denoise(noisy, weight=<span class="number">50</span>)
+</code></pre><p>总变差滤镜<code>tv_denoise</code>可以从<code>skimage</code>中获得，(文档:<a href="http://scikit-image.org/docs/dev/api/skimage.filter.html#denoise-tv" target="_blank" rel="external">http://scikit-image.org/docs/dev/api/skimage.filter.html#denoise-tv</a>)，但是为了方便我们在这个教程中作为一个<em>单独模块</em>导入。</p>
+<p><img src="http://scipy-lectures.github.com/_images/plot_lena_tv_denoise_1.png" alt="tv"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_lena_tv_denoise.html#example-plot-lena-tv-denoise-py" target="_blank" rel="external">示例源码</a></p>
+<h3 id="数学形态学">数学形态学</h3><p>参见：<a href="http://en.wikipedia.org/wiki/Mathematical_morphology" target="_blank" rel="external">http://en.wikipedia.org/wiki/Mathematical_morphology</a></p>
+<p><em>结构元素</em>：</p>
+<pre><code>&gt;&gt;&gt; el = ndimage.generate_binary_structure(<span class="number">2</span>, <span class="number">1</span>)
+&gt;&gt;&gt; el
+<span class="keyword">array</span>([[<span class="keyword">False</span>,  <span class="keyword">True</span>, <span class="keyword">False</span>],
+       [ <span class="keyword">True</span>,  <span class="keyword">True</span>,  <span class="keyword">True</span>],
+       [<span class="keyword">False</span>,  <span class="keyword">True</span>, <span class="keyword">False</span>]], dtype=<span class="keyword">bool</span>)
+&gt;&gt;&gt; el.astype(np.<span class="keyword">int</span>)
+<span class="keyword">array</span>([[<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>],
+       [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>],
+       [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>]])
+</code></pre><p><em>腐蚀</em> = 最小化滤镜。用结构元素覆盖的像素的最小值替代一个像素值：</p>
+<pre><code>&gt;&gt;&gt; a = np.zeros((7,7), dtype=np.int)
+&gt;&gt;&gt; a<span class="comment">[1:6, 2:5]</span> = 1
+&gt;&gt;&gt; a
+array(<span class="comment">[<span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 1, 1, 1, 0, 0]</span>,
+       <span class="comment">[0, 0, 1, 1, 1, 0, 0]</span>,
+       <span class="comment">[0, 0, 1, 1, 1, 0, 0]</span>,
+       <span class="comment">[0, 0, 1, 1, 1, 0, 0]</span>,
+       <span class="comment">[0, 0, 1, 1, 1, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>]</span>)
+&gt;&gt;&gt; ndimage.binary_erosion(a).astype(a.dtype)
+array(<span class="comment">[<span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 1, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 1, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 1, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>]</span>)
+&gt;&gt;&gt; #Erosion removes objects smaller than the structure
+&gt;&gt;&gt; ndimage.binary_erosion(a, structure=np.ones((5,5))).astype(a.dtype)
+array(<span class="comment">[<span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>]</span>)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/morpho_mat.png" alt="erosion"></p>
+<p><em>膨胀</em>：最大化滤镜:</p>
+<pre><code>&gt;&gt;&gt; <span class="tag">a</span> = np.<span class="function"><span class="title">zeros</span><span class="params">((<span class="number">5</span>, <span class="number">5</span>)</span></span>)
+&gt;&gt;&gt; <span class="tag">a</span>[<span class="number">2</span>, <span class="number">2</span>] = <span class="number">1</span>
+&gt;&gt;&gt; <span class="tag">a</span>
+array([[ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">1</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.]])
+&gt;&gt;&gt; ndimage.<span class="function"><span class="title">binary_dilation</span><span class="params">(a)</span></span>.<span class="function"><span class="title">astype</span><span class="params">(a.dtype)</span></span>
+array([[ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">1</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">1</span>.,  <span class="number">1</span>.,  <span class="number">1</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">1</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.]])
+</code></pre><p>对灰度值图像也有效：</p>
+<pre><code>&gt;&gt;&gt; np<span class="class">.random</span><span class="class">.seed</span>(<span class="number">2</span>)
+&gt;&gt;&gt; x, y = (<span class="number">63</span>*np<span class="class">.random</span><span class="class">.random</span>((<span class="number">2</span>, <span class="number">8</span>))).<span class="function"><span class="title">astype</span><span class="params">(np.int)</span></span>
+&gt;&gt;&gt; im[x, y] = np.<span class="function"><span class="title">arange</span><span class="params">(<span class="number">8</span>)</span></span>
+
+&gt;&gt;&gt; bigger_points = ndimage.<span class="function"><span class="title">grey_dilation</span><span class="params">(im, size=(<span class="number">5</span>, <span class="number">5</span>)</span></span>, structure=np.<span class="function"><span class="title">ones</span><span class="params">((<span class="number">5</span>, <span class="number">5</span>)</span></span>))
+
+&gt;&gt;&gt; square = np.<span class="function"><span class="title">zeros</span><span class="params">((<span class="number">16</span>, <span class="number">16</span>)</span></span>)
+&gt;&gt;&gt; square[<span class="number">4</span>:-<span class="number">4</span>, <span class="number">4</span>:-<span class="number">4</span>] = <span class="number">1</span>
+&gt;&gt;&gt; dist = ndimage.<span class="function"><span class="title">distance_transform_bf</span><span class="params">(square)</span></span>
+&gt;&gt;&gt; dilate_dist = ndimage.<span class="function"><span class="title">grey_dilation</span><span class="params">(dist, size=(<span class="number">3</span>, <span class="number">3</span>)</span></span>, \
+...         structure=np.<span class="function"><span class="title">ones</span><span class="params">((<span class="number">3</span>, <span class="number">3</span>)</span></span>))
+</code></pre><p><img src="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_greyscale_dilation.html" alt="gray-delation"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_greyscale_dilation.html#example-plot-greyscale-dilation-py" target="_blank" rel="external">示例源码</a></p>
+<p><em>开操作</em>：腐蚀+膨胀：</p>
+<p><em>应用</em>：移除噪声</p>
+<pre><code>&gt;&gt;&gt; square = np.<span class="function"><span class="title">zeros</span><span class="params">((<span class="number">32</span>, <span class="number">32</span>)</span></span>)
+&gt;&gt;&gt; square[<span class="number">10</span>:-<span class="number">10</span>, <span class="number">10</span>:-<span class="number">10</span>] = <span class="number">1</span>
+&gt;&gt;&gt; np<span class="class">.random</span><span class="class">.seed</span>(<span class="number">2</span>)
+&gt;&gt;&gt; x, y = (<span class="number">32</span>*np<span class="class">.random</span><span class="class">.random</span>((<span class="number">2</span>, <span class="number">20</span>))).<span class="function"><span class="title">astype</span><span class="params">(np.int)</span></span>
+&gt;&gt;&gt; square[x, y] = <span class="number">1</span>
+
+&gt;&gt;&gt; open_square = ndimage.<span class="function"><span class="title">binary_opening</span><span class="params">(square)</span></span>
+
+&gt;&gt;&gt; eroded_square = ndimage.<span class="function"><span class="title">binary_erosion</span><span class="params">(square)</span></span>
+&gt;&gt;&gt; reconstruction = ndimage.<span class="function"><span class="title">binary_propagation</span><span class="params">(eroded_square, mask=square)</span></span>
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_propagation_1.png" alt="application"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_propagation.html#example-plot-propagation-py" target="_blank" rel="external">示例源码</a></p>
+<p><em>闭操作</em>：膨胀+腐蚀</p>
+<p>许多其它数学分形：击中(hit)和击不中(miss)变换，tophat等等。</p>
+<h2 id="特征提取">特征提取</h2><h3 id="边缘检测">边缘检测</h3><p>合成数据：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; im = np.zeros((<span class="number">256</span>, <span class="number">256</span>))
+<span class="prompt">&gt;&gt;</span>&gt; im[<span class="number">64</span><span class="symbol">:-</span><span class="number">64</span>, <span class="number">64</span><span class="symbol">:-</span><span class="number">64</span>] = <span class="number">1</span>
+<span class="prompt">&gt;&gt;</span>&gt;
+&gt;&gt;&gt; im = ndimage.rotate(im, <span class="number">15</span>, mode=<span class="string">'constant'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; im = ndimage.gaussian_filter(im, <span class="number">8</span>)
+</code></pre><p>使用<em>梯度操作(Sobel)</em>来找到搞强度的变化：</p>
+<pre><code>&gt;&gt;&gt; sx = ndimage.<span class="function"><span class="title">sobel</span><span class="params">(im, axis=<span class="number">0</span>, mode=<span class="string">'constant'</span>)</span></span>
+&gt;&gt;&gt; sy = ndimage.<span class="function"><span class="title">sobel</span><span class="params">(im, axis=<span class="number">1</span>, mode=<span class="string">'constant'</span>)</span></span>
+&gt;&gt;&gt; sob = np.<span class="function"><span class="title">hypot</span><span class="params">(sx, sy)</span></span>
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_find_edges_1.png" alt="sob"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_find_edges.html#example-plot-find-edges-py" target="_blank" rel="external">示例源码</a></p>
+<p><em>canny滤镜</em></p>
+<p>Canny滤镜可以从<code>skimage</code>中获取(<a href="http://scikit-image.org/docs/dev/api/skimage.filter.html#canny" target="_blank" rel="external">文档</a>)，但是为了方便我们在这个教程中作为一个<em>单独模块</em>导入：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; <span class="comment">#from skimage.filter import canny</span>
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment">#or use module shipped with tutorial</span>
+<span class="prompt">&gt;&gt;</span>&gt; im += <span class="number">0</span>.<span class="number">1</span>*np.random.random(im.shape)
+<span class="prompt">&gt;&gt;</span>&gt; edges = canny(im, <span class="number">1</span>, <span class="number">0</span>.<span class="number">4</span>, <span class="number">0</span>.<span class="number">2</span>) <span class="comment"># not enough smoothing</span>
+<span class="prompt">&gt;&gt;</span>&gt; edges = canny(im, <span class="number">3</span>, <span class="number">0</span>.<span class="number">3</span>, <span class="number">0</span>.<span class="number">2</span>) <span class="comment"># better parameters</span>
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_canny_1.png" alt="edge"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_canny.html#example-plot-canny-py" target="_blank" rel="external">示例源码</a></p>
+<p>需要调整几个参数……过度拟合的风险</p>
+<h3 id="分割">分割</h3><ul>
+<li><p>基于<em>直方图</em>的分割(没有空间信息)</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; n = <span class="number">10</span>
+<span class="prompt">&gt;&gt;</span>&gt; l = <span class="number">256</span>
+<span class="prompt">&gt;&gt;</span>&gt; im = np.zeros((l, l))
+<span class="prompt">&gt;&gt;</span>&gt; np.random.seed(<span class="number">1</span>)
+<span class="prompt">&gt;&gt;</span>&gt; points = l*np.random.random((<span class="number">2</span>, n**<span class="number">2</span>))
+<span class="prompt">&gt;&gt;</span>&gt; im[(points[<span class="number">0</span>]).astype(np.int), (points[<span class="number">1</span>]).astype(np.int)] = <span class="number">1</span>
+<span class="prompt">&gt;&gt;</span>&gt; im = ndimage.gaussian_filter(im, sigma=l/(<span class="number">4</span>.*n))
+
+<span class="prompt">&gt;&gt;</span>&gt; mask = (im &gt; im.mean()).astype(np.float)
+<span class="prompt">&gt;&gt;</span>&gt; mask += <span class="number">0</span>.<span class="number">1</span> * im
+<span class="prompt">&gt;&gt;</span>&gt; img = mask + <span class="number">0</span>.<span class="number">2</span>*np.random.randn(*mask.shape)
+
+<span class="prompt">&gt;&gt;</span>&gt; hist, bin_edges = np.histogram(img, bins=<span class="number">60</span>)
+<span class="prompt">&gt;&gt;</span>&gt; bin_centers = <span class="number">0</span>.<span class="number">5</span>*(bin_edges[<span class="symbol">:-</span><span class="number">1</span>] + bin_edges[<span class="number">1</span><span class="symbol">:</span>])
+
+<span class="prompt">&gt;&gt;</span>&gt; binary_img = img &gt; <span class="number">0</span>.<span class="number">5</span>
+</code></pre></li>
+</ul>
+<p><img src="http://scipy-lectures.github.com/_images/plot_histo_segmentation_1.png" alt="segmente"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_histo_segmentation.html#example-plot-histo-segmentation-py" target="_blank" rel="external">示例源码</a></p>
+<p>自动阈值：使用高斯混合模型：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; mask = (im &gt; im.mean()).astype(np.float)
+<span class="prompt">&gt;&gt;</span>&gt; mask += <span class="number">0</span>.<span class="number">1</span> * im
+<span class="prompt">&gt;&gt;</span>&gt; img = mask + <span class="number">0</span>.<span class="number">3</span>*np.random.randn(*mask.shape)
+
+<span class="prompt">&gt;&gt;</span>&gt; from sklearn.mixture import <span class="constant">GMM</span>
+<span class="prompt">&gt;&gt;</span>&gt; classif = <span class="constant">GMM</span>(n_components=<span class="number">2</span>)
+<span class="prompt">&gt;&gt;</span>&gt; classif.fit(img.reshape((img.size, <span class="number">1</span>))) 
+<span class="constant">GMM</span>(...)
+
+<span class="prompt">&gt;&gt;</span>&gt; classif.means<span class="number">_</span>
+array([[ <span class="number">0</span>.<span class="number">9353155</span> ],
+       [-<span class="number">0</span>.<span class="number">02</span>966039]])
+<span class="prompt">&gt;&gt;</span>&gt; np.sqrt(classif.covars<span class="number">_</span>).ravel()
+array([ <span class="number">0</span>.<span class="number">35074631</span>,  <span class="number">0</span>.<span class="number">28225327</span>])
+<span class="prompt">&gt;&gt;</span>&gt; classif.weights<span class="number">_</span>
+array([ <span class="number">0</span>.<span class="number">40989799</span>,  <span class="number">0</span>.<span class="number">59010201</span>])
+<span class="prompt">&gt;&gt;</span>&gt; threshold = np.mean(classif.means<span class="number">_</span>)
+<span class="prompt">&gt;&gt;</span>&gt; binary_img = img &gt; threshold
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/image_GMM.png" alt="gauss-mixture"></p>
+<p>使用数学形态学来清理结果：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># Remove small white regions</span>
+<span class="prompt">&gt;&gt;</span>&gt; open_img = ndimage.binary_opening(binary_img)
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># Remove small black hole</span>
+<span class="prompt">&gt;&gt;</span>&gt; close_img = ndimage.binary_closing(open_img)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_clean_morpho_1.png" alt="cleanup"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_clean_morpho.html#example-plot-clean-morpho-py" target="_blank" rel="external">示例源码</a></p>
+<p><strong>练习</strong></p>
+<p>参看重建(reconstruction)操作(腐蚀+传播(propagation))产生比开/闭操作更好的结果：</p>
+<pre><code>&gt;&gt;&gt; eroded_img = ndimage.<span class="function"><span class="title">binary_erosion</span><span class="params">(binary_img)</span></span>
+&gt;&gt;&gt; reconstruct_img = ndimage.<span class="function"><span class="title">binary_propagation</span><span class="params">(eroded_img, mask=binary_img)</span></span>
+&gt;&gt;&gt; tmp = np.<span class="function"><span class="title">logical_not</span><span class="params">(reconstruct_img)</span></span>
+&gt;&gt;&gt; eroded_tmp = ndimage.<span class="function"><span class="title">binary_erosion</span><span class="params">(tmp)</span></span>
+&gt;&gt;&gt; reconstruct_final = np.<span class="function"><span class="title">logical_not</span><span class="params">(ndimage.binary_propagation(eroded_tmp, mask=tmp)</span></span>)
+&gt;&gt;&gt; np.<span class="function"><span class="title">abs</span><span class="params">(mask - close_img)</span></span>.<span class="function"><span class="title">mean</span><span class="params">()</span></span>
+<span class="number">0.014678955078125</span>
+&gt;&gt;&gt; np.<span class="function"><span class="title">abs</span><span class="params">(mask - reconstruct_final)</span></span>.<span class="function"><span class="title">mean</span><span class="params">()</span></span>
+<span class="number">0.0042572021484375</span>
+</code></pre><p><strong>练习</strong></p>
+<p>检查首次消噪步骤(中值滤波，总变差)如何更改直方图，并且查看是否基于直方图的分割更加精准了。</p>
+<ul>
+<li><p><em>基于图像</em>的分割：使用空间信息</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sklearn.feature_extraction import image
+<span class="prompt">&gt;&gt;</span>&gt; from sklearn.cluster import spectral_clustering
+
+<span class="prompt">&gt;&gt;</span>&gt; l = <span class="number">100</span>
+<span class="prompt">&gt;&gt;</span>&gt; x, y = np.indices((l, l))
+
+<span class="prompt">&gt;&gt;</span>&gt; center1 = (<span class="number">28</span>, <span class="number">24</span>)
+<span class="prompt">&gt;&gt;</span>&gt; center2 = (<span class="number">40</span>, <span class="number">50</span>)
+<span class="prompt">&gt;&gt;</span>&gt; center3 = (<span class="number">67</span>, <span class="number">58</span>)
+<span class="prompt">&gt;&gt;</span>&gt; center4 = (<span class="number">24</span>, <span class="number">70</span>)
+<span class="prompt">&gt;&gt;</span>&gt; radius1, radius2, radius3, radius4 = <span class="number">16</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">14</span>
+
+<span class="prompt">&gt;&gt;</span>&gt; circle1 = (x - center1[<span class="number">0</span>])**<span class="number">2</span> + (y - center1[<span class="number">1</span>])**<span class="number">2</span> &lt; radius1**<span class="number">2</span>
+<span class="prompt">&gt;&gt;</span>&gt; circle2 = (x - center2[<span class="number">0</span>])**<span class="number">2</span> + (y - center2[<span class="number">1</span>])**<span class="number">2</span> &lt; radius2**<span class="number">2</span>
+<span class="prompt">&gt;&gt;</span>&gt; circle3 = (x - center3[<span class="number">0</span>])**<span class="number">2</span> + (y - center3[<span class="number">1</span>])**<span class="number">2</span> &lt; radius3**<span class="number">2</span>
+<span class="prompt">&gt;&gt;</span>&gt; circle4 = (x - center4[<span class="number">0</span>])**<span class="number">2</span> + (y - center4[<span class="number">1</span>])**<span class="number">2</span> &lt; radius4**<span class="number">2</span>
+
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># 4 circles</span>
+<span class="prompt">&gt;&gt;</span>&gt; img = circle1 + circle2 + circle3 + circle4
+<span class="prompt">&gt;&gt;</span>&gt; mask = img.astype(bool)
+<span class="prompt">&gt;&gt;</span>&gt; img = img.astype(float)
+
+<span class="prompt">&gt;&gt;</span>&gt; img += <span class="number">1</span> + <span class="number">0</span>.<span class="number">2</span>*np.random.randn(*img.shape)
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># Convert the image into a graph with the value of the gradient on</span>
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># the edges.</span>
+<span class="prompt">&gt;&gt;</span>&gt; graph = image.img_to_graph(img, mask=mask)
+
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># Take a decreasing function of the gradient: we take it weakly</span>
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># dependant from the gradient the segmentation is close to a voronoi</span>
+<span class="prompt">&gt;&gt;</span>&gt; graph.data = np.exp(-graph.data/graph.data.std())
+
+<span class="prompt">&gt;&gt;</span>&gt; labels = spectral_clustering(graph, k=<span class="number">4</span>, mode=<span class="string">'arpack'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; label_im = -np.ones(mask.shape)
+<span class="prompt">&gt;&gt;</span>&gt; label_im[mask] = labels
+</code></pre></li>
+</ul>
+<p><img src="http://scipy-lectures.github.com/_images/image_spectral_clustering.png" alt="graph-base"></p>
+<hr>
+<h2 id="测量对象属性：ndimage-measurements">测量对象属性：ndimage.measurements</h2><p>合成数据：</p>
+<pre><code>&gt;&gt;&gt; n = <span class="number">10</span>
+&gt;&gt;&gt; l = <span class="number">256</span>
+&gt;&gt;&gt; im = np.<span class="function"><span class="title">zeros</span><span class="params">((l, l)</span></span>)
+&gt;&gt;&gt; points = l*np<span class="class">.random</span><span class="class">.random</span>((<span class="number">2</span>, n**<span class="number">2</span>))
+&gt;&gt;&gt; im[(points[<span class="number">0</span>]).<span class="function"><span class="title">astype</span><span class="params">(np.int)</span></span>, (points[<span class="number">1</span>]).<span class="function"><span class="title">astype</span><span class="params">(np.int)</span></span>] = <span class="number">1</span>
+&gt;&gt;&gt; im = ndimage.<span class="function"><span class="title">gaussian_filter</span><span class="params">(im, sigma=l/(<span class="number">4</span>.*n)</span></span>)
+&gt;&gt;&gt; <span class="attribute">mask</span> = im &gt; im.<span class="function"><span class="title">mean</span><span class="params">()</span></span>
+</code></pre><ul>
+<li><p><em>连接成分分析</em></p>
+<p>  标记连接成分：<code>ndimage.label</code></p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; label_im, nb_labels = ndimage.label(mask)
+<span class="prompt">&gt;&gt;</span>&gt; nb_labels <span class="comment"># how many regions?</span>
+<span class="number">23</span>
+<span class="prompt">&gt;&gt;</span>&gt; plt.imshow(label_im)        
+&lt;matplotlib.image.<span class="constant">AxesImage</span> object at ...&gt;
+</code></pre></li>
+</ul>
+<p><img src="http://scipy-lectures.github.com/_images/plot_synthetic_data_1.png" alt="label"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_synthetic_data.html#example-plot-synthetic-data-py" target="_blank" rel="external">示例源码</a></p>
+<p>计算每个区域的尺寸，均值等等：</p>
+<pre><code>&gt;&gt;&gt; sizes = ndimage.<span class="function"><span class="title">sum</span><span class="params">(mask, label_im, range(nb_labels + <span class="number">1</span>)</span></span>)
+&gt;&gt;&gt; mean_vals = ndimage.<span class="function"><span class="title">sum</span><span class="params">(im, label_im, range(<span class="number">1</span>, nb_labels + <span class="number">1</span>)</span></span>)
+</code></pre><p>计算小的连接成分：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; mask_size = sizes &lt; <span class="number">1000</span>
+<span class="prompt">&gt;&gt;</span>&gt; remove_pixel = mask_size[label_im]
+<span class="prompt">&gt;&gt;</span>&gt; remove_pixel.shape
+(<span class="number">256</span>, <span class="number">256</span>)
+<span class="prompt">&gt;&gt;</span>&gt; label_im[remove_pixel] = <span class="number">0</span>
+<span class="prompt">&gt;&gt;</span>&gt; plt.imshow(label_im)        
+&lt;matplotlib.image.<span class="constant">AxesImage</span> object at ...&gt;
+</code></pre><p>现在使用<code>np.searchsorted</code>重新分配标签：</p>
+<pre><code>&gt;&gt;&gt; labels = np.<span class="function"><span class="title">unique</span><span class="params">(label_im)</span></span>
+&gt;&gt;&gt; label_im = np.<span class="function"><span class="title">searchsorted</span><span class="params">(labels, label_im)</span></span>
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_measure_data_1.png" alt="reassign"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_measure_data.html#example-plot-measure-data-py" target="_blank" rel="external">示例源码</a></p>
+<p>找到关注的封闭对象区域：<a href="根据以上操作剩下的区域选择区域，因为是随机生成可能结果不通，label_im==4未必留下来了。">^3</a></p>
+<pre><code>&gt;&gt;&gt; slice_x, slice_y = ndimage.<span class="function"><span class="title">find_objects</span><span class="params">(label_im==<span class="number">4</span>)</span></span>[<span class="number">0</span>]
+&gt;&gt;&gt; roi = im[slice_x, slice_y]
+&gt;&gt;&gt; plt.<span class="function"><span class="title">imshow</span><span class="params">(roi)</span></span>     
+&lt;matplotlib<span class="class">.image</span><span class="class">.AxesImage</span> <span class="tag">object</span> at ...&gt;
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_find_object_1.png" alt="find"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_find_object.html#example-plot-find-object-py" target="_blank" rel="external">示例源码</a></p>
+<p>其它空间测量：<code>ndiamge.center_of_mass</code>,<code>ndimage.maximum_position</code>等等。</p>
+<p>可以在分割应用限制范围之外使用。</p>
+<p>示例：块平均(block mean)：</p>
+<pre><code>m scipy import misc
+<span class="prompt">&gt;&gt;</span>&gt; l = misc.lena()
+<span class="prompt">&gt;&gt;</span>&gt; sx, sy = l.shape
+<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">X</span>, <span class="constant">Y</span> = np.ogrid[<span class="number">0</span><span class="symbol">:sx</span>, <span class="number">0</span><span class="symbol">:sy</span>]
+<span class="prompt">&gt;&gt;</span>&gt; regions = sy/<span class="number">6</span> * (<span class="constant">X</span>/<span class="number">4</span>) + <span class="constant">Y</span>/<span class="number">6</span>  <span class="comment"># note that we use broadcasting</span>
+<span class="prompt">&gt;&gt;</span>&gt; block_mean = ndimage.mean(l, labels=regions, index=np.arange(<span class="number">1</span>,
+...     regions.max() +<span class="number">1</span>))
+<span class="prompt">&gt;&gt;</span>&gt; block_mean.shape = (sx/<span class="number">4</span>, sy/<span class="number">6</span>)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_block_mean_1.png" alt="block mean"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_block_mean.html#example-plot-block-mean-py" target="_blank" rel="external">示例源码</a></p>
+<p>当区域不是正则的<a href="[正则空间](https://en.wikipedia.org/wiki/Regular_space)">^4</a>块状时，使用stride技巧更有效(<a href="http://scipy-lectures.github.com/advanced/advanced_numpy/index.html#stride-manipulation-label" target="_blank" rel="external">示例：fake dimensions with strides</a>)</p>
+<p>非正则空间(Non-regular-spaced)区块：径向平均：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; sx, sy = l.shape
+<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">X</span>, <span class="constant">Y</span> = np.ogrid[<span class="number">0</span><span class="symbol">:sx</span>, <span class="number">0</span><span class="symbol">:sy</span>]
+<span class="prompt">&gt;&gt;</span>&gt; r = np.hypot(<span class="constant">X</span> - sx/<span class="number">2</span>, <span class="constant">Y</span> - sy/<span class="number">2</span>)
+<span class="prompt">&gt;&gt;</span>&gt; rbin = (<span class="number">20</span>* r/r.max()).astype(np.int)
+<span class="prompt">&gt;&gt;</span>&gt; radial_mean = ndimage.mean(l, labels=rbin, index=np.arange(<span class="number">1</span>, rbin.max() +<span class="number">1</span>))
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_radial_mean_1.png" alt="radial"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_radial_mean.html#example-plot-radial-mean-py" target="_blank" rel="external">示例源码</a></p>
+<ul>
+<li><em>其它测量</em></li>
+</ul>
+<p>相关函数，傅里叶/小波谱等。</p>
+<p>一个使用数学形态学的例子：<em>粒度</em>(<a href="http://en.wikipedia.org/wiki/Granulometry_%28morphology%29" target="_blank" rel="external">http://en.wikipedia.org/wiki/Granulometry_%28morphology%29</a>)</p>
+<pre><code>&gt;&gt;&gt; def <span class="function"><span class="title">disk_structure</span><span class="params">(n)</span></span>:
+...     struct = np.<span class="function"><span class="title">zeros</span><span class="params">((<span class="number">2</span> * n + <span class="number">1</span>, <span class="number">2</span> * n + <span class="number">1</span>)</span></span>)
+...     x, y = np.<span class="function"><span class="title">indices</span><span class="params">((<span class="number">2</span> * n + <span class="number">1</span>, <span class="number">2</span> * n + <span class="number">1</span>)</span></span>)
+...     <span class="attribute">mask</span> = (x - n)**<span class="number">2</span> + (y - n)**<span class="number">2</span> &lt;= n**<span class="number">2</span>
+...     struct[<span class="attribute">mask</span>] = <span class="number">1</span>
+...     return struct.<span class="function"><span class="title">astype</span><span class="params">(np.bool)</span></span>
+...
+&gt;&gt;&gt;
+&gt;&gt;&gt; def <span class="function"><span class="title">granulometry</span><span class="params">(data, sizes=None)</span></span>:
+...     s = <span class="function"><span class="title">max</span><span class="params">(data.shape)</span></span>
+...     <span class="keyword">if</span> sizes == None:
+...         sizes = <span class="function"><span class="title">range</span><span class="params">(<span class="number">1</span>, s/<span class="number">2</span>, <span class="number">2</span>)</span></span>
+...     granulo = [ndimage.binary_opening(data, \
+...         structure=<span class="function"><span class="title">disk_structure</span><span class="params">(n)</span></span>).<span class="function"><span class="title">sum</span><span class="params">()</span></span> <span class="keyword">for</span> n <span class="keyword">in</span> sizes]
+...     return granulo
+...
+&gt;&gt;&gt;
+&gt;&gt;&gt; np<span class="class">.random</span><span class="class">.seed</span>(<span class="number">1</span>)
+&gt;&gt;&gt; n = <span class="number">10</span>
+&gt;&gt;&gt; l = <span class="number">256</span>
+&gt;&gt;&gt; im = np.<span class="function"><span class="title">zeros</span><span class="params">((l, l)</span></span>)
+&gt;&gt;&gt; points = l*np<span class="class">.random</span><span class="class">.random</span>((<span class="number">2</span>, n**<span class="number">2</span>))
+&gt;&gt;&gt; im[(points[<span class="number">0</span>]).<span class="function"><span class="title">astype</span><span class="params">(np.int)</span></span>, (points[<span class="number">1</span>]).<span class="function"><span class="title">astype</span><span class="params">(np.int)</span></span>] = <span class="number">1</span>
+&gt;&gt;&gt; im = ndimage.<span class="function"><span class="title">gaussian_filter</span><span class="params">(im, sigma=l/(<span class="number">4</span>.*n)</span></span>)
+&gt;&gt;&gt;
+&gt;&gt;&gt; <span class="attribute">mask</span> = im &gt; im.<span class="function"><span class="title">mean</span><span class="params">()</span></span>
+&gt;&gt;&gt;
+&gt;&gt;&gt; granulo = <span class="function"><span class="title">granulometry</span><span class="params">(mask, sizes=np.arange(<span class="number">2</span>, <span class="number">19</span>, <span class="number">4</span>)</span></span>)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_granulo_1.png" alt="granulometry"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_granulo.html#example-plot-granulo-py" target="_blank" rel="external">示例源码</a></p>
+<h2 id="Footnotes">Footnotes</h2><p>[^2]:ValueError: can not convert int64 to uint8.</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+            <a href="/tags/scipy-lecture-notes/" rel="tag">#scipy-lecture-notes</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/python/2012/10/31/python/" rel="next" title="调试代码(Python)">
+                <i class="fa fa-chevron-left"></i> 调试代码(Python)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/python/2012/12/02/python/" rel="prev" title="python小练习：网络视频下载">
+                python小练习：网络视频下载 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Image_manipulation_and_processing_using_Numpy_and_Scipy"><span class="nav-number">1.</span> <span class="nav-text">Image manipulation and processing using Numpy and Scipy</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#打开和读写图像文件"><span class="nav-number">1.1.</span> <span class="nav-text">打开和读写图像文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#呈现图像"><span class="nav-number">1.2.</span> <span class="nav-text">呈现图像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本操作"><span class="nav-number">1.3.</span> <span class="nav-text">基本操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#统计信息"><span class="nav-number">1.3.1.</span> <span class="nav-text">统计信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#几何转换"><span class="nav-number">1.3.2.</span> <span class="nav-text">几何转换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#图像滤镜"><span class="nav-number">1.4.</span> <span class="nav-text">图像滤镜</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模糊/平滑"><span class="nav-number">1.4.1.</span> <span class="nav-text">模糊/平滑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#锐化"><span class="nav-number">1.4.2.</span> <span class="nav-text">锐化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#消噪"><span class="nav-number">1.4.3.</span> <span class="nav-text">消噪</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数学形态学"><span class="nav-number">1.4.4.</span> <span class="nav-text">数学形态学</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特征提取"><span class="nav-number">1.5.</span> <span class="nav-text">特征提取</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#边缘检测"><span class="nav-number">1.5.1.</span> <span class="nav-text">边缘检测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分割"><span class="nav-number">1.5.2.</span> <span class="nav-text">分割</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测量对象属性：ndimage-measurements"><span class="nav-number">1.6.</span> <span class="nav-text">测量对象属性：ndimage.measurements</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Footnotes"><span class="nav-number">1.7.</span> <span class="nav-text">Footnotes</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

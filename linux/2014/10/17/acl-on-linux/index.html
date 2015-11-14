@@ -1,0 +1,693 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ACL,security," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="最近工作上要用到加固linux系统，还有各种权限控制。发现鸟哥的书简直是相当赞啊。用了这么久linux，其实真是对其中的各种权限控制策略一无所知。
+除了传统的基于user-group-others和rwx的权限控制。还有ACL、SELinux。
+基本权限控制对文件所属用户、组、其它分别设置读、写、执行权限。
+这里只提下，ls需要目录有执行权限.
+PAM模块一个统一权限认证接口，其它程序通过PAM来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux权限控制">
+<meta property="og:url" content="http://reverland.org/linux/2014/10/17/acl-on-linux/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="最近工作上要用到加固linux系统，还有各种权限控制。发现鸟哥的书简直是相当赞啊。用了这么久linux，其实真是对其中的各种权限控制策略一无所知。
+除了传统的基于user-group-others和rwx的权限控制。还有ACL、SELinux。
+基本权限控制对文件所属用户、组、其它分别设置读、写、执行权限。
+这里只提下，ls需要目录有执行权限.
+PAM模块一个统一权限认证接口，其它程序通过PAM来">
+<meta property="og:updated_time" content="2015-11-12T16:34:09.260Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linux权限控制">
+<meta name="twitter:description" content="最近工作上要用到加固linux系统，还有各种权限控制。发现鸟哥的书简直是相当赞啊。用了这么久linux，其实真是对其中的各种权限控制策略一无所知。
+除了传统的基于user-group-others和rwx的权限控制。还有ACL、SELinux。
+基本权限控制对文件所属用户、组、其它分别设置读、写、执行权限。
+这里只提下，ls需要目录有执行权限.
+PAM模块一个统一权限认证接口，其它程序通过PAM来">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> linux权限控制 | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                linux权限控制
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-10-17T00:00:00+08:00" content="2014-10-17">
+              2014-10-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>最近工作上要用到加固linux系统，还有各种权限控制。发现<a href="http://vbird.dic.ksu.edu.tw/" target="_blank" rel="external">鸟哥的书</a>简直是相当赞啊。用了这么久linux，其实真是对其中的各种权限控制策略一无所知。</p>
+<p>除了传统的基于user-group-others和rwx的权限控制。还有ACL、SELinux。</p>
+<h2 id="基本权限控制">基本权限控制</h2><p>对文件所属用户、组、其它分别设置读、写、执行权限。</p>
+<p>这里只提下，<code>ls</code>需要目录有执行权限.</p>
+<h2 id="PAM模块">PAM模块</h2><p>一个统一权限认证接口，其它程序通过PAM来进行权限认证。</p>
+<h2 id="ACL">ACL</h2><p>Acess Control List。可以针对某一用户单一文件、单一目录进行rwx权限控制。ACL来自文件系统支持。</p>
+<p>ACL支持需要在挂载时指定挂载参数(<code>mount options</code>)支持，目前流行的ext2,ext3,ext4, xfs, ReiserFS都支持。</p>
+<p>这里提下判断顺序，分为两步，先检查ACL条目，再检查基本权限.</p>
+<pre><code>If
+    <span class="operator">the</span> user ID <span class="operator">of</span> <span class="operator">the</span> <span class="built_in">process</span> is <span class="operator">the</span> owner, <span class="operator">the</span> owner entry determines access
+
+<span class="keyword">else</span> <span class="keyword">if</span>
+    <span class="operator">the</span> user ID <span class="operator">of</span> <span class="operator">the</span> <span class="built_in">process</span> matches <span class="operator">the</span> qualifier <span class="operator">in</span> <span class="constant">one</span> <span class="operator">of</span> <span class="operator">the</span> named user entries, this entry determines access
+
+<span class="keyword">else</span> <span class="keyword">if</span>
+    <span class="constant">one</span> <span class="operator">of</span> <span class="operator">the</span> group IDs <span class="operator">of</span> <span class="operator">the</span> <span class="built_in">process</span> matches <span class="operator">the</span> owning group <span class="operator">and</span> <span class="operator">the</span> owning group entry <span class="operator">contains</span> <span class="operator">the</span> requested permissions, this entry determines access
+
+<span class="keyword">else</span> <span class="keyword">if</span>
+    <span class="constant">one</span> <span class="operator">of</span> <span class="operator">the</span> group IDs <span class="operator">of</span> <span class="operator">the</span> <span class="built_in">process</span> matches <span class="operator">the</span> qualifier <span class="operator">of</span> <span class="constant">one</span> <span class="operator">of</span> <span class="operator">the</span> named group entries <span class="operator">and</span> this entry <span class="operator">contains</span> <span class="operator">the</span> requested permissions, this entry determines access
+<span class="keyword">else</span> <span class="keyword">if</span>
+    <span class="constant">one</span> <span class="operator">of</span> <span class="operator">the</span> group IDs <span class="operator">of</span> <span class="operator">the</span> <span class="built_in">process</span> matches <span class="operator">the</span> owning group <span class="operator">or</span> <span class="keyword">any</span> <span class="operator">of</span> <span class="operator">the</span> named group entries, but neither <span class="operator">the</span> owning group entry nor <span class="keyword">any</span> <span class="operator">of</span> <span class="operator">the</span> matching named group entries <span class="operator">contains</span> <span class="operator">the</span> requested permissions, this determines that access is denied
+
+<span class="keyword">else</span>
+    <span class="operator">the</span> other entry determines access.
+
+If
+    <span class="operator">the</span> matching entry resulting <span class="built_in">from</span> this selection is <span class="operator">the</span> owner <span class="operator">or</span> other entry <span class="operator">and</span> <span class="keyword">it</span> <span class="operator">contains</span> <span class="operator">the</span> requested permissions, access is granted
+
+<span class="keyword">else</span> <span class="keyword">if</span>
+    <span class="operator">the</span> matching entry is <span class="operator">a</span> named user, owning group, <span class="operator">or</span> named group entry <span class="operator">and</span> this entry <span class="operator">contains</span> <span class="operator">the</span> requested permissions <span class="operator">and</span> <span class="operator">the</span> mask entry also <span class="operator">contains</span> <span class="operator">the</span> requested permissions (<span class="operator">or</span> there is no mask entry), access is granted
+
+<span class="keyword">else</span>
+    access is denied.
+</code></pre><p>更改和查看acl通过<code>setfacl</code>和<code>getfacl</code>实现。</p>
+<h2 id="SELinux">SELinux</h2><p>传统的权限控制是控制使用者的行为，SELinux则是控制程序的行为。SELinux功能实现在内核部分。</p>
+<p>程序有什么行为时，SELinux先进行判断，如果有权限再交给传统的权限控制机制判断。</p>
+<p>详细请参考鸟哥的<a href="http://vbird.dic.ksu.edu.tw/linux_server/0210network-secure.php#selinux" target="_blank" rel="external">SELinux 管理原则</a></p>
+<p>后来看到这个了<a href="https://www.centos.org/docs/5/html/Deployment_Guide-en-US/selg-overview.html" target="_blank" rel="external">https://www.centos.org/docs/5/html/Deployment_Guide-en-US/selg-overview.html</a></p>
+<p>还是红帽厉害……<a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/SELinux_Users_and_Administrators_Guide/index.html" target="_blank" rel="external">SELinux User’s and Administrator’s Guide</a></p>
+<p>还有gentoo的<a href="http://wiki.gentoo.org/wiki/SELinux" target="_blank" rel="external">维基</a></p>
+<h2 id="参考资料">参考资料</h2><ul>
+<li><a href="http://docs.joomla.org/How_do_UNIX_file_permissions_work%3F" target="_blank" rel="external">How do UNIX file permissions work?</a></li>
+<li><a href="http://users.suse.com/~agruen/acl/linux-acls/online/" target="_blank" rel="external">POSIX Access Control Lists on Linux</a></li>
+<li><a href="http://vbird.dic.ksu.edu.tw/linux_basic/0440processcontrol_5.php" target="_blank" rel="external"> 第十七章、程序管理与 SELinux 初探</a></li>
+</ul>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ACL/" rel="tag">#ACL</a>
+          
+            <a href="/tags/security/" rel="tag">#security</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/game/2014/10/15/dwarf-fortress/" rel="next" title="矮人要塞解释(译)">
+                <i class="fa fa-chevron-left"></i> 矮人要塞解释(译)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/Life/2014/11/12/some-articles/" rel="prev" title="Some articles">
+                Some articles <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本权限控制"><span class="nav-number">1.</span> <span class="nav-text">基本权限控制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PAM模块"><span class="nav-number">2.</span> <span class="nav-text">PAM模块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ACL"><span class="nav-number">3.</span> <span class="nav-text">ACL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SELinux"><span class="nav-number">4.</span> <span class="nav-text">SELinux</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

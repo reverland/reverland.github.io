@@ -1,0 +1,679 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="land-of-lisp," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="Lisp is amazing,isn’t it?最早的时候，是从emacs听说lisp的，不过emacs这等神器，却并非我的菜，几经折腾最终滚回了简洁的vim。
+最早开始学习lisp，是跟着田春译的《实用common lisp编程》，看了几章越看越累，等到看到讲单元测试那章时，我已经不知道在讲什么了。不过很惊叹lisp自动生成程序的能力倒是，还有种让人着迷的数学感。
+后来看见网上有人在译ansi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="a text game engine written by lisp">
+<meta property="og:url" content="http://reverland.org/lisp/2012/04/26/a-text-game-engine-written-by-lisp/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="Lisp is amazing,isn’t it?最早的时候，是从emacs听说lisp的，不过emacs这等神器，却并非我的菜，几经折腾最终滚回了简洁的vim。
+最早开始学习lisp，是跟着田春译的《实用common lisp编程》，看了几章越看越累，等到看到讲单元测试那章时，我已经不知道在讲什么了。不过很惊叹lisp自动生成程序的能力倒是，还有种让人着迷的数学感。
+后来看见网上有人在译ansi">
+<meta property="og:updated_time" content="2015-11-12T16:18:28.756Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="a text game engine written by lisp">
+<meta name="twitter:description" content="Lisp is amazing,isn’t it?最早的时候，是从emacs听说lisp的，不过emacs这等神器，却并非我的菜，几经折腾最终滚回了简洁的vim。
+最早开始学习lisp，是跟着田春译的《实用common lisp编程》，看了几章越看越累，等到看到讲单元测试那章时，我已经不知道在讲什么了。不过很惊叹lisp自动生成程序的能力倒是，还有种让人着迷的数学感。
+后来看见网上有人在译ansi">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> a text game engine written by lisp | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                a text game engine written by lisp
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-04-26T00:00:00+08:00" content="2012-04-26">
+              2012-04-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="Lisp_is_amazing,isn’t_it?">Lisp is amazing,isn’t it?</h2><p>最早的时候，是从emacs听说lisp的，不过emacs这等神器，却并非我的菜，几经折腾最终滚回了简洁的vim。</p>
+<p>最早开始学习lisp，是跟着田春译的《实用common lisp编程》，看了几章越看越累，等到看到讲单元测试那章时，我已经不知道在讲什么了。不过很惊叹lisp自动生成程序的能力倒是，还有种让人着迷的数学感。</p>
+<p>后来看见网上有人在译<a href="http://readthedocs.org/docs/ansi-common-lisp/en/latest/index.html" target="_blank" rel="external">ansi common lisp中文版</a>，沉寂了两个月的lisp情怀陡升，我又开始看了。看了两章也陷入了越看越累的境地，最后到了能读懂却不能写出的境界，相对之前，也算是进步吧。然而才到高级数据结构那部分，我已没看下去的勇气，我觉得自己这种小白应该先修炼本更循序渐进的。</p>
+<p>然后找啊找在<a href="http://common-lisp.net/" target="_blank" rel="external">common-lisp</a>上有推荐Land of lisp这本书,虽然很贵，但天朝的孩子们总是有办法的：<a href="http://115.com/folder/faujangp#lisp" target="_blank" rel="external">lisp资料</a>。</p>
+<p>好难得有本图文并茂的书，声称一次一个游戏，我就喜欢这种例子丰富的东西，幽默点不致于无聊更好。找不到中文版，算了，英文版直接上吧。话说还考研，唉，还是想抽空看看这个。</p>
+<hr>
+<h2 id="第一个游戏">第一个游戏</h2><p>猜数的小游戏，不解释。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun guess-my-number ()&#10;  (ash (+ *big* *small*) -1))&#10;(defun bigger ()&#10;  (setf *small* (1+ (guess-my-number)))&#10;  (guess-my-number))&#10;(defun smaller ()&#10;  (setf *big* (1- (guess-my-number)))&#10;  (guess-my-number))&#10;(defun start-over ()&#10;  (defparameter *small* 1)&#10;  (defparameter *big* 100)&#10;  (guess-my-number))</span><br></pre></td></tr></table></figure>
+<h2 id="一个简单的文本游戏引擎">一个简单的文本游戏引擎</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;&#23450;&#20041;&#33410;&#28857;&#21450;&#25551;&#36848;&#10;(defparameter *nodes* &#39;((living-room (you are in the living-room.&#10;                                          a wizard is snoring loudly on the couch.))&#10;                        (garden (you are in a beautiful garden.&#10;                                     there is a well in front of you.))&#10;                        (attic (you are in the attic.&#10;                                    there is a giant welding torch in the corner.))))&#10;;;&#23450;&#20041;&#25551;&#36848;&#25928;&#24212;&#20301;&#32622;&#30340;&#20989;&#25968;&#10;(defun describe-location (location nodes)&#10;  (cadr (assoc location nodes)))&#10;;;&#23450;&#20041;&#33410;&#28857;-&#36335;&#24452;&#10;(defparameter *edges* &#39;((living-room (garden west door)&#10;                                     (attic upstairs ladder))&#10;                        (garden (living-room east door))&#10;                        (attic (living-room downstairs ladder))))&#10;;;&#23450;&#20041;&#25551;&#36848;&#36335;&#24452;&#20989;&#25968;&#10;(defun describe-path (edge)&#10;  `(there is a ,(caddr edge) going ,(cadr edge) from here.))&#10;;;&#23450;&#20041;&#25551;&#36848;&#23545;&#24212;&#20301;&#32622;&#36335;&#24452;&#30340;&#20989;&#25968;&#10;(defun describe-paths (location edges)&#10;  (apply #&#39;append (mapcar #&#39;describe-path (cdr (assoc location edges)))))&#10;;;&#23450;&#20041;&#29289;&#21697;&#21015;&#34920;&#10;(defparameter *objects* &#39;(whiskey bucket frog chain))&#10;;;&#29289;&#21697;-&#20301;&#32622;&#23545;&#65292;hash&#65311;&#10;(defparameter *object-locations* &#39;((whiskey living-room)&#10;                                   (bucket living-room)&#10;                                   (chain garden)&#10;                                   (frog garden)))&#10;;;&#24471;&#21040;&#30456;&#24212;&#20301;&#32622;&#29289;&#21697;&#21015;&#34920;&#10;(defun objects-at (loc objs obj-locs)&#10;  (labels ((at-loc-p (obj)&#10;             (eq (cadr (assoc obj obj-locs)) loc)))&#10;    (remove-if-not #&#39;at-loc-p objs)))&#10;;;&#25551;&#36848;&#30456;&#24212;&#20301;&#32622;&#29289;&#21697;&#10;(defun describe-objects (loc objs obj-loc)&#10;  (labels ((describe-obj (obj)&#10;             `(you see a ,obj on the floor.)))&#10;    (apply #&#39;append (mapcar #&#39;describe-obj (objects-at loc objs obj-loc)))))&#10;;;&#32473;&#23450;&#21021;&#22987;&#20301;&#32622;&#10;(defparameter *location* &#39;living-room)&#10;;;&#23450;&#20041;&#26597;&#30475;&#20989;&#25968;&#10;(defun look ()&#10;  (append (describe-location *location* *nodes*)&#10;          (describe-paths *location* *edges*)&#10;          (describe-objects *location* *objects* *object-locations*)))&#10;;;&#23450;&#20041;&#34892;&#36208;&#20989;&#25968;&#10;(defun walk (direction)&#10;  (let ((next (find direction&#10;                    (cdr (assoc *location* *edges*))&#10;                    :key #&#39;cadr)))&#10;    (if next&#10;      (progn (setf *location* (car next))&#10;             (look))&#10;      &#39;(you cannot go that way.))))&#10;;;&#23450;&#20041;&#25342;&#36215;&#20989;&#25968;&#10;(defun pickup (object)&#10;  (cond ((member object&#10;                 (objects-at *location* *objects* *object-locations*))&#10;         (push (list object &#39;body) *object-locations*)&#10;         `(you are now carrying the ,object))&#10;        (t &#39;(you cannot get that.))))&#10;;;&#26597;&#30475;&#29616;&#26377;&#29289;&#21697;&#30340;&#20989;&#25968;&#10;(defun inventory ()&#10;  (cons &#39;items- (objects-at &#39;body *objects* *object-locations*)))&#10;;;&#30331;&#20837;&#30028;&#38754;&#10;(defun say-hello ()&#10;  (princ &#34;Please type your name:&#34;)&#10;  (let ((name (read-line)))&#10;    (princ &#34;Nice to meet you, &#34;)&#10;    (princ name)))&#10;;;&#33258;&#23450;&#20041;repl&#10;(defun game-repl ()&#10;  (let ((cmd (game-read)))&#10;    (unless (eq (car cmd) &#39;quit)&#10;      (game-print (game-eval cmd))&#10;      (game-repl))))&#10;;;&#33258;&#23450;&#20041;&#30340;read&#10;(defun game-read ()&#10;  (let ((cmd (read-from-string&#10;               (concatenate &#39;string &#34;(&#34; (read-line) &#34;)&#34;))))&#10;    (flet ((quote-it (x)&#10;             (list &#39;quote x)))&#10;      (cons (car cmd) (mapcar #&#39;quote-it (cdr cmd))))))&#10;;;&#32473;&#23450;&#21487;&#25191;&#34892;&#21629;&#20196;&#10;(defparameter *allowed-commands* &#39;(look walk pickup inventory))&#10;;;&#33258;&#23450;&#20041;eval&#10;(defun game-eval (sexp)&#10;  (if (member (car sexp) *allowed-commands*)&#10;    (eval sexp)&#10;    &#39;(i do not know that command.)))&#10;;;&#36716;&#25442;&#23383;&#31526;&#21015;&#34920;&#22823;&#23567;&#20889;&#20989;&#25968;&#10;(defun tweak-text (lst caps lit)&#10;  (when lst&#10;    (let ((item (car lst))&#10;          (rest (cdr lst)))&#10;      (cond ((eq item #\space) (cons item (tweak-text rest caps lit)))&#10;            ((member item &#39;(#\! #\? #\.)) (cons item (tweak-text rest t lit)))&#10;            ((eq item #\&#34;) (tweak-text rest caps (not lit)))&#10;            (lit (cons item (tweak-text rest nil lit)))&#10;            ((or caps lit) (cons (char-upcase item) (tweak-text rest nil lit)))&#10;            (t (cons (char-downcase item) (tweak-text rest nil nil)))))))&#10;;;&#33258;&#23450;&#20041;print&#10;(defun game-print (lst)&#10;  (princ (coerce (tweak-text (coerce (string-trim &#34;() &#34;&#10;                                                  (prin1-to-string lst))&#10;                                     &#39;list)&#10;                             t&#10;                             nil)&#10;                 &#39;string))&#10;  (fresh-line))</span><br></pre></td></tr></table></figure>
+<p>然后测试游戏引擎，在repl中输入</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(game-repl)</span><br></pre></td></tr></table></figure>
+<p>首先让我惊异的就repl可以自定义,还有那个quasiquote很好用。</p>
+<p>然后学到了以下一堆命令：</p>
+<ul>
+<li>defparameter/defvar</li>
+<li>cons</li>
+<li>assoc</li>
+<li>caxdxr</li>
+<li>`/，/quote</li>
+<li>append</li>
+<li>mapcar</li>
+<li>apply</li>
+<li>labels/flet</li>
+<li>eq</li>
+<li>remove-if-not</li>
+<li>find</li>
+<li>progn</li>
+<li>cond</li>
+<li>if/unless</li>
+<li>and/or</li>
+<li>member</li>
+<li>push</li>
+<li>print/princ/prin1/prin1-to-string/princ-to-string</li>
+<li>read/read-from-string/read-line</li>
+<li>concatenate</li>
+<li>coerce</li>
+<li>fresh-line</li>
+<li>char-upcase/char-downcase</li>
+</ul>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/land-of-lisp/" rel="tag">#land-of-lisp</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Life/2012/04/24//" rel="next" title="折腾">
+                <i class="fa fa-chevron-left"></i> 折腾
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/lisp/2012/04/28/visualize-tree-like-data-in-lisp/" rel="prev" title="Visualize tree like data in Lisp">
+                Visualize tree like data in Lisp <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Lisp_is_amazing,isn’t_it?"><span class="nav-number">1.</span> <span class="nav-text">Lisp is amazing,isn’t it?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第一个游戏"><span class="nav-number">2.</span> <span class="nav-text">第一个游戏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个简单的文本游戏引擎"><span class="nav-number">3.</span> <span class="nav-text">一个简单的文本游戏引擎</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

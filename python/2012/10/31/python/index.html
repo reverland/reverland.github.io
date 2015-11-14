@@ -1,0 +1,1125 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python,scipy-lecture-notes," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="调试代码翻译自：http://scipy-lectures.github.com/advanced/debugging/index.html
+作者：Gaël Varoquaux
+本教程探索工具，以更好地理解你的编程基础：调试，找到并修复错误。
+这并不特定适合Python科学计算社区，但是我们采取的策略量身定制。
+先决条件
+
+Numpy
+IPython
+nosetests (http://readt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="调试代码(Python)">
+<meta property="og:url" content="http://reverland.org/python/2012/10/31/python/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="调试代码翻译自：http://scipy-lectures.github.com/advanced/debugging/index.html
+作者：Gaël Varoquaux
+本教程探索工具，以更好地理解你的编程基础：调试，找到并修复错误。
+这并不特定适合Python科学计算社区，但是我们采取的策略量身定制。
+先决条件
+
+Numpy
+IPython
+nosetests (http://readt">
+<meta property="og:updated_time" content="2015-11-12T16:34:08.676Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="调试代码(Python)">
+<meta name="twitter:description" content="调试代码翻译自：http://scipy-lectures.github.com/advanced/debugging/index.html
+作者：Gaël Varoquaux
+本教程探索工具，以更好地理解你的编程基础：调试，找到并修复错误。
+这并不特定适合Python科学计算社区，但是我们采取的策略量身定制。
+先决条件
+
+Numpy
+IPython
+nosetests (http://readt">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> 调试代码(Python) | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                调试代码(Python)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-10-31T00:00:00+08:00" content="2012-10-31">
+              2012-10-31
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="调试代码">调试代码</h1><p>翻译自：<a href="http://scipy-lectures.github.com/advanced/debugging/index.html" target="_blank" rel="external">http://scipy-lectures.github.com/advanced/debugging/index.html</a></p>
+<p>作者：Gaël Varoquaux</p>
+<p>本教程探索工具，以更好地理解你的编程基础：调试，找到并修复错误。</p>
+<p>这并不特定适合Python科学计算社区，但是我们采取的策略量身定制。</p>
+<p><strong>先决条件</strong></p>
+<ul>
+<li>Numpy</li>
+<li>IPython</li>
+<li>nosetests (<a href="http://readthedocs.org/docs/nose/en/latest/" target="_blank" rel="external">http://readthedocs.org/docs/nose/en/latest/</a>)</li>
+<li>line_profiler (<a href="http://packages.python.org/line_profiler/" target="_blank" rel="external">http://packages.python.org/line_profiler/</a>)</li>
+<li>pyflakes (<a href="http://pypi.python.org/pypi/pyflakes" target="_blank" rel="external">http://pypi.python.org/pypi/pyflakes</a>)</li>
+<li>gdb 用于C调试部分</li>
+</ul>
+<p><strong>目录</strong></p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<h2 id="避免错误">避免错误</h2><h3 id="避免麻烦最佳编码法">避免麻烦最佳编码法</h3><ul>
+<li>我们都写有bug的代码。接受它，解决它。</li>
+<li>写程序时，在心里测试和调试。</li>
+<li>Keep it Simple, Stupid(KISS).<ul>
+<li>可能有效的最简单方法</li>
+</ul>
+</li>
+<li>Don‘t Repeat Yourself (DRY).<ul>
+<li>每个知识都必须有个单独、明确、在一个系统中的正式表示</li>
+<li>常量、算法，等等。</li>
+</ul>
+</li>
+<li>尝试限制你的代码间的相互关系(松耦合)</li>
+<li>赋予你的变量、函数和模块有意义的名字(不是数学名称)</li>
+</ul>
+<h3 id="pyflakes:快速静态分析">pyflakes:快速静态分析</h3><p>这些是几个Python中的静态分析工具：<a href="http://www.logilab.org/857" target="_blank" rel="external">pylint</a>、<a href="http://pychecker.sourceforge.net/" target="_blank" rel="external">pychecker</a>和<a href="http://pypi.python.org/pypi/pyflakes" target="_blank" rel="external">pyflakes</a>。这里我们重点放在pyflakes上，这是最简单的工具。</p>
+<ul>
+<li><em>快速，简单</em></li>
+<li>探测语法错误，漏掉的导入，名称的拼写错误。</li>
+</ul>
+<p>高度推荐在你的编辑器中集成pyflakes，它<em>确实产生巨大生产力</em>。</p>
+<h4 id="在当前编辑文件运行pyflakes">在当前编辑文件运行pyflakes</h4><p>你可以绑定一个键来在当前缓冲区运行pyflakes。</p>
+<ul>
+<li><p>kate中 菜单：<code>设置 -&gt; 配置kate</code></p>
+<ul>
+<li>在插件中勾选’外部工具’<a href="我是没找到">^1</a></li>
+<li><p>在外部工具中，添加<code>pyflakes</code>:</p>
+<pre><code>kdialog --title <span class="string">"pyflakes <span class="variable">%filename</span>"</span> --msgbox <span class="string">"<span class="variable">$(</span>pyflakes <span class="variable">%filename</span>)"</span>
+</code></pre></li>
+</ul>
+</li>
+<li><p>在TextMate中<br>菜单：TextMate -&gt; 首选项 -&gt; 高级 -&gt; Shell变量，添加一个shell变量：</p>
+<pre><code>TM_PYCHECKER=<span class="regexp">/Library/</span>Frameworks<span class="regexp">/Python.framework/</span>Versions<span class="regexp">/Current/</span>bin<span class="regexp">/pyflakes</span>
+</code></pre><p>  然后<code>Ctrl-Shift-V</code>被绑定到pyflakes报告上。</p>
+</li>
+<li><p>在<em>Vim</em>中，在你的vimrc中(将F5绑定到pyflakes上)：</p>
+<pre><code>autocmd <span class="constant">FileType </span>python let &amp;mp = <span class="string">'echo "*** running % ***" ; pyflakes %'</span>
+autocmd <span class="constant">FileType </span>tex,mp,rst,python imap &lt;<span class="constant">Esc&gt;</span>[<span class="number">15</span>~ &lt;<span class="constant">C-O&gt;</span><span class="symbol">:make!^M</span>
+autocmd <span class="constant">FileType </span>tex,mp,rst,python map  &lt;<span class="constant">Esc&gt;</span>[<span class="number">15</span>~ <span class="symbol">:make!^M</span>
+autocmd <span class="constant">FileType </span>tex,mp,rst,python set autowrite]]    
+</code></pre></li>
+<li><p>在emacs中，在你的.emacs中(绑定F5到pyflakes)：</p>
+<pre><code><span class="list">(<span class="keyword">defun</span> pyflakes-thisfile <span class="list">()</span> <span class="list">(<span class="keyword">interactive</span>)</span>
+   <span class="list">(<span class="keyword"><span class="built_in">compile</span></span> <span class="list">(<span class="keyword"><span class="built_in">format</span></span> <span class="string">"pyflakes %s"</span> <span class="list">(<span class="keyword">buffer-file-name</span>)</span>)</span>)</span>
+)</span>
+
+<span class="list">(<span class="keyword">define-minor-mode</span> pyflakes-mode
+    <span class="string">"Toggle pyflakes mode.
+    With no argument, this command toggles the mode.
+    Non-null prefix argument turns on the mode.
+    Null prefix argument turns off the mode."</span>
+    <span class="comment">;; The initial value.</span>
+    <span class="literal">nil</span>
+    <span class="comment">;; The indicator for the mode line.</span>
+    <span class="string">" Pyflakes"</span>
+    <span class="comment">;; The minor mode bindings.</span>
+    '<span class="list">( <span class="list">(<span class="collection">[f5]</span> . pyflakes-thisfile)</span> )</span>
+)</span>
+
+<span class="list">(<span class="keyword">add-hook</span> 'python-mode-hook <span class="list">(<span class="keyword">lambda</span> <span class="list">()</span> <span class="list">(<span class="keyword">pyflakes-mode</span> t)</span>)</span>)</span>
+</code></pre></li>
+</ul>
+<h4 id="一个在线拼写检查集成">一个在线拼写检查集成</h4><ul>
+<li>在vim中使用vim.pyflakes插件：<ol>
+<li>从<a href="http://www.vim.org/scripts/script.php?script_id=2441" target="_blank" rel="external">http://www.vim.org/scripts/script.php?script_id=2441</a>下载zip文件<a href="关于插件的安装，我更倾向于pathogen">^2</a></li>
+<li>将文件解压到<code>.vim/ftplugin/python</code></li>
+<li>确定你的vimrc中有’filetype plugin indent on’</li>
+</ol>
+</li>
+<li><p>在emacs中在flymake模式中使用pyflakes，文档在<a href="http://www.plope.com/Members/chrism/flymake-mode" target="_blank" rel="external">http://www.plope.com/Members/chrism/flymake-mode</a>:添加以下内容到你的.emacs文件：</p>
+<pre><code><span class="list">(<span class="keyword"><span class="built_in">when</span></span> <span class="list">(<span class="keyword"><span class="built_in">load</span></span> <span class="string">"flymake"</span> t)</span>
+        <span class="list">(<span class="keyword">defun</span> flymake-pyflakes-init <span class="list">()</span>
+        <span class="list">(<span class="keyword"><span class="built_in">let*</span></span> <span class="list">(<span class="list">(<span class="keyword">temp-file</span> <span class="list">(<span class="keyword">flymake-init-create-temp-buffer-copy</span>
+                            <span class="variable">'flymake-create-temp-inplace</span>)</span>)</span>
+            <span class="list">(<span class="keyword">local-file</span> <span class="list">(<span class="keyword">file-relative-name</span>
+                        temp-file
+                        <span class="list">(<span class="keyword">file-name-directory</span> buffer-file-name)</span>)</span>)</span>)</span>
+            <span class="list">(<span class="keyword"><span class="built_in">list</span></span> <span class="string">"pyflakes"</span> <span class="list">(<span class="keyword"><span class="built_in">list</span></span> local-file)</span>)</span>)</span>)</span>
+
+        <span class="list">(<span class="keyword">add-to-list</span> <span class="variable">'flymake-allowed-file-name-masks</span>
+                '<span class="list">(<span class="string">"\\.py\\'"</span> flymake-pyflakes-init)</span>)</span>)</span>
+
+<span class="list">(<span class="keyword">add-hook</span> <span class="variable">'find-file-hook</span> <span class="variable">'flymake-find-file-hook</span>)</span>
+</code></pre></li>
+</ul>
+<h2 id="调试工作流">调试工作流</h2><p>你确实有个并不微不足道的bug，这时调试策略就关键了。这没有银色子弹。然而，策略有帮助：</p>
+<blockquote>
+<p>对调试一个给定的问题，最受欢迎的情况是当问题被隔离成少量几行的代码，在框架和应用之外，伴随的更改-运行-失败循环</p>
+</blockquote>
+<ol>
+<li>让出错可靠。找到一个测试实例让代码每次都出错(fail)</li>
+<li>分解并且克服。一旦你有了一个失败测试实例，隔绝出错代码 。<ul>
+<li>哪个模块</li>
+<li>哪个函数</li>
+<li>哪行代码<br>= &gt; 隔离小块可再生错误：测试样例。</li>
+</ul>
+</li>
+<li>一次更改一样东西，并且重新运行错误测试样例</li>
+<li>使用调试器来理解哪里出错了</li>
+<li>记笔记，保持耐心。这将花很久。</li>
+</ol>
+<p><strong>注意：</strong>一旦你已经完成这个过程：严格隔离一片再生bug的代码并使用这片代码修复它，向你的测试套件中添加相应的代码。</p>
+<h2 id="使用Python调试器">使用Python调试器</h2><p>Python调试器，<code>pdb</code>：<a href="http://docs.python.org/library/pdb.html" target="_blank" rel="external">http://docs.python.org/library/pdb.html</a>，允许你交互地检查你的代码。</p>
+<p>具体来说它允许你：</p>
+<ul>
+<li>查看源代码</li>
+<li>向上或向下查看调用堆栈</li>
+<li>检查变量值</li>
+<li>更改变量值</li>
+<li>设置断点</li>
+</ul>
+<p><strong>print</strong></p>
+<p>是的，print确实可以作为一个调试工具。然而在运行时检查的话，使用调试器通常更有效率。</p>
+<h3 id="调用调试器">调用调试器</h3><p>开启调试器的方法：</p>
+<ol>
+<li>尸检(post-mortem)，在模块错误后开启调试器</li>
+<li>用调试器运行模块</li>
+<li>在模块中调用调试器</li>
+</ol>
+<h4 id="尸检">尸检</h4><p><strong>情形：</strong>你使用ipython并且你获得一个回溯(traceback)。</p>
+<p>现在让我们调试文件<a href="http://scipy-lectures.github.com/_downloads/index_error.py" target="_blank" rel="external">index_error.py</a>。当运行它时，一个<code>IndexError</code>被引发。键入<code>%debug</code>将进入调试器：</p>
+<pre><code>In [1]: %run index_error.py
+<span class="comment">---------------------------------------------------------------------------</span>
+IndexError                                Traceback (most recent <span class="operator"><span class="keyword">call</span> <span class="keyword">last</span>)
+/usr/lib/python2<span class="number">.7</span>/site-packages/IPython/utils/py3compat.py <span class="keyword">in</span> execfile(fname, *<span class="keyword">where</span>)
+    <span class="number">176</span>             <span class="keyword">else</span>:
+    <span class="number">177</span>                 filename = fname
+<span class="comment">--&gt; 178             __builtin__.execfile(filename, *where)</span>
+
+/home/lyy/index_error.py <span class="keyword">in</span> &lt;<span class="keyword">module</span>&gt;()
+      <span class="number">6</span> 
+      <span class="number">7</span> <span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+<span class="comment">----&gt; 8     index_error()</span>
+      <span class="number">9</span> 
+
+/home/lyy/index_error.py <span class="keyword">in</span> index_error()
+      <span class="number">3</span> <span class="keyword">def</span> index_error():
+      <span class="number">4</span>     lst = <span class="keyword">list</span>(<span class="string">'foobar'</span>)
+<span class="comment">----&gt; 5     print lst[len(lst)]</span>
+      <span class="number">6</span> 
+      <span class="number">7</span> <span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+
+IndexError: <span class="keyword">list</span> <span class="keyword">index</span> <span class="keyword">out</span> <span class="keyword">of</span> <span class="keyword">range</span>
+
+<span class="keyword">In</span> [<span class="number">2</span>]: %debug
+&gt; /home/lyy/index_error.py(<span class="number">5</span>)index_error()
+      <span class="number">4</span>     lst = <span class="keyword">list</span>(<span class="string">'foobar'</span>)
+<span class="comment">----&gt; 5     print lst[len(lst)]</span>
+      <span class="number">6</span> 
+
+ipdb&gt; <span class="keyword">list</span>
+      <span class="number">1</span> <span class="string">"""Small snippet to raise an IndexError."""</span>
+      <span class="number">2</span> 
+      <span class="number">3</span> <span class="keyword">def</span> index_error():
+      <span class="number">4</span>     lst = <span class="keyword">list</span>(<span class="string">'foobar'</span>)
+<span class="comment">----&gt; 5     print lst[len(lst)]</span>
+      <span class="number">6</span> 
+      <span class="number">7</span> <span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+      <span class="number">8</span>     index_error()
+      <span class="number">9</span> 
+
+ipdb&gt; <span class="keyword">len</span>(lst)
+<span class="number">6</span>
+ipdb&gt; print lst[<span class="keyword">len</span>(lst)-<span class="number">1</span>]
+r
+ipdb&gt; quit
+
+<span class="keyword">In</span> [<span class="number">3</span>]: </span>
+</code></pre><p><strong>在IPython之外尸检<a href="这词……">^3</a>调试</strong></p>
+<p>在一些情形下你无法使用IPython，例如调试一个想要从命令行调用的脚本。这中情况下，你可以使用<code>python -m pdb script.py</code>来调用脚本：</p>
+<pre><code>lyy@<span class="keyword">arch</span> ~ % python2 -<span class="keyword">m</span> pdb index_error.py
+&gt; /home/lyy/index_error.py(1)&lt;module&gt;()
+-&gt; <span class="string">""</span><span class="string">"Small snippet to raise an IndexError."</span><span class="string">""</span>
+(Pdb) <span class="keyword">continue</span>
+Traceback (most recent call last):
+  <span class="keyword">File</span> <span class="string">"/usr/lib/python2.7/pdb.py"</span>, <span class="keyword">line</span> 1314, <span class="keyword">in</span> main
+    pdb._runscript(mainpyfile)
+  <span class="keyword">File</span> <span class="string">"/usr/lib/python2.7/pdb.py"</span>, <span class="keyword">line</span> 1233, <span class="keyword">in</span> _runscript
+    self.<span class="keyword">run</span>(statement)
+  <span class="keyword">File</span> <span class="string">"/usr/lib/python2.7/bdb.py"</span>, <span class="keyword">line</span> 387, <span class="keyword">in</span> <span class="keyword">run</span>
+    exec cmd <span class="keyword">in</span> globals, locals
+  <span class="keyword">File</span> <span class="string">"&lt;string&gt;"</span>, <span class="keyword">line</span> 1, <span class="keyword">in</span> &lt;module&gt;
+  <span class="keyword">File</span> <span class="string">"index_error.py"</span>, <span class="keyword">line</span> 1, <span class="keyword">in</span> &lt;module&gt;
+    <span class="string">""</span><span class="string">"Small snippet to raise an IndexError."</span><span class="string">""</span>
+  <span class="keyword">File</span> <span class="string">"index_error.py"</span>, <span class="keyword">line</span> 5, <span class="keyword">in</span> index_error
+    <span class="keyword">print</span> lst[len(lst)]
+IndexError: <span class="keyword">list</span> index <span class="keyword">out</span> of <span class="keyword">range</span>
+Uncaught exception. Entering <span class="keyword">post</span> mortem debugging
+Running 'cont' or 'step' will restart the <span class="keyword">program</span>
+&gt; /home/lyy/index_error.py(5)index_error()
+-&gt; <span class="keyword">print</span> lst[len(lst)]
+(Pdb) <span class="keyword">print</span> lst[len(lst)]
+<span class="comment">*** IndexError: list index out of range</span>
+</code></pre><h4 id="单步执行">单步执行</h4><p><strong>情形：</strong>你相信在模块中存在一个bug但不确定在哪里。</p>
+<p>例如我们尝试调试<a href="http://scipy-lectures.github.com/_downloads/wiener_filtering.py" target="_blank" rel="external">wiener_filtering.py</a>。确实代码运行了，但是滤波效果并不好。</p>
+<ul>
+<li><p>用调试器运行脚本：</p>
+<pre><code>In [1]: %run -d wiener_filtering.py
+<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span> Blank or comment
+<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span> Blank or comment
+<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span> Blank or comment
+Breakpoint 1 at /home/lyy/wiener_filtering.py:4
+NOTE: Enter 'c' at the ipdb&gt;  prompt to start your script.
+&gt; <span class="variable">&lt;string&gt;</span>(1)<span class="variable">&lt;module&gt;</span>()
+</code></pre></li>
+<li><p>进入<a href="http://scipy-lectures.github.com/_downloads/wiener_filtering.py" target="_blank" rel="external">wiener_filtering.py</a>并且在34行设置断点：</p>
+<pre><code>ipdb&gt; n
+&gt; /home/lyy/wiener_filtering.py(<span class="number">4</span>)&lt;module&gt;()
+      <span class="number">3</span> 
+<span class="number">1</span>---&gt; <span class="number">4</span> import numpy as np
+      <span class="number">5</span> import scipy as sp
+
+ipdb&gt; b <span class="number">34</span>
+Breakpoint <span class="number">2</span> at /home/lyy/wiener_filtering.py:<span class="number">34</span>
+</code></pre></li>
+<li><p>用<code>c(out(inue))</code>继续执行到下一个断点:</p>
+<pre><code>ipdb&gt; <span class="keyword">c</span>
+&gt; /home/lyy/wiener_filtering.<span class="keyword">py</span>(<span class="number">34</span>)iterated_wiener()
+     <span class="number">33</span>     <span class="string">""</span><span class="string">"
+</span><span class="number">2</span>--&gt; <span class="number">34</span>     noisy_img = noisy_img
+     <span class="number">35</span>     denoised_img = local_mean(noisy_img, size=size)
+</code></pre></li>
+<li><p>用<code>n(ext)</code>和<code>s(tep)</code>回到代码：<code>next</code>跳到当前执行文本的下一个语句，而<code>step</code>将穿越执行文本，也就是，可以深入探索函数调用：<a href="区别在于step停在函数调用，next立即执行函数调用">^4</a></p>
+<pre><code>ipdb&gt; s
+&gt; /home/lyy/wiener_filtering.<span class="function"><span class="title">py</span><span class="params">(<span class="number">35</span>)</span><span class="title">iterated_wiener</span><span class="params">()</span></span>
+<span class="number">2</span>    <span class="number">34</span>     noisy_img = noisy_img
+---&gt; <span class="number">35</span>     denoised_img = <span class="function"><span class="title">local_mean</span><span class="params">(noisy_img, size=size)</span></span>
+     <span class="number">36</span>     l_var = <span class="function"><span class="title">local_var</span><span class="params">(noisy_img, size=size)</span></span>
+
+ipdb&gt; n
+&gt; /home/lyy/wiener_filtering.<span class="function"><span class="title">py</span><span class="params">(<span class="number">36</span>)</span><span class="title">iterated_wiener</span><span class="params">()</span></span>
+     <span class="number">35</span>     denoised_img = <span class="function"><span class="title">local_mean</span><span class="params">(noisy_img, size=size)</span></span>
+---&gt; <span class="number">36</span>     l_var = <span class="function"><span class="title">local_var</span><span class="params">(noisy_img, size=size)</span></span>
+     <span class="number">37</span>     <span class="keyword">for</span> <span class="tag">i</span> <span class="keyword">in</span> <span class="function"><span class="title">range</span><span class="params">(<span class="number">3</span>)</span></span>:
+</code></pre></li>
+<li><p>执行几行然后探索局部变量：</p>
+<pre><code>ipdb&gt; n
+&gt; /home/lyy/wiener_filtering.<span class="function"><span class="title">py</span><span class="params">(<span class="number">37</span>)</span><span class="title">iterated_wiener</span><span class="params">()</span></span>
+     <span class="number">36</span>     l_var = <span class="function"><span class="title">local_var</span><span class="params">(noisy_img, size=size)</span></span>
+---&gt; <span class="number">37</span>     <span class="keyword">for</span> <span class="tag">i</span> <span class="keyword">in</span> <span class="function"><span class="title">range</span><span class="params">(<span class="number">3</span>)</span></span>:
+     <span class="number">38</span>         res = noisy_img - denoised_img
+
+ipdb&gt; print l_var
+[[<span class="number">5868</span> <span class="number">5379</span> <span class="number">5316</span> ..., <span class="number">5071</span> <span class="number">4799</span> <span class="number">5149</span>]
+ [<span class="number">5013</span>  <span class="number">363</span>  <span class="number">437</span> ...,  <span class="number">346</span>  <span class="number">262</span> <span class="number">4355</span>]
+ [<span class="number">5379</span>  <span class="number">410</span>  <span class="number">344</span> ...,  <span class="number">392</span>  <span class="number">604</span> <span class="number">3377</span>]
+ ..., 
+ [ <span class="number">435</span>  <span class="number">362</span>  <span class="number">308</span> ...,  <span class="number">275</span>  <span class="number">198</span> <span class="number">1632</span>]
+ [ <span class="number">548</span>  <span class="number">392</span>  <span class="number">290</span> ...,  <span class="number">248</span>  <span class="number">263</span> <span class="number">1653</span>]
+ [ <span class="number">466</span>  <span class="number">789</span>  <span class="number">736</span> ..., <span class="number">1835</span> <span class="number">1725</span> <span class="number">1940</span>]]
+ipdb&gt; print l_var.<span class="function"><span class="title">min</span><span class="params">()</span></span>
+<span class="number">0</span>
+</code></pre></li>
+</ul>
+<p>Oh,亲爱的，除了整数什么也没有，还有0变动。这就是我们的bug所在，我们在做整数算术。</p>
+<p><strong>引发数值错误例外</strong></p>
+<p>当我们运行<a href="http://scipy-lectures.github.com/_downloads/wiener_filtering.py" target="_blank" rel="external">wiener_filtering.py</a>文件时，以下警告被引发(raise)：</p>
+<pre><code>In [<span class="number">1</span>]: %run wiener_filtering.py
+wiener_filtering.py:<span class="number">40</span>: RuntimeWarning: <span class="built_in">divide</span> <span class="keyword">by</span> <span class="constant">zero</span> encountered <span class="operator">in</span> <span class="built_in">divide</span>
+  noise_level = (<span class="number">1</span> - noise/l_var )
+</code></pre><p>我们可以将这些警告转化为例外(exception)，这让我们能对它们尸检调试，并且迅速找到我们的问题：</p>
+<pre><code><span class="name">In</span> [<span class="number">2</span>]: <span class="atom">np</span>.<span class="atom">seterr</span>(<span class="atom">all</span>=<span class="string">'raise'</span>)
+<span class="name">Out</span>[<span class="number">2</span>]: {<span class="string">'divide'</span>: <span class="string">'warn'</span>, <span class="string">'invalid'</span>: <span class="string">'warn'</span>, <span class="string">'over'</span>: <span class="string">'warn'</span>, <span class="string">'under'</span>: <span class="string">'ignore'</span>}
+</code></pre><h4 id="其它开始调试的方法">其它开始调试的方法</h4><ul>
+<li><p><strong>引发一个例外作为”可怜的”断点</strong></p>
+<p>如果你发现几下行号设置断点很无聊，你可以简单地在你想要检查的地方引发一个例外，使用ipython的<code>%debug</code>。注意在这种情况下你不能step和continue执行。</p>
+</li>
+<li><p>使用nosetests调试测试失败</p>
+<p>你可以运行<code>nosetests --pdb</code>对例外(exception)尸检调试，并且<code>nosetests --pdb-failure</code>使用调试器来检查测试失败。</p>
+<p>另外，你可以通过安装nose插件<a href="http://pypi.python.org/pypi/ipdbplugin" target="_blank" rel="external">ipdbplugin</a>，在nose中使用IPython调试接口。你可以传递<code>--ipdb</code>和<code>--ipdb-failure</code>选项给nosetests。</p>
+</li>
+<li><p>显式调用调试器</p>
+<p>  在你想要调试的地方放入以下一行：</p>
+<pre><code><span class="preprocessor"><span class="keyword">import</span> pdb;</span> pdb.set_trace()
+</code></pre></li>
+</ul>
+<font color="red">警告：当运行<code>nosetests</code>时，输出被捕捉，并且因此似乎调试器不工作了。只要加上<code>-s</code>标志运行nosetests</font>
+
+<p><strong>图形化调试器</strong></p>
+<p>为了单步执行和检查变量，你也许觉得用图形化的调试器如<a href="http://winpdb.org/" target="_blank" rel="external">winpdb</a>更加方便。</p>
+<p>另外，<a href="http://pypi.python.org/pypi/pudb" target="_blank" rel="external">pudb</a>是一个很棒的半图形化调试器，它在终端里有一个文字用户界面。</p>
+<h3 id="调试器命令和交互">调试器命令和交互</h3><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>l(list)</td>
+<td>列出当前运行的代码</td>
+</tr>
+<tr>
+<td>u(p)</td>
+<td>上一个调用堆栈</td>
+</tr>
+<tr>
+<td>d(own)</td>
+<td>下一个调用堆栈</td>
+</tr>
+<tr>
+<td>n(ext)</td>
+<td>执行下一行(不到新的函数)</td>
+</tr>
+<tr>
+<td>s(tep)</td>
+<td>执行下一个语句(到新的函数)</td>
+</tr>
+<tr>
+<td>bt</td>
+<td>打印调用堆栈</td>
+</tr>
+<tr>
+<td>a</td>
+<td>打印局部变量</td>
+</tr>
+<tr>
+<td>!command</td>
+<td>执行特定的<em>Python</em>命令(相对于pdb命令)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>警告：Debugger 命令不是Python代码</strong></p>
+<p>你不能想当然的命名一个变量。例如，例如，如果在其中，你不能在当前情形下覆盖用同名变量:<em>当在调试器中敲代码时，使用不同的名字而不是你的局部变量</em>。</p>
+<h2 id="使用gdb调试段错误">使用gdb调试段错误</h2><p>如果你有一个段错误，你不能通过pdb调试它，因为它会让Python解释器在进入调试器之前崩溃。同样，如果你在Python中嵌入的C代码有bug，pdb也没用。对这种情况我们使用在linux上可用的gnu调试器<a href="http://www.gnu.org/s/gdb/" target="_blank" rel="external">gdb</a>。</p>
+<p>在我们用gdb之前，让我们向它添加一些Python特有的工具。对此我们向我们的<em>gdbinit</em>添加一些宏。宏优化的选择依赖于你的Python版本和gdb版本。我已经在<a href="http://scipy-lectures.github.com/_downloads/gdbinit" target="_blank" rel="external">gdbinit</a>里添加了一个简化的版本，但是请自由地阅读<a href="http://wiki.python.org/moin/DebuggingWithGdb" target="_blank" rel="external">DebuggingWithGdb</a>。</p>
+<p>为用gdb调试脚本<a href="http://scipy-lectures.github.com/_downloads/segfault.py" target="_blank" rel="external">segfault.py</a>，我们可以在gdb中如下运行：</p>
+<pre><code>$ gdb python
+...
+(gdb) run segfault.py
+Starting program: /usr/bin/python segfault.py
+[Thread debugging <span class="keyword">using</span> libthread_db enabled]
+
+Program received signal SIGSEGV, Segmentation fault.
+_strided_byte_copy (dst=<span class="number">0x8537478</span> <span class="string">"\360\343G"</span>, outstrides=<span class="number">4</span>, src=
+    <span class="number">0x86c0690</span> &lt;Address <span class="number">0x86c0690</span> out of bounds&gt;, instrides=<span class="number">32</span>, N=<span class="number">3</span>,
+    elsize=<span class="number">4</span>)
+        at numpy/core/src/multiarray/ctors.c:<span class="number">365</span>
+<span class="number">365</span>            _FAST_MOVE(Int32);
+(gdb)
+</code></pre><p>我们得到一个段错误，并且gdb事后在C级别的堆栈中(不是python调用堆栈)捕捉到了它。我们可以使用使用gdb的命令调试C调用堆栈：</p>
+<pre><code>(gdb) up
+<span class="preprocessor">#<span class="number">1</span>  <span class="number">0x004af4f5</span> in _copy_from_same_shape (dest=&lt;value optimized out&gt;,</span>
+    src=&lt;value optimized out&gt;, myfunc=<span class="number">0x496780</span> &lt;_strided_byte_copy&gt;,
+    swap=<span class="number">0</span>)
+at numpy/core/src/multiarray/ctors.c:<span class="number">748</span>
+<span class="number">748</span>         myfunc(dit-&gt;dataptr, dest-&gt;strides[maxaxis],
+</code></pre><p>如你所见，现在我们在numpy的C代码中。我们想要知道什么Python代码触发了这个段错误，因此我们向上查看堆栈直到我们发现Python执行循环：</p>
+<pre><code>(gdb) up
+#<span class="number">8</span>  <span class="number">0</span>x080ddd23 <span class="keyword">in</span> call_function (f=
+    Frame <span class="number">0</span>x85371ec, <span class="keyword">for</span> file /home/varoquau/usr/lib/python2.<span class="number">6</span>/site-packages/numpy/core/arrayprint<span class="class">.py</span>, line <span class="number">156</span>, <span class="keyword">in</span> _leading_trailing (a=&lt;numpy<span class="class">.ndarray</span> at remote <span class="number">0</span>x85371b0&gt;, _nc=&lt;module at remote <span class="number">0</span>xb7f93a64&gt;), throwflag=<span class="number">0</span>)
+    at ../Python/ceval<span class="class">.c</span>:<span class="number">3750</span>
+<span class="number">3750</span>    ../Python/ceval<span class="class">.c</span>: No such file or directory.
+        <span class="keyword">in</span> ../Python/ceval<span class="class">.c</span>
+
+(gdb) up
+#<span class="number">9</span>  PyEval_EvalFrameEx (f=
+    Frame <span class="number">0</span>x85371ec, <span class="keyword">for</span> file /home/varoquau/usr/lib/python2.<span class="number">6</span>/site-packages/numpy/core/arrayprint<span class="class">.py</span>, line <span class="number">156</span>, <span class="keyword">in</span> _leading_trailing (a=&lt;numpy<span class="class">.ndarray</span> at remote <span class="number">0</span>x85371b0&gt;, _nc=&lt;module at remote <span class="number">0</span>xb7f93a64&gt;), throwflag=<span class="number">0</span>)
+    at ../Python/ceval<span class="class">.c</span>:<span class="number">2412</span>
+<span class="number">2412</span>    <span class="keyword">in</span> ../Python/ceval<span class="class">.c</span>
+(gdb)
+</code></pre><p>一旦我们在python执行循环中时，我们可以使用特殊的python帮助函数。例如我们找到相应的Python代码：</p>
+<pre><code>(gdb) pyframe
+/home/varoquau/usr/<span class="class"><span class="keyword">lib</span>/<span class="title">python2</span>.6/<span class="title">site</span>-<span class="title">packages</span>/<span class="title">numpy</span>/<span class="title">core</span>/<span class="title">arrayprint</span>.<span class="title">py</span> (158): <span class="title">_leading_trailing</span></span>
+(gdb)
+</code></pre><p>这是numpy的代码，我们需要向上直到找到我们自己写的代码：</p>
+<pre><code>(gdb) up
+...
+(gdb) up
+#<span class="number">34</span> <span class="number">0</span>x080dc97a <span class="keyword">in</span> PyEval_EvalFrameEx (f=
+    Frame <span class="number">0</span>x82f064c, <span class="keyword">for</span> file segfault<span class="class">.py</span>, line <span class="number">11</span>, <span class="keyword">in</span> print_big_array (small_array=&lt;numpy<span class="class">.ndarray</span> at remote <span class="number">0</span>x853ecf0&gt;, big_array=&lt;numpy<span class="class">.ndarray</span> at remote <span class="number">0</span>x853ed20&gt;), throwflag=<span class="number">0</span>) at ../Python/ceval<span class="class">.c</span>:<span class="number">1630</span>
+<span class="number">1630</span>    ../Python/ceval<span class="class">.c</span>: No such file or directory.
+        <span class="keyword">in</span> ../Python/ceval<span class="class">.c</span>
+(gdb) pyframe
+segfault<span class="class">.py</span> (<span class="number">12</span>): print_big_array
+</code></pre><p>相应的代码是：</p>
+<pre><code><span class="function"><span class="keyword">def</span> <span class="title">print_big_array</span><span class="params">(small_array)</span>:</span>
+    big_array = make_big_array(small_array)
+    <span class="keyword">print</span> big_array[-<span class="number">10</span>:]
+    <span class="keyword">return</span> big_array
+</code></pre><p>所以当打印<code>big_array[-10:]</code>时发生段错误。原因很简单，<code>big-array</code>的末尾被分配到程序内存之外了。<a href="也许你得将shape从20000改的大点，2e5或更大。">^5</a></p>
+<p><strong>注意：</strong>在gdbinit中定义的专用于python的命令，请阅读这个文件。<a href="提醒下，在gdb7或更高版本中，不再单独需要gdbinit文件。另外，要完成用gdb对python程序的调试，我想你的python程序都应该用`-g`来编译。">^6</a></p>
+<h2 id="总结练习">总结练习</h2><p>以下脚本清晰易读，它致力于解决数值计算感兴趣的实际问题。但是它不能工作。你能调试它吗？</p>
+<p>Python源码<a href="http://scipy-lectures.github.com/_downloads/to_debug.py" target="_blank" rel="external">to_debug.py</a></p>
+<pre><code><span class="string">"""
+A script to compare different root-finding algorithms.
+
+This version of the script is buggy and does not execute. It is your task
+to find an fix these bugs.
+
+The output of the script sould look like:
+
+    Benching 1D root-finder optimizers from scipy.optimize:
+                brenth:   604678 total function calls
+                brentq:   594454 total function calls
+                ridder:   778394 total function calls
+                bisect:  2148380 total function calls
+"""</span>
+<span class="keyword">from</span> itertools <span class="keyword">import</span> product
+
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">from</span> scipy <span class="keyword">import</span> optimize
+
+FUNCTIONS = (np.tan,  <span class="comment"># Dilating map</span>
+             np.tanh, <span class="comment"># Contracting map</span>
+             <span class="keyword">lambda</span> x: x**<span class="number">3</span> + <span class="number">1e-4</span>*x, <span class="comment"># Almost null gradient at the root</span>
+             <span class="keyword">lambda</span> x: x+np.sin(<span class="number">2</span>*x), <span class="comment"># Non monotonous function</span>
+             <span class="keyword">lambda</span> x: <span class="number">1.1</span>*x+np.sin(<span class="number">4</span>*x), <span class="comment"># Fonction with several local maxima</span>
+            )
+
+OPTIMIZERS = (optimize.brenth, optimize.brentq, optimize.ridder,
+              optimize.bisect)
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">apply_optimizer</span><span class="params">(optimizer, func, a, b)</span>:</span>
+    <span class="string">""" Return the number of function calls given an root-finding optimizer, 
+        a function and upper and lower bounds.
+    """</span>
+    <span class="keyword">return</span> optimizer(func, a, b, full_output=<span class="keyword">True</span>)[<span class="number">1</span>].function_calls,
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">bench_optimizer</span><span class="params">(optimizer, param_grid)</span>:</span>
+    <span class="string">""" Find roots for all the functions, and upper and lower bounds
+        given and return the total number of function calls.
+    """</span>
+    <span class="keyword">return</span> sum(apply_optimizer(optimizer, func, a, b)
+               <span class="keyword">for</span> func, a, b <span class="keyword">in</span> param_grid)
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">compare_optimizers</span><span class="params">(optimizers)</span>:</span>
+    <span class="string">""" Compare all the optimizers given on a grid of a few different
+        functions all admitting a signle root in zero and a upper and
+        lower bounds.
+    """</span>
+    random_a = -<span class="number">1.3</span> + np.random.random(size=<span class="number">100</span>)
+    random_b =   <span class="number">.3</span> + np.random.random(size=<span class="number">100</span>)
+    param_grid = product(FUNCTIONS, random_a, random_b)
+    <span class="keyword">print</span> <span class="string">"Benching 1D root-finder optimizers from scipy.optimize:"</span>
+    <span class="keyword">for</span> optimizer <span class="keyword">in</span> OPTIMIZERS:
+        <span class="keyword">print</span> <span class="string">'% 20s: % 8i total function calls'</span> % (
+                    optimizer.__name__, 
+                    bench_optimizer(optimizer, param_grid)
+                )
+
+
+<span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+    compare_optimizers(OPTIMIZERS)
+</code></pre><h2 id="Footnotes">Footnotes</h2></span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+            <a href="/tags/scipy-lecture-notes/" rel="tag">#scipy-lecture-notes</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/python/2012/10/30//" rel="next" title="斯普罗站最大风力预测">
+                <i class="fa fa-chevron-left"></i> 斯普罗站最大风力预测
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/python/2012/11/12/numpyscipy/" rel="prev" title="使用Numpy和Scipy处理图像">
+                使用Numpy和Scipy处理图像 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#调试代码"><span class="nav-number">1.</span> <span class="nav-text">调试代码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#避免错误"><span class="nav-number">1.1.</span> <span class="nav-text">避免错误</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#避免麻烦最佳编码法"><span class="nav-number">1.1.1.</span> <span class="nav-text">避免麻烦最佳编码法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pyflakes:快速静态分析"><span class="nav-number">1.1.2.</span> <span class="nav-text">pyflakes:快速静态分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#在当前编辑文件运行pyflakes"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">在当前编辑文件运行pyflakes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一个在线拼写检查集成"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">一个在线拼写检查集成</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#调试工作流"><span class="nav-number">1.2.</span> <span class="nav-text">调试工作流</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用Python调试器"><span class="nav-number">1.3.</span> <span class="nav-text">使用Python调试器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#调用调试器"><span class="nav-number">1.3.1.</span> <span class="nav-text">调用调试器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#尸检"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">尸检</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#单步执行"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">单步执行</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其它开始调试的方法"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">其它开始调试的方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调试器命令和交互"><span class="nav-number">1.3.2.</span> <span class="nav-text">调试器命令和交互</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用gdb调试段错误"><span class="nav-number">1.4.</span> <span class="nav-text">使用gdb调试段错误</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结练习"><span class="nav-number">1.5.</span> <span class="nav-text">总结练习</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Footnotes"><span class="nav-number">1.6.</span> <span class="nav-text">Footnotes</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

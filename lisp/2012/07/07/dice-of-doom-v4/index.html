@@ -1,0 +1,721 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="land-of-lisp," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="最终版的Dice of Doom这个游戏终于结束了，基本上这本书的主要内容也算看完了。实际上，我根本就写不出这些东西，源码也读的云里雾里。但这是一本很有趣的书，我想看完htdp之后用htdp推荐风格重新处理下这本书的代码，顺便也复习一下。
+让Dice of Doom 更加的有趣我们上回完成的版本虽然很棒，但总缺乏些什么。因为之前程序的设计，我们可以很轻易的扩展它，让它变得更有趣
+先加载我们之前的游">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dice of Doom v4">
+<meta property="og:url" content="http://reverland.org/lisp/2012/07/07/dice-of-doom-v4/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="最终版的Dice of Doom这个游戏终于结束了，基本上这本书的主要内容也算看完了。实际上，我根本就写不出这些东西，源码也读的云里雾里。但这是一本很有趣的书，我想看完htdp之后用htdp推荐风格重新处理下这本书的代码，顺便也复习一下。
+让Dice of Doom 更加的有趣我们上回完成的版本虽然很棒，但总缺乏些什么。因为之前程序的设计，我们可以很轻易的扩展它，让它变得更有趣
+先加载我们之前的游">
+<meta property="og:updated_time" content="2015-11-12T16:05:14.880Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dice of Doom v4">
+<meta name="twitter:description" content="最终版的Dice of Doom这个游戏终于结束了，基本上这本书的主要内容也算看完了。实际上，我根本就写不出这些东西，源码也读的云里雾里。但这是一本很有趣的书，我想看完htdp之后用htdp推荐风格重新处理下这本书的代码，顺便也复习一下。
+让Dice of Doom 更加的有趣我们上回完成的版本虽然很棒，但总缺乏些什么。因为之前程序的设计，我们可以很轻易的扩展它，让它变得更有趣
+先加载我们之前的游">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> Dice of Doom v4 | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Dice of Doom v4
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-07-07T00:00:00+08:00" content="2012-07-07">
+              2012-07-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="最终版的Dice_of_Doom">最终版的Dice of Doom</h1><p>这个游戏终于结束了，基本上这本书的主要内容也算看完了。实际上，我根本就写不出这些东西，源码也读的云里雾里。但这是一本很有趣的书，我想看完htdp之后用htdp推荐风格重新处理下这本书的代码，顺便也复习一下。</p>
+<h2 id="让Dice_of_Doom_更加的有趣">让Dice of Doom 更加的有趣</h2><p>我们上回完成的版本虽然很棒，但总缺乏些什么。因为之前程序的设计，我们可以很轻易的扩展它，让它变得更有趣</p>
+<p>先加载我们之前的游戏<a href="对从官网下载的源码和书中的源码可能需要修改，具体参见前几篇读书笔记。">^1</a></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(load &#34;dice-v3&#34;);</span><br></pre></td></tr></table></figure>
+<h3 id="增加玩家数">增加玩家数</h3><p>因为我们之前的架构，增加玩家数很简单。为了增加玩家数后计算机能反应敏捷，让它变“傻”一点。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defparameter *num-players* 4)&#10;(defparameter *die-colors* &#39;((255 63 63) (63 63 255) (63 255 63) (255 63 255)))&#10;(defparameter *max-dice* 5)&#10;(defparameter *ai-level* 2)</span><br></pre></td></tr></table></figure>
+<h3 id="建立概率节点">建立概率节点</h3><p>我们本质上是向游戏树中加入几率节点，先升级attacking-moves函数，增加个board-attack-fail分支。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun attacking-moves (board cur-player spare-dice)&#10;  (labels ((player (pos)&#10;             (car (aref board pos)))&#10;           (dice (pos)&#10;             (cadr (aref board pos))))&#10;    (lazy-mapcan (lambda (src)&#10;                   (if (eq (player src) cur-player)&#10;                     (lazy-mapcan&#10;                       (lambda (dst)&#10;                         (if (and (not (eq (player dst) cur-player))&#10;                                  (&#62; (dice src) 1))&#10;                           (make-lazy (list (list (list src dst)&#10;                                                  (game-tree (board-attack board cur-player src dst (dice src))&#10;                                                             cur-player&#10;                                                             (+ spare-dice (dice dst))&#10;                                                             nil)&#10;                                                  (game-tree (board-attack-fail board cur-player src dst (dice src))&#10;                                                             cur-player&#10;                                                             (+ spare-dice (dice dst))&#10;                                                             nil))))&#10;                           (lazy-nil)))&#10;                       (make-lazy (neighbors src)))&#10;                     (lazy-nil)))&#10;                 (make-lazy (loop for n below *board-hexnum*&#10;                                  collect n)))))</span><br></pre></td></tr></table></figure>
+<p>board-attack-fail函数遍历所有位置。如果这个位置是攻击方就只能留下一个骰子</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun board-attack-fail (board player src dst dice)&#10;  (board-array (loop for pos from 0&#10;                     for hex across board&#10;                     collect (if (eq pos src)&#10;                               (list player 1)&#10;                               hex))))</span><br></pre></td></tr></table></figure>
+<h3 id="让骰子滚动起来">让骰子滚动起来</h3><p>一下程序让一堆骰子滚动起来，并判断谁赢了</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;rolling the dice&#10;(defun roll-dice (dice-num)&#10;  (let ((total (loop repeat dice-num&#10;                     sum (1+ (random 6)))))&#10;    (fresh-line)&#10;    (format t &#34;On ~a dice rolled ~a. &#34; dice-num total)&#10;    total))&#10;(defun roll-against (src-dice dst-dice)&#10;  (&#62; (roll-dice src-dice) (roll-dice dst-dice)))</span><br></pre></td></tr></table></figure>
+<p>我们还需要在游戏引擎中调用让骰子滚动的代码,选出正确的子树</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun pick-chance-branch (board move)&#10;  (labels ((dice (pos)&#10;             (cadr (aref board pos))))&#10;    (let ((path (car move)))&#10;      (if (or (null path) (roll-against (dice (car path))&#10;                                        (dice (cadr path))))&#10;        (cadr move)&#10;        (caddr move)))))</span><br></pre></td></tr></table></figure>
+<p>更新handle-computer函数让它调用选择几率分支的函数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun handle-human (tree)&#10;  (fresh-line)&#10;  (princ &#34;choose your move:&#34;)&#10;  (let ((moves (caddr tree)))&#10;    (labels ((print-moves (moves n)&#10;               (unless (lazy-null moves)&#10;                 (let* ((move (lazy-car moves))&#10;                        (action (car move)))&#10;                   (fresh-line)&#10;                   (format t &#34;~a. &#34; n)&#10;                   (if action&#10;                     (format t &#34;~a -&#62; ~a&#34; (car action) (cadr action))&#10;                     (princ &#34;end turn&#34;)))&#10;                 (print-moves (lazy-cdr moves) (1+ n)))))&#10;      (print-moves moves 1))&#10;    (fresh-line)&#10;    (pick-chance-branch (cadr tree) (lazy-nth (1- (read)) moves))))</span><br></pre></td></tr></table></figure>
+<p>同样我们可以处理handle-computer函数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun handle-computer (tree)&#10;  (let ((ratings (get-ratings (limit-tree-depth tree *ai-level*) (car tree))))&#10;    (pick-chance-branch&#10;      (cadr tree)&#10;      (lazy-nth (position (apply #&#39;max ratings) ratings) (caddr tree)))))</span><br></pre></td></tr></table></figure>
+<h3 id="升级AI">升级AI</h3><p>但现在还有个问题，AI还没有考虑骰子的滚动，依然认为骰子多的一定获胜。因此需要更新AI。</p>
+<p>根据概率论原理，我们可以得到这样一个矩阵来表征攻击成功的概率</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">防守方\攻击方</th>
+<th style="text-align:center">2</th>
+<th style="text-align:center">3</th>
+<th style="text-align:center">4</th>
+<th style="text-align:center">5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0.84</td>
+<td style="text-align:center">0.97</td>
+<td style="text-align:center">1.0</td>
+<td style="text-align:center">1.0</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">0.44</td>
+<td style="text-align:center">0.78</td>
+<td style="text-align:center">0.94</td>
+<td style="text-align:center">0.99</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">0.15</td>
+<td style="text-align:center">0.45</td>
+<td style="text-align:center">0.74</td>
+<td style="text-align:center">0.91</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">0.04</td>
+<td style="text-align:center">0.19</td>
+<td style="text-align:center">0.46</td>
+<td style="text-align:center">0.72</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">0.01</td>
+<td style="text-align:center">0.06</td>
+<td style="text-align:center">0.22</td>
+<td style="text-align:center">0.46</td>
+</tr>
+</tbody>
+</table>
+<p>现在把这个概率交给计算机，更新get-ratings函数,给评分加权</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun get-ratings (tree player)&#10;  (let ((board (cadr tree)))&#10;    (labels ((dice (pos)&#10;               (cadr (aref board pos))))&#10;      (take-all (lazy-mapcar&#10;                  (lambda (move)&#10;                    (let ((path (car move)))&#10;                      (if path&#10;                        (let* ((src (car path))&#10;                               (dst (cadr path))&#10;                               (odds (aref (aref *dice-odds*&#10;                                                 (1- (dice dst)))&#10;                                           (- (dice src) 2))))&#10;                          (+ (* odds (rate-position (cadr move) player))&#10;                             (* (- 1 odds) (rate-position (caddr move)&#10;                                                          player))))&#10;                        (rate-position (cadr move) player))))&#10;                  (caddr tree))))))</span><br></pre></td></tr></table></figure>
+<p>为了让修剪游戏树的函数能工作，还需要做些修改让它能处理新的游戏树。同时为了简化不再使用alpha-beta算法。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun limit-tree-depth (tree depth)&#10;  (list (car tree)&#10;        (cadr tree)&#10;        (if (zerop depth)&#10;          (lazy-nil)&#10;          (lazy-mapcar (lambda (move)&#10;                         (cons (car move)&#10;                               (mapcar (lambda (x)&#10;                                         (limit-tree-depth x (1- depth)))&#10;                                       (cdr move))))&#10;                       (caddr tree)))))&#10;;We mapcar across the tail of each move, so trimming is performed on&#10;;both branches of any chance nodes.</span><br></pre></td></tr></table></figure>
+<h3 id="改进增援方案">改进增援方案</h3><p>之前是依据消灭敌人多少来决定增援骰子数。现在我们换一种方法：依据占据的最大领地来决定增援多少。这使游戏的地缘性更加复杂。</p>
+<p>回想我们之前在<a href="http://reverland.org/Tech/2012/05/01/grand-theft-wumpus/">wumpus游戏</a>里写过的相似函数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun get-connected (board player pos)&#10;  (labels ((check-pos (pos visited)&#10;             (if (and (eq (car (aref board pos)) player)&#10;                      (not (member pos visited)))&#10;               (check-neighbors (neighbors pos) (cons pos visited))&#10;               visited))&#10;           (check-neighbors (lst visited)&#10;             (if lst&#10;               (check-neighbors (cdr lst) (check-pos (car lst) visited))&#10;               visited)))&#10;    (check-pos pos &#39;())))</span><br></pre></td></tr></table></figure>
+<p>获得最大的集群,最后添加援军，注意，spare-dice仍然作为参数传递但已经不再被add-new-dice使用了。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun largest-cluster-size (board player)&#10;  (labels ((f (pos visited best)&#10;             (if (&#60; pos *board-hexnum*)&#10;               (if (and (eq (car (aref board pos)) player)&#10;                        (not (member pos visited)))&#10;                 (let* ((cluster (get-connected board player pos))&#10;                        (size (length cluster)))&#10;                   (if (&#62; size best)&#10;                     (f (1+ pos) (append cluster visited) size)&#10;                     (f (1+ pos) (append cluster visited) best)))&#10;                 (f (1+ pos) visited best))&#10;               best)))&#10;    (f 0 &#39;() 0)))&#10;(defun add-new-dice (board player spare-dice)&#10;  (labels ((f (lst n)&#10;             (cond ((zerop n) lst)&#10;                   ((null lst) nil)&#10;                   (t (let ((cur-player (caar lst))&#10;                            (cur-dice (cadar lst)))&#10;                        (if (and (eq cur-player player) (&#60; cur-dice *max-dice*))&#10;                          (cons (list cur-player (1+ cur-dice))&#10;                                (f (cdr lst) (1- n)))&#10;                          (cons (car lst) (f (cdr lst) n))))))))&#10;    (board-array (f (coerce board &#39;list)&#10;                   (largest-cluster-size board player)))))</span><br></pre></td></tr></table></figure>
+<p>享受你的劳动成果吧</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(serve #&#39;dod-request-handleer)</span><br></pre></td></tr></table></figure>
+<h2 id="疑问">疑问</h2><p>我发现我可以选中任何自己的领地，只要上面的骰子数大于2。我可以攻击任何强大的敌人，而且一定能成功。不知道哪里的更改或错误！！</p>
+<hr>
+<h2 id="Footnotes">Footnotes</h2></span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/land-of-lisp/" rel="tag">#land-of-lisp</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/math/2012/07/05//" rel="next" title="概率论与数理统计基础">
+                <i class="fa fa-chevron-left"></i> 概率论与数理统计基础
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/lisp/2012/07/09/land-of-lisp/" rel="prev" title="land of lisp读书笔记">
+                land of lisp读书笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#最终版的Dice_of_Doom"><span class="nav-number">1.</span> <span class="nav-text">最终版的Dice of Doom</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#让Dice_of_Doom_更加的有趣"><span class="nav-number">1.1.</span> <span class="nav-text">让Dice of Doom 更加的有趣</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#增加玩家数"><span class="nav-number">1.1.1.</span> <span class="nav-text">增加玩家数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#建立概率节点"><span class="nav-number">1.1.2.</span> <span class="nav-text">建立概率节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#让骰子滚动起来"><span class="nav-number">1.1.3.</span> <span class="nav-text">让骰子滚动起来</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#升级AI"><span class="nav-number">1.1.4.</span> <span class="nav-text">升级AI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#改进增援方案"><span class="nav-number">1.1.5.</span> <span class="nav-text">改进增援方案</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#疑问"><span class="nav-number">1.2.</span> <span class="nav-text">疑问</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Footnotes"><span class="nav-number">1.3.</span> <span class="nav-text">Footnotes</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

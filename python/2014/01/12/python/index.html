@@ -1,0 +1,795 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="本文讨论如何使用python的pytagcloud模块制作中文标签云图片和html文件。
+如果你只是为了搜索到如何用python制作中文标签云，请跳过缘起和爬取文本数据部分从标签云部分看起：
+缘起
+学习scrapy，顺便就拿byr做了实验，异步强大的吞吐能力看的目瞪口呆。看到scrapy官网说到scrapy就是抽取网页中的元数据用以数据分析等作用，想了想就做做版面标签云分析吧。
+另一方面，R语言课">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python中文标签云之pytagcloud">
+<meta property="og:url" content="http://reverland.org/python/2014/01/12/python/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="本文讨论如何使用python的pytagcloud模块制作中文标签云图片和html文件。
+如果你只是为了搜索到如何用python制作中文标签云，请跳过缘起和爬取文本数据部分从标签云部分看起：
+缘起
+学习scrapy，顺便就拿byr做了实验，异步强大的吞吐能力看的目瞪口呆。看到scrapy官网说到scrapy就是抽取网页中的元数据用以数据分析等作用，想了想就做做版面标签云分析吧。
+另一方面，R语言课">
+<meta property="og:image" content="http://reverland.org/images/tagcloud/tagcloud_png.png">
+<meta property="og:image" content="http://reverland.org/images/tagcloud/tagcloud_html.png">
+<meta property="og:updated_time" content="2015-11-12T16:34:09.184Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python中文标签云之pytagcloud">
+<meta name="twitter:description" content="本文讨论如何使用python的pytagcloud模块制作中文标签云图片和html文件。
+如果你只是为了搜索到如何用python制作中文标签云，请跳过缘起和爬取文本数据部分从标签云部分看起：
+缘起
+学习scrapy，顺便就拿byr做了实验，异步强大的吞吐能力看的目瞪口呆。看到scrapy官网说到scrapy就是抽取网页中的元数据用以数据分析等作用，想了想就做做版面标签云分析吧。
+另一方面，R语言课">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> Python中文标签云之pytagcloud | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Python中文标签云之pytagcloud
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-01-12T00:00:00+08:00" content="2014-01-12">
+              2014-01-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>本文讨论如何使用python的<code>pytagcloud</code>模块制作中文标签云图片和html文件。</p>
+<p>如果你只是为了搜索到如何用python制作中文标签云，请跳过缘起和爬取文本数据部分从<code>标签云部分</code>看起：</p>
+<h2 id="缘起">缘起</h2><ol>
+<li>学习scrapy，顺便就拿byr做了实验，异步强大的吞吐能力看的目瞪口呆。看到scrapy官网说到scrapy就是抽取网页中的元数据用以数据分析等作用，想了想就做做版面标签云分析吧。</li>
+<li>另一方面，R语言课上老师讲到文本分析，R语言那些包对中文的支持真是不错。为什么Python没有支持中文的包呢？我试着搜索了下，都是提问如何使用的而没有任何具体解决方案。不由得感慨还是R的社区在文本分析领域活跃。</li>
+</ol>
+<h2 id="爬取文本数据">爬取文本数据</h2><p>首先要获取生成标签云的原始数据。什么都行，直接拿篇中文文章都可以，不过我这里是爬取byr论坛某些板块的标题数据。</p>
+<p>scrapy从网页抽取数据的能力相当强大，我在这里第一次体验到了xpath的方便之处，从此，即使是一些简单的网页任务也会用lxml来使用xpath。</p>
+<p>在firebug里简单分析下，然后一页一页地请求网页然后抽取标题。再合成一个单独的文本。</p>
+<h2 id="标签云部分">标签云部分</h2><p>需要以下先决条件：</p>
+<ul>
+<li><p>确保安装pytagcloud，pip会顺便帮你帮它的依赖都装上</p>
+<pre><code>pip install --<span class="keyword">user</span> <span class="title">pytagcloud</span>
+</code></pre></li>
+<li><p>准备一个中文字体文件比如<code>simhei.ttf</code></p>
+</li>
+<li><p>安装中文分词模块jieba</p>
+<pre><code>pip install --<span class="keyword">user</span> <span class="title">jieba</span>
+</code></pre></li>
+</ul>
+<p>然后，为了生成中文标签云，我们要分几步：</p>
+<p>首先，把你的文本进行分词，并生成一个以单词为键以单词出现频数为值的字典。顺便去掉没有意义的词语比如“的”，“一个”这种。</p>
+<pre><code>wg = jieba.cut(YOUR_TEXT, cut_all=<span class="keyword">True</span>)
+wd = {}
+nonsense = [<span class="string">u"一下"</span>, <span class="string">u"什么"</span>, <span class="string">u"一个"</span>]
+<span class="keyword">for</span> w <span class="keyword">in</span> wg:
+    <span class="keyword">if</span> len(w) &lt; <span class="number">2</span>:
+        <span class="keyword">continue</span>
+    <span class="keyword">elif</span> w <span class="keyword">in</span> nonsense:
+        <span class="keyword">continue</span>
+    <span class="keyword">try</span>:
+        str(w)
+        <span class="keyword">continue</span>
+    <span class="keyword">except</span>:
+        <span class="keyword">if</span> w <span class="keyword">not</span> <span class="keyword">in</span> wd:
+            wd[w] = <span class="number">1</span>
+        <span class="keyword">else</span>:
+            wd[w] += <span class="number">1</span>
+</code></pre><p>其次，如果字典太大pytagcloud会报错：</p>
+<pre><code>IOError: unable <span class="keyword">to</span> <span class="command">read</span> font <span class="type">file</span> '/home/reverland/.<span class="keyword">local</span>/lib64/python2<span class="number">.7</span>/site-packages/pytagcloud/fonts/simhei.ttf'
+</code></pre><p>另外，一个标签云图片上也不需要太多词语。所以我们对词语出现频数排序，然后选取前50</p>
+<pre><code>from operator import itemgetter
+swd = <span class="function"><span class="title">sorted</span><span class="params">(wd.iteritems()</span></span>, key=<span class="function"><span class="title">itemgetter</span><span class="params">(<span class="number">1</span>)</span></span>, reverse=True)
+swd = swd[<span class="number">1</span>:<span class="number">50</span>]
+</code></pre><p>接下来就可以参见pytagcloud再github主页上说明生成tag数据：</p>
+<pre><code>tags = make_tags<span class="list">(<span class="keyword">swd</span>,
+                 minsize=SIZE1,
+                 maxsize=SIZE2,
+                 colors=random.choice<span class="list">(<span class="keyword">COLOR_SCHEMES</span>.values<span class="list">()</span>)</span>)</span>
+</code></pre><p>但此时pytagcloud还不支持中文字体，我们需要添加一个中文字体。</p>
+<p>然后把你准备好的中文字体文件<code>simhei.ttf</code>移动到<code>~/.local/lib64/python2.7/site-packages/pytagcloud/fonts/</code>下，并更改其下的<code>fonts.json</code>文件，比如在头部添加一条记录：</p>
+<pre><code>[
+    {
+        "<span class="attribute">name</span>": <span class="value"><span class="string">"SimHei"</span></span>,
+        "<span class="attribute">ttf</span>": <span class="value"><span class="string">"simhei.ttf"</span></span>,
+        "<span class="attribute">web</span>": <span class="value"><span class="string">"none"</span>
+    </span>},
+......
+</code></pre><p>现在，生成标签云png图像：</p>
+<pre><code>create_tag_image<span class="list">(<span class="keyword">tags</span>,
+                 <span class="quoted">'tag_cloud</span>.png',
+                 background=<span class="list">(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>)</span>,
+                 size=<span class="list">(<span class="number">900</span>, <span class="number">600</span>)</span>,
+                 fontname=<span class="string">"SimHei"</span>)</span>
+</code></pre><p>你将在当前目录下发现一个名为<code>tag_cloud.png</code>的标签云图片：</p>
+<p><img src="/images/tagcloud/tagcloud_png.png" alt="byr论坛WorkLife版热词标签云"></p>
+<p>注意：参数SIZE1和SIZE2可能需要反复试验才能找到合适的。</p>
+<p>现在，继续讨论如何生成html格式的标签云，html格式的标签云不会出现图片中有横有竖的情况。更多细节参看pytagcloud在github上的源码中测试文件。</p>
+<p>在我们已经通过<code>make_tags</code>生成标签数据之后，生成html数据：</p>
+<pre><code>data = create_html_data(tags,
+                        size=(<span class="number">900</span>, <span class="number">600</span>),
+                        layout=<span class="number">3</span>,
+                        fontname=<span class="string">"SimHei"</span>,
+                        rectangular=False)
+</code></pre><p>还要准备个模板文件来生成html文件，比如<code>template.html</code>,关键别忘了指定语言和编码让浏览器能正常识别:</p>
+<pre><code><span class="tag">&lt;<span class="title">html</span> <span class="attribute">lang</span>=<span class="value">"zh_CN"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">head</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">meta</span> <span class="attribute">charset</span>=<span class="value">"UTF-8"</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">title</span>&gt;</span>PyTagCloud<span class="tag">&lt;/<span class="title">title</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">style</span> <span class="attribute">type</span>=<span class="value">"text/css"</span>&gt;</span><span class="css">
+            <span class="tag">body</span><span class="rules">{
+                <span class="rule"><span class="attribute">background-color</span>:<span class="value"> black</span></span>;
+            }</span>
+
+            <span class="tag">a</span><span class="class">.tag</span><span class="rules">{
+                <span class="rule"><span class="attribute">font-family</span>:<span class="value"> <span class="string">'SimHei'</span>, <span class="string">'Sans'</span></span></span>;
+                <span class="rule"><span class="attribute">text-decoration</span>:<span class="value"> none</span></span>;
+            }</span>
+
+            <span class="tag">li</span><span class="class">.cnt</span><span class="rules">{
+                <span class="rule"><span class="attribute">overflow</span>:<span class="value"> hidden</span></span>;
+                <span class="rule"><span class="attribute">position</span>:<span class="value"> absolute</span></span>;
+                <span class="rule"><span class="attribute">display</span>:<span class="value"> block</span></span>;
+            }</span>
+
+            <span class="tag">ul</span><span class="class">.cloud</span><span class="rules">{
+                <span class="rule"><span class="attribute">position</span>:<span class="value"> relative</span></span>;
+                <span class="rule"><span class="attribute">display</span>:<span class="value"> block</span></span>;
+                <span class="rule"><span class="attribute">width</span>:<span class="value"> ${width</span></span></span>}<span class="tag">px</span>;
+                <span class="tag">height</span>: $<span class="rules">{height}</span><span class="tag">px</span>;
+                <span class="tag">overflow</span>: <span class="tag">hidden</span>;
+                <span class="tag">margin</span>: 0;
+                <span class="tag">padding</span>: 0;
+                <span class="tag">list-style</span>: <span class="tag">none</span>;
+            }
+            $<span class="tag">css</span>
+        </span><span class="tag">&lt;/<span class="title">style</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">head</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">body</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">ul</span> <span class="attribute">class</span>=<span class="value">"cloud"</span>&gt;</span>
+            $tags
+        <span class="tag">&lt;/<span class="title">ul</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">body</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">html</span>&gt;</span>
+</code></pre><p>将其读入并转化为模板</p>
+<pre><code><span class="built_in">from</span> <span class="keyword">string</span> import Template
+<span class="operator">with</span> <span class="built_in">open</span>(template_filename) <span class="keyword">as</span> f:
+    html_template = Template(f.<span class="built_in">read</span>())
+</code></pre><p>准备填充进去内容的字典：</p>
+<pre><code>context = {}
+tags_template = '<span class="xml"><span class="tag">&lt;<span class="title">li</span> <span class="attribute">class</span>=<span class="value">"cnt"</span> <span class="attribute">style</span>=<span class="value">"top: %(top)dpx; left: %(left)dpx; \
+    height: %(height)dpx;"</span>&gt;</span></span><span class="xml"><span class="tag">&lt;<span class="title">a</span> <span class="attribute">class</span>=<span class="value">"tag \
+    %(cls)s"</span> <span class="attribute">href</span>=<span class="value">"#%(tag)s"</span> <span class="attribute">style</span>=<span class="value">"top: %(top)dpx;\
+        left: %(left)dpx; font-size: %(size)dpx; height: %(height)dpx; \
+    line-height:%(lh)dpx;"</span>&gt;</span></span>%(tag)s<span class="xml"><span class="tag">&lt;/<span class="title">a</span>&gt;</span></span><span class="xml"><span class="tag">&lt;/<span class="title">li</span>&gt;</span></span>'
+context['tags'] = ''.join([tags_template % link for link in data['links']])
+context[<span class="link_label">'width'</span>] = data[<span class="link_label">'size'</span>][<span class="link_reference">0</span>]
+context[<span class="link_label">'height'</span>] = data[<span class="link_label">'size'</span>][<span class="link_reference">1</span>]
+context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
+<span class="code">                         a.%(cname)s:hover{color:%(hover)s;}" %</span>
+<span class="code">                         {'cname': k,</span>
+<span class="code">                          'normal': v[0],</span>
+<span class="code">                          'hover': v[1]}</span>
+<span class="code">                         for k, v in data['css'].items())</span>
+</code></pre><p>得到要生成的html文件并写入：</p>
+<pre><code>html_text = html_template.<span class="function"><span class="title">substitute</span><span class="params">(context)</span></span>
+    with <span class="function"><span class="title">open</span><span class="params">(<span class="string">'tagcloud.html'</span>, <span class="string">'w'</span>)</span></span> as html_file:
+        html_file.<span class="function"><span class="title">write</span><span class="params">(html_text.encode(<span class="string">'utf-8'</span>)</span></span>)
+</code></pre><p>在当前目录你会得到一个名为<code>tagcloud.html</code>的文件，用浏览器打开如下：</p>
+<p><img src="/images/tagcloud/tagcloud_html.png" alt="html标签云"></p>
+<iframe src="/tagcloud_zh.html" height="500px" width="100%"></iframe>
+
+<p>That’s all. 有兴趣的同学可以自行封装以便自己使用。</p>
+<h2 id="可能永远不会实现的碎碎念">可能永远不会实现的碎碎念</h2><pre><code>大概不会有机会了
+<span class="number">2014.1</span><span class="number">.29</span>
+</code></pre><p>利用热度和标题正文数据可以分析下什么样的帖子更容易被回复，试着用bayes方法看看。可以做做内容聚类，主题模型分析。</p>
+<p>想起github上一本叫 <em>Bayes Probablistic Programming for Hackers</em> .不知道有空看没</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Life/2014/01/11/thanks/" rel="next" title="Thanks">
+                <i class="fa fa-chevron-left"></i> Thanks
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/python/2014/01/29/python/" rel="prev" title="用python写一个http代(和谐)理">
+                用python写一个http代(和谐)理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#缘起"><span class="nav-number">1.</span> <span class="nav-text">缘起</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#爬取文本数据"><span class="nav-number">2.</span> <span class="nav-text">爬取文本数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标签云部分"><span class="nav-number">3.</span> <span class="nav-text">标签云部分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可能永远不会实现的碎碎念"><span class="nav-number">4.</span> <span class="nav-text">可能永远不会实现的碎碎念</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

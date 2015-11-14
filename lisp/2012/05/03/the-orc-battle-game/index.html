@@ -1,0 +1,693 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="land-of-lisp," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="Lisp中的特殊数据结构引用原文中的话来形容Lisp,
+12Think of the Babel fish in the Hitchhiker’s Guide to the Galaxy trilogy—something so impossibly useful that it really has no business existing in the first place.
+现在知道lan">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Orc Battle Game">
+<meta property="og:url" content="http://reverland.org/lisp/2012/05/03/the-orc-battle-game/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="Lisp中的特殊数据结构引用原文中的话来形容Lisp,
+12Think of the Babel fish in the Hitchhiker’s Guide to the Galaxy trilogy—something so impossibly useful that it really has no business existing in the first place.
+现在知道lan">
+<meta property="og:updated_time" content="2015-11-12T16:18:28.764Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="The Orc Battle Game">
+<meta name="twitter:description" content="Lisp中的特殊数据结构引用原文中的话来形容Lisp,
+12Think of the Babel fish in the Hitchhiker’s Guide to the Galaxy trilogy—something so impossibly useful that it really has no business existing in the first place.
+现在知道lan">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> The Orc Battle Game | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                The Orc Battle Game
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-05-03T00:00:00+08:00" content="2012-05-03">
+              2012-05-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="Lisp中的特殊数据结构">Lisp中的特殊数据结构</h2><p>引用原文中的话来形容Lisp,</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Think of the Babel fish <span class="keyword">in</span> the Hitchhiker’s Guide to the Galaxy trilogy—something </span><br><span class="line">so impossibly useful that it really has no business existing <span class="keyword">in</span> the first place.</span><br></pre></td></tr></table></figure>
+<p>现在知道land of lisp的作者为什么把common lisp比作狼狗，为什么说cl强大了。支持list也就算了，支持个array、hash table、OOp、范型(generic)什么乱七八糟一堆其它语言中各种强大的东西，这么逆天的东西根本就不该存在！不过作为代价，丧失了一种纯粹的美。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;lisp is symmetry,while common lisp is powerful.</span><br></pre></td></tr></table></figure>
+<h3 id="Arrays">Arrays</h3><p>一些有用的命令</p>
+<ul>
+<li>make-array</li>
+<li>aref</li>
+<li>setf</li>
+</ul>
+<p>array有比列表更高的效率</p>
+<h3 id="Hash_Table">Hash Table</h3><p>这玩意强到逆天：</p>
+<ul>
+<li>make-hash-table</li>
+<li>gethash</li>
+</ul>
+<h4 id="返回多值">返回多值</h4><ul>
+<li>round</li>
+<li>values</li>
+<li>multiple-value-bind</li>
+</ul>
+<p>hash表性能总体还是很高的..比如说我们上回写的wumpus游戏，我们可以分别对hash表和alists运行效率做如下对比。先看alists：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(load &#34;/home/lyy/Documents/lisp/wumpus.lisp&#34;)&#10;(setf *edge-num* 1000)&#10;(setf *node-num* 1000)&#10;(time (dotimes (i 100) (get-connected 1 (make-edge-list))))</span><br></pre></td></tr></table></figure>
+<p>好吧，我花的时间：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(time (dotimes (i 100) (get-connected 1 (make-edge-list))))&#10;Real time: 64.1503 sec.&#10;Run time: 64.025826 sec.&#10;Space: 75275184 Bytes&#10;GC: 65, GC time: 0.43664 sec.&#10;NIL</span><br></pre></td></tr></table></figure>
+<p>下面我们更改之前的wumpus游戏。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;&#29983;&#25104;hash&#34920;&#30340;&#36793;&#29256;&#26412;&#10;(defun hash-edges (edge-list)&#10;  (let ((tab (make-hash-table)))&#10;    (mapc (lambda (x);mapc&#36820;&#22238;&#21103;&#20316;&#29992;&#10;            (let ((node (car x)))&#10;              (push (cdr x) (gethash node tab))));&#25512;&#20837;&#26032;&#20540;&#10;          edge-list)&#10;    tab))&#10;;;&#29983;&#25104;hash&#34920;&#12290;&#22914;&#26524;&#19982;node&#30456;&#36830;&#65292;&#21017;hash&#34920;&#20013;&#20540;&#20026;t&#10;(defun get-connected-hash (node edge-tab)&#10;  (let ((visited (make-hash-table)))&#10;    (labels ((traverse (node)&#10;               (unless (gethash node visited);&#38750;&#21017;&#25191;&#34892;&#10;                 (setf (gethash node visited) t)&#10;                 (mapc (lambda (edge)&#10;                         (traverse edge))&#10;                       (gethash node edge-tab)))))&#10;      (traverse node))&#10;    visited))&#10;;;&#21487;&#20197;&#30475;&#30475;&#20160;&#20040;&#26679;&#30340;&#10;;;&#30475;&#30475;&#36816;&#34892;&#26102;&#38388;&#10;(time (dotimes (i 100)&#10;        (get-connected-hash 1 (hash-edges (make-edge-list)))))</span><br></pre></td></tr></table></figure>
+<p>很显然，效率高多了：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(time (dotimes (i 100)&#10;        (get-connected-hash 1 (hash-edges (make-edge-list)))))&#10;Real time: 1.530112 sec.&#10;Run time: 1.526567 sec.&#10;Space: 64337496 Bytes&#10;GC: 56, GC time: 0.366641 sec.&#10;NIL</span><br></pre></td></tr></table></figure>
+<h3 id="Structures">Structures</h3><p>构建structure可以直接用defstruct：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defstruct person&#10;  name&#10;  age&#10;  waist-size&#10;  favorite-color)&#10;;;&#28982;&#21518;&#36827;&#34892;&#36319;&#25913;&#10;(defparameter *bob* (make-person :name &#34;Bob&#34;;make-person&#20989;&#25968;&#33258;&#21160;&#29983;&#25104;&#10;                                 :age 35&#10;                                 :waist-size 32&#10;                                 :favorite-color &#34;blue&#34;))&#10;*bob* ;&#26597;&#30475;&#10;;#S(person :name &#34;rob&#34; :age 35 :waist-size 32 :favorite-color &#34;blue&#34;)&#10;(person-age *bob*);&#33258;&#21160;&#29983;&#25104;person-age&#20989;&#25968;&#10;(setf (person-age *bob*) 36);generical programming</span><br></pre></td></tr></table></figure>
+<p>也可以直接这样：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defparameter *that-guy* #S(person :name &#34;rob&#34; :age 35 :waist-size 32&#10;                                   :favorite-color &#34;blue&#34;))&#10;(print *that-guy*)</span><br></pre></td></tr></table></figure>
+<h3 id="Generical_Programming">Generical Programming</h3><p>有些范函可以接受多种类型参数,典型的sequence函数有：</p>
+<ul>
+<li>length</li>
+<li>sequence</li>
+<li>find-if</li>
+<li>count</li>
+<li>position</li>
+<li>some</li>
+<li>every</li>
+<li>reduce</li>
+<li>subseq</li>
+<li>sort</li>
+</ul>
+<p>通过类型检验创建generic function是可行的但不太好。有种叫作type dispatching的东西可以让用户自己通过defmethod来定义generic function。</p>
+<hr>
+<h2 id="The_Orc_Battle_Game">The Orc Battle Game</h2><p>好了，之前全是扯淡。开始进入正题，写我们的新游戏：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;;player&#30340;&#19977;&#23646;&#24615;&#10;(defparameter *player-health* nil)&#10;(defparameter *player-agility* nil)&#10;(defparameter *player-strength* nil)&#10;;;;monsters&#10;(defparameter *monsters* nil)&#10;(defparameter *monster-builders* nil);&#21508;&#31181;&#24618;&#29289;&#10;(defparameter *monster-num* 12)&#10;(princ *monster-builders*) &#10;;;;main function&#10;(defun orc-battle ()&#10;  (init-monsters)&#10;  (init-player)&#10;  (game-loop)&#10;  (when (player-dead)&#10;    (princ &#34;You have been killed. Game Over.&#34;))&#10;  (when (monsters-dead)&#10;    (princ &#34;Congratulations! You have vanquished all of your foes.&#34;)))&#10;;;;define game loop&#10;(defun game-loop ()&#10;  (unless (or (player-dead) (monsters-dead))&#10;    (show-player)&#10;  ;;&#20381;&#25454;&#25935;&#25463;&#35745;&#31639;&#25915;&#20987;&#27425;&#25968;&#10;    (dotimes (k (1+ (truncate (/ (max 0 *player-agility*) 15))))&#10;      (unless (monsters-dead)&#10;        (show-monsters)&#10;        (player-attack)))&#10;    (fresh-line)&#10;    (map &#39;list&#10;         (lambda(m)&#10;           (or (monster-dead m) (monster-attack m)))&#10;         *monsters*)&#10;    (game-loop)))&#10;;;;manage players function&#10;(defun init-player ()&#10;  (setf *player-health* 30)&#10;  (setf *player-agility* 30)&#10;  (setf *player-strength* 30))&#10;(defun player-dead ()&#10;  (&#60;= *player-health* 0))&#10;(defun show-player ()&#10;  (fresh-line)&#10;  (princ &#34;You are a valiant knight with a health of &#34;)&#10;  (princ *player-health*)&#10;  (princ &#34;, an agility of &#34;)&#10;  (princ *player-agility*)&#10;  (princ &#34;, and a strength of &#34;)&#10;  (princ *player-strength*))&#10;(defun player-attack ()&#10;  (fresh-line)&#10;  (princ &#34;Attack style: [s]tab [d]ouble swing [r]oundhouse:&#34;)&#10;  (case (read);case&#20989;&#25968;&#10;    (s (monster-hit (pick-monster);monster-hit&#34920;monster&#34987;&#25915;&#20987;&#10;                    (+ 2 (randval (ash *player-strength* -1)))))&#10;    (d (let ((x (randval (truncate (/ *player-strength* 6)))))&#10;         (princ &#34;Your double swing has a strength of &#34;)&#10;         (princ x)&#10;         (fresh-line)&#10;         (monster-hit (pick-monster) x)&#10;         (unless (monsters-dead);&#38500;&#38750;&#31532;&#19968;&#27425;&#25915;&#20987;&#23601;&#28040;&#28781;&#25152;&#26377;&#24618;&#29289;&#10;           (monster-hit (pick-monster) x))))&#10;    (otherwise (dotimes (x (1+ (randval (truncate (/ *player-strength* 3)))))&#10;;&#21542;&#21017;&#19968;&#38453;&#20081;&#25171;&#10;                 (unless (monsters-dead);&#33509;&#20043;&#20013;&#26377;&#19968;&#27425;&#24050;&#32463;&#28040;&#28781;&#25152;&#26377;&#24618;&#29289;&#10;                   (monster-hit (random-monster) 1))))))&#10;;;;&#20135;&#29983;&#19981;&#23567;&#20110;1&#30340;1&#21040;n&#30340;&#38543;&#26426;&#25968;&#10;(defun randval (n)&#10;  (1+ (random (max 1 n))));&#20197;&#38450;n&#60;1&#10;;;;Player Attacks&#30340;&#36741;&#21161;&#20989;&#25968;&#10;;;&#38543;&#26426;&#27963;&#30528;&#30340;&#24618;&#29289;&#32534;&#21495;&#10;(defun random-monster ()&#10;  (let ((m (aref *monsters* (random (length *monsters*)))))&#10;    (if (monster-dead m)&#10;      (random-monster)&#10;      m)))&#10;&#10;;;&#36873;&#25321;&#29305;&#23450;monster&#10;(defun pick-monster ()&#10;  (fresh-line)&#10;  (princ &#34;Monster #:&#34;)&#10;  (let ((x (read)))&#10;    (if (not (and (integerp x) (&#62;= x 1) (&#60;= x *monster-num*)))&#10;      (progn (princ &#34;That is not a valid monster number.&#34;)&#10;             (pick-monster))&#10;      (let ((m (aref *monsters* (1- x))))&#10;        (if (monster-dead m)&#10;          (progn (princ &#34;That monster is alread dead.&#34;)&#10;                 (pick-monster))&#10;          m)))))&#10;;;Monster Management Functions&#10;(defun init-monsters ()&#10;  (setf *monsters*&#10;        (map &#39;vector&#10;             (lambda (x);I make no sense of it&#10;               (funcall (nth (random (length *monster-builders*))&#10;                             *monster-builders*)))&#10;             (make-array *monster-num*))))&#10;(defun monster-dead (m)&#10;  (&#60;= (monster-health m) 0))&#10;(defun monsters-dead ()&#10;  (every #&#39;monster-dead *monsters*))&#10;&#10;(defun show-monsters ()&#10;  (fresh-line)&#10;  (princ &#34;Your foes:&#34;)&#10;  (let ((x 0))&#10;    (map &#39;list&#10;         (lambda (m)&#10;           (fresh-line)&#10;           (princ &#34;     &#34;)&#10;           (princ (incf x))&#10;           (princ &#34;. &#34;)&#10;           (if (monster-dead m)&#10;             (princ &#34;**dead**&#34;)&#10;             (progn (princ &#34;(Health=&#34;)&#10;                    (princ (monster-health m))&#10;                    (princ &#34;) &#34;)&#10;                    (monster-show m))));&#24618;&#29289;&#25551;&#36848;&#10;                  *monsters*)))&#10;;;&#23450;&#20041;monster&#30340;structure&#10;(defstruct monster (health (randval 10)))&#10;;;monster&#34987;&#25915;&#20987;&#10;(defmethod monster-hit (m x)&#10;  (decf (monster-health m) x)&#10;  (if (monster-dead m)&#10;    (progn (princ &#34;You killed the &#34;)&#10;           (princ (type-of m))&#10;           (princ &#34;! &#34;))&#10;    (progn (princ &#34;You hit the &#34;)&#10;           (princ (type-of m))&#10;           (princ &#34;, knocking off &#34;)&#10;           (princ x)&#10;           (princ &#34; health points! &#34;))))&#10;;;(type-of (make-monster))&#10;;;;;MONSTER&#10;;;;&#24635;&#20307;&#23450;&#20041;&#19979;&#10;(defmethod monster-show (m)&#10;  (princ &#34;A fierce &#34;)&#10;  (princ (type-of m)))&#10;;;&#21344;&#20301;&#10;(defmethod monster-attack (m))&#10;;;;orc&#10;;;;defstruct&#36824;&#21487;&#20197;&#36825;&#26679;&#23450;&#20041;&#10;(defstruct (orc (:include monster)) (club-level (randval 8)))&#10;(push #&#39;make-orc *monster-builders*)&#10;(defmethod monster-show ((m orc));something like &#34;defmethod function ((a number) (b string))&#34;&#10;  (princ &#34;A wicked orc with a level &#34;)&#10;  (princ (orc-club-level m))&#10;  (princ &#34; club&#34;))&#10;(defmethod monster-attack ((m orc))&#10;  (let ((x (randval (orc-club-level m))))&#10;    (princ &#34;An orc swings his club at you and knocks off &#34;)&#10;    (princ x)&#10;    (princ &#34; of your health points. &#34;)&#10;    (decf *player-health* x)))&#10;;;;hydra,&#22810;&#22836;&#40479;&#10;(defstruct (hydra (:include monster)))&#10;(push #&#39;make-hydra *monster-builders*)&#10;(defmethod monster-show ((m hydra))&#10;  (princ &#34;A malicious hydra with &#34;)&#10;  (princ (monster-health m))&#10;  (princ &#34; heads.&#34;))&#10;(defmethod monster-hit ((m hydra) x);x&#20195;&#34920;&#22836;&#25968;&#10;  (decf (monster-health m) x)&#10;  (if (monster-dead m)&#10;    (princ &#34;The corpse of the fully decapitated and decapacitated hydra&#10;           falls to the floor!&#34;)&#10;    (progn (princ &#34;You lop off &#34;)&#10;           (princ x)&#10;           (princ &#34; of the hydra&#39;s heads! &#34;))))&#10;(defmethod monster-attack ((m hydra))&#10;  (let ((x (randval (ash (monster-health m) -1))))&#10;    (princ &#34;A hydra attacks you with &#34;)&#10;    (princ x)&#10;    (princ &#34; of its heads! It also grows back one more head! &#34;)&#10;    (incf (monster-health m))&#10;    (decf *player-health* x)))&#10;;;;slime&#10;(defstruct (slime-mold (:include monster)) (sliminess (randval 5)))&#10;(push #&#39;make-slime-mold *monster-builders*)&#10;(defmethod monster-show ((m slime-mold))&#10;  (princ &#34;A slime mold with a sliminess of &#34;)&#10;  (princ (slime-mold-sliminess m)))&#10;(defmethod monster-attack ((m slime-mold))&#10;  (let ((x (randval (slime-mold-sliminess m))))&#10;    (princ &#34;A slime mold wraps around your legs and decreases your agility&#10;           by &#34;)&#10;    (princ x)&#10;    (princ &#34;! &#34;)&#10;    (decf *player-agility* x)&#10;    ;;&#20026;&#20102;&#38450;&#27490;&#36827;&#20837;&#27704;&#26080;&#27490;&#22659;&#30340;&#20725;&#25345;,&#20351;slime&#26377;&#20960;&#29575;&#25915;&#20987;&#10;    (when (zerop (random 2))&#10;      (princ &#34;It also squirts in your face, taking away a health point! &#34;)&#10;      (decf *player-health*))))&#10;;The Cunning Brigand&#10;(defstruct (brigand (:include monster)))&#10;(push #&#39;make-brigand *monster-builders*)&#10;(defmethod monster-attack ((m brigand))&#10;  (let ((x (max *player-health* *player-agility* *player-strength*)))&#10;    (cond ((= x *player-health*)&#10;           (princ &#34;A brigand hits you with his slingshot, taking off 2 health&#10;                  points! &#34;)&#10;                  (decf *player-health* 2))&#10;          ((= x *player-agility*)&#10;           (princ &#34;A brigand catches your leg with his whip, taking off 2&#10;                  agility points! &#34;)&#10;           (decf *player-agility* 2))&#10;          ((= x *player-strength*)&#10;           (princ &#34;A brigand cuts your arm with his whip, taking off 2&#10;                  strength points! &#34;)&#10;           (decf *player-strength* 2)))))</span><br></pre></td></tr></table></figure>
+<p>然后这样开始游戏</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(orc-battle)</span><br></pre></td></tr></table></figure>
+<p>不过游戏参数貌似设置的不太好，我基本是出来被秒的！！</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/land-of-lisp/" rel="tag">#land-of-lisp</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/lisp/2012/05/01/grand-theft-wumpus/" rel="next" title="Grand Theft Wumpus">
+                <i class="fa fa-chevron-left"></i> Grand Theft Wumpus
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/lisp/2012/05/06/using-loop-to-evolve/" rel="prev" title="Using Loop To Evolve">
+                Using Loop To Evolve <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Lisp中的特殊数据结构"><span class="nav-number">1.</span> <span class="nav-text">Lisp中的特殊数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Arrays"><span class="nav-number">1.1.</span> <span class="nav-text">Arrays</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hash_Table"><span class="nav-number">1.2.</span> <span class="nav-text">Hash Table</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#返回多值"><span class="nav-number">1.2.1.</span> <span class="nav-text">返回多值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Structures"><span class="nav-number">1.3.</span> <span class="nav-text">Structures</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generical_Programming"><span class="nav-number">1.4.</span> <span class="nav-text">Generical Programming</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#The_Orc_Battle_Game"><span class="nav-number">2.</span> <span class="nav-text">The Orc Battle Game</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

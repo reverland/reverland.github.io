@@ -1,0 +1,736 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="phase-unwrapping,python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="一维相位去包裹：原理与仿真Off-Topic
+未觉池塘春草色，阶前梧叶已秋声。
+——朱熹
+
+时光飞逝，转眼就要毕业了。前天导师打电话摧我，这几个月就毕业了，你那毕业设计得赶紧做了。想想真是，四年倏忽过去，浑然不觉，已近毕业。
+也许这是最后自在平静的日子了，时间却像沙子，越用力抓紧，从指间溜走地越快。
+两年过得太快，I follow my passion，做了太多没用的事，有得有失。只是希望：
+
+Y">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一维相位去包裹：原理与仿真">
+<meta property="og:url" content="http://reverland.org/phase-unwrapping/2013/03/24//index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="一维相位去包裹：原理与仿真Off-Topic
+未觉池塘春草色，阶前梧叶已秋声。
+——朱熹
+
+时光飞逝，转眼就要毕业了。前天导师打电话摧我，这几个月就毕业了，你那毕业设计得赶紧做了。想想真是，四年倏忽过去，浑然不觉，已近毕业。
+也许这是最后自在平静的日子了，时间却像沙子，越用力抓紧，从指间溜走地越快。
+两年过得太快，I follow my passion，做了太多没用的事，有得有失。只是希望：
+
+Y">
+<meta property="og:image" content="https://raw.github.com/reverland/phase-unwrapping-notes/master/image/reverse_phase.jpg">
+<meta property="og:image" content="https://raw.github.com/reverland/phase-unwrapping-notes/master/image/phase-aliasing.jpg">
+<meta property="og:image" content="https://raw.github.com/reverland/phase-unwrapping-notes/master/image/noise.jpg">
+<meta property="og:updated_time" content="2015-11-12T16:34:09.024Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一维相位去包裹：原理与仿真">
+<meta name="twitter:description" content="一维相位去包裹：原理与仿真Off-Topic
+未觉池塘春草色，阶前梧叶已秋声。
+——朱熹
+
+时光飞逝，转眼就要毕业了。前天导师打电话摧我，这几个月就毕业了，你那毕业设计得赶紧做了。想想真是，四年倏忽过去，浑然不觉，已近毕业。
+也许这是最后自在平静的日子了，时间却像沙子，越用力抓紧，从指间溜走地越快。
+两年过得太快，I follow my passion，做了太多没用的事，有得有失。只是希望：
+
+Y">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> 一维相位去包裹：原理与仿真 | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                一维相位去包裹：原理与仿真
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2013-03-24T00:00:00+08:00" content="2013-03-24">
+              2013-03-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/phase-unwrapping/" itemprop="url" rel="index">
+                    <span itemprop="name">phase-unwrapping</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="一维相位去包裹：原理与仿真">一维相位去包裹：原理与仿真</h1><h2 id="Off-Topic">Off-Topic</h2><blockquote>
+<p>未觉池塘春草色，阶前梧叶已秋声。</p>
+<p>——朱熹</p>
+</blockquote>
+<p>时光飞逝，转眼就要毕业了。前天导师打电话摧我，这几个月就毕业了，你那毕业设计得赶紧做了。想想真是，四年倏忽过去，浑然不觉，已近毕业。</p>
+<p>也许这是最后自在平静的日子了，时间却像沙子，越用力抓紧，从指间溜走地越快。</p>
+<p>两年过得太快，I follow my passion，做了太多没用的事，有得有失。只是希望：</p>
+<blockquote>
+<p>You can’t connect the dots looking forward you can only connect them looking backwards. So you have to trust that the dots will somehow connect in your future. You have to trust in something: your gut, destiny, life, karma, whatever. Because believing that the dots will connect down the road will give you the confidence to follow your heart, even when it leads you off the well worn path.</p>
+<p>——Steve Jobs, Stanford Commencement Adress, 2005</p>
+</blockquote>
+<h2 id="为何相位重要">为何相位重要</h2><p>我大学的专业是光学，时至今日，依然清晰记得两年前在阴暗的实验室做全息摄像的实验。我们几个同学花了好久把光路摆好，让激光打在物体上反光到干版上曝光。然后拿到什么试剂中定形。最后在拿出来用激光将物体的影响重新清晰的放出三维的像时，心里相当兴奋。</p>
+<p>为什么全息照相能产生立体的像呢？普通的照相技术都是仅仅记录光波的强度，而不记录相位，因此失去了很多相位中的信息。但全息照相通过相干光(激光)之间的干涉在干版上同时记录下了强度和相位，再用相干光照射干版重放，好像光是从真的物体发出的一样。</p>
+<p>如果您也做过这种实验，您应该知道为什么相位重要了。</p>
+<p>这还有另一个例子，关于爱因斯坦和蒙娜丽莎。</p>
+<p>我从《Two Dimensional Phase Unwrapping Theory Algorithms and Software》中看到了这个例子，然后自己动手用python试了试。</p>
+<p>以下代码用来交换两个图片的相位</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># &lt;nbformat&gt;3.0&lt;/nbformat&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.fftpack <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># read file</span></span><br><span class="line">im_1 = plt.imread(<span class="string">'einstein.jpg'</span>)</span><br><span class="line">im_2 = plt.imread(<span class="string">'monalisa.jpg'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># fft and reverse two images' phase</span></span><br><span class="line">m_1, p_1 = np.abs(fft2(im_1)), np.angle(fft2(im_1))</span><br><span class="line">m_2, p_2 = np.abs(fft2(im_2)), np.angle(fft2(im_2))</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line">im_swapphase_1 = np.real(ifft2(m_1 * np.cos(p_2) + m_1 * np.sin(p_2) * <span class="number">1j</span>))</span><br><span class="line">im_swapphase_2 = np.real(ifft2(m_2 * np.cos(p_1) + m_2 * np.sin(p_1) * <span class="number">1j</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line">plt.figsize(<span class="number">10</span>,<span class="number">10</span>)</span><br><span class="line">plt.gray()</span><br><span class="line">plt.subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>)</span><br><span class="line">plt.imshow(im_1, origin=<span class="string">'lower'</span>)</span><br><span class="line">plt.subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>)</span><br><span class="line">plt.imshow(im_2, origin=<span class="string">'lower'</span>)</span><br><span class="line">plt.subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>)</span><br><span class="line">plt.imshow(im_swapphase_1, origin=<span class="string">'lower'</span>)</span><br><span class="line">plt.subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">4</span>)</span><br><span class="line">plt.imshow(im_swapphase_2, origin=<span class="string">'lower'</span>)</span><br></pre></td></tr></table></figure>
+<p>上面两幅图是交换相位前的图，下面两幅是之后的。显然，一团糟，相位中是有信息的。</p>
+<p><img src="https://raw.github.com/reverland/phase-unwrapping-notes/master/image/reverse_phase.jpg" alt="Einstein and Monalisa"></p>
+<h2 id="为何要相位去包裹">为何要相位去包裹</h2><p>简单地说，就是说，任何仪器，比如说量角器，顶多只能测得($-\pi, \pi$]之间的量,但真正的相位角度不该这样，而是分布在实数空间内，应该是测得的($-\pi, \pi$]之间的值的2$\pi$整数倍。</p>
+<p>真正的相位值被“包裹”起来了，但为什么要解包裹呢？</p>
+<p>不解包裹无法对相位进行计算。</p>
+<h2 id="Itoh的路径积分法">Itoh的路径积分法</h2><p>我们先定义一个获取包裹相位的算子$\mathscr{W}$，该算子将相位包裹，获取位于$(-\pi,\pi]$之间的包裹相位。</p>
+<p>$$\mathscr{W}\varphi = \arctan[\cos(Real \varphi / Img \varphi)]$$</p>
+<p>还可以这样写</p>
+<p>$$\mathscr{W}{\varphi(n)} = \psi(n) = \varphi(n) + 2\pi k(n)$$</p>
+<p>其中$k(n)$是使包裹相位位于$-\pi,\pi$之间的值。</p>
+<p>显然包裹相位$\psi(n)$有：</p>
+<p>$$\pi \geq \psi(n) \gt -\pi$$</p>
+<p>定义差分算子$\Delta$：</p>
+<p>$$\Delta {\varphi(n)} = \varphi(n+1) - \varphi(n)$$</p>
+<p>$$\Delta {k(n)} = k(n+1) - k(n)$$</p>
+<p>计算被包裹相位的差分：</p>
+<p>$$\Delta {\psi(n)} = \Delta {\varphi(n)} + 2\pi\Delta {k_1(n)}$$</p>
+<p>我们再用$\mathscr{W}$作用于该差分得：</p>
+<p>$$\mathscr{W}{\Delta {\psi(n)}} = \Delta {\varphi(n)} + 2\pi[\Delta {k_1(n)} + k_2(n)]$$</p>
+<p>显然上式结果应该位于$(-\pi,\pi]$，假如此时还有$\Delta {\varphi(n)}$也位于$(-\pi,\pi]$,则上式右边第二项$2\pi[\Delta {k_1(n) } + k_2(n)]$应该为零，则有：</p>
+<p>$$\Delta {\varphi(n)} = \mathscr{W}{\Delta {\psi(n)}} $$</p>
+<p>显然，由该差分式可得：</p>
+<p>$$\varphi(m) = \varphi(0) + \sum_{n=0}^{m-1} \mathscr{W}{\Delta {\mathscr{W}{\varphi(n)}}} $$</p>
+<p>上式说明，真实相位可以通过对包裹相位的差分的包裹进行积分求得。</p>
+<p>于是itoh的一维相位去包裹算法综述如下：</p>
+<p>对信号相位数组$\psi(i),0 \leq i \leq N-1$</p>
+<ul>
+<li>计算相位差分$D(i) = \psi(i+1)-\psi(i), i=0,\ldots,N-2$</li>
+<li>计算包裹的相位差分$\Delta(i) = \Delta{D(i)}, i=0,\ldots,N-2$</li>
+<li>初始化初值$\varphi(0)= \psi(0)$</li>
+<li>累加解包裹$\varphi(i) = \psi(i) + \Delta(i)$</li>
+</ul>
+<p>Itoh的方法很简单实用，但受到两个重要因素的影响：相位失真和噪声。下面仿真两种情况的影响。</p>
+<h2 id="仿真">仿真</h2><p>对正弦波相位函数(间谐波，一切波的基础)</p>
+<p>$$\varphi(t) = 10\sin(10t), 0 \leq t \leq 1$$</p>
+<p>通过计算可以得知，使之不产生相位失真，区间内至少有32个采样点:</p>
+<p>对相位变化有</p>
+<p>$$\Delta \varphi = \dot{\varphi}\Delta t$$</p>
+<p>其中 $\dot{\varphi} = d\varphi / dt = 100\cos10t$ ，可看出相位在 $n\pi/10$ 取得极值，加上条件：</p>
+<p>$$\left\vert\Delta \varphi\right\vert \lt \pi$$</p>
+<p>则</p>
+<p>$$\left\vert \frac{100}{N} \cos 10t \right\vert \lt \pi$$</p>
+<p>得</p>
+<p>$$N \gt 31.83$$</p>
+<p>则对这个函数如果采样率低于32就会产生相位失真。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># &lt;nbformat&gt;3.0&lt;/nbformat&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># phase function</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pf</span><span class="params">(x)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">10</span> * np.sin(<span class="number">10</span> * x)</span><br><span class="line"><span class="comment"># wrap function</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">wrap</span><span class="params">(x)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> np.arctan2(np.sin(x), np.cos(x))</span><br><span class="line"><span class="comment"># unwrap function</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">wrap_diff</span><span class="params">(x)</span>:</span></span><br><span class="line">     <span class="keyword">return</span> wrap(np.diff(x))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">unwrap</span><span class="params">(x)</span>:</span></span><br><span class="line">    y = x</span><br><span class="line">    y[<span class="number">0</span>] = x[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(x) - <span class="number">1</span>):</span><br><span class="line">        i += <span class="number">1</span></span><br><span class="line">        y[i] = y[i - <span class="number">1</span>] + wrap_diff(x)[i - <span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> np.array(y)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">noise</span><span class="params">(x, snr)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> x + np.random.normal(loc=<span class="number">0.0</span>, scale = np.sqrt(np.max(x) / <span class="number">2</span> ** snr), size=len(x))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show_unwrap</span><span class="params">(x,y,y_w,t,p)</span>:</span></span><br><span class="line">    plt.ylim((-<span class="number">12</span>,<span class="number">12</span>))</span><br><span class="line">    plt.ylabel(<span class="string">"Phase in Radians"</span>)</span><br><span class="line">    p_w, = plt.plot(x, y_w,<span class="string">'o:'</span>)</span><br><span class="line">    p_o, = plt.plot(t,p,<span class="string">':'</span>)</span><br><span class="line">    p_u, = plt.plot(x,y,<span class="string">'s'</span>)</span><br><span class="line">    plt.legend([p_w, p_o, p_u], [<span class="string">"sampled wrapped phase"</span>, <span class="string">"original phase function"</span>, <span class="string">"unwrapped phase"</span>])</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;headingcell level=1&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 当取样点为num时</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Origin</span></span><br><span class="line">t = np.arange(<span class="number">0</span>,<span class="number">1</span>,<span class="number">0.01</span>)</span><br><span class="line">p = pf(t)</span><br><span class="line"></span><br><span class="line"><span class="comment"># plot</span></span><br><span class="line"><span class="comment">## num 50</span></span><br><span class="line">plt.subplot(<span class="number">311</span>)</span><br><span class="line">plt.title(<span class="string">"num = 50"</span>)</span><br><span class="line"><span class="comment"># sampled data</span></span><br><span class="line">num = <span class="number">50</span></span><br><span class="line">x = np.linspace(<span class="number">0</span>,<span class="number">1</span>,num)</span><br><span class="line"><span class="comment"># wrapped phase</span></span><br><span class="line">y_w = wrap(pf(x))</span><br><span class="line"><span class="comment"># unwrapped wraped phase</span></span><br><span class="line">y = unwrap(wrap(pf(x)))</span><br><span class="line">show_unwrap(x, y, y_w, t, p)</span><br><span class="line"><span class="comment">## num = 32</span></span><br><span class="line">plt.subplot(<span class="number">312</span>)</span><br><span class="line">plt.title(<span class="string">"num = 32"</span>)</span><br><span class="line"><span class="comment"># sampled data</span></span><br><span class="line">num = <span class="number">32</span></span><br><span class="line">x = np.linspace(<span class="number">0</span>,<span class="number">1</span>,num)</span><br><span class="line"><span class="comment"># wrapped phase</span></span><br><span class="line">y_w = wrap(pf(x))</span><br><span class="line"><span class="comment"># unwrapped wraped phase</span></span><br><span class="line">y = unwrap(wrap(pf(x)))</span><br><span class="line">show_unwrap(x, y, y_w, t, p)</span><br><span class="line"><span class="comment">## num = 31</span></span><br><span class="line">plt.subplot(<span class="number">313</span>)</span><br><span class="line">plt.title(<span class="string">"num = 31"</span>)</span><br><span class="line"><span class="comment"># sampled data</span></span><br><span class="line">num = <span class="number">31</span></span><br><span class="line">x = np.linspace(<span class="number">0</span>,<span class="number">1</span>,num)</span><br><span class="line"><span class="comment"># wrapped phase</span></span><br><span class="line">y_w = wrap(pf(x))</span><br><span class="line"><span class="comment"># unwrapped wraped phase</span></span><br><span class="line">y = unwrap(wrap(pf(x)))</span><br><span class="line">show_unwrap(x, y, y_w, t, p)</span><br><span class="line">plt.xlabel(<span class="string">"Relative Time"</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;headingcell level=1&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 噪声</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># noise influence</span></span><br><span class="line">x = np.linspace(<span class="number">0</span>,<span class="number">1</span>,<span class="number">200</span>)</span><br><span class="line">y = pf(x)</span><br><span class="line">y_10 = unwrap(wrap(noise(y,<span class="number">10</span>))) + <span class="number">20</span></span><br><span class="line">y_5 = unwrap(noise(wrap(y), <span class="number">5</span>)) + <span class="number">40</span></span><br><span class="line">y_2 = unwrap(noise(wrap(y), <span class="number">2</span>)) + <span class="number">60</span></span><br><span class="line">y_1 = unwrap(noise(wrap(y), <span class="number">1</span>)) + <span class="number">80</span></span><br><span class="line"><span class="comment"># plot</span></span><br><span class="line">plt.xlabel(<span class="string">"Relative Time"</span>)</span><br><span class="line">plt.ylabel(<span class="string">"Phase in Radians"</span>)</span><br><span class="line">p_o, = plt.plot(t,p)</span><br><span class="line">p_1, = plt.plot(x,y_1,<span class="string">'--'</span>)</span><br><span class="line">p_2, = plt.plot(x,y_2,<span class="string">'-.'</span>)</span><br><span class="line">p_5, = plt.plot(x,y_5,<span class="string">':'</span>)</span><br><span class="line">p_10, = plt.plot(x,y_10,<span class="string">':'</span>)</span><br><span class="line">plt.legend([p_o, p_1, p_2, p_5, p_10], [<span class="string">"Origin"</span>, <span class="string">"SNR=1"</span>, <span class="string">"SNR=2"</span>, <span class="string">"SNR=5"</span>, <span class="string">"SNR=10"</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br></pre></td></tr></table></figure>
+<p>我们可以看到：</p>
+<ul>
+<li><p>在采样率低于某一关键值32时基本没法解出正确相位。</p>
+<p>  <img src="https://raw.github.com/reverland/phase-unwrapping-notes/master/image/phase-aliasing.jpg" alt="phase aliasing"></p>
+</li>
+<li>信噪比越低，解包裹效果越差。<br>  <img src="https://raw.github.com/reverland/phase-unwrapping-notes/master/image/noise.jpg" alt="noise"></li>
+</ul>
+<h2 id="Summary">Summary</h2><p>如果是二维相位去包裹问题，还有个奇点的问题。噪音、相位失真、奇点，似乎是所有相位解缠算法必须面对的三大问题。</p>
+<p>相关Ipython Notebook文件和Einstein和Monalisa的图像<a href="https://lhtlyybox.googlecode.com/files/phase.zip" target="_blank" rel="external">在此下载</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/phase-unwrapping/" rel="tag">#phase-unwrapping</a>
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/python/2013/03/13/advanced-python-constructs/" rel="next" title="Advanced Python Constructs(译)">
+                <i class="fa fa-chevron-left"></i> Advanced Python Constructs(译)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/phase-unwrapping/2013/04/07/2-d-phase-unwrapping-path-following/" rel="prev" title="二维相位去包裹：路径积分法">
+                二维相位去包裹：路径积分法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一维相位去包裹：原理与仿真"><span class="nav-number">1.</span> <span class="nav-text">一维相位去包裹：原理与仿真</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Off-Topic"><span class="nav-number">1.1.</span> <span class="nav-text">Off-Topic</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为何相位重要"><span class="nav-number">1.2.</span> <span class="nav-text">为何相位重要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为何要相位去包裹"><span class="nav-number">1.3.</span> <span class="nav-text">为何要相位去包裹</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Itoh的路径积分法"><span class="nav-number">1.4.</span> <span class="nav-text">Itoh的路径积分法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#仿真"><span class="nav-number">1.5.</span> <span class="nav-text">仿真</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summary"><span class="nav-number">1.6.</span> <span class="nav-text">Summary</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

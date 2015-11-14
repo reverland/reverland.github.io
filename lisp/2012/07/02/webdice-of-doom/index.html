@@ -1,0 +1,665 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="land-of-lisp," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="基于web的Dice of Doom游戏眼看最后两章了,虽然AI那里云山雾罩,然而看到web又精神为之一震,真是看得高潮迭起啊。作者也很给力，直接用html5来编写web应用，把svg直接嵌入到html中。可惜作者用的是firefox3.7 alpha，为了在我的archlinux x86_64的firefox12上运行良好，还是多废了些心机。这章看着很爽。
+绘制游戏元素毋庸置疑，所有游戏界面要用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于web的Dice of Doom">
+<meta property="og:url" content="http://reverland.org/lisp/2012/07/02/webdice-of-doom/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="基于web的Dice of Doom游戏眼看最后两章了,虽然AI那里云山雾罩,然而看到web又精神为之一震,真是看得高潮迭起啊。作者也很给力，直接用html5来编写web应用，把svg直接嵌入到html中。可惜作者用的是firefox3.7 alpha，为了在我的archlinux x86_64的firefox12上运行良好，还是多废了些心机。这章看着很爽。
+绘制游戏元素毋庸置疑，所有游戏界面要用">
+<meta property="og:image" content="http://fmn.rrimg.com/fmn064/20120702/1345/p_large_vHyz_01a000007c271262.jpg!">
+<meta property="og:updated_time" content="2015-11-13T06:52:45.016Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于web的Dice of Doom">
+<meta name="twitter:description" content="基于web的Dice of Doom游戏眼看最后两章了,虽然AI那里云山雾罩,然而看到web又精神为之一震,真是看得高潮迭起啊。作者也很给力，直接用html5来编写web应用，把svg直接嵌入到html中。可惜作者用的是firefox3.7 alpha，为了在我的archlinux x86_64的firefox12上运行良好，还是多废了些心机。这章看着很爽。
+绘制游戏元素毋庸置疑，所有游戏界面要用">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> 基于web的Dice of Doom | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                基于web的Dice of Doom
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-07-02T00:00:00+08:00" content="2012-07-02">
+              2012-07-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="基于web的Dice_of_Doom游戏">基于web的Dice of Doom游戏</h1><p>眼看最后两章了,虽然AI那里云山雾罩,然而看到web又精神为之一震,真是看得高潮迭起啊。作者也很给力，直接用html5来编写web应用，把svg直接嵌入到html中。可惜作者用的是firefox3.7 alpha，为了在我的archlinux x86_64的firefox12上运行良好，还是多废了些心机。这章看着很爽。</p>
+<h2 id="绘制游戏元素">绘制游戏元素</h2><p>毋庸置疑，所有游戏界面要用svg画出来，于是我们之前写得 <a href="/lisp/2012/06/16/dsl/">svg库</a> 要派上用场了。什么？已经没有了？那么从该书主页上下载<a href="http://landoflisp.com/source.html" target="_blank" rel="external">svg.lisp</a>.</p>
+<p>由于要创建个基于web的应用程序，之前的<a href="/lisp/2012/05/12/web-server-written-in-lisp/">webserver</a>也需要加载。</p>
+<p>当然还有我们的游戏新引擎<a href="/lisp/2012/06/29/dice-of-doom-v2/">Dice of Doom v2</a></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(cd &#34;~/Documents/lisp&#34;) &#10;(load &#34;dice_of_doom_v2&#34;)&#10;(load &#34;webserver&#34;)&#10;(load &#34;svg.lisp&#34;)</span><br></pre></td></tr></table></figure>
+<p>然后需要先设定一些常数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defparameter *board-width* 900);&#38754;&#26495;&#23485;&#24230;&#10;(defparameter *board-height* 500);&#38754;&#26495;&#39640;&#24230;&#10;(defparameter *board-scale* 64);&#38754;&#26495;&#32553;&#25918;&#27604;&#20363;&#10;(defparameter *top-offset* 3);&#20004;&#25694;&#36215;&#26469;&#30340;&#39600;&#23376;&#30456;&#23545;&#20301;&#31227;&#10;(defparameter *dice-scale* 40);&#39600;&#23376;&#32553;&#25918;&#27604;&#20363;&#10;(defparameter *dot-size* 0.05);&#39600;&#23376;&#19978;&#28857;&#30340;&#22823;&#23567;</span><br></pre></td></tr></table></figure>
+<p>接下来画骰子</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun draw-die-svg (x y col)&#10;  (labels ((calc-pt (pt)&#10;             (cons (+ x (* *dice-scale* (car pt)))&#10;                   (+ y (* *dice-scale* (cdr pt)))))&#10;           (f (pol col)&#10;             (polygon (mapcar #&#39;calc-pt pol) col)))&#10;    (f &#39;((0 . -1) (-0.6 . -0.75) (0 . -0.5) (0.6 . -0.75))&#10;       (brightness col 40))&#10;    (f &#39;((0 . -0.5) (-0.6 . -0.75) (-0.6 . 0) (0 . 0.25))&#10;       col)&#10;    (f &#39;((0 . -0.5) (0.6 . -0.75) (0.6 . 0) (0 . 0.25))&#10;       (brightness col -40))&#10;    (mapc (lambda (x y)&#10;            (polygon (mapcar (lambda (xx yy)&#10;                               (calc-pt (cons (+ x (* xx *dot-size*))&#10;                                              (+ y (* yy *dot-size*)))))&#10;                             &#39;(-1 -1 1 1)&#10;                             &#39;(-1 1 1 -1))&#10;                     &#39;(255 255 255)))&#10;          &#39;(-0.05 0.125 0.3 -0.3 -0.125 0.05 0.2 0.2 0.45 0.45 -0.45 -0.2)&#10;          &#39;(-0.875 -0.80 -0.725 -0.775 -0.70 -0.625 -0.35 -0.05 -0.45 -0.15 -0.45 -0.05))))&#10;;(with-open-file (*standard-output* &#34;die.svg&#34; :direction :output :if-exists :supersede) (svg 100 100 (draw-die-svg 50 50 &#39;(255 0 0))))</span><br></pre></td></tr></table></figure>
+<p>再画一小块面板</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun draw-tile-svg (x y pos hex xx yy col chosen-tile)&#10;  (loop for z below 2&#10;        do (polygon (mapcar (lambda (pt)&#10;                              (cons (+ xx (* *board-scale* (car pt)))&#10;                                    (+ yy (* *board-scale*&#10;                                             (+ (cdr pt) (* (- 1 z) 0.1))))))&#10;                            &#39;((-1 . -0.2) (0 . -0.5) (1 . -0.2)&#10;                                          (1 . 0.2) (0 . 0.5) (-1 . 0.2)))&#10;                    (if (eql pos chosen-tile)&#10;                      (brightness col 100)&#10;                      col)))&#10;  (loop for z below (second hex)&#10;        do (draw-die-svg (+ xx&#10;                            (* *dice-scale*&#10;                               0.3&#10;                               (if (oddp (+ x y z))&#10;                                 -0.3&#10;                                 0.3)))&#10;                         (- yy (* *dice-scale* z 0.8)) col)))&#10;&#10;;(with-open-file (*standard-output* &#34;tile.svg&#34; :direction :output) (svg 300 300 (draw-tile-svg 0 0 0 &#39;(0 3) 100 150 &#39;(255 0 0) nil)))</span><br></pre></td></tr></table></figure>
+<p>接下来是整个面板</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Draw the Board&#10;(defparameter *die-colors* &#39;((255 63 63) (63 63 255)))&#10;(defun draw-board-svg (board chosen-tile legal-tiles)&#10;  (loop for y below *board-size*&#10;        do (loop for x below *board-size*&#10;                 for pos = (+ x (* *board-size* y))&#10;                 for hex = (aref board pos)&#10;                 for xx = (* *board-scale* (+ (* 2 x) (- *board-size* y)))&#10;                 for yy = (* *board-scale* (+ (* y 0.7) *top-offset*))&#10;                 for col = (brightness (nth (first hex) *die-colors*)&#10;                                       (* -15 (- *board-size* y)))&#10;                 do (if (member pos legal-tiles)&#10;                      (tag g ()&#10;                        (tag a (&#34;xlink:href&#34; (make-game-link pos))&#10;                          (draw-tile-svg x y pos hex xx yy col chosen-tile)))&#10;                      (draw-tile-svg x y pos hex xx yy col chosen-tile)))))&#10;(defun make-game-link (pos)&#10;  (format nil &#34;/game.html?chosen=~a&#34; pos))&#10;;(with-open-file (*standard-output* &#34;board.svg&#34; :direction :output :if-exists :supersede) (svg *board-width* *board-height* (draw-board-svg (gen-board) nil nil)))</span><br></pre></td></tr></table></figure>
+<p>这有个问题，之前我们svg宏不是像上文中那样定义的，svg宏需要稍加修改，具体参见本书的<a href="http://landoflisp.com/errata.html" target="_blank" rel="external">errata</a></p>
+<h2 id="建立Web服务器">建立Web服务器</h2><p>先写游戏的驱动</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defparameter *cur-game-tree* nil);&#21021;&#22987;&#21270;&#24403;&#21069;&#28216;&#25103;&#26641;&#10;(defparameter *from-tile* nil);&#36873;&#25321;&#30340;&#19968;&#29255;&#38754;&#26495;&#10;&#10;(defun dod-request-handler (path header params)&#10;  (if (equal path &#34;game.html&#34;)&#10;    (progn (princ &#34;HTTP/1.1 200 OK&#10;&#10;                  &#60;!doctype html&#62;&#10;                  &#60;html&#62;&#60;head&#62;&#60;/head&#62;&#60;body&#62;&#34;)&#10;           (tag center ()&#10;             (princ &#34;Welcome to DICE OF DOOM!&#34;)&#10;             (tag br ())&#10;             (let ((chosen (assoc &#39;chosen params)))&#10;               (when (or (not *cur-game-tree*) (not chosen))&#10;                 (setf chosen nil)&#10;                 (web-initialize))&#10;               (cond ((lazy-null (caddr *cur-game-tree*))&#10;                      (web-announce-winner (cadr *cur-game-tree*)))&#10;                     ((zerop (car *cur-game-tree*))&#10;                      (web-handle-human&#10;                        (when chosen&#10;                          (read-from-string (cdr chosen)))))&#10;                     (t (web-handle-computer))))&#10;             (tag br ())&#10;             (draw-dod-page *cur-game-tree* *from-tile*))&#10;           (princ &#34;&#60;/body&#62;&#60;/html&#62;&#34;)) &#10;    (princ &#34;Sorry... I don&#39;t know that page.&#34;)))</span><br></pre></td></tr></table></figure>
+<p>在这里我稍作修改，更改了服务器返回给浏览器的信息，使它更加符合标准能在firefox12中运行正常。</p>
+<p>我们只做了一个超级简化的服务器，功能弱爆了，但作者许诺能在最后一章很轻易的扩展。之后我们处理些基于webserver的函数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun web-initialize ()&#10;  (setf *from-tile* nil)&#10;  (setf *cur-game-tree* (game-tree (gen-board) 0 0 t)))&#10;;&#23459;&#24067;&#32988;&#32773;web version&#10;(defun web-announce-winner (board)&#10;  (fresh-line)&#10;  (let ((w (winners board)))&#10;    (if (&#62; (length w ) 1)&#10;      (format t &#34;The game is a tie between ~a&#34; (mapcar #&#39;player-letter w))&#10;      (format t &#34;The winner is ~a&#34; (player-letter (car w)))))&#10;  (tag a (href &#34;game.html&#34;)&#10;    (princ &#34; play again&#34;)))&#10;;&#22788;&#29702;&#20154;&#31867;&#29609;&#23478;&#10;(defun web-handle-human (pos)&#10;  (cond ((not pos) (princ &#34;Please choose a hex to move from:&#34;))&#10;        ((eq pos &#39;pass) (setf *cur-game-tree*&#10;                              (cadr (lazy-car (caddr *cur-game-tree*))))&#10;                        (princ &#34;Your reinforcements have been placed.&#34;)&#10;                        (tag a (href (make-game-link nil))&#10;                          (princ &#34;continue&#34;)))&#10;        ((not *from-tile*) (setf *from-tile* pos)&#10;                           (princ &#34;Now choose a destination:&#34;))&#10;        ((eq pos *from-tile*) (setf *from-tile* nil)&#10;                              (princ &#34;Move cancelled.&#34;))&#10;        (t (setf *cur-game-tree*&#10;                 (cadr (lazy-find-if (lambda (move)&#10;                                       (equal (car move)&#10;                                              (list *from-tile* pos)))&#10;                                     (caddr *cur-game-tree*))))&#10;           (setf *from-tile* nil)&#10;           (princ &#34;You may now &#34;)&#10;           (tag a (href (make-game-link &#39;pass))&#10;             (princ &#34;pass&#34;))&#10;           (princ &#34; or make another move:&#34;))))&#10;;&#22788;&#29702;&#35745;&#31639;&#26426;&#29609;&#23478;&#10;(defun web-handle-computer ()&#10;  (setf *cur-game-tree* (handle-computer *cur-game-tree*))&#10;  (princ &#34;The computer has moved. &#34;)&#10;  (tag script ()&#10;    (princ&#10;      &#34;window.setTimeout(&#39;window.location=\&#34;game.html?chosen=NIL\&#34;&#39;,3000)&#34;)));javascript&#65292;&#25913;&#25104;3&#31186;&#20102;&#65292;&#24863;&#35273;5&#31186;&#22312;&#25105;&#36825;&#37324;&#22826;&#24930;&#20102;</span><br></pre></td></tr></table></figure>
+<p>然后在html中绘制svg游戏面板时有些tweak，首先是svg，你遵照之前errata提到的修正svg宏后才能正常显示，否则只显示一小块或完全看不到时可别吃惊。另外是作者定义两次点击同一片游戏面板代表取消，但它的legal-tile（合法面板）中却没有包含本身，以致于不能正常取消选中。我做了如下修改，把当前选中的游戏面板添加进合法面板中。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;caXXXXXXXdr&#8230;&#8230;&#20197;&#21518;&#25105;&#35201;&#29992;firstsecond&#25913;&#20889;&#10;(defun draw-dod-page (tree selected-tile)&#10;  (svg *board-width* ;svg&#35201;&#26356;&#25913;&#65281;&#65281;&#10;       *board-height* &#10;       (draw-board-svg (cadr tree)&#10;                       selected-tile&#10;                       (cons selected-tile;what I add &#10;                             (take-all (if selected-tile&#10;                                   (lazy-mapcar&#10;                                     (lambda (move)&#10;                                       (when (eql (caar move)&#10;                                                  selected-tile)&#10;                                         (cadar move)))&#10;                                     (caddr tree))&#10;                                   (lazy-mapcar #&#39;caar (caddr tree))))))))</span><br></pre></td></tr></table></figure>
+<p>然后很显然，enjoy我们基于网络的游戏吧</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(serve #&#39;dod-request-handler)</span><br></pre></td></tr></table></figure>
+<hr>
+
+<h2 id="游戏截图">游戏截图</h2><p>截个图看看效果</p>
+<p><img src="http://fmn.rrimg.com/fmn064/20120702/1345/p_large_vHyz_01a000007c271262.jpg!" alt=""></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/land-of-lisp/" rel="tag">#land-of-lisp</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/lisp/2012/06/29/dice-of-doom-v2/" rel="next" title="Dice of Doom v2">
+                <i class="fa fa-chevron-left"></i> Dice of Doom v2
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/math/2012/07/05//" rel="prev" title="概率论与数理统计基础">
+                概率论与数理统计基础 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基于web的Dice_of_Doom游戏"><span class="nav-number">1.</span> <span class="nav-text">基于web的Dice of Doom游戏</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#绘制游戏元素"><span class="nav-number">1.1.</span> <span class="nav-text">绘制游戏元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#建立Web服务器"><span class="nav-number">1.2.</span> <span class="nav-text">建立Web服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#游戏截图"><span class="nav-number">1.3.</span> <span class="nav-text">游戏截图</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

@@ -1,0 +1,704 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python,spider," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="超星数字图书馆(北邮镜像): 在线阅读书籍爬取转换(selenium)
+我忧心忡忡地看待未来，但仍满怀美好的希望。
+—— Albert Schweitzer
+
+这次推荐selenium，自从有了selenium，爬虫从来没有这么简单过。
+
+几天前，一个工作的同学想让我帮他借一本书《聚酰亚胺新型材料》，他工作上需要看这本书的一些内容，但是这本书已经绝版，网上也没有出售。
+于是我帮他搜索了下，图书馆里">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python Spider: 超星图书爬取转换">
+<meta property="og:url" content="http://reverland.org/python/2015/04/04/chaoxing/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="超星数字图书馆(北邮镜像): 在线阅读书籍爬取转换(selenium)
+我忧心忡忡地看待未来，但仍满怀美好的希望。
+—— Albert Schweitzer
+
+这次推荐selenium，自从有了selenium，爬虫从来没有这么简单过。
+
+几天前，一个工作的同学想让我帮他借一本书《聚酰亚胺新型材料》，他工作上需要看这本书的一些内容，但是这本书已经绝版，网上也没有出售。
+于是我帮他搜索了下，图书馆里">
+<meta property="og:image" content="http://reverland.org/images/spider/chaoxing.png">
+<meta property="og:image" content="http://reverland.org/images/spider/chaoxing1.png">
+<meta property="og:image" content="http://reverland.org/images/spider/chaoxing2.png">
+<meta property="og:image" content="http://reverland.org/images/spider/chaoxing3.png">
+<meta property="og:image" content="http://reverland.org/images/spider/chaoxing4.png">
+<meta property="og:image" content="http://reverland.org/images/spider/chaoxing6.png">
+<meta property="og:image" content="http://reverland.org/images/spider/chaoxing5.png">
+<meta property="og:image" content="http://reverland.org/images/spider/chaoxing7.png">
+<meta property="og:image" content="http://reverland.org/img=http://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Aaron_Swartz_profile.jpg/220px-Aaron_Swartz_profile.jpg">
+<meta property="og:updated_time" content="2015-11-12T16:34:09.296Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python Spider: 超星图书爬取转换">
+<meta name="twitter:description" content="超星数字图书馆(北邮镜像): 在线阅读书籍爬取转换(selenium)
+我忧心忡忡地看待未来，但仍满怀美好的希望。
+—— Albert Schweitzer
+
+这次推荐selenium，自从有了selenium，爬虫从来没有这么简单过。
+
+几天前，一个工作的同学想让我帮他借一本书《聚酰亚胺新型材料》，他工作上需要看这本书的一些内容，但是这本书已经绝版，网上也没有出售。
+于是我帮他搜索了下，图书馆里">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> Python Spider: 超星图书爬取转换 | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Python Spider: 超星图书爬取转换
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-04-04T00:00:00+08:00" content="2015-04-04">
+              2015-04-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="超星数字图书馆(北邮镜像):_在线阅读书籍爬取转换(selenium)">超星数字图书馆(北邮镜像): 在线阅读书籍爬取转换(selenium)</h2><blockquote>
+<p>我忧心忡忡地看待未来，但仍满怀美好的希望。</p>
+<p>—— Albert Schweitzer</p>
+</blockquote>
+<p>这次推荐selenium，自从有了selenium，爬虫从来没有这么简单过。</p>
+<hr>
+<p>几天前，一个工作的同学想让我帮他借一本书《聚酰亚胺新型材料》，他工作上需要看这本书的一些内容，但是这本书已经绝版，网上也没有出售。</p>
+<p>于是我帮他搜索了下，图书馆里没有这本书。忽然想起来我邮还买了很多电子资源。</p>
+<p>于是从图书馆主页选择<code>电子图书</code>-&gt;<code>超星数字电子图书数据</code>，进入如下页面。</p>
+<p><img src="/images/spider/chaoxing.png" alt=""></p>
+<p>搜索了下这本书，找到了一本。</p>
+<p><img src="/images/spider/chaoxing1.png" alt=""></p>
+<p>太棒了，下载下来……额……下载需要阅读器……</p>
+<p><img src="/images/spider/chaoxing2.png" alt=""></p>
+<p>对一个伪geek最讨厌的事情之一就是，某个牛比的企业倚杖其资源绑架用户安装所谓的客户端。比如讨厌的腾讯和讨厌的淘宝。</p>
+<p>自然也不会下载什么阅读器，但是，既然可以在线看，那么就可以下载下来。实在在不行我浏览器截图行么。</p>
+<p>selenium让一切成为可能(包括截图)。</p>
+<p>让我们在线阅读：</p>
+<p><img src="/images/spider/chaoxing3.png" alt=""></p>
+<p>在线阅读提供了一些功能，包括索引、目录和文字提取，悲剧的是下载下来之后转成的pdf可没有这么多道道。虽然，如果肯花时间解决这些都不是问题……但是，我们又不是想pirate电子书……</p>
+<p>对页面按右键发现这是个图片！接着观察对应的源码发现，是一个input标签，仔细观察这个input标签你可以看到很多属性，比如比较重要的class、scr、src、jpgname。</p>
+<p>仔细多观察一个，你会发现，class是Jimg的似乎都是书页内容、jpgname属性是页码、scr和src好像都是书页图片地址。</p>
+<p><img src="/images/spider/chaoxing4.png" alt=""></p>
+<p>你可以试试。说服自己那些就是书页图片地址</p>
+<p><img src="/images/spider/chaoxing6.png" alt=""></p>
+<p>多看几个发现下面的页面其实src属性都是假的，猜测是书页滚动到某个页面，通过js动态修改src来实现实时加载而不是一下全加载。</p>
+<p><img src="/images/spider/chaoxing5.png" alt=""></p>
+<p>那么，我们抓取当前网页阅读页面所有class属性是<code>Jimg</code>的input标签的<code>scr</code>标签，就可以获取所有书页的图像了。</p>
+<p>接下来，看看selenium是多么丧心病狂……</p>
+<p>我们把以上所有从搜索到在线阅读的过程自动化……</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> imghdr</span><br><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"><span class="keyword">import</span> urllib2</span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"></span><br><span class="line"><span class="comment"># bookname = u'聚酰亚胺新型材料'</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    bookname = unicode(sys.argv[<span class="number">1</span>], <span class="string">'utf-8'</span>)</span><br><span class="line"><span class="keyword">except</span>:</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"[Usage:] chaoxing.py bookname"</span></span><br><span class="line">    sys.exit(<span class="number">1</span>)</span><br><span class="line">driver = webdriver.Firefox()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 首先搜索</span></span><br><span class="line"></span><br><span class="line">url = <span class="string">'http://sslibbook2.sslibrary.com'</span></span><br><span class="line"></span><br><span class="line">driver.get(url)</span><br><span class="line">time.sleep(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输入书名</span></span><br><span class="line">driver.find_element_by_id(<span class="string">'sword'</span>).send_keys(bookname)</span><br><span class="line"><span class="comment"># 检索</span></span><br><span class="line">driver.find_element_by_class_name(<span class="string">"btn-jiansuo"</span>).click()</span><br><span class="line"><span class="comment"># 检索结果</span></span><br><span class="line">driver.switch_to_frame(<span class="string">'book'</span>)</span><br><span class="line">time.sleep(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">assert</span>(len(driver.find_elements_by_class_name(<span class="string">'yy'</span>)) &gt; <span class="number">1</span>)</span><br><span class="line"><span class="comment"># 确认书名</span></span><br><span class="line"><span class="keyword">assert</span>(driver.find_elements_by_class_name(<span class="string">'yy'</span>)[<span class="number">0</span>].text</span><br><span class="line">       == <span class="string">u"《"</span> + bookname + <span class="string">u"》"</span>)</span><br><span class="line"><span class="comment"># 确认有网页阅读</span></span><br><span class="line"><span class="keyword">assert</span>(driver.find_elements_by_class_name(<span class="string">'yy'</span>)[<span class="number">1</span>].text == <span class="string">u'网页阅读'</span>)</span><br><span class="line"></span><br><span class="line">bookurl = driver.find_elements_by_class_name(<span class="string">'yy'</span>)[<span class="number">1</span>].get_attribute(<span class="string">'href'</span>)</span><br><span class="line"></span><br><span class="line">driver.get(bookurl)</span><br><span class="line"></span><br><span class="line"><span class="comment"># where img locate</span></span><br><span class="line">base_url = <span class="string">"http://"</span> + urllib2.urlparse.urlparse(driver.current_url).netloc</span><br><span class="line"></span><br><span class="line"><span class="keyword">assert</span>(driver.page_source.find(<span class="string">u'超星'</span>) &gt;= <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">pages = driver.find_elements_by_xpath(<span class="string">'//input[@class="Jimg"]'</span>)</span><br><span class="line"></span><br><span class="line">filelist = [e.get_attribute(<span class="string">'jpgname'</span>) <span class="keyword">for</span> e <span class="keyword">in</span> pages]</span><br><span class="line"></span><br><span class="line">imglist = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> e <span class="keyword">in</span> pages:</span><br><span class="line">    imglist[e.get_attribute(<span class="string">'jpgname'</span>)] = base_url + e.get_attribute(<span class="string">'scr'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> k, v <span class="keyword">in</span> imglist.iteritems():</span><br><span class="line">    <span class="keyword">if</span> os.path.exists(k):</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        urllib.urlretrieve(v, k)</span><br><span class="line">        <span class="keyword">assert</span>(imghdr.what(k) == <span class="string">'png'</span>)</span><br><span class="line">    <span class="keyword">except</span> Exception, e:</span><br><span class="line">        <span class="keyword">print</span> e</span><br><span class="line"></span><br><span class="line">cmd = <span class="string">u'convert '</span> + <span class="string">u' '</span>.join(filelist) + <span class="string">' '</span> + bookname + <span class="string">u'.pdf'</span></span><br><span class="line">cmd = cmd.encode(<span class="string">'utf-8'</span>)</span><br><span class="line">os.popen(cmd)</span><br></pre></td></tr></table></figure>
+<p>稍微解释下，最后，是用imagemagick把一大堆png格式的书页内容转化成pdf格式。这个过程相当耗内存……如果有空就想想怎么换种方式转pdf，也愿各位看官能指教下。</p>
+<p><img src="/images/spider/chaoxing7.png" alt=""></p>
+<p>当然，我并没有把pdf传给任何人，我看完之后跟同学讲了讲，没有做任何盗版行径。同学们也要遵守用户守则，不要乱搞。</p>
+<p>让我们引以为戒 <a href="http://zh.wikipedia.org/wiki/%E4%BA%9A%E4%BC%A6%C2%B7%E6%96%AF%E6%B2%83%E8%8C%A8" target="_blank" rel="external">Aaron Swartz</a></p>
+<p><img src="img=http://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Aaron_Swartz_profile.jpg/220px-Aaron_Swartz_profile.jpg" alt="Aaron Swartz"></p>
+<p>非法下载书籍的罪名是非常非常严重的！！！！！</p>
+<hr>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+            <a href="/tags/spider/" rel="tag">#spider</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/python/2015/04/03/ydcx/" rel="next" title="Python Spider: 北邮用电查询系统数据">
+                <i class="fa fa-chevron-left"></i> Python Spider: 北邮用电查询系统数据
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/python/2015/04/05/yingxin/" rel="prev" title="Python Spider: 迎新系统学生信息爬取">
+                Python Spider: 迎新系统学生信息爬取 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#超星数字图书馆(北邮镜像):_在线阅读书籍爬取转换(selenium)"><span class="nav-number">1.</span> <span class="nav-text">超星数字图书馆(北邮镜像): 在线阅读书籍爬取转换(selenium)</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

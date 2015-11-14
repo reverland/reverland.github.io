@@ -1,0 +1,657 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="land-of-lisp," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="满目的looploop是lisp中饱受争议的命令，因为它看起来不这么lispy，但它真得很强大。以下列举下基本用法：
+1(loop for i&amp;#10;      below 5&amp;#10;      sum i) &amp;#10;;counting from a starting point to an ending point&amp;#10;(loop for i&amp;#10;      from 5&amp;#10;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Using Loop To Evolve">
+<meta property="og:url" content="http://reverland.org/lisp/2012/05/06/using-loop-to-evolve/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="满目的looploop是lisp中饱受争议的命令，因为它看起来不这么lispy，但它真得很强大。以下列举下基本用法：
+1(loop for i&amp;#10;      below 5&amp;#10;      sum i) &amp;#10;;counting from a starting point to an ending point&amp;#10;(loop for i&amp;#10;      from 5&amp;#10;">
+<meta property="og:image" content="http://lhtlyybox.googlecode.com/files/%E6%8A%93%E5%9B%BE75.png">
+<meta property="og:updated_time" content="2015-11-12T16:18:28.764Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Using Loop To Evolve">
+<meta name="twitter:description" content="满目的looploop是lisp中饱受争议的命令，因为它看起来不这么lispy，但它真得很强大。以下列举下基本用法：
+1(loop for i&amp;#10;      below 5&amp;#10;      sum i) &amp;#10;;counting from a starting point to an ending point&amp;#10;(loop for i&amp;#10;      from 5&amp;#10;">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> Using Loop To Evolve | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Using Loop To Evolve
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-05-06T00:00:00+08:00" content="2012-05-06">
+              2012-05-06
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="满目的loop">满目的loop</h2><p>loop是lisp中饱受争议的命令，因为它看起来不这么lispy，但它真得很强大。以下列举下基本用法：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(loop for i&#10;      below 5&#10;      sum i) &#10;;counting from a starting point to an ending point&#10;(loop for i&#10;      from 5&#10;      to 10&#10;      sum i)&#10;;iterating through values in a list&#10;(loop for i&#10;      in &#39;(100 20 3)&#10;      sum i)&#10;;doing stuff in a loop&#10;(loop for i&#10;      below 5&#10;      do (print i))&#10;;dong stuff under certain conditions&#10;(loop for i&#10;      below 10&#10;      when (oddp i)&#10;      sum i)&#10;;breaking out of a loop early&#10;(loop for i&#10;      from 0&#10;      do (print i)&#10;      when (= i 5)&#10;      return &#39;falafel)&#10;;collecting a list of values&#10;(loop for i&#10;      in &#39;(2 3 4 5 6)&#10;      collect (* i i))&#10;;using multiple for clauses&#10;;loop 10 times&#10;(loop for x below 10&#10;      for y below 10&#10;      collect (+ x y))&#10;;nested loops for 10x10 times&#10;(loop for x below 10&#10;      collect (loop for y below 10&#10;                    collect (+ x y)))&#10;;track the index number of items in a list&#10;(loop for i&#10;      from 0&#10;      for day&#10;      in &#39;(monday tuesday wednesday thursday friday saturday sunday)&#10;      collect (cons i day))</span><br></pre></td></tr></table></figure>
+<p>当然还有很多，这个命令异常灵活，以致于作者做了个<a href="http://landoflisp.com/" target="_blank" rel="external">loop周期表</a>。</p>
+<h2 id="Using_Loop_to_Evolve">Using Loop to Evolve</h2><p>这个游戏看上去还挺轻松的，很有意思的“生命游戏”。不多说了，上码</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;;The extent of the world&#10;(defparameter *width* 100)&#10;(defparameter *height* 30)&#10;(defparameter *jungle* &#39;(45 10 10 10))&#10;(defparameter *plant-energy* 80)&#10;;;;Growing plants in our world&#10;;;cons cells should be compared with equal&#10;(defparameter *plants* (make-hash-table :test #&#39;equal))&#10;;;Grow new plants&#10;(defun random-plant (left top width height)&#10;  (let ((pos (cons (+ left (random width)) (+ top (random height)))))&#10;    (setf (gethash pos *plants*) t)))&#10;(defun add-plants ()&#10;  (apply #&#39;random-plant *jungle*)&#10;  (random-plant 0 0 *width* *height*))&#10;;;;Creating animals&#10;(defstruct animal x y energy dir genes)&#10;;;x,y stand for the position&#10;;;energy represent its energy,when the energy exhausted,it will die&#10;;;dir is the direction it faced&#10;;;genes decide the direction it will choose&#10;;;Creating an animal in the center of the map&#10;(defparameter *animals*&#10;  (list (make-animal :x;we only use list to traverse animal,&#10;                     ;its efficient enough.&#10;                     (ash *width* -1)&#10;                     :y&#10;                     (ash *height* -1)&#10;                     :energy&#10;                     1000&#10;                     :dir&#10;                     0&#10;                     :genes&#10;                     (loop repeat 8&#10;                           ;collect is OK??&#10;                           collecting (1+ (random 10))))))&#10;;;;Handling animal motion&#10;(defun move (animal)&#10;  (let ((dir (animal-dir animal))&#10;        (x (animal-x animal))&#10;        (y (animal-y animal)))&#10;    ;&#22914;&#26524;&#36798;&#21040;*width*,&#32622;0&#10;    (setf (animal-x animal) (mod (+ x&#10;                                    (cond ((and (&#62;= dir 2) (&#60; dir 5)) 1)&#10;                                          ((or (= dir 1) (= dir 5)) 0)&#10;                                          (t -1))&#10;                                    *width*)&#10;                                 *width*))&#10;    (setf (animal-y animal) (mod (+ y&#10;                                    (cond ((and (&#62;= dir 0) (&#60; dir 3)) -1)&#10;                                          ((and (&#62;= dir 4) (&#60; dir 7)) 1)&#10;                                          (t 0))&#10;                                    *height*)&#10;                                 *height*))&#10;    (decf (animal-energy animal))))&#10;;;;Handling animal turning&#10;(defun turn (animal)&#10;  (let ((x (random (apply #&#39;+ (animal-genes animal)))))&#10;    ;;this was not easy to understand it,&#10;    ;;&#24403;&#38543;&#26426;&#25968;&#33853;&#22312;&#21738;&#20010;&#21306;&#38388;&#23601;&#21738;&#20010;&#26041;&#21521;&#30340;&#36882;&#24402;&#25551;&#36848;&#10;    (labels ((angle (genes x)&#10;               (let ((xnu (- x (car genes))))&#10;                 (if (&#60; xnu 0)&#10;                   0&#10;                   (1+ (angle (cdr genes) xnu))))))&#10;      (setf (animal-dir animal)&#10;            (mod (+ (animal-dir animal) (angle (animal-genes animal) x))&#10;              8)))))&#10;;;;Handling animal eating&#10;(defun eat (animal)&#10;  (let ((pos (cons (animal-x animal) (animal-y animal))))&#10;    (when (gethash pos *plants*)&#10;      (incf (animal-energy animal) *plant-energy*)&#10;      (remhash pos *plants*))))&#10;;;;Handling animal reproduction&#10;;;&#23450;&#20041;&#32321;&#27542;&#26102;&#38656;&#35201;&#33021;&#37327;&#10;(defparameter *reproduction-energy* 200)&#10;(defun reproduce (animal)&#10;  (let ((e (animal-energy animal)))&#10;    (when (&#62;= e *reproduction-energy*)&#10;      (setf (animal-energy animal) (ash e -1))&#10;      (let ((animal-nu (copy-structure animal));&#27973;&#22797;&#21046;&#21629;&#20196;&#10;            (genes (copy-list (animal-genes animal)))&#10;            (mutation (random 8)))&#10;        (setf (nth mutation genes) &#10;              (max 1 (+ (nth mutation genes) (random 3) -1)))&#10;;This means the gene value will change plus or minus one, or&#10;;stay the same.&#10;        (setf (animal-genes animal-nu) genes)&#10;        (push animal-nu *animals*)))))&#10;;;;Simulating a day in our world&#10;(defun update-world ()&#10;  (setf *animals* (remove-if (lambda (animal)&#10;                               (&#60;= (animal-energy animal) 0))&#10;                             *animals*))&#10;  (mapc (lambda (animal)&#10;          (turn animal)&#10;          (move animal)&#10;          (eat animal)&#10;          (reproduce animal))&#10;        *animals*)&#10;  (add-plants))&#10;;;;Drawing our world&#10;;;;This has low performance but will not matters&#10;(defun draw-world ()&#10;  (loop for y&#10;        below *height*&#10;        do (progn &#10;             (fresh-line);outputs a newline only if the output-stream&#10;             ;is not already at the start of a line&#10;             (princ &#34;|&#34;)&#10;             (loop for x&#10;                   below *width*&#10;                   do (princ (cond ((some (lambda (animal)&#10;                                     ;&#21487;&#33021;&#19981;&#27490;&#19968;&#20010;&#21160;&#29289;&#10;                                            (and (= (animal-x animal) x)&#10;                                                 (= (animal-y animal) y)))&#10;                                          *animals*)&#10;                                    #\M)&#10;                                   ((gethash (cons x y) *plants*) #\*)&#10;                                   (t #\space))))&#10;             (princ &#34;|&#34;))))&#10;;;;Creating a user interface&#10;(defun evolution ()&#10;  (draw-world)&#10;  (fresh-line)&#10;  (let ((str (read-line)))&#10;    (cond ((equal str &#34;quit&#34;) ())&#10;;Recall Conrad&#8217;s Rule of Thumb for Comparing Stuff&#10;;use eq for symbols&#10;;use equal for everything else&#10;          (t (let ((x (parse-integer str :junk-allowed t)))&#10;               (if x&#10;                 (loop for i&#10;                       below x&#10;                       do (update-world)&#10;                       if (zerop (mod i 1000))&#10;                       do (princ #\.))&#10;                 (update-world))&#10;               (evolution))))))</span><br></pre></td></tr></table></figure>
+<p>这样开始模拟</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(evolution)</span><br></pre></td></tr></table></figure>
+<p>回车看看，100次看看，5000000次看看，据作者说5million次sbcl几分钟就可以搞定。我相信我的计算机比作者那时候好，可是….</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Evaluation took:&#10;  789.430 seconds of real time&#10;  459.846682 seconds of total run time (456.986869 user, 2.859813 system)&#10;  [ Run times consist of 18.864 seconds GC time, and 440.983 seconds non-GC time. ]&#10;  58.25% CPU&#10;  1,785,005,533,676 processor cycles&#10;  125,872,778,768 bytes consed</span><br></pre></td></tr></table></figure>
+<p>什么叫手抖竟然开始打成了5billion.这时候科学计数法就发挥作用了，感谢自由建客。</p>
+<hr>
+<p>Looks good however，</p>
+<p>M代表某无性生殖动物，<code>*</code>代表某随机生长植物</p>
+<p><img src="http://lhtlyybox.googlecode.com/files/%E6%8A%93%E5%9B%BE75.png" hight="200" width="400" alt="虚拟进化"></p>
+<hr>
+<h2 id="写在最后">写在最后</h2><p>资源丰富区自然选择留下了那些逡巡不前的，资源短缺区留下了富于冒险的。</p>
+<p>之后有上网查查其它进化游戏，发现资源丰富时资源消耗小的被淘汰，资源缺乏时资源消耗大的被淘汰</p>
+<p>启发性的游戏啊</p>
+<p>最后看了个有关进化选择的视频，是某研究人员们通过进化设计人工大脑的，感觉很震惊。特别是看到最后对之失控，看到人工大脑进化出意想不到的特性时。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/land-of-lisp/" rel="tag">#land-of-lisp</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/lisp/2012/05/03/the-orc-battle-game/" rel="next" title="The Orc Battle Game">
+                <i class="fa fa-chevron-left"></i> The Orc Battle Game
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/lisp/2012/05/09/attack-of-the-robots/" rel="prev" title="Attack of the Robots">
+                Attack of the Robots <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#满目的loop"><span class="nav-number">1.</span> <span class="nav-text">满目的loop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Using_Loop_to_Evolve"><span class="nav-number">2.</span> <span class="nav-text">Using Loop to Evolve</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#写在最后"><span class="nav-number">3.</span> <span class="nav-text">写在最后</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

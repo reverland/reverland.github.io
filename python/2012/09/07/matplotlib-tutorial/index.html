@@ -1,0 +1,1141 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="matplotlib,python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="Matplotlib Tutorial(译)翻译自:Matplotlib tutorialNicolas P. Rougier - Euroscipy 2012
+
+toc{: toc}
+
+这个教程基于可以从scipy lecture note得到的 Mike Müller的教程。
+源代码可从这里获得。图像在figures文件夹内，所有的脚本位于scripts文件夹。
+所有的代码和材料以Creati">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Matplotlib Tutorial(译)">
+<meta property="og:url" content="http://reverland.org/python/2012/09/07/matplotlib-tutorial/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="Matplotlib Tutorial(译)翻译自:Matplotlib tutorialNicolas P. Rougier - Euroscipy 2012
+
+toc{: toc}
+
+这个教程基于可以从scipy lecture note得到的 Mike Müller的教程。
+源代码可从这里获得。图像在figures文件夹内，所有的脚本位于scripts文件夹。
+所有的代码和材料以Creati">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_1.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_2.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_3.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_4.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_5.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_6.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_7.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_8.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_9.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_10.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/subplot-horizontal.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/subplot-vertical.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/subplot-grid.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/gridspec.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/axes.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/axes-2.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-NullLocator.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-IndexLocator.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-FixedLocator.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-LinearLocator.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-MultipleLocator.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-AutoLocator.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-LogLocator.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/plot_ex.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/scatter_ex.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/bar_ex.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/contour_ex.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/imshow_ex.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/pie_ex.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/quiver_ex.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/grid_ex.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/multiplot_ex.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/polar_ex.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/plot3d_ex.png">
+<meta property="og:image" content="http://www.loria.fr/~rougier/teaching/matplotlib/figures/text_ex.png">
+<meta property="og:updated_time" content="2015-11-12T16:05:14.892Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Matplotlib Tutorial(译)">
+<meta name="twitter:description" content="Matplotlib Tutorial(译)翻译自:Matplotlib tutorialNicolas P. Rougier - Euroscipy 2012
+
+toc{: toc}
+
+这个教程基于可以从scipy lecture note得到的 Mike Müller的教程。
+源代码可从这里获得。图像在figures文件夹内，所有的脚本位于scripts文件夹。
+所有的代码和材料以Creati">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> Matplotlib Tutorial(译) | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Matplotlib Tutorial(译)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-09-07T00:00:00+08:00" content="2012-09-07">
+              2012-09-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="Matplotlib_Tutorial(译)">Matplotlib Tutorial(译)</h1><p>翻译自:<a href="http://www.loria.fr/~rougier/teaching/matplotlib/" target="_blank" rel="external">Matplotlib tutorial</a>Nicolas P. Rougier - Euroscipy 2012</p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<p>这个教程基于可以从<a href="http://scipy-lectures.github.com/" target="_blank" rel="external">scipy lecture note</a>得到的 Mike Müller的<a href="http://scipy-lectures.github.com/intro/matplotlib/matplotlib.html" target="_blank" rel="external">教程</a>。</p>
+<p>源代码可从<a href="http://www.loria.fr/~rougier/teaching/matplotlib/matplotlib.rst" target="_blank" rel="external">这里</a>获得。图像在<a href="http://www.loria.fr/~rougier/teaching/matplotlib/figures/" target="_blank" rel="external">figures</a>文件夹内，所有的脚本位于<a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/" target="_blank" rel="external">scripts</a>文件夹。</p>
+<p>所有的代码和材料以<a href="http://creativecommons.org/licenses/by/3.0/us" target="_blank" rel="external">Creative Commons Attribution 3.0 United States License (CC-by)</a>发布。</p>
+<p>特别感谢Bill Wing和Christoph Deil的检查和校正。</p>
+<h2 id="引言">引言</h2><p>matplotlib大概是被使用最多的二维绘图Python包。它不仅提供一个非常快捷的用python可视化数据的方法，而且提供了出版质量的多种格式图像。我们将要探索matplotlib包含最常见情况的交互模式。</p>
+<h3 id="Ipython_和_pylab模式">Ipython 和 pylab模式</h3><p><a href="http://ipython.org/" target="_blank" rel="external">IPython</a>是一个增强的Python交互shell，它拥有很多有趣的特性包括被命名的输入与输出，可使用shell命令，增强的调试和许多其它特性。当我们在命令参数中用<code>-pylab</code>(自从IPython0.12版变成<code>--pylab</code>),它容许交互的matplotlib会话有像Matlab/Mathematica样的功能。</p>
+<h3 id="pylab">pylab</h3><p>pylab提供了一个针对matplotlib面向对象绘图库的程序界面。它模仿Matlab(TM)开发。因此，pylab大部分的绘图命令和参数和Matlab(TM)相似。重要的命令被交互示例解释。</p>
+<h2 id="简单绘图">简单绘图</h2><p>在这一部分，我们想在同一个图片中绘制正弦和余弦函数。从默认设置开始，我们将一步一步地改进使它看上去更棒。</p>
+<p>首先获得正弦和余弦函数的数据：</p>
+<pre><code>from pylab <span class="preprocessor"><span class="keyword">import</span> *</span>
+
+X = np.linspace(-np.<span class="built_in">pi</span>, np.<span class="built_in">pi</span>, <span class="number">256</span>,endpoint=<span class="literal">True</span>)
+C,S = np.<span class="built_in">cos</span>(X), np.<span class="built_in">sin</span>(X)
+</code></pre><p>X现在是一个numpy数组，包含从-π到+π(包含π)等差分布的256个值。C是正弦(256个值)，S是余弦(256个值)。</p>
+<p>运行这个例子，你可以在IPython交互会话键入它们</p>
+<pre><code>[lyy@arch ~]$ ipython2 <span class="comment">--pylab</span>
+Python <span class="number">2.7</span>.<span class="number">3</span> (<span class="keyword">default</span>, Apr <span class="number">24</span> <span class="number">2012</span>, <span class="number">00</span>:<span class="number">00</span>:<span class="number">54</span>) 
+<span class="keyword">Type</span> <span class="string">"copyright"</span>, <span class="string">"credits"</span> <span class="keyword">or</span> <span class="string">"license"</span> <span class="keyword">for</span> more information.
+
+IPython <span class="number">0.13</span> <span class="comment">-- An enhanced Interactive Python.</span>
+?         -&gt; Introduction <span class="keyword">and</span> overview <span class="keyword">of</span> IPython<span class="attribute">'s</span> features.
+%quickref -&gt; Quick reference.
+help      -&gt; Python<span class="attribute">'s</span> own help system.
+object?   -&gt; Details about <span class="attribute">'object</span>', <span class="keyword">use</span> <span class="attribute">'object</span>??' <span class="keyword">for</span> extra details.
+
+Welcome <span class="keyword">to</span> pylab, a matplotlib-based Python environment [backend: Qt4Agg].
+<span class="keyword">For</span> more information, <span class="keyword">type</span> <span class="attribute">'help</span>(pylab)'.
+</code></pre><p>或者你可以下载每个示例然后使用普通的的python运行它：</p>
+<pre><code>$ <span class="keyword">python</span> exercice_1.<span class="keyword">py</span>
+</code></pre><p>你可以点击相应图片的获得每一步的源码。</p>
+<h3 id="使用默认">使用默认</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_1.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_1.png" alt="using defaults"></a></p>
+<p>matplotlib有一套允许定制各种属性的默认设置。你可以几乎控制matplotlib中的每一个默认属性：图像大小，每英寸点数，线宽，色彩和样式，子图(axes)，坐标轴和网格属性，文字和字体属性，等等。虽然matplotlib的默认设置在大多数情况下相当好，你却可能想要在一些特别的情形下更改一些属性。</p>
+<pre><code>from pylab <span class="preprocessor"><span class="keyword">import</span> *</span>
+
+X = np.linspace(-np.<span class="built_in">pi</span>, np.<span class="built_in">pi</span>, <span class="number">256</span>,endpoint=<span class="literal">True</span>)
+C,S = np.<span class="built_in">cos</span>(X), np.<span class="built_in">sin</span>(X)
+
+plot(X,C)
+plot(X,S)
+
+show()
+</code></pre><h3 id="示例默认">示例默认</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_2.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_2.png" alt="using defaults"></a></p>
+<p>在以下脚本中，我们示例(并注释)所有影响图像外观的图像设定。这些设定被显式地设置成它们的默认值，但是现在你可以交互地尝试这些值来探索它们的作用(参考之后的<a href="#">线条属性</a>和<a href="#">线条样式</a>)。</p>
+<pre><code><span class="preprocessor"># Import everything from matplotlib (numpy is accessible via 'np' alias)</span>
+from pylab import *
+
+<span class="preprocessor"># Create a new figure of size 8x6 points, using 80 dots per inch</span>
+figure(figsize=(<span class="number">8</span>,<span class="number">6</span>), dpi=<span class="number">80</span>)
+
+<span class="preprocessor"># Create a new subplot from a grid of 1x1</span>
+subplot(<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>)
+
+X = np.linspace(-np.pi, np.pi, <span class="number">256</span>,endpoint=True)
+C,S = np.cos(X), np.sin(X)
+
+<span class="preprocessor"># Plot cosine using blue color with a continuous line of width 1 (pixels)</span>
+plot(X, C, color=<span class="string">"blue"</span>, linewidth=<span class="number">1.0</span>, linestyle=<span class="string">"-"</span>)
+
+<span class="preprocessor"># Plot sine using green color with a continuous line of width 1 (pixels)</span>
+plot(X, S, color=<span class="string">"green"</span>, linewidth=<span class="number">1.0</span>, linestyle=<span class="string">"-"</span>)
+
+<span class="preprocessor"># Set x limits</span>
+xlim(-<span class="number">4.0</span>,<span class="number">4.0</span>)
+
+<span class="preprocessor"># Set x ticks</span>
+xticks(np.linspace(-<span class="number">4</span>,<span class="number">4</span>,<span class="number">9</span>,endpoint=True))
+
+<span class="preprocessor"># Set y limits</span>
+ylim(-<span class="number">1.0</span>,<span class="number">1.0</span>)
+
+<span class="preprocessor"># Set y ticks</span>
+yticks(np.linspace(-<span class="number">1</span>,<span class="number">1</span>,<span class="number">5</span>,endpoint=True))
+
+<span class="preprocessor"># Save figure using 72 dots per inch</span>
+<span class="preprocessor"># savefig("exercice_2.png",dpi=72)</span>
+
+<span class="preprocessor"># Show result on screen</span>
+show()
+</code></pre><h3 id="更改色彩和线宽">更改色彩和线宽</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_3.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_3.png" alt="using defaults"></a></p>
+<p>首先，我们想要余弦是蓝色而正弦是红色，它们的线条都稍厚一点。我们将也稍微更改图片大小来使它更宽一点。</p>
+<pre><code><span class="function"><span class="title">figure</span><span class="params">(figsize=(<span class="number">10</span>,<span class="number">6</span>)</span></span>, dpi=<span class="number">80</span>)
+<span class="function"><span class="title">plot</span><span class="params">(X, C, color=<span class="string">"blue"</span>, linewidth=<span class="number">2.5</span>, linestyle=<span class="string">"-"</span>)</span></span>
+<span class="function"><span class="title">plot</span><span class="params">(X, S, color=<span class="string">"red"</span>,  linewidth=<span class="number">2.5</span>, linestyle=<span class="string">"-"</span>)</span></span>
+</code></pre><h3 id="设置边界">设置边界</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_4.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_4.png" alt="using defaults"></a></p>
+<p>当前的图像边界有点太紧了一点，而且我们想要预留一点空间使数据点更清晰。</p>
+<pre><code><span class="function"><span class="title">xlim</span><span class="params">(X.min()</span></span>*<span class="number">1.1</span>, X.<span class="function"><span class="title">max</span><span class="params">()</span></span>*<span class="number">1.1</span>)
+<span class="function"><span class="title">ylim</span><span class="params">(C.min()</span></span>*<span class="number">1.1</span>, C.<span class="function"><span class="title">max</span><span class="params">()</span></span>*<span class="number">1.1</span>)
+</code></pre><h3 id="设置刻度">设置刻度</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_5.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_5.png" alt="using defaults"></a></p>
+<p>当前刻度并不理想，因为它们不显示正余弦中我们感兴趣的值(+/-π,+/-π/2)。我们将更改它们让它们只显式这些值。</p>
+<pre><code>xticks( [-np.pi, -np.pi/<span class="number">2</span>, <span class="number">0</span>, np.pi/<span class="number">2</span>, np.pi])
+yticks([-<span class="number">1</span>, <span class="number">0</span>, +<span class="number">1</span>])
+</code></pre><h3 id="设置刻度标签">设置刻度标签</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_6.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_6.png" alt="using defaults"></a></p>
+<p>刻度已经放置合适但是他们的标签并不很清楚，我们可以猜出3.142是π但是最好让它更直接。当我们设置刻度值时，我们也可以在第二个参数列表中提供相应的标签。注意，我们用latex获得更好渲染的标签。</p>
+<pre><code>xticks([-np.pi, -np.pi/<span class="number">2</span>, <span class="number">0</span>, np.pi/<span class="number">2</span>, np.pi],
+       [<span class="string">r'$-\pi$'</span>, <span class="string">r'$-\pi/2$'</span>, <span class="string">r'$0$'</span>, <span class="string">r'$+\pi/2$'</span>, <span class="string">r'$+\pi$'</span>])
+
+yticks([-<span class="number">1</span>, <span class="number">0</span>, +<span class="number">1</span>],
+       [<span class="string">r'$-1$'</span>, <span class="string">r'$0$'</span>, <span class="string">r'$+1$'</span>])
+</code></pre><h3 id="移动轴线(spine)">移动轴线(spine)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_7.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_7.png" alt="using defaults"></a></p>
+<p>轴线(spines)是连接刻度标志和标示数据区域边界的线。它们现在可以被放置在任意地方，它们在子图的边缘。我们将改变这点，因为我们想让它们位于中间。因为一共有四个轴线(上/下/左/右)。我们将通过将它们的颜色设置成None，舍弃位于顶部和右部轴线。然后我们把底部和左部的轴线移动到数据空间坐标中的零点。</p>
+<pre><code>ax = <span class="function"><span class="title">gca</span><span class="params">()</span></span>
+ax<span class="class">.spines</span>[<span class="string">'right'</span>].<span class="function"><span class="title">set_color</span><span class="params">(<span class="string">'none'</span>)</span></span>
+ax<span class="class">.spines</span>[<span class="string">'top'</span>].<span class="function"><span class="title">set_color</span><span class="params">(<span class="string">'none'</span>)</span></span>
+ax<span class="class">.xaxis</span><span class="class">.set_ticks_position</span>(<span class="string">'bottom'</span>)
+ax<span class="class">.spines</span>[<span class="string">'bottom'</span>].<span class="function"><span class="title">set_position</span><span class="params">((<span class="string">'data'</span>,<span class="number">0</span>)</span></span>)
+ax<span class="class">.yaxis</span><span class="class">.set_ticks_position</span>(<span class="string">'left'</span>)
+ax<span class="class">.spines</span>[<span class="string">'left'</span>].<span class="function"><span class="title">set_position</span><span class="params">((<span class="string">'data'</span>,<span class="number">0</span>)</span></span>)
+</code></pre><h3 id="添加图例">添加图例</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_8.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_8.png" alt="using defaults"></a></p>
+<p>让我们在图片左上角添加一个图例。这仅仅需要向plot命令添加关键字参数label(之后将被图例框使用)。</p>
+<pre><code><span class="function"><span class="title">plot</span><span class="params">(X, C, color=<span class="string">"blue"</span>, linewidth=<span class="number">2.5</span>, linestyle=<span class="string">"-"</span>, label=<span class="string">"cosine"</span>)</span></span>
+<span class="function"><span class="title">plot</span><span class="params">(X, S, color=<span class="string">"red"</span>,  linewidth=<span class="number">2.5</span>, linestyle=<span class="string">"-"</span>, label=<span class="string">"sine"</span>)</span></span>
+
+<span class="function"><span class="title">legend</span><span class="params">(loc=<span class="string">'upper left'</span>)</span></span>
+</code></pre><h3 id="注解某些点">注解某些点</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_9.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_9.png" alt="using defaults"></a></p>
+<p>让我们现在使用annotate命令注解一些我们感兴趣的点。我们选择2π/3作为我们想要注解的正弦和余弦值。我们将在曲线上做一个标记和一个垂直的虚线。然后，使用annotate命令来显示一个箭头和一些文本。</p>
+<pre><code>t = <span class="number">2</span>*np.pi/<span class="number">3</span>
+<span class="function"><span class="title">plot</span><span class="params">([t,t],[<span class="number">0</span>,np.cos(t)</span></span>], <span class="attribute">color</span> =<span class="string">'blue'</span>, linewidth=<span class="number">2.5</span>, linestyle=<span class="string">"--"</span>)
+<span class="function"><span class="title">scatter</span><span class="params">([t,],[np.cos(t)</span></span>,], <span class="number">50</span>, <span class="attribute">color</span> =<span class="string">'blue'</span>)
+
+<span class="function"><span class="title">annotate</span><span class="params">(r<span class="string">'$sin(\frac{2\pi}{3})=\frac{\sqrt{3}}{2}$'</span>,
+         xy=(t, np.sin(t)</span></span>), xycoords=<span class="string">'data'</span>,
+         xytext=(+<span class="number">10</span>, +<span class="number">30</span>), textcoords=<span class="string">'offset points'</span>, fontsize=<span class="number">16</span>,
+         arrowprops=<span class="function"><span class="title">dict</span><span class="params">(arrowstyle=<span class="string">"-&gt;"</span>, connectionstyle=<span class="string">"arc3,rad=.2"</span>)</span></span>)
+
+<span class="function"><span class="title">plot</span><span class="params">([t,t],[<span class="number">0</span>,np.sin(t)</span></span>], <span class="attribute">color</span> =<span class="string">'red'</span>, linewidth=<span class="number">2.5</span>, linestyle=<span class="string">"--"</span>)
+<span class="function"><span class="title">scatter</span><span class="params">([t,],[np.sin(t)</span></span>,], <span class="number">50</span>, <span class="attribute">color</span> =<span class="string">'red'</span>)
+
+<span class="function"><span class="title">annotate</span><span class="params">(r<span class="string">'$cos(\frac{2\pi}{3})=-\frac{1}{2}$'</span>,
+         xy=(t, np.cos(t)</span></span>), xycoords=<span class="string">'data'</span>,
+         xytext=(-<span class="number">90</span>, -<span class="number">50</span>), textcoords=<span class="string">'offset points'</span>, fontsize=<span class="number">16</span>,
+         arrowprops=<span class="function"><span class="title">dict</span><span class="params">(arrowstyle=<span class="string">"-&gt;"</span>, connectionstyle=<span class="string">"arc3,rad=.2"</span>)</span></span>)
+</code></pre><h2 id="魔鬼在于细节">魔鬼在于细节</h2><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_10.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_10.png" alt="using defaults"></a></p>
+<p>由于蓝色和红色的线，刻度标签现在很难看清。。我们可以让它们更大并且调整它们的属性使它们的背景半透明。这将让我们把数据和标签都看清。</p>
+<pre><code><span class="keyword">for</span> <span class="tag">label</span> <span class="keyword">in</span> ax.<span class="function"><span class="title">get_xticklabels</span><span class="params">()</span></span> + ax.<span class="function"><span class="title">get_yticklabels</span><span class="params">()</span></span>:
+    <span class="tag">label</span>.<span class="function"><span class="title">set_fontsize</span><span class="params">(<span class="number">16</span>)</span></span>
+    <span class="tag">label</span>.<span class="function"><span class="title">set_bbox</span><span class="params">(dict(facecolor=<span class="string">'white'</span>, edgecolor=<span class="string">'None'</span>, alpha=<span class="number">0.65</span> )</span></span>)
+</code></pre><h2 id="图像，子区，子图，刻度(Figures,Subplots,Axes,Ticks)">图像，子区，子图，刻度(Figures,Subplots,Axes,Ticks)</h2><p><em>Note:这一段很绕，我不知道该怎么翻译好。在matplotlib中axes容器处于核心地位。翻译成子图因为在《Python科学计算》中作者这样称呼.subplot翻译成子区</em></p>
+<p>目前我们已经隐式地使用了图像(figure)和子图(axes)的创建。这对快速绘图很方便。我们通过显式使用figure，subplot，axes可以控制更多图像的呈现。一个图像(figure)意味着用户界面的整个窗口。在一个图像中可以有些子区(subplot)。subplot将绘图放置在常规的网格位置上而axes允许更自由的放置。它们都非常有用，取决于你的意图。我们已经隐式地使用了figure和subplot。当我们调用plot时，matplotlib调用gca来获取当前axes反过来调用gcf()获取当前图像(figure)。如果没有当前图像(figure)，它调用figure()创建一个，严格地说，是创建一个subplot(111)。让我们详细看看。</p>
+<h3 id="图像(Figure)">图像(Figure)</h3><p>图像是一个图形用户界面的窗口，以”Figure #”作为标题。相对于Python通常是0索引的，图像是从一开始的。这显然是matlab风格。这里有几个决定图像外观的参数：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>默认</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>num</td>
+<td>1</td>
+<td>图像编号</td>
+</tr>
+<tr>
+<td>figsize</td>
+<td>figure.figsize</td>
+<td>图像大小(宽度，高度)(英寸)</td>
+</tr>
+<tr>
+<td>dpi</td>
+<td>figure.dpi</td>
+<td>每英寸分辨率</td>
+</tr>
+<tr>
+<td>facecolor</td>
+<td>figure.facecolor</td>
+<td>背景色</td>
+</tr>
+<tr>
+<td>edgecolor</td>
+<td>figure.edgecolor</td>
+<td>绘图背景边沿色</td>
+</tr>
+<tr>
+<td>frameon</td>
+<td>True</td>
+<td>绘制框架与否</td>
+</tr>
+</tbody>
+</table>
+<p>默认可以在资源文件<a href="资源文件？">^1</a>指定，并将在大多数时间被使用。只有图像的编号频繁变动。</p>
+<p>当你使用图形用户界面时，你可以通过点击右上角<a href="有时是左上角">^2</a>的<code>x</code>来关闭一个图像。但也可以用一种编程方式调用close来关闭一个图像。取决于参数它关闭(1)当前图像(无参数)，(2)一个指定的图像(以图像编号或图像实例作为参数),(3)所有图像(以all作为参数)。</p>
+<p>和其它对象一样，你可以通过<code>setp</code>或<code>set_somethin</code>方法来设置图像属性。</p>
+<h3 id="子区(subplots)">子区(subplots)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/subplot-horizontal.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/subplot-horizontal.png" alt="using defaults"></a></p>
+<p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/subplot-vertical.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/subplot-vertical.png" alt="using defaults"></a></p>
+<p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/subplot-grid.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/subplot-grid.png" alt="using defaults"></a></p>
+<p>你可以通过subplot在正常网格中布置图像。你需要指定行数和列数和区域的编号。注意<a href="http://matplotlib.sourceforge.net/users/gridspec.html" target="_blank" rel="external">gridspec</a>命令是个更强大的选择。</p>
+<h3 id="子图(axes)">子图(axes)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/gridspec.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/gridspec.png" alt="using defaults"></a></p>
+<p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/axes.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/axes.png" alt="using defaults"></a></p>
+<p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/axes-2.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/axes-2.png" alt="using defaults"></a></p>
+<p>子图和子区(subplot)非常相似，但是允许把图片放置到图像(figure)中的任何地方。所以如果我们想要在一个大图片中嵌套一个小点的图片，我们通过子图(axes)来完成它。</p>
+<h3 id="刻度(ticks)">刻度(ticks)</h3><p>良好格式化的刻度是准备发表的图片中的重要部分。Matplotlib为刻度提供完全可配置的系统。刻度定位器指定刻度出现的位置，刻度格式器让刻度看起来如你所愿。主刻度和次要刻度可以分别放置和格式化，每个默认主刻度并不显示，也就是，它们只有一个空列表，因为它们作为空定位器(NullLocator)(参见下面)。</p>
+<h4 id="刻度定位器(Tick_Locator)">刻度定位器(Tick Locator)</h4><p>这有几个针对不同种类需求的各种定位器：</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NullLocator</td>
+<td>没有刻度.</td>
+</tr>
+<tr>
+<td></td>
+<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-NullLocator.png" alt=""></td>
+</tr>
+<tr>
+<td>IndexLocator</td>
+<td>每到一个基数的倍数点放置一个刻度</td>
+</tr>
+<tr>
+<td></td>
+<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-IndexLocator.png" alt=""></td>
+</tr>
+<tr>
+<td>FixedLocator</td>
+<td>刻度位置是固定的</td>
+</tr>
+<tr>
+<td></td>
+<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-FixedLocator.png" alt=""></td>
+</tr>
+<tr>
+<td>LinearLocator</td>
+<td>决定刻度位置</td>
+</tr>
+<tr>
+<td></td>
+<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-LinearLocator.png" alt=""></td>
+</tr>
+<tr>
+<td>MultipleLocator</td>
+<td>在每个基于基数倍数的整数点放置刻度</td>
+</tr>
+<tr>
+<td></td>
+<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-MultipleLocator.png" alt=""></td>
+</tr>
+<tr>
+<td>AutoLocator</td>
+<td>在不错的位置选择不超过n个间隔</td>
+</tr>
+<tr>
+<td></td>
+<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-AutoLocator.png" alt=""></td>
+</tr>
+<tr>
+<td>LogLocator</td>
+<td>以log坐标决定刻度位置</td>
+</tr>
+<tr>
+<td></td>
+<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-LogLocator.png" alt=""></td>
+</tr>
+</tbody>
+</table>
+<p>所有这些定位器源于matplotlib基类matplotlib.ticker.Locator。你可以源于它创建你自己的定位器。处理时间刻度可能非常棘手。因此，matplotlib在matplotlib.dates中提供了特殊的定位器。</p>
+<h2 id="其它种类绘图">其它种类绘图</h2><h3 id="常规绘图">常规绘图</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/plot_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/plot_ex.png" alt="reguler plots"></a></p>
+<p>从下面的代码开始，尝试重新生成上边的填充图形。</p>
+<pre><code>from pylab import *
+
+n = <span class="number">256</span>
+<span class="keyword">X</span> = np.linspace(-np.pi,np.pi,n,endpoint=True)
+<span class="keyword">Y</span> = np.sin(<span class="number">2</span>*<span class="keyword">X</span>)
+
+plot (<span class="keyword">X</span>, <span class="keyword">Y</span>+<span class="number">1</span>, color=<span class="string">'blue'</span>, alpha=<span class="number">1</span><span class="number">.00</span>)
+plot (<span class="keyword">X</span>, <span class="keyword">Y</span>-<span class="number">1</span>, color=<span class="string">'blue'</span>, alpha=<span class="number">1</span><span class="number">.00</span>)
+show()
+</code></pre><p>提示：你需要使用<a href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.fill_between" target="_blank" rel="external">fill_between</a>命令。</p>
+<p>点击图片获取答案。</p>
+<h3 id="散点图(scatter_plots)">散点图(scatter plots)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/scatter_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/scatter_ex.png" alt="reguler plots"></a></p>
+<p>从以下代码开始，尝试生成上边的图形，注意标记大小，颜色和透明度。</p>
+<pre><code>from pylab import *
+
+<span class="keyword">n</span> = 1024
+X = np.random.<span class="literal">normal</span>(0,1,<span class="keyword">n</span>)
+Y = np.random.<span class="literal">normal</span>(0,1,<span class="keyword">n</span>)
+
+<span class="keyword">scatter</span>(X,Y)
+show()
+</code></pre><p>提示：色彩由(X,Y)角度给出。</p>
+<p>点击图像获取答案。</p>
+<h3 id="条形图(bar_plots)">条形图(bar plots)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/bar_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/bar_ex.png" alt="reguler plots"></a></p>
+<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
+<pre><code>from pylab import *
+
+n = <span class="number">12</span>
+<span class="keyword">X</span> = np.arange(n)
+<span class="keyword">Y</span><span class="number">1</span> = (<span class="number">1</span>-<span class="keyword">X</span>/float(n)) * np.random.uniform(<span class="number">0</span><span class="number">.5</span>,<span class="number">1</span><span class="number">.0</span>,n)
+<span class="keyword">Y</span><span class="number">2</span> = (<span class="number">1</span>-<span class="keyword">X</span>/float(n)) * np.random.uniform(<span class="number">0</span><span class="number">.5</span>,<span class="number">1</span><span class="number">.0</span>,n)
+
+bar(<span class="keyword">X</span>, +<span class="keyword">Y</span><span class="number">1</span>, facecolor=<span class="string">'#9999ff'</span>, edgecolor=<span class="string">'white'</span>)
+bar(<span class="keyword">X</span>, -<span class="keyword">Y</span><span class="number">2</span>, facecolor=<span class="string">'#ff9999'</span>, edgecolor=<span class="string">'white'</span>)
+
+for x,y in zip(<span class="keyword">X</span>,<span class="keyword">Y</span><span class="number">1</span>):
+    text(x+<span class="number">0</span><span class="number">.4</span>, y+<span class="number">0</span><span class="number">.05</span>, <span class="string">'%.2f'</span> % y, ha=<span class="string">'center'</span>, va= <span class="string">'bottom'</span>)
+
+ylim(-<span class="number">1</span><span class="number">.25</span>,+<span class="number">1</span><span class="number">.25</span>)
+show()
+</code></pre><p>提示:你要注意文本对齐。</p>
+<p>点击图像获取答案。</p>
+<h3 id="等高线图(contour_plots)">等高线图(contour plots)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/contour_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/contour_ex.png" alt="reguler plots"></a></p>
+<p>从以下代码开始，尝试生成上边的图形，注意色彩表。(参见<a href="http://www.loria.fr/~rougier/teaching/matplotlib/#colormaps" target="_blank" rel="external">色彩表</a>)</p>
+<pre><code><span class="keyword">from</span> pylab <span class="keyword">import</span> *
+
+<span class="function"><span class="keyword">def</span> <span class="title">f</span><span class="params">(x,y)</span>:</span> <span class="keyword">return</span> (<span class="number">1</span>-x/<span class="number">2</span>+x**<span class="number">5</span>+y**<span class="number">3</span>)*np.exp(-x**<span class="number">2</span>-y**<span class="number">2</span>)
+
+n = <span class="number">256</span>
+x = np.linspace(-<span class="number">3</span>,<span class="number">3</span>,n)
+y = np.linspace(-<span class="number">3</span>,<span class="number">3</span>,n)
+X,Y = np.meshgrid(x,y)
+
+contourf(X, Y, f(X,Y), <span class="number">8</span>, alpha=<span class="number">.75</span>, cmap=<span class="string">'jet'</span>)
+C = contour(X, Y, f(X,Y), <span class="number">8</span>, colors=<span class="string">'black'</span>, linewidth=<span class="number">.5</span>)
+show()
+</code></pre><p>提示：你需要使用<a href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.clabel" target="_blank" rel="external">clabel</a>命令。</p>
+<p>点击图像获取答案。</p>
+<h3 id="Imshow">Imshow</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/imshow_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/imshow_ex.png" alt="reguler plots"></a></p>
+<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
+<pre><code><span class="keyword">from</span> pylab <span class="keyword">import</span> *
+
+<span class="function"><span class="keyword">def</span> <span class="title">f</span><span class="params">(x,y)</span>:</span> <span class="keyword">return</span> (<span class="number">1</span>-x/<span class="number">2</span>+x**<span class="number">5</span>+y**<span class="number">3</span>)*np.exp(-x**<span class="number">2</span>-y**<span class="number">2</span>)
+
+n = <span class="number">10</span>
+x = np.linspace(-<span class="number">3</span>,<span class="number">3</span>,<span class="number">4</span>*n)
+y = np.linspace(-<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>*n)
+X,Y = np.meshgrid(x,y)
+imshow(f(X,Y)), show()
+</code></pre><p>提示:你需要注意imshow命令中图像的<em>来源</em>，并且使用色<a href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.colorbar" target="_blank" rel="external">彩条</a>(colorbar)。</p>
+<p>点击图像获取答案。</p>
+<h3 id="饼图(Pie_charts)">饼图(Pie charts)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/pie_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/pie_ex.png" alt="reguler plots"></a></p>
+<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
+<pre><code>from pylab import *
+
+n = <span class="number">20</span>
+Z = np.random.uniform(<span class="number">0</span>,<span class="number">1</span>,n)
+pie(Z), show()
+</code></pre><p>提示：你需要改变Z。</p>
+<p>点击图像获取答案。</p>
+<h3 id="矢量图(quiver_plots)">矢量图(quiver plots)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/quiver_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/quiver_ex.png" alt="reguler plots"></a></p>
+<p>从以下代码开始，尝试生成上边的图形，注意色彩和方向。</p>
+<pre><code>from pylab import *
+
+n = <span class="number">8</span>
+<span class="keyword">X</span>,<span class="keyword">Y</span> = np.mgrid[<span class="number">0</span>:n,<span class="number">0</span>:n]
+quiver(<span class="keyword">X</span>,<span class="keyword">Y</span>), show()
+</code></pre><p>提示：你需要画两次箭头。</p>
+<p>点击图像获取答案。</p>
+<h3 id="网格(grids)">网格(grids)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/grid_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/grid_ex.png" alt="reguler plots"></a></p>
+<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
+<pre><code>from pylab import *
+
+axes = gca<span class="comment">()</span>
+axes.set_xlim<span class="comment">(0,4)</span>
+axes.set_ylim<span class="comment">(0,3)</span>
+axes.set_xticklabels<span class="comment">([])</span>
+axes.set_yticklabels<span class="comment">([])</span>
+
+show<span class="comment">()</span>
+</code></pre><p>点击图像获取答案。</p>
+<h3 id="多图绘制">多图绘制</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/multiplot_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/multiplot_ex.png" alt="reguler plots"></a></p>
+<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
+<pre><code><span class="function">from pylab import *
+
+<span class="title">subplot</span><span class="params">(<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>)</span>
+<span class="title">subplot</span><span class="params">(<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>)</span>
+<span class="title">subplot</span><span class="params">(<span class="number">2</span>,<span class="number">2</span>,<span class="number">4</span>)</span>
+
+<span class="title">show</span><span class="params">()</span></span>
+</code></pre><p>提示：你可以对不同部分使用几个subplot命令。</p>
+<p>点击图像获取答案。</p>
+<h3 id="极轴图">极轴图</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/polar_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/polar_ex.png" alt="reguler plots"></a></p>
+<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
+<pre><code><span class="label">from</span> pylab <span class="preprocessor">import</span> *
+
+<span class="label">axes</span>([<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>])
+
+N = <span class="number">20</span>
+<span class="label">theta</span> = np.arange(<span class="number">0</span>.<span class="number">0</span>, <span class="number">2</span>*np.pi, <span class="number">2</span>*np.pi/N)
+<span class="label">radii</span> = <span class="number">10</span>*np.random.rand(N)
+<span class="label">width</span> = np.pi/<span class="number">4</span>*np.random.rand(N)
+<span class="keyword">bars </span>= <span class="keyword">bar(theta, </span>radii, width<span class="label">=width</span>, <span class="keyword">bottom=0.0)
+</span>
+<span class="label">for</span> r,<span class="keyword">bar </span>in zip(radii, <span class="keyword">bars):
+</span>    <span class="keyword">bar.set_facecolor( </span>cm.jet(r/<span class="number">10</span>.))
+    <span class="keyword">bar.set_alpha(0.5)
+</span>
+<span class="label">show</span>()
+</code></pre><p>提示：你仅仅需要修改<em>axes</em>这行。</p>
+<p>点击图像获取答案。</p>
+<h3 id="三维绘图">三维绘图</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/plot3d_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/plot3d_ex.png" alt="reguler plots"></a></p>
+<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
+<pre><code>from pylab import *
+from mpl_toolkits.mplot3d import Axes3D
+
+fig = figure()
+ax = Axes3D(fig)
+<span class="keyword">X</span> = np.arange(-<span class="number">4</span>, <span class="number">4</span>, <span class="number">0</span><span class="number">.25</span>)
+<span class="keyword">Y</span> = np.arange(-<span class="number">4</span>, <span class="number">4</span>, <span class="number">0</span><span class="number">.25</span>)
+<span class="keyword">X</span>, <span class="keyword">Y</span> = np.meshgrid(<span class="keyword">X</span>, <span class="keyword">Y</span>)
+<span class="keyword">R</span> = np.sqrt(<span class="keyword">X</span>**<span class="number">2</span> + <span class="keyword">Y</span>**<span class="number">2</span>)
+<span class="keyword">Z</span> = np.sin(<span class="keyword">R</span>)
+
+ax.plot_surface(<span class="keyword">X</span>, <span class="keyword">Y</span>, <span class="keyword">Z</span>, rstride=<span class="number">1</span>, cstride=<span class="number">1</span>, cmap=<span class="string">'hot'</span>)
+
+show()
+</code></pre><p>提示：你需要使用<a href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.contourf" target="_blank" rel="external">contourf</a>命令。</p>
+<p>点击图像获取答案。</p>
+<h3 id="绘制文本">绘制文本</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/text_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/text_ex.png" alt="reguler plots"></a></p>
+<p>试着从头做这个！提示：看一看<a href="http://matplotlib.sourceforge.net/examples/api/logo2.html" target="_blank" rel="external">matplotlib logo</a></p>
+<p>点击图像获取答案。</p>
+<h2 id="此教程之外">此教程之外</h2><p>matplotlib受益于丰富的文档和巨大的用户和开发者社区。这有几个有关的链接：</p>
+<h3 id="教程">教程</h3><p><a href="http://matplotlib.sourceforge.net/users/pyplot_tutorial.html" target="_blank" rel="external">pyplot教程</a></p>
+<p><a href="http://matplotlib.sourceforge.net/users/image_tutorial.html" target="_blank" rel="external">图像教程</a></p>
+<p><a href="http://matplotlib.sourceforge.net/users/index_text.html" target="_blank" rel="external">文本教程</a></p>
+<p><a href="http://matplotlib.sourceforge.net/users/artists.html" target="_blank" rel="external">artist对象教程</a></p>
+<p><a href="http://matplotlib.sourceforge.net/users/path_tutorial.html" target="_blank" rel="external">路径教程</a></p>
+<p><a href="http://matplotlib.sourceforge.net/users/transforms_tutorial.html" target="_blank" rel="external">变换教程</a></p>
+<h3 id="matplotlib文档">matplotlib文档</h3><p><a href="http://matplotlib.sourceforge.net/users/index.html" target="_blank" rel="external">用户手册</a></p>
+<p><a href="http://matplotlib.sourceforge.net/faq/index.html" target="_blank" rel="external">常见问题</a></p>
+<p><a href="http://matplotlib.sourceforge.net/users/screenshots.html" target="_blank" rel="external">截图</a></p>
+<h3 id="代码文档">代码文档</h3><p>代码相当好的文档化了，你可以在python会话中快速查询指定命令</p>
+<pre><code>&gt;&gt;&gt; <span class="built_in">from</span> pylab import *
+&gt;&gt;&gt; help(plot)
+Help <span class="command"><span class="keyword">on</span> <span class="title">function</span> <span class="title">plot</span> <span class="title">in</span> <span class="title">module</span> <span class="title">matplotlib</span>.<span class="title">pyplot</span>:</span>
+
+plot(*args, **kwargs)
+   Plot <span class="keyword">lines</span> <span class="operator">and</span>/<span class="operator">or</span> markers <span class="built_in">to</span> <span class="operator">the</span>
+   :class:`~matplotlib.axes.Axes`.  *args* is <span class="operator">a</span> <span class="built_in">variable</span> <span class="built_in">length</span>
+   argument, allowing <span class="keyword">for</span> multiple *x*, *y* pairs <span class="operator">with</span> <span class="operator">an</span>
+   optional <span class="built_in">format</span> <span class="keyword">string</span>.  For example, <span class="keyword">each</span> <span class="operator">of</span> <span class="operator">the</span> following is
+   legal::
+
+       plot(x, y)         <span class="comment"># plot x and y using default line style and color</span>
+       plot(x, y, <span class="string">'bo'</span>)   <span class="comment"># plot x and y using blue circle markers</span>
+       plot(y)            <span class="comment"># plot y using x as index array 0..N-1</span>
+       plot(y, <span class="string">'r+'</span>)      <span class="comment"># ditto, but with red plusses</span>
+
+   If *x* <span class="operator">and</span>/<span class="operator">or</span> *y* is <span class="number">2</span>-dimensional, <span class="keyword">then</span> <span class="operator">the</span> corresponding columns
+   will be plotted.
+</code></pre><h3 id="画廊(Galleries)">画廊(Galleries)</h3><p>当你搜寻如何绘制指定图像时，<a href="http://matplotlib.sourceforge.net/gallery.html" target="_blank" rel="external">matplotlib gallery</a>也相当有用。每个例子和它的源码一同被提供。</p>
+<p>一个较小的画廊在<a href="http://www.loria.fr/~rougier/coding/gallery/" target="_blank" rel="external">这里</a></p>
+<h3 id="邮件列表">邮件列表</h3><p>最后，这里有一个<a href="https://lists.sourceforge.net/lists/listinfo/matplotlib-users" target="_blank" rel="external">用户邮件列表</a>，那里你可以寻求帮助。一个<a href="https://lists.sourceforge.net/lists/listinfo/matplotlib-devel" target="_blank" rel="external">开发者邮件列表</a>是更加技术性的。</p>
+<h2 id="快速参考">快速参考</h2><p>没什么好翻译的，看原文吧……<a href="http://www.loria.fr/~rougier/teaching/matplotlib/#quick-references" target="_blank" rel="external">传送门</a></p>
+<h3 id="线条属性">线条属性</h3><h3 id="线型">线型</h3><h3 id="标记">标记</h3><h3 id="色彩表">色彩表</h3><hr>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/matplotlib/" rel="tag">#matplotlib</a>
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/python/2012/08/30/sympy-tutorial/" rel="next" title="SymPy Tutorial(译)">
+                <i class="fa fa-chevron-left"></i> SymPy Tutorial(译)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/python/2012/09/12//" rel="prev" title="科学计算工具和工作流">
+                科学计算工具和工作流 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Matplotlib_Tutorial(译)"><span class="nav-number">1.</span> <span class="nav-text">Matplotlib Tutorial(译)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#引言"><span class="nav-number">1.1.</span> <span class="nav-text">引言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Ipython_和_pylab模式"><span class="nav-number">1.1.1.</span> <span class="nav-text">Ipython 和 pylab模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pylab"><span class="nav-number">1.1.2.</span> <span class="nav-text">pylab</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简单绘图"><span class="nav-number">1.2.</span> <span class="nav-text">简单绘图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用默认"><span class="nav-number">1.2.1.</span> <span class="nav-text">使用默认</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例默认"><span class="nav-number">1.2.2.</span> <span class="nav-text">示例默认</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更改色彩和线宽"><span class="nav-number">1.2.3.</span> <span class="nav-text">更改色彩和线宽</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置边界"><span class="nav-number">1.2.4.</span> <span class="nav-text">设置边界</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置刻度"><span class="nav-number">1.2.5.</span> <span class="nav-text">设置刻度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置刻度标签"><span class="nav-number">1.2.6.</span> <span class="nav-text">设置刻度标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#移动轴线(spine)"><span class="nav-number">1.2.7.</span> <span class="nav-text">移动轴线(spine)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加图例"><span class="nav-number">1.2.8.</span> <span class="nav-text">添加图例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注解某些点"><span class="nav-number">1.2.9.</span> <span class="nav-text">注解某些点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#魔鬼在于细节"><span class="nav-number">1.3.</span> <span class="nav-text">魔鬼在于细节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#图像，子区，子图，刻度(Figures,Subplots,Axes,Ticks)"><span class="nav-number">1.4.</span> <span class="nav-text">图像，子区，子图，刻度(Figures,Subplots,Axes,Ticks)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#图像(Figure)"><span class="nav-number">1.4.1.</span> <span class="nav-text">图像(Figure)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#子区(subplots)"><span class="nav-number">1.4.2.</span> <span class="nav-text">子区(subplots)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#子图(axes)"><span class="nav-number">1.4.3.</span> <span class="nav-text">子图(axes)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#刻度(ticks)"><span class="nav-number">1.4.4.</span> <span class="nav-text">刻度(ticks)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#刻度定位器(Tick_Locator)"><span class="nav-number">1.4.4.1.</span> <span class="nav-text">刻度定位器(Tick Locator)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它种类绘图"><span class="nav-number">1.5.</span> <span class="nav-text">其它种类绘图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#常规绘图"><span class="nav-number">1.5.1.</span> <span class="nav-text">常规绘图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#散点图(scatter_plots)"><span class="nav-number">1.5.2.</span> <span class="nav-text">散点图(scatter plots)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#条形图(bar_plots)"><span class="nav-number">1.5.3.</span> <span class="nav-text">条形图(bar plots)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#等高线图(contour_plots)"><span class="nav-number">1.5.4.</span> <span class="nav-text">等高线图(contour plots)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Imshow"><span class="nav-number">1.5.5.</span> <span class="nav-text">Imshow</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#饼图(Pie_charts)"><span class="nav-number">1.5.6.</span> <span class="nav-text">饼图(Pie charts)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#矢量图(quiver_plots)"><span class="nav-number">1.5.7.</span> <span class="nav-text">矢量图(quiver plots)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网格(grids)"><span class="nav-number">1.5.8.</span> <span class="nav-text">网格(grids)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多图绘制"><span class="nav-number">1.5.9.</span> <span class="nav-text">多图绘制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#极轴图"><span class="nav-number">1.5.10.</span> <span class="nav-text">极轴图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三维绘图"><span class="nav-number">1.5.11.</span> <span class="nav-text">三维绘图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#绘制文本"><span class="nav-number">1.5.12.</span> <span class="nav-text">绘制文本</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#此教程之外"><span class="nav-number">1.6.</span> <span class="nav-text">此教程之外</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#教程"><span class="nav-number">1.6.1.</span> <span class="nav-text">教程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#matplotlib文档"><span class="nav-number">1.6.2.</span> <span class="nav-text">matplotlib文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码文档"><span class="nav-number">1.6.3.</span> <span class="nav-text">代码文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#画廊(Galleries)"><span class="nav-number">1.6.4.</span> <span class="nav-text">画廊(Galleries)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#邮件列表"><span class="nav-number">1.6.5.</span> <span class="nav-text">邮件列表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#快速参考"><span class="nav-number">1.7.</span> <span class="nav-text">快速参考</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线条属性"><span class="nav-number">1.7.1.</span> <span class="nav-text">线条属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线型"><span class="nav-number">1.7.2.</span> <span class="nav-text">线型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#标记"><span class="nav-number">1.7.3.</span> <span class="nav-text">标记</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#色彩表"><span class="nav-number">1.7.4.</span> <span class="nav-text">色彩表</span></a></li></ol></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

@@ -1,0 +1,649 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="land-of-lisp," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="Powerful formatformat又是一个在common lisp中灵活“过头”，争议超多的一个宏。它十分强大。
+基本用法如下
+1(princ (reverse (format nil &amp;#34;Add onion rings for only ~$ dollars more!&amp;#34; 1.5))) &amp;#10;;;;Control sequences for printing lisp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Attack of the Robots">
+<meta property="og:url" content="http://reverland.org/lisp/2012/05/09/attack-of-the-robots/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="Powerful formatformat又是一个在common lisp中灵活“过头”，争议超多的一个宏。它十分强大。
+基本用法如下
+1(princ (reverse (format nil &amp;#34;Add onion rings for only ~$ dollars more!&amp;#34; 1.5))) &amp;#10;;;;Control sequences for printing lisp">
+<meta property="og:updated_time" content="2015-11-12T16:18:28.764Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Attack of the Robots">
+<meta name="twitter:description" content="Powerful formatformat又是一个在common lisp中灵活“过头”，争议超多的一个宏。它十分强大。
+基本用法如下
+1(princ (reverse (format nil &amp;#34;Add onion rings for only ~$ dollars more!&amp;#34; 1.5))) &amp;#10;;;;Control sequences for printing lisp">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> Attack of the Robots | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Attack of the Robots
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-05-09T00:00:00+08:00" content="2012-05-09">
+              2012-05-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="Powerful_format">Powerful format</h2><p>format又是一个在common lisp中灵活“过头”，争议超多的一个宏。它十分强大。</p>
+<p>基本用法如下</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(princ (reverse (format nil &#34;Add onion rings for only ~$ dollars more!&#34; 1.5))) &#10;;;;Control sequences for printing lisp values&#10;;;(prin1 &#34;foo&#34;)&#10;(format t &#34;I am printing ~s in the middle of this sentence&#34; &#34;foo&#34;)&#10;;;(princ &#34;foo&#34;)&#10;(format t &#34;I am printing ~a in the middle of this sentence&#34; &#34;foo&#34;)&#10;;;&#31532;&#19968;&#20010;&#21442;&#25968;,&#21491;&#36793;&#34917;&#30333;&#10;(format t &#34;I am printing ~10a within ten spaces of room.&#34; &#34;foo&#34;)&#10;;;&#31532;&#20108;&#20010;&#21442;&#25968;&#65292;&#20998;&#25104;3&#37096;&#20998;&#65292;&#34917;&#30333;9&#26684;&#10;(format t &#34;I am printing ~10,3a within ten (or more) spaces of room.&#34; &#34;foo&#34;)&#10;;;&#31532;&#19977;&#20010;&#21442;&#25968;&#65292;&#21491;&#36793;&#34917;&#30333;4&#26684;&#10;(format t &#34;I am printing ~,,4a in the middle of this sentence.&#34; &#34;foo&#34;)&#10;;;&#31532;&#22235;&#20010;&#21442;&#25968;&#65292;&#34917;&#20805;&#31526;&#21495;&#10;(format t &#34;The world ~,,4,&#39;!a feels very important.&#34; &#34;foo&#34;)&#10;(format t &#34;The world ~,,4,&#39;!@a feels very important.&#34; &#34;foo&#34;)&#10;;;;Control Sequences for formatting numbers&#10;;;Integers&#10;(format t &#34;The number 1000 in hexadrcimal is ~x&#34; 1000)&#10;(format t &#34;The number 1000 in hexadrcimal is ~b&#34; 1000)&#10;(format t &#34;The number 1000 in hexadrcimal is ~d&#34; 1000)&#10;;digit group separators&#10;(format t &#34;Numbers with commas in them are ~:d times better.&#34; 1000000)&#10;(format t &#34;I am printing ~10d within ten spaces of room.&#34; 1000000)&#10;(format t &#34;I am printing ~10,&#39;xd within ten spaces of room.&#34; 1000000)&#10;;;;Control Sequences for formatting Floating-point numbers&#10;;;default&#10;(format t &#34;PI can be estimated as ~4f&#34; 3.141593)&#10;;;&#23567;&#25968;&#28857;&#21518;&#25968;&#20301;&#10;(format t &#34;PI can be estimated as ~,4f&#34; pi)&#10;;;Percentage&#10;(format t &#34;Percentages are ~,,2f percent better than fractions&#34; 0.77)&#10;;;Format currency&#10;(format t &#34;I wish I had ~$ dollars in my bank account.&#34; 1000000.2)&#10;;;;Print multiple lines of output&#10;;;terpri&#10;(progn (princ 22)&#10;       (terpri)&#10;       (princ 33))&#10;;;fresh-line&#10;(progn (princ 22)&#10;       (fresh-line)&#10;       (fresh-line)&#10;       (princ 33))&#10;;;~% like terpri&#10;;;~&#38; like fresh-line&#10;(progn (format t &#34;This is on one line ~%&#34;)&#10;       (format t &#34;~%This is on another line&#34;)) &#10;(progn (format t &#34;This is on one line ~&#38;&#34;)&#10;       (format t &#34;~&#38;This is on another line&#34;))&#10;;;there can be a number in front of them&#10;(format t &#34;this will print ~5%on two lines spread far apart&#34;)&#10;(format t &#34;this will print ~5&#38;on two lines spread far apart&#34;)&#10;;;;Justifying output&#10;;;for example a function&#10;(defun random-animal ()&#10;  (nth (random 5) &#39;(&#34;dog&#34; &#34;tick&#34; &#34;tiger&#34; &#34;walrus&#34; &#34;kangaroo&#34;)))&#10;;;equally width&#10;(loop repeat 10&#10;      do (format t &#34;~5t~a ~15t~a ~25t~a~%&#34;&#10;                 (random-animal)&#10;                 (random-animal)&#10;                 (random-animal)))&#10;;;equally apart&#10;(loop repeat 10&#10;      do (format t &#34;~30&#60;~a~;~a~;~a~&#62;~%&#34;&#10;                 (random-animal)&#10;                 (random-animal)&#10;                 (random-animal)))&#10;;;center&#10;(loop repeat 10&#10;      do (format t &#34;~30:@&#60;~a~&#62;~%&#34; (random-animal)))&#10;(loop repeat 10&#10;      do (format t &#34;~30:@&#60;~a~;~a~;~a~&#62;~%&#34;&#10;                 (random-animal)&#10;                 (random-animal)&#10;                 (random-animal)))&#10;;;still wavy?to make it like this&#10;(loop repeat 10&#10;      do (format t &#34;~10:@&#60;~a~&#62;~10:@&#60;~a~&#62;~10:@&#60;~a~&#62;~%&#34;&#10;                 (random-animal)&#10;                 (random-animal)&#10;                 (random-animal)))&#10;;;;Iterating Through Lists Using Control Sequences&#10;;;Lets create a list of animals&#10;(defparameter *animals* (loop repeat 10 collect (random-animal)))&#10;;;loop through sequenses&#10;(format t &#34;~&#123;I see a ~a! ~%~&#125;&#34; *animals*) &#10;;;not only one item&#10;(format t &#34;~&#123;I see a ~a... or was it a ~a?~%~&#125;&#34; *animals*)&#10;;;;A crazy formatting trick for creating pretty tables of data&#10;(format t &#34;|~&#123;~&#60;|~%|~,33:;~2d ~&#62;~&#125;|&#34;&#10;        (loop for x below 100 collect x))</span><br></pre></td></tr></table></figure>
+<p>可以看到，format的参数多的……而且像perl一样有很多“奇怪”的符号。</p>
+<h2 id="Attack_by_robots">Attack by robots</h2><p>让我们接下来看看一个被作者称作可怕的游戏，It’s really drive me crazy!!</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;;&#25972;&#20010;&#30028;&#38754;&#22823;&#23567;&#20026;16x64&#65292;&#20135;&#29983;&#20010;1024&#38271;&#24230;&#24207;&#21015;&#10;(defun robots ()&#10;  (loop named main;&#20415;&#20110;&#36339;&#20986;&#10;     ;;&#26041;&#21521;&#10;     with directions = &#39;((q . -65) (w . -64) (e . -63) (a . -1)&#10;                         (d .   1) (z .  63) (x .  64) (c . 65))&#10;     ;;&#21021;&#22987;&#20301;&#32622;&#10;     for pos = 544&#10;     then (progn (format t &#34;~%qwe/asd/zxc to move, (t)eleport, (l)eave:&#34;)&#10;                 (force-output);clean any output not waiting return&#10;                 (let* ((c (read))&#10;                        (d (assoc c directions)))&#10;                   (cond (d (+ pos (cdr d)))&#10;                         ((eq &#39;t c) (random 1024))&#10;                         ((eq &#39;l c) (return-from main &#39;bye))&#10;                         (t pos))))&#10;     ;;&#33719;&#24471;monster&#30340;&#20301;&#32622;&#10;     for monsters = (loop repeat 10&#10;                          collect (random 1024))&#10;     then (loop for mpos in monsters&#10;                collect (if (&#62; (count mpos monsters) 1)&#10;                          mpos&#10;                          ;;&#37117;&#36208;&#20102;&#19968;&#36941;&#12290;&#10;                          (cdar (sort (loop for (k . d) in directions&#10;                                            for new-mpos = (+ mpos d)&#10;                                            ;&#34892;&#19982;&#21015;&#36317;&#31163;&#21644;&#19982;&#26032;&#20301;&#32622;cons                                &#10;                                            collect (cons (+ (abs (- (mod new-mpos 64) &#10;                                                                     (mod pos 64)))&#10;                                                             (abs (- (ash new-mpos -6)&#10;                                                                     (ash pos -6))))&#10;                                                          new-mpos))&#10;                                      &#39;&#60;&#10;                                      :key #&#39;car))))&#10;     when (loop for mpos in monsters&#10;                always (&#62; (count mpos monsters) 1))&#10;     return &#39;player-wins&#10;     do (format t&#10;                &#34;~%|~&#123;~&#60;|~%|~,65:;~A~&#62;~&#125;|&#34;&#10;                (loop for p &#10;                      below 1024&#10;                      collect (cond ((member p monsters) &#10;                                     (cond ((= p pos) (return-from main &#39;player-loses))&#10;                                           ((&#62; (count p monsters) 1) #\#)&#10;                                           (t #\A)))&#10;                                    ((= p pos) &#10;                                     #\@)&#10;                                    (t &#10;                                     #\ ))))))</span><br></pre></td></tr></table></figure>
+<p>整个游戏就一个函数，由loop和format这种强大的lisp异类来完成。</p>
+<h2 id="写在最后">写在最后</h2><p>挺好玩的一个游戏。挺难理解的代码……</p>
+<p>为了看懂又回头看看作者的loop周期表，再次见识了format和loop的强大之处，也感受到了它们的复杂。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/land-of-lisp/" rel="tag">#land-of-lisp</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/lisp/2012/05/06/using-loop-to-evolve/" rel="next" title="Using Loop To Evolve">
+                <i class="fa fa-chevron-left"></i> Using Loop To Evolve
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/lisp/2012/05/10/streams-in-lisp/" rel="prev" title="Streams in Lisp">
+                Streams in Lisp <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Powerful_format"><span class="nav-number">1.</span> <span class="nav-text">Powerful format</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Attack_by_robots"><span class="nav-number">2.</span> <span class="nav-text">Attack by robots</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#写在最后"><span class="nav-number">3.</span> <span class="nav-text">写在最后</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

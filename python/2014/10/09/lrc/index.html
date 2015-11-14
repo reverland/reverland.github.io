@@ -1,0 +1,698 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="最终效果可以看这里：
+来自asciinema的终端录像
+缘起自从降频之后，电脑特别卡……
+降频是因为总是自动关机
+自动关机据几个月观察是因为cpu过热
+cpu过热猜测是因为散热有问题了
+散热有问题猜测是该清灰换硅胶了
+但三星……非常麻烦，自从去年毕业自己把本拆了一遍后就再懒得拆机了。
+于是，想听歌时懒得打开vlc界面，就用命令行版本的cvlc来播放
+可是……没有歌词？
+某天想干脆自己做个支持lrc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="支持LRC歌词的终端播放器">
+<meta property="og:url" content="http://reverland.org/python/2014/10/09/lrc/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="最终效果可以看这里：
+来自asciinema的终端录像
+缘起自从降频之后，电脑特别卡……
+降频是因为总是自动关机
+自动关机据几个月观察是因为cpu过热
+cpu过热猜测是因为散热有问题了
+散热有问题猜测是该清灰换硅胶了
+但三星……非常麻烦，自从去年毕业自己把本拆了一遍后就再懒得拆机了。
+于是，想听歌时懒得打开vlc界面，就用命令行版本的cvlc来播放
+可是……没有歌词？
+某天想干脆自己做个支持lrc">
+<meta property="og:updated_time" content="2015-11-12T16:34:09.260Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="支持LRC歌词的终端播放器">
+<meta name="twitter:description" content="最终效果可以看这里：
+来自asciinema的终端录像
+缘起自从降频之后，电脑特别卡……
+降频是因为总是自动关机
+自动关机据几个月观察是因为cpu过热
+cpu过热猜测是因为散热有问题了
+散热有问题猜测是该清灰换硅胶了
+但三星……非常麻烦，自从去年毕业自己把本拆了一遍后就再懒得拆机了。
+于是，想听歌时懒得打开vlc界面，就用命令行版本的cvlc来播放
+可是……没有歌词？
+某天想干脆自己做个支持lrc">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> 支持LRC歌词的终端播放器 | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                支持LRC歌词的终端播放器
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-10-09T00:00:00+08:00" content="2014-10-09">
+              2014-10-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>最终效果可以看这里：</p>
+<p><a href="http://ascii.io/a/12843" target="_blank" rel="external">来自asciinema的终端录像</a></p>
+<h2 id="缘起">缘起</h2><p>自从降频之后，电脑特别卡……</p>
+<p>降频是因为总是自动关机</p>
+<p>自动关机据几个月观察是因为cpu过热</p>
+<p>cpu过热猜测是因为散热有问题了</p>
+<p>散热有问题猜测是该清灰换硅胶了</p>
+<p>但三星……非常麻烦，自从去年毕业自己把本拆了一遍后就再懒得拆机了。</p>
+<p>于是，想听歌时懒得打开vlc界面，就用命令行版本的cvlc来播放</p>
+<p>可是……没有歌词？</p>
+<p>某天想干脆自己做个支持lrc的终端播放器算了。</p>
+<p>作为一个脚本小子，我只习惯python……</p>
+<h2 id="说干就干">说干就干</h2><p>谷歌搜寻了下：</p>
+<ul>
+<li>python如何播放mp3音乐</li>
+<li>lrc文件的格式，考虑下如何在终端打印歌词</li>
+<li>vlc有没有python绑定</li>
+</ul>
+<p>于是，有了以下版本，仅仅100行的多彩歌词显示终端播放器(使用<code>pygame</code>来播放音乐)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pygame <span class="keyword">import</span> mixer</span><br><span class="line"><span class="keyword">from</span> mutagen.mp3 <span class="keyword">import</span> MP3</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">f_mp3 = sys.argv[<span class="number">1</span>]</span><br><span class="line">f_lrc = sys.argv[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lrc2dict</span><span class="params">(lrc)</span>:</span></span><br><span class="line">    lrc_dict = &#123;&#125;</span><br><span class="line">    remove = <span class="keyword">lambda</span> x: x.strip(<span class="string">'[|]'</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> lrc.split(<span class="string">'\n'</span>):</span><br><span class="line">        time_stamps = re.findall(<span class="string">r'\[[^\]]+\]'</span>, line)</span><br><span class="line">        <span class="keyword">if</span> time_stamps:</span><br><span class="line">            <span class="comment"># 截取歌词</span></span><br><span class="line">            lyric = line</span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                lyric = lyric.replace(tplus, <span class="string">''</span>)</span><br><span class="line">            <span class="comment"># 解析时间</span></span><br><span class="line">            <span class="comment"># tplus: [02:31.79]</span></span><br><span class="line">            <span class="comment"># t 02:31.79</span></span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                t = remove(tplus)</span><br><span class="line">                tag_flag = t.split(<span class="string">':'</span>)[<span class="number">0</span>]</span><br><span class="line">                <span class="comment"># 跳过: [ar: 逃跑计划]</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> tag_flag.isdigit():</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                time_lrc = int(tag_flag) * <span class="number">60000</span></span><br><span class="line">                time_lrc += int(t.split(<span class="string">':'</span>)[<span class="number">1</span>].split(<span class="string">'.'</span>)[<span class="number">0</span>]) * <span class="number">1000</span></span><br><span class="line">                <span class="comment"># ms也许没有</span></span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    time_lrc += int(t.split(<span class="string">'.'</span>)[<span class="number">1</span>])</span><br><span class="line">                <span class="keyword">except</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">                time_lrc = time_lrc / <span class="number">100</span> * <span class="number">100</span></span><br><span class="line">                lrc_dict[time_lrc] = lyric</span><br><span class="line">    <span class="keyword">return</span> lrc_dict</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_lrc</span><span class="params">(mixer, lrc_d, color, wholetime)</span>:</span></span><br><span class="line">    mixer.music.play()</span><br><span class="line">    <span class="comment"># 防止开头歌词来不及播放</span></span><br><span class="line">    mixer.music.pause()</span><br><span class="line">    time.sleep(<span class="number">0.001</span>)</span><br><span class="line">    mixer.music.play()</span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">        t = mixer.music.get_pos() / <span class="number">100</span> * <span class="number">100</span></span><br><span class="line">        sys.stdout.write(<span class="string">'['</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>, time.localtime(t / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'/'</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>,</span><br><span class="line">                                       time.localtime(wholetime)) +</span><br><span class="line">                         <span class="string">'] '</span>)</span><br><span class="line">        <span class="keyword">if</span> t <span class="keyword">in</span> lrc_d:</span><br><span class="line">            sys.stdout.write(color + lrc_d[t] + <span class="string">'\033[0m'</span>)</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            sys.stdout.write(<span class="string">"\033[K"</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            <span class="comment"># sys.stdout.write("\033[K")</span></span><br><span class="line">        sys.stdout.write(<span class="string">'\r'</span>)</span><br><span class="line">        <span class="comment"># 播放停止时退出</span></span><br><span class="line">        <span class="keyword">if</span> t &lt; <span class="number">0</span>:</span><br><span class="line">            sys.exit(<span class="number">0</span>)</span><br><span class="line">        <span class="comment"># 0.05s循环</span></span><br><span class="line">        time.sleep(<span class="number">0.05</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(f_lrc) <span class="keyword">as</span> f:</span><br><span class="line">    lrc = f.read()</span><br><span class="line"></span><br><span class="line">lrc_d = lrc2dict(lrc)</span><br><span class="line"></span><br><span class="line">mixer.init()</span><br><span class="line">mixer.music.load(f_mp3)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    wholetime = MP3(f_mp3).info.length</span><br><span class="line"><span class="keyword">except</span>:</span><br><span class="line">    wholetime = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">colors = [</span><br><span class="line">    <span class="string">'\x1B[31m'</span>,  <span class="comment"># 红色</span></span><br><span class="line">    <span class="string">'\x1B[32m'</span>,  <span class="comment"># 绿色</span></span><br><span class="line">    <span class="string">'\x1B[33m'</span>,  <span class="comment"># 黄色</span></span><br><span class="line">    <span class="string">'\x1B[34m'</span>,  <span class="comment"># 蓝色</span></span><br><span class="line">    <span class="string">'\x1B[35m'</span>,  <span class="comment"># 紫色</span></span><br><span class="line">    <span class="string">'\x1B[36m'</span>,  <span class="comment"># 青色</span></span><br><span class="line">    <span class="string">'\x1B[37m'</span>  <span class="comment"># 灰白</span></span><br><span class="line">]</span><br><span class="line">color = random.choice(colors)</span><br><span class="line">print_lrc(mixer, lrc_d, color, wholetime)</span><br></pre></td></tr></table></figure>
+<p>那个不断循环查看播放进度打印对应歌词的实现真够丧心病狂的……精确到0.1s算了。</p>
+<pre><code>Be aware that MP3 support is limited. <span class="keyword">On</span> some systems <span class="keyword">an</span> unsupported <span class="keyword">format</span> can crash the <span class="keyword">program</span>, <span class="keyword">e</span>.<span class="keyword">g</span>. Debian Linux. Consider using OGG instead.
+</code></pre><p>开始在pygame的<a href="http://www.pygame.org/docs/ref/music.html" target="_blank" rel="external">文档</a>中看到这句话还没在意后来，播放某个叫<code>in my life</code>的mp3时发现完全不对劲……而且没有获取音频长度的功能[^1]</p>
+<p>后来想想，还是用vlc的py绑定吧。</p>
+<p>vlc的py绑定相当赞：</p>
+<p>完整覆盖libvlc功能，纯python，支持各个vlc版本和完整的文档。[^2]</p>
+<p>但开始我以为pip可以直接下载……后来发现pip搜索到的是macos独有的vlc python wrapper……和这个绑定是两码事……真给跪了……</p>
+<p>自行下载<a href="http://git.videolan.org/?p=vlc/bindings/python.git;a=tree;f=generated;b=HEAD" target="_blank" rel="external">vlc.py</a>到当前目录或者扔到python搜索路径。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> vlc</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">f_mp3 = sys.argv[<span class="number">1</span>]</span><br><span class="line">f_lrc = sys.argv[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lrc2dict</span><span class="params">(lrc)</span>:</span></span><br><span class="line">    lrc_dict = &#123;&#125;</span><br><span class="line">    remove = <span class="keyword">lambda</span> x: x.strip(<span class="string">'[|]'</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> lrc.split(<span class="string">'\n'</span>):</span><br><span class="line">        time_stamps = re.findall(<span class="string">r'\[[^\]]+\]'</span>, line)</span><br><span class="line">        <span class="keyword">if</span> time_stamps:</span><br><span class="line">            <span class="comment"># 截取歌词</span></span><br><span class="line">            lyric = line</span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                lyric = lyric.replace(tplus, <span class="string">''</span>)</span><br><span class="line">            <span class="comment"># 解析时间</span></span><br><span class="line">            <span class="comment"># tplus: [02:31.79]</span></span><br><span class="line">            <span class="comment"># t 02:31.79</span></span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                t = remove(tplus)</span><br><span class="line">                tag_flag = t.split(<span class="string">':'</span>)[<span class="number">0</span>]</span><br><span class="line">                <span class="comment"># 跳过: [ar: 逃跑计划]</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> tag_flag.isdigit():</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                time_lrc = int(tag_flag) * <span class="number">60000</span></span><br><span class="line">                time_lrc += int(t.split(<span class="string">':'</span>)[<span class="number">1</span>].split(<span class="string">'.'</span>)[<span class="number">0</span>]) * <span class="number">1000</span></span><br><span class="line">                <span class="comment"># ms也许没有</span></span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    time_lrc += int(t.split(<span class="string">'.'</span>)[<span class="number">1</span>])</span><br><span class="line">                <span class="keyword">except</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">                time_lrc = time_lrc / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">                lrc_dict[time_lrc] = lyric</span><br><span class="line">    <span class="keyword">return</span> lrc_dict</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_lrc</span><span class="params">(player, lrc_d, color)</span>:</span></span><br><span class="line">    player.play()</span><br><span class="line">    player.pause()</span><br><span class="line">    <span class="comment"># 防止无法获取整个音频时长</span></span><br><span class="line">    <span class="comment"># 音频时长必须加载才能读取</span></span><br><span class="line">    time.sleep(<span class="number">0.1</span>)</span><br><span class="line">    player.play()</span><br><span class="line">    wholetime = mediaObject.get_duration() / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        <span class="comment"># 截取到0.1s精度,降低cpu占用, notwork fine for vlc</span></span><br><span class="line">        <span class="comment"># <span class="doctag">FIXME:</span> get_time NOT WORK WELL, 只能精确到0.3s</span></span><br><span class="line">        <span class="comment"># t = player.get_position() * wholetime</span></span><br><span class="line">        t = player.get_time() / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">        <span class="comment"># sys.stdout.write(str(t) + '\r')</span></span><br><span class="line">        sys.stdout.write(<span class="string">'['</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>, time.localtime(t / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'/'</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>,</span><br><span class="line">                                       time.localtime(wholetime / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'] '</span>)</span><br><span class="line">        <span class="keyword">if</span> t <span class="keyword">not</span> <span class="keyword">in</span> lrc_d:</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            <span class="comment"># sys.stdout.write("\033[K")</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            sys.stdout.write(color + lrc_d[t] + <span class="string">'\033[0m'</span>)</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            sys.stdout.write(<span class="string">"\033[K"</span>)</span><br><span class="line">        sys.stdout.write(<span class="string">'\r'</span>)</span><br><span class="line">        <span class="comment"># 播放停止时退出</span></span><br><span class="line">        <span class="keyword">if</span> t == wholetime:</span><br><span class="line">            sys.exit(<span class="number">0</span>)</span><br><span class="line">        <span class="comment"># 0.05s循环</span></span><br><span class="line">        time.sleep(<span class="number">0.05</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(f_lrc) <span class="keyword">as</span> f:</span><br><span class="line">    lrc = f.read()</span><br><span class="line"></span><br><span class="line">lrc_d = lrc2dict(lrc)</span><br><span class="line"></span><br><span class="line">vlcInstance = vlc.Instance()</span><br><span class="line">player = vlcInstance.media_player_new()</span><br><span class="line">mediaObject = vlcInstance.media_new(f_mp3)</span><br><span class="line">player.set_media(mediaObject)</span><br><span class="line"></span><br><span class="line">colors = [</span><br><span class="line">    <span class="string">'\x1B[31m'</span>,  <span class="comment"># 红色</span></span><br><span class="line">    <span class="string">'\x1B[32m'</span>,  <span class="comment"># 绿色</span></span><br><span class="line">    <span class="string">'\x1B[33m'</span>,  <span class="comment"># 黄色</span></span><br><span class="line">    <span class="string">'\x1B[34m'</span>,  <span class="comment"># 蓝色</span></span><br><span class="line">    <span class="string">'\x1B[35m'</span>,  <span class="comment"># 紫色</span></span><br><span class="line">    <span class="string">'\x1B[36m'</span>,  <span class="comment"># 青色</span></span><br><span class="line">    <span class="string">'\x1B[37m'</span>  <span class="comment"># 灰白</span></span><br><span class="line">]</span><br><span class="line">color = random.choice(colors)</span><br><span class="line">print_lrc(player, lrc_d, color)</span><br></pre></td></tr></table></figure>
+<p>奇葩的还是那个丧心病狂的循环，查询播放进度最短间隔只有0.3s。只好把lrc歌词显示精度降到1s了</p>
+<p>反正对我是能用了。</p>
+<p>也许有空可以让它支持播放列表的，用vlc完全不是问题。</p>
+<p>嗯，完工。我擦嘞我竟然一天写了俩！</p>
+<h2 id="FootNotes">FootNotes</h2><p>[^1]: <a href="http://stackoverflow.com/questions/6936393/find-the-length-of-a-song-with-pygame" target="_blank" rel="external">Find the Length of a Song with Pygame</a><br>[^2]: <a href="https://wiki.videolan.org/Python_bindings" target="_blank" rel="external">Python bindings</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/python/2014/10/09//" rel="next" title="游泳日报">
+                <i class="fa fa-chevron-left"></i> 游泳日报
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/Life/2014/10/11/gcjust-for-fun/" rel="prev" title="追忆GC：Just For Fun">
+                追忆GC：Just For Fun <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#缘起"><span class="nav-number">1.</span> <span class="nav-text">缘起</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#说干就干"><span class="nav-number">2.</span> <span class="nav-text">说干就干</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FootNotes"><span class="nav-number">3.</span> <span class="nav-text">FootNotes</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

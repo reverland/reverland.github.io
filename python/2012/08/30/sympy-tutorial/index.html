@@ -1,0 +1,1271 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="SymPy Tutorial翻译自：SymPy Tutorial,其实有人译过了，但我看着不爽……你看我的不爽可以参考他的SymPy简明教程
+目录
+
+toc{: toc}
+
+引言SymPy是一个符号数学Python库。它的目标是成为一个全功能的计算机代数系统，同时保持代码的精简而易于理解和课扩展。SymPy完全由Python写成，不需要任何外部库。 
+这个教程概述和简介SymPy。阅读它能让你知道">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SymPy Tutorial(译)">
+<meta property="og:url" content="http://reverland.org/python/2012/08/30/sympy-tutorial/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="SymPy Tutorial翻译自：SymPy Tutorial,其实有人译过了，但我看着不爽……你看我的不爽可以参考他的SymPy简明教程
+目录
+
+toc{: toc}
+
+引言SymPy是一个符号数学Python库。它的目标是成为一个全功能的计算机代数系统，同时保持代码的精简而易于理解和课扩展。SymPy完全由Python写成，不需要任何外部库。 
+这个教程概述和简介SymPy。阅读它能让你知道">
+<meta property="og:image" content="http://fmn.rrimg.com/fmn061/20120901/1800/p_large_M3yG_5d30000027c61261.jpg">
+<meta property="og:image" content="http://fmn.rrimg.com/fmn059/20120903/1210/p_large_ViwY_2fcc000000bf1262.jpg">
+<meta property="og:updated_time" content="2015-11-12T16:05:14.888Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SymPy Tutorial(译)">
+<meta name="twitter:description" content="SymPy Tutorial翻译自：SymPy Tutorial,其实有人译过了，但我看着不爽……你看我的不爽可以参考他的SymPy简明教程
+目录
+
+toc{: toc}
+
+引言SymPy是一个符号数学Python库。它的目标是成为一个全功能的计算机代数系统，同时保持代码的精简而易于理解和课扩展。SymPy完全由Python写成，不需要任何外部库。 
+这个教程概述和简介SymPy。阅读它能让你知道">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> SymPy Tutorial(译) | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                SymPy Tutorial(译)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-08-30T00:00:00+08:00" content="2012-08-30">
+              2012-08-30
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="SymPy_Tutorial">SymPy Tutorial</h1><p>翻译自：<a href="http://docs.sympy.org/dev/tutorial.html" target="_blank" rel="external">SymPy Tutorial</a>,其实有人译过了，但我看着不爽……你看我的不爽可以参考他的<a href="http://blankdesktop.blogbus.com/logs/74200705.html" target="_blank" rel="external">SymPy简明教程</a></p>
+<p><strong>目录</strong></p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<h2 id="引言">引言</h2><p>SymPy是一个符号数学Python库。它的目标是成为一个全功能的计算机代数系统，同时保持代码的精简而易于理解和课扩展。SymPy完全由Python写成，不需要任何外部库。 </p>
+<p>这个教程概述和简介SymPy。阅读它能让你知道SymPy可以为你做什么。如果你想了解更多，阅读<a href="http://docs.sympy.org/0.7.1/guide.html#guide" target="_blank" rel="external">SymPy用户指南</a>和<a href="http://docs.sympy.org/0.7.1/modules/index.html#module-docs" target="_blank" rel="external">SymPy模块参考</a>。或者直接阅读<a href="https://github.com/sympy/sympy/" target="_blank" rel="external">源码</a>。</p>
+<h2 id="SymPy第一步">SymPy第一步</h2><p>下载它最简单的方法是去<a href="http://code.google.com/p/sympy/" target="_blank" rel="external">http://code.google.com/p/sympy/</a>从“推荐下载”下载最新的压缩包。<a href="不介意非稳定版我觉得git更方便一些，当然linux包管理器更方便,所以先用你的包管理器安装它。">^1</a><br><img src="http://fmn.rrimg.com/fmn061/20120901/1800/p_large_M3yG_5d30000027c61261.jpg" alt="downloads"></p>
+<p>解压：</p>
+<pre><code><span class="tag">tar</span> <span class="tag">xzf</span> <span class="tag">sympy-0</span><span class="class">.7</span><span class="class">.1</span><span class="class">.tar</span><span class="class">.gz</span>
+</code></pre><p>然后用Python解释器尝试它：</p>
+<pre><code>[lyy@arch ~]cd sympy-<span class="number">0.7</span><span class="number">.1</span>
+[lyy@arch ~]$ python2
+Python <span class="number">2.7</span><span class="number">.3</span> (<span class="keyword">default</span>, Apr <span class="number">24</span> <span class="number">2012</span>, <span class="number">00</span>:<span class="number">00</span>:<span class="number">54</span>) 
+[GCC <span class="number">4.7</span><span class="number">.0</span> <span class="number">20120414</span> (prerelease)] on linux2
+Type <span class="string">"help"</span>, <span class="string">"copyright"</span>, <span class="string">"credits"</span> or <span class="string">"license"</span> <span class="keyword">for</span> more information.
+&gt;&gt;&gt; from sympy import Symbol, <span class="built_in">cos</span>
+&gt;&gt;&gt; x = Symbol(<span class="string">'x'</span>)
+&gt;&gt;&gt; (<span class="number">1</span>/<span class="built_in">cos</span>(x)).series(x, <span class="number">0</span>, <span class="number">10</span>)
+<span class="number">1</span> + x**<span class="number">2</span>/<span class="number">2</span> + <span class="number">5</span>*x**<span class="number">4</span>/<span class="number">24</span> + <span class="number">61</span>*x**<span class="number">6</span>/<span class="number">720</span> + <span class="number">277</span>*x**<span class="number">8</span>/<span class="number">8064</span> + O(x**<span class="number">10</span>)
+</code></pre><p>你可以如上展示使用SymPy。如果你在你的程序中使用它的话，这确实是推荐的方法。你也可以用<code>./setup.py install</code>像所有其它Python模块一样安装它，或者仅仅在你心爱的发行版中安装相应的包，等等。</p>
+<p><strong>在archlinux中安装SymPy</strong></p>
+<pre><code>[lyy@arch ~]$ sudo pacman -S python2-sympy
+警告：python2-sympy-<span class="number">0.7</span><span class="number">.1</span>-<span class="number">4</span> 已经为最新 -- 重新安装
+正在解决依赖关系...
+正在查找内部冲突...
+
+目标 (<span class="number">1</span>)： python2-sympy-<span class="number">0.7</span><span class="number">.1</span>-<span class="number">4</span>
+
+全部安装大小：<span class="number">25.12</span> MiB
+净更新大小：<span class="number">0.00</span> MiB
+
+进行安装吗？ [Y/n] 
+(<span class="number">1</span>/<span class="number">1</span>) 正在检查软件包完整性      [<span class="preprocessor">###############################] <span class="number">100</span>%</span>
+(<span class="number">1</span>/<span class="number">1</span>) 正在加载软件包文件        [<span class="preprocessor">###############################] <span class="number">100</span>%</span>
+(<span class="number">1</span>/<span class="number">1</span>) 正在检查文件冲突          [<span class="preprocessor">###############################] <span class="number">100</span>%</span>
+(<span class="number">1</span>/<span class="number">1</span>) 正在检查可用硬盘空间      [<span class="preprocessor">###############################] <span class="number">100</span>%</span>
+(<span class="number">1</span>/<span class="number">1</span>) 正在更新 python2-sympy
+</code></pre><p>其它安装SymPy的方法，查阅SymPy主页上的<a href="http://code.google.com/p/sympy/wiki/DownloadInstallation?tm=2" target="_blank" rel="external">下载</a>标签。</p>
+<h3 id="isympy控制台">isympy控制台</h3><p>为了试验新功能，或当搞清楚如何做事时，你可以使用我们对IPython的特殊封装<code>isympy</code>(它位于<code>/bin/isympy</code>中，如果你正在从源码文件夹运行的话)，它仅仅是一个已经导入相关sympy模块的标准python shell，定义了符号<code>x,y,z</code>和一些其它东西：</p>
+<pre><code><span class="list">[<span class="keyword">lyy@arch</span> ~]$ cd sympy 
+<span class="list">[<span class="keyword">lyy@arch</span> ~]$ ./bin/isympy 
+IPython console for SymPy <span class="number">0.7</span>.1 <span class="list">(<span class="keyword">Python</span> <span class="number">2.7</span>.3-64-bit)</span> <span class="list">(<span class="keyword">ground</span> types: python)</span>
+
+These commands were executed:
+&gt;&gt;&gt; from __future__ import division
+&gt;&gt;&gt; from sympy import *
+&gt;&gt;&gt; x, y, z, t = symbols<span class="list">(<span class="variable">'x</span> y z t')</span>
+&gt;&gt;&gt; k, m, n = symbols<span class="list">(<span class="variable">'k</span> m n', integer=True)</span>
+&gt;&gt;&gt; f, g, h = symbols<span class="list">(<span class="variable">'f</span> g h', cls=Function)</span>
+
+Documentation can be found at http://www.sympy.org
+
+In <span class="list">[<span class="keyword">1</span>]: <span class="list">(<span class="keyword">1/cos</span><span class="list">(<span class="keyword">x</span>)</span>)</span>.series<span class="list">(<span class="keyword">x</span>, <span class="number">0</span>, <span class="number">10</span>)</span>
+Out<span class="list">[<span class="keyword">1</span>]: 
+     <span class="number">2</span>      <span class="number">4</span>       <span class="number">6</span>        <span class="number">8</span>           
+    x    <span class="number">5</span>⋅x    <span class="number">61</span>⋅x    <span class="number">277</span>⋅x            
+<span class="number">1</span> + ── + ──── + ───── + ────── + O<span class="list">(<span class="keyword">x**10</span>)</span>
+    <span class="number">2</span>     <span class="number">24</span>     <span class="number">720</span>     <span class="number">8064</span>  </span></span></span></span>
+</code></pre><h3 id="用SymPy做计算器">用SymPy做计算器</h3><p>SymPy有三种内建的数值类型：浮点数、有理数和整数。</p>
+<p>有理数类用一对整数表示一个有理数：分子和分母，所以<code>Rational(1,2)</code>代表1/2,<code>Rational(5,2)</code>代表5/2等等。</p>
+<pre><code>&gt;&gt;&gt; from sympy import *
+&gt;&gt;&gt; a = Rational(<span class="number">1</span>,<span class="number">2</span>)
+
+&gt;&gt;&gt; a
+<span class="number">1</span>/<span class="number">2</span>
+
+&gt;&gt;&gt; a*<span class="number">2</span>
+<span class="number">1</span>
+
+&gt;&gt;&gt; Rational(<span class="number">2</span>)**<span class="number">50</span>/Rational(<span class="number">10</span>)**<span class="number">50</span>
+<span class="number">1</span>/<span class="number">88817841970012523233890533447265625</span>
+</code></pre><p>当计算整型数据时小心处理，因为他们会截取整数部分。这就是为何：</p>
+<pre><code>&gt;&gt;&gt; <span class="number">1</span>/<span class="number">2</span>
+<span class="number">0</span>
+
+&gt;&gt;&gt; <span class="number">1.0</span>/<span class="number">2</span>
+<span class="number">0.5</span>
+</code></pre><p>然而你可以这样做</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from __future_<span class="number">_</span> import division
+
+<span class="prompt">&gt;&gt;</span>&gt; <span class="number">1</span>/<span class="number">2</span> 
+<span class="number">0</span>.<span class="number">5</span>
+</code></pre><p>真正的除法将要成为python3k的标准，isympy中也是。</p>
+<p>我们也有些特殊的常数，像e和pi，它们被视为符号(1+pi将不被数值求解，它将保持为1+pi)，并且我们可以有任意精度：</p>
+<pre><code>&gt;&gt;&gt; pi**<span class="number">2</span>
+pi**<span class="number">2</span>
+
+&gt;&gt;&gt; pi.<span class="function"><span class="title">evalf</span><span class="params">()</span></span>
+<span class="number">3.14159265358979</span>
+
+&gt;&gt;&gt; (pi+<span class="function"><span class="title">exp</span><span class="params">(<span class="number">1</span>)</span></span>).<span class="function"><span class="title">evalf</span><span class="params">()</span></span>
+<span class="number">5.85987448204884</span>
+</code></pre><p>就像你看到的，<code>evalf</code>将表达式求解为浮点数。</p>
+<p>这还有一个类表示数学上的无限，叫作<code>oo</code>：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; oo &gt; <span class="number">99999</span>
+<span class="constant">True</span>
+<span class="prompt">&gt;&gt;</span>&gt; oo + <span class="number">1</span>
+oo
+</code></pre><h3 id="符号">符号</h3><p>和其它计算机代数系统相比，在SymPy中你不得不显式地声明符号变量：</p>
+<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy <span class="keyword">import</span> *
+<span class="prompt">&gt;&gt;&gt; </span>x = Symbol(<span class="string">'x'</span>)
+<span class="prompt">&gt;&gt;&gt; </span>y = Symbol(<span class="string">'y'</span>)
+</code></pre><p>然后你可以使用它们：</p>
+<pre><code>&gt;&gt;&gt; x+y+x-y
+2<span class="keyword">*</span>x
+
+&gt;&gt;&gt; (x+y)<span class="keyword">*</span><span class="keyword">*</span>2
+(x + y)<span class="keyword">*</span><span class="keyword">*</span>2
+
+&gt;&gt;&gt; ((x+y)<span class="keyword">*</span><span class="keyword">*</span>2).expand()
+x<span class="keyword">*</span><span class="keyword">*</span>2 + 2<span class="keyword">*</span>x<span class="keyword">*</span>y + y<span class="keyword">*</span><span class="keyword">*</span>2
+</code></pre><p>使用<code>subs(old, new)</code>用其它符号和数代换它们：</p>
+<pre><code>&gt;&gt;&gt; ((x+y)<span class="keyword">*</span><span class="keyword">*</span>2).subs(x, 1)
+(y + 1)<span class="keyword">*</span><span class="keyword">*</span>2
+
+&gt;&gt;&gt; ((x+y)<span class="keyword">*</span><span class="keyword">*</span>2).subs(x, y)
+4<span class="keyword">*</span>y<span class="keyword">*</span><span class="keyword">*</span>2
+</code></pre><p>对于剩余的教程，我们假设我们已经运行了：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; import sys
+<span class="prompt">&gt;&gt;</span>&gt; oldhook = sys.displayhook
+<span class="prompt">&gt;&gt;</span>&gt; sys.displayhook = pprint
+</code></pre><p>这样就有漂亮的打印。参见之后的<a href="#section-16">打印</a>部分。如果你安装了unicode字体，你的输出可能看起来有点不同。(将看起来稍微好些)</p>
+<h2 id="代数">代数</h2><p>对部分分式分解，使用<code>apart(expr, x)</code>：</p>
+<pre><code>&gt;&gt;&gt; <span class="number">1</span>/((x+<span class="number">2</span>)*(x+<span class="number">1</span>))
+       <span class="number">1</span>       
+───────────────
+(x + <span class="number">1</span>)⋅(x + <span class="number">2</span>)
+&gt;&gt;&gt; apart(<span class="number">1</span>/((x+<span class="number">2</span>)*(x+<span class="number">1</span>)), x)
+    <span class="number">1</span>       <span class="number">1</span>  
+- ───── + ─────
+  x + <span class="number">2</span>   x + <span class="number">1</span>
+&gt;&gt;&gt; (x+<span class="number">1</span>)/(x-<span class="number">1</span>)
+x + <span class="number">1</span>
+─────
+x - <span class="number">1</span>
+&gt;&gt;&gt; apart((x+<span class="number">1</span>)/(x-<span class="number">1</span>), x)
+      <span class="number">2</span>  
+<span class="number">1</span> + ─────
+    x - <span class="number">1</span>
+</code></pre><p>把它们重新结合起来，使用<code>together(expr, x)</code>：</p>
+<pre><code>&gt;&gt;&gt; z = Symbol(<span class="string">'z'</span>)
+&gt;&gt;&gt; together(<span class="number">1</span>/x + <span class="number">1</span>/y + <span class="number">1</span>/z)
+x⋅y + x⋅z + y⋅z
+───────────────
+     x⋅y⋅z     
+&gt;&gt;&gt; together(apart((x+<span class="number">1</span>)/(x-<span class="number">1</span>), x), x)
+x + <span class="number">1</span>
+─────
+x - <span class="number">1</span>
+&gt;&gt;&gt; together(apart(<span class="number">1</span>/( (x+<span class="number">2</span>)*(x+<span class="number">1</span>) ), x), x)
+       <span class="number">1</span>       
+───────────────
+(x + <span class="number">1</span>)⋅(x + <span class="number">2</span>)
+</code></pre><h2 id="演算">演算</h2><h3 id="极限">极限</h3><p>极限在sympy中使用很简单，它们的语法是<code>limit(function, variable, point)</code>，所以计算当x趋近于0时f(x)的极限，你可以给出<code>limit(f, x, 0)</code>：</p>
+<pre><code>&gt;&gt;&gt; from sympy import *
+&gt;&gt;&gt; x=Symbol<span class="list">(<span class="string">"x"</span>)</span>
+&gt;&gt;&gt; limit<span class="list">(<span class="keyword">sin</span><span class="list">(<span class="keyword">x</span>)</span>/x, x, <span class="number">0</span>)</span>
+<span class="number">1</span>
+</code></pre><p>你也可以计算在无穷的极限：</p>
+<pre><code>&gt;&gt;&gt; <span class="function"><span class="title">limit</span><span class="params">(sin(x)</span></span>/x,x,<span class="number">0</span>)
+<span class="number">1</span>
+&gt;&gt;&gt; <span class="function"><span class="title">limit</span><span class="params">(x,x,oo)</span></span>
+∞
+</code></pre><p>对于一些不寻常的极限例子，你可以阅读这个测试文件<a href="https://github.com/sympy/sympy/blob/master/sympy/series/tests/test_demidovich.py" target="_blank" rel="external">test_demidovich.py</a></p>
+<h3 id="微分">微分</h3><p>你可以使用<code>diff(func, var)</code>微分任何SymPy表达式。例如：</p>
+<pre><code>&gt;&gt;&gt; from sympy import *
+&gt;&gt;&gt; x = Symbol(<span class="string">'x'</span>)
+&gt;&gt;&gt; diff(<span class="built_in">sin</span>(x), x)
+<span class="built_in">cos</span>(x)
+&gt;&gt;&gt; diff(<span class="built_in">sin</span>(<span class="number">2</span>*x), x)
+<span class="number">2</span>⋅<span class="built_in">cos</span>(<span class="number">2</span>⋅x)
+&gt;&gt;&gt; diff(<span class="built_in">tan</span>(x), x)
+   <span class="number">2</span>       
+<span class="built_in">tan</span> (x) + <span class="number">1</span>
+</code></pre><p>你可以检查正确性：</p>
+<pre><code>&gt;&gt;&gt; limit<span class="list">(<span class="list">(<span class="keyword">tan</span><span class="list">(<span class="keyword">x+y</span>)</span>-tan<span class="list">(<span class="keyword">x</span>)</span>)</span>/y, y, <span class="number">0</span>)</span>
+   <span class="number">2</span>       
+tan <span class="list">(<span class="keyword">x</span>)</span> + <span class="number">1</span>
+</code></pre><p>高阶微分可以使用<code>diff(func, var, n)</code>来计算：</p>
+<pre><code>&gt;&gt;&gt; diff(<span class="built_in">sin</span>(<span class="number">2</span>*x), x, <span class="number">1</span>)
+<span class="number">2</span>⋅<span class="built_in">cos</span>(<span class="number">2</span>⋅x)
+&gt;&gt;&gt; diff(<span class="built_in">sin</span>(<span class="number">2</span>*x), x, <span class="number">2</span>)
+-<span class="number">4</span>⋅<span class="built_in">sin</span>(<span class="number">2</span>⋅x)
+&gt;&gt;&gt; diff(<span class="built_in">sin</span>(<span class="number">2</span>*x), x, <span class="number">3</span>)
+-<span class="number">8</span>⋅<span class="built_in">cos</span>(<span class="number">2</span>⋅x)
+</code></pre><h3 id="级数展开">级数展开</h3><p>使用<code>.series(var, point, order)</code>:</p>
+<pre><code>&gt;&gt;&gt; <span class="built_in">cos</span>(x).series(x, <span class="number">0</span>, <span class="number">10</span>)
+     <span class="number">2</span>    <span class="number">4</span>     <span class="number">6</span>      <span class="number">8</span>            
+    x    x     x      x             
+<span class="number">1</span> - ── + ── - ─── + ───── + O(x**<span class="number">10</span>)
+    <span class="number">2</span>    <span class="number">24</span>   <span class="number">720</span>   <span class="number">40320</span> 
+&gt;&gt;&gt; (<span class="number">1</span>/<span class="built_in">cos</span>(x)).series(x, <span class="number">0</span>, <span class="number">10</span>)
+     <span class="number">2</span>      <span class="number">4</span>       <span class="number">6</span>        <span class="number">8</span>           
+    x    <span class="number">5</span>⋅x    <span class="number">61</span>⋅x    <span class="number">277</span>⋅x            
+<span class="number">1</span> + ── + ──── + ───── + ────── + O(x**<span class="number">10</span>)
+    <span class="number">2</span>     <span class="number">24</span>     <span class="number">720</span>     <span class="number">8064</span>            
+</code></pre><p>另一个简单的例子：</p>
+<pre><code>&gt;&gt;&gt; from sympy import Integral, Symbol, pprint
+&gt;&gt;&gt; x = Symbol(<span class="string">'x'</span>)
+&gt;&gt;&gt; y = Symbol(<span class="string">'y'</span>)
+&gt;&gt;&gt; e = <span class="number">1</span>/(x + y)
+&gt;&gt;&gt; s = e.series(x, <span class="number">0</span>, <span class="number">5</span>)
+&gt;&gt;&gt; print(s)
+<span class="number">1</span>/y - x/y**<span class="number">2</span> + x**<span class="number">2</span>/y**<span class="number">3</span> - x**<span class="number">3</span>/y**<span class="number">4</span> + x**<span class="number">4</span>/y**<span class="number">5</span> + O(x**<span class="number">5</span>)
+&gt;&gt;&gt; pprint(s)
+          <span class="number">2</span>    <span class="number">3</span>    <span class="number">4</span>          
+<span class="number">1</span>   x    x    x    x           
+─ - ── + ── - ── + ── + O(x**<span class="number">5</span>)
+y    <span class="number">2</span>    <span class="number">3</span>    <span class="number">4</span>    <span class="number">5</span>          
+    y    y    y    y           
+None
+</code></pre><h3 id="求和">求和</h3><p>计算给定求和变量界限的f的总和(Summation)。[^2]</p>
+<p><code>summation(f, (i, a, b))</code>变量i从a到b计算f的和，也就是，</p>
+<pre><code>                            <span class="tag">b</span>
+                          ____
+                          \   `
+<span class="function"><span class="title">summation</span><span class="params">(f, (i, a, b)</span></span>) =  )    f
+                          /___,
+                          <span class="tag">i</span> = a
+</code></pre><p>如果不能计算总和，它将打印相应的求和公式。求值可引入额外的极限计算：</p>
+<pre><code>&gt;&gt;&gt; from sympy import summation, oo, symbols, <span class="literal">log</span>
+&gt;&gt;&gt; i, <span class="keyword">n</span>, <span class="keyword">m</span> = symbols('i <span class="keyword">n</span> <span class="keyword">m</span>', integer=True)
+&gt;&gt;&gt; summation(2*i - 1, (i, 1, <span class="keyword">n</span>))
+ 2
+<span class="keyword">n</span> 
+&gt;&gt;&gt; summation(1/2**i, (i, 0, oo))
+2
+&gt;&gt;&gt; summation(1/<span class="literal">log</span>(<span class="keyword">n</span>)**<span class="keyword">n</span>, (<span class="keyword">n</span>, 2, oo))
+  ∞           
+ ___          
+ \  `         
+  \      -<span class="keyword">n</span>   
+  /   <span class="keyword">log</span>  (<span class="keyword">n</span>)
+ /__,         
+<span class="keyword">n</span> = 2         
+&gt;&gt;&gt; summation(i, (i, 0, <span class="keyword">n</span>), (<span class="keyword">n</span>, 0, <span class="keyword">m</span>))
+ 3    2    
+<span class="keyword">m</span>    <span class="keyword">m</span>    <span class="literal">m</span>
+── + ── + ─
+6    2    3
+&gt;&gt;&gt; from sympy.abc import x
+&gt;&gt;&gt; from sympy import factorial
+&gt;&gt;&gt; summation(x**<span class="keyword">n</span>/factorial(<span class="keyword">n</span>), (<span class="keyword">n</span>, 0, oo))
+ x
+ℯ 
+</code></pre><h3 id="积分">积分</h3><p>通过<code>integrate()</code>功能(facility)，SymPy对基本和特殊函数定与不定积分有卓越的支持。<br>该功能使用有力的扩展Risch-Norman算法，启发算法和模式匹配：</p>
+<pre><code>&gt;&gt;&gt; from sympy import integrate, <span class="built_in">erf</span>, <span class="built_in">exp</span>, <span class="built_in">sin</span>, <span class="built_in">log</span>, oo, <span class="built_in">pi</span>, <span class="built_in">sinh</span>, symbols
+&gt;&gt;&gt; x, y = symbols(<span class="string">'x,y'</span>)
+</code></pre><p>你可以对基本函数积分：</p>
+<pre><code>&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(<span class="number">6</span>*x**<span class="number">5</span>, x)</span></span>
+ <span class="number">6</span>
+x 
+&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(sin(x)</span></span>, x)
+-<span class="function"><span class="title">cos</span><span class="params">(x)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(log(x)</span></span>, x)
+x⋅<span class="function"><span class="title">log</span><span class="params">(x)</span></span> - x
+&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(<span class="number">2</span>*x + sinh(x)</span></span>, x)
+ <span class="number">2</span>          
+x  + <span class="function"><span class="title">cosh</span><span class="params">(x)</span></span>
+</code></pre><p>特殊函数也可以简单的处理：</p>
+<pre><code>&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(exp(-x**<span class="number">2</span>)</span></span>*<span class="function"><span class="title">erf</span><span class="params">(x)</span></span>, x)
+  ⎽⎽⎽    <span class="number">2</span>   
+╲╱ π ⋅erf (x)
+─────────────
+      <span class="number">4</span>      
+</code></pre><p>还可以计算定积分：</p>
+<pre><code>&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">x**3</span>, <span class="list">(<span class="keyword">x</span>, <span class="number">-1</span>, <span class="number">1</span>)</span>)</span>
+<span class="number">0</span>
+&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">sin</span><span class="list">(<span class="keyword">x</span>)</span>, <span class="list">(<span class="keyword">x</span>, <span class="number">0</span>, pi/2)</span>)</span>
+<span class="number">1</span>
+&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">cos</span><span class="list">(<span class="keyword">x</span>)</span>, <span class="list">(<span class="keyword">x</span>, -pi/2, pi/2)</span>)</span>
+<span class="number">2</span>
+</code></pre><p>反常积分也被支持：</p>
+<pre><code>&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">exp</span><span class="list">(<span class="keyword">-x</span>)</span>, <span class="list">(<span class="keyword">x</span>, <span class="number">0</span>, oo)</span>)</span>
+<span class="number">1</span>
+&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">log</span><span class="list">(<span class="keyword">x</span>)</span>, <span class="list">(<span class="keyword">x</span>, <span class="number">0</span>, <span class="number">1</span>)</span>)</span>
+<span class="number">-1</span>
+</code></pre><h3 id="复数">复数</h3><p>除了复数单元<code>I</code>是虚数，符号可以被用属性创建(例如 real,positive,complex,等等)这将影响它们的表现：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import <span class="constant">Symbol</span>, exp, <span class="constant">I</span>
+<span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">'x'</span>)  <span class="comment"># a plain x with no attributes</span>
+<span class="prompt">&gt;&gt;</span>&gt; exp(<span class="constant">I</span>*x).expand()
+ ⅈ⋅x
+ℯ   
+<span class="prompt">&gt;&gt;</span>&gt; exp(<span class="constant">I</span>*x).expand(complex=<span class="constant">True</span>)
+   -im(x)               -im(x)           
+ⅈ⋅ℯ      ⋅sin(re(x)) + ℯ      ⋅cos(re(x))
+<span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">'x'</span>, real=<span class="constant">True</span>)
+<span class="prompt">&gt;&gt;</span>&gt; exp(<span class="constant">I</span>*x).expand(complex=<span class="constant">True</span>)
+ⅈ⋅sin(x) + cos(x)
+</code></pre><h3 id="函数">函数</h3><p><strong>三角函数:</strong></p>
+<pre><code>&gt;&gt;&gt; from sympy import asin, asinh, cos, sin, sinh, symbols, I
+&gt;&gt;&gt; x, y = <span class="function"><span class="title">symbols</span><span class="params">(<span class="string">'x,y'</span>)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">sin</span><span class="params">(x+y)</span></span>.<span class="function"><span class="title">expand</span><span class="params">(trig=True)</span></span>
+<span class="function"><span class="title">sin</span><span class="params">(x)</span></span>⋅<span class="function"><span class="title">cos</span><span class="params">(y)</span></span> + <span class="function"><span class="title">sin</span><span class="params">(y)</span></span>⋅<span class="function"><span class="title">cos</span><span class="params">(x)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">cos</span><span class="params">(x+y)</span></span>.<span class="function"><span class="title">expand</span><span class="params">(trig=True)</span></span>
+-<span class="function"><span class="title">sin</span><span class="params">(x)</span></span>⋅<span class="function"><span class="title">sin</span><span class="params">(y)</span></span> + <span class="function"><span class="title">cos</span><span class="params">(x)</span></span>⋅<span class="function"><span class="title">cos</span><span class="params">(y)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">sin</span><span class="params">(I*x)</span></span>
+ⅈ⋅<span class="function"><span class="title">sinh</span><span class="params">(x)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">sinh</span><span class="params">(I*x)</span></span>
+ⅈ⋅<span class="function"><span class="title">sin</span><span class="params">(x)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">asinh</span><span class="params">(I)</span></span>
+ⅈ⋅π
+───
+ <span class="number">2</span> 
+&gt;&gt;&gt; <span class="function"><span class="title">asinh</span><span class="params">(I*x)</span></span>
+ⅈ⋅<span class="function"><span class="title">asin</span><span class="params">(x)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">sin</span><span class="params">(x)</span></span>.<span class="function"><span class="title">series</span><span class="params">(x, <span class="number">0</span>, <span class="number">10</span>)</span></span>
+     <span class="number">3</span>     <span class="number">5</span>     <span class="number">7</span>       <span class="number">9</span>             
+    x     x     x       x              
+x - ── + ─── - ──── + ────── + <span class="function"><span class="title">O</span><span class="params">(x**<span class="number">10</span>)</span></span>
+    <span class="number">6</span>    <span class="number">120</span>   <span class="number">5040</span>   <span class="number">362880</span>           
+&gt;&gt;&gt; <span class="function"><span class="title">sinh</span><span class="params">(x)</span></span>.<span class="function"><span class="title">series</span><span class="params">(x, <span class="number">0</span>, <span class="number">10</span>)</span></span>
+     <span class="number">3</span>     <span class="number">5</span>     <span class="number">7</span>       <span class="number">9</span>             
+    x     x     x       x              
+x + ── + ─── + ──── + ────── + <span class="function"><span class="title">O</span><span class="params">(x**<span class="number">10</span>)</span></span>
+    <span class="number">6</span>    <span class="number">120</span>   <span class="number">5040</span>   <span class="number">362880</span>           
+&gt;&gt;&gt; <span class="function"><span class="title">asin</span><span class="params">(x)</span></span>.<span class="function"><span class="title">series</span><span class="params">(x, <span class="number">0</span>, <span class="number">10</span>)</span></span>
+     <span class="number">3</span>      <span class="number">5</span>      <span class="number">7</span>       <span class="number">9</span>           
+    x    <span class="number">3</span>⋅x    <span class="number">5</span>⋅x    <span class="number">35</span>⋅x            
+x + ── + ──── + ──── + ───── + <span class="function"><span class="title">O</span><span class="params">(x**<span class="number">10</span>)</span></span>
+    <span class="number">6</span>     <span class="number">40</span>    <span class="number">112</span>     <span class="number">1152</span>           
+&gt;&gt;&gt; <span class="function"><span class="title">asinh</span><span class="params">(x)</span></span>.<span class="function"><span class="title">series</span><span class="params">(x, <span class="number">0</span>, <span class="number">10</span>)</span></span>
+     <span class="number">3</span>      <span class="number">5</span>      <span class="number">7</span>       <span class="number">9</span>           
+    x    <span class="number">3</span>⋅x    <span class="number">5</span>⋅x    <span class="number">35</span>⋅x            
+x - ── + ──── - ──── + ───── + <span class="function"><span class="title">O</span><span class="params">(x**<span class="number">10</span>)</span></span>
+    <span class="number">6</span>     <span class="number">40</span>    <span class="number">112</span>     <span class="number">1152</span>    
+</code></pre><p><strong>球谐函数：</strong></p>
+<pre><code>&gt;&gt;&gt; from sympy import Ylm
+&gt;&gt;&gt; from sympy<span class="class">.abc</span> import theta, phi
+&gt;&gt;&gt; <span class="function"><span class="title">Ylm</span><span class="params">(<span class="number">1</span>, <span class="number">0</span>, theta, phi)</span></span>
+  ⎽⎽⎽       
+╲╱ <span class="number">3</span> ⋅<span class="function"><span class="title">cos</span><span class="params">(θ)</span></span>
+────────────
+      ⎽⎽⎽   
+  <span class="number">2</span>⋅╲╱ π    
+&gt;&gt;&gt; <span class="function"><span class="title">Ylm</span><span class="params">(<span class="number">1</span>, <span class="number">1</span>, theta, phi)</span></span>
+   ⎽⎽⎽  ⅈ⋅φ       
+-╲╱ <span class="number">6</span> ⋅ℯ   ⋅<span class="function"><span class="title">sin</span><span class="params">(θ)</span></span>
+──────────────────
+         ⎽⎽⎽      
+     <span class="number">4</span>⋅╲╱ π       
+&gt;&gt;&gt; <span class="function"><span class="title">Ylm</span><span class="params">(<span class="number">2</span>, <span class="number">1</span>, theta, phi)</span></span>
+   ⎽⎽⎽⎽  ⅈ⋅φ              
+-╲╱ <span class="number">30</span> ⋅ℯ   ⋅<span class="function"><span class="title">sin</span><span class="params">(θ)</span></span>⋅<span class="function"><span class="title">cos</span><span class="params">(θ)</span></span>
+──────────────────────────
+             ⎽⎽⎽          
+         <span class="number">4</span>⋅╲╱ π       
+</code></pre><p><strong>阶乘和伽马函数：</strong></p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import factorial, gamma, <span class="constant">Symbol</span>
+<span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">"x"</span>)
+<span class="prompt">&gt;&gt;</span>&gt; n = <span class="constant">Symbol</span>(<span class="string">"n"</span>, integer=<span class="constant">True</span>)
+<span class="prompt">&gt;&gt;</span>&gt; factorial(x)
+x!
+<span class="prompt">&gt;&gt;</span>&gt; factorial(n)
+n!
+<span class="prompt">&gt;&gt;</span>&gt; gamma(x + <span class="number">1</span>).series(x, <span class="number">0</span>, <span class="number">3</span>) <span class="comment"># i.e. factorial(x)</span>
+                    <span class="number">2</span>  <span class="number">2</span>             <span class="number">2</span>  <span class="number">2</span>          
+                   π ⋅x    <span class="constant">EulerGamma</span> ⋅x           
+<span class="number">1</span> - <span class="constant">EulerGamma</span>⋅x + ───── + ────────────── + <span class="constant">O</span>(x**<span class="number">3</span>)
+                     <span class="number">12</span>          <span class="number">2</span>     
+</code></pre><p><strong>zeta函数：</strong></p>
+<pre><code>&gt;&gt;&gt; from sympy import zeta
+&gt;&gt;&gt; zeta(<span class="number">4</span>, x)
+ζ(<span class="number">4</span>, x)
+&gt;&gt;&gt; zeta(<span class="number">4</span>, <span class="number">1</span>)
+ <span class="number">4</span>
+π 
+──
+<span class="number">90</span>
+&gt;&gt;&gt; zeta(<span class="number">4</span>, <span class="number">2</span>)
+      <span class="number">4</span>
+     π 
+-<span class="number">1</span> + ──
+     <span class="number">90</span>
+&gt;&gt;&gt; zeta(<span class="number">4</span>, <span class="number">3</span>)
+        <span class="number">4</span>
+  <span class="number">17</span>   π 
+- ── + ──
+  <span class="number">16</span>   <span class="number">90</span>
+</code></pre><p><strong>多项式：</strong></p>
+<pre><code>&gt;&gt;&gt; from sympy import assoc_legendre, chebyshevt, legendre, hermite
+&gt;&gt;&gt; chebyshevt(<span class="number">2</span>, x)
+   <span class="number">2</span>    
+<span class="number">2</span>⋅x  - <span class="number">1</span>
+&gt;&gt;&gt; chebyshevt(<span class="number">4</span>, x)
+   <span class="number">4</span>      <span class="number">2</span>    
+<span class="number">8</span>⋅x  - <span class="number">8</span>⋅x  + <span class="number">1</span>
+&gt;&gt;&gt; legendre(<span class="number">2</span>, x)
+   <span class="number">2</span>    
+<span class="number">3</span>⋅x    <span class="number">1</span>
+──── - ─
+ <span class="number">2</span>     <span class="number">2</span>
+&gt;&gt;&gt; legendre(<span class="number">8</span>, x)
+      <span class="number">8</span>         <span class="number">6</span>         <span class="number">4</span>        <span class="number">2</span>      
+<span class="number">6435</span>⋅x    <span class="number">3003</span>⋅x    <span class="number">3465</span>⋅x    <span class="number">315</span>⋅x     <span class="number">35</span>
+─────── - ─────── + ─────── - ────── + ───
+  <span class="number">128</span>        <span class="number">32</span>        <span class="number">64</span>       <span class="number">32</span>     <span class="number">128</span>
+&gt;&gt;&gt; assoc_legendre(<span class="number">2</span>, <span class="number">1</span>, x)
+        ⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽
+       ╱    <span class="number">2</span>     
+-<span class="number">3</span>⋅x⋅╲╱  - x  + <span class="number">1</span> 
+&gt;&gt;&gt; assoc_legendre(<span class="number">2</span>, <span class="number">2</span>, x)
+     <span class="number">2</span>    
+- <span class="number">3</span>⋅x  + <span class="number">3</span>
+&gt;&gt;&gt; hermite(<span class="number">3</span>, x)
+   <span class="number">3</span>       
+<span class="number">8</span>⋅x  - <span class="number">12</span>⋅x
+</code></pre><h3 id="微分方程">微分方程</h3><p>在 isympy中：</p>
+<pre><code>&gt;&gt;&gt; from sympy import Function, Symbol, dsolve
+&gt;&gt;&gt; f = <span class="function"><span class="title">Function</span><span class="params">(<span class="string">'f'</span>)</span></span>
+&gt;&gt;&gt; x = <span class="function"><span class="title">Symbol</span><span class="params">(<span class="string">'x'</span>)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">f</span><span class="params">(x)</span></span>.<span class="function"><span class="title">diff</span><span class="params">(x, x)</span></span> + <span class="function"><span class="title">f</span><span class="params">(x)</span></span>
+         <span class="number">2</span>      
+        d       
+<span class="function"><span class="title">f</span><span class="params">(x)</span></span> + ───(<span class="function"><span class="title">f</span><span class="params">(x)</span></span>)
+         <span class="number">2</span>      
+       dx       
+&gt;&gt;&gt; <span class="function"><span class="title">dsolve</span><span class="params">(f(x)</span></span>.<span class="function"><span class="title">diff</span><span class="params">(x, x)</span></span> + <span class="function"><span class="title">f</span><span class="params">(x)</span></span>, <span class="function"><span class="title">f</span><span class="params">(x)</span></span>)
+<span class="function"><span class="title">f</span><span class="params">(x)</span></span> = C₁⋅<span class="function"><span class="title">cos</span><span class="params">(x)</span></span> + C₂⋅<span class="function"><span class="title">sin</span><span class="params">(x)</span></span>
+</code></pre><h3 id="代数方程">代数方程</h3><p>在isympy中：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import solve, symbols
+<span class="prompt">&gt;&gt;</span>&gt; x, y = symbols(<span class="string">'x,y'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; solve(x**<span class="number">4</span> - <span class="number">1</span>, x)
+[<span class="number">1</span>, -<span class="number">1</span>, -ⅈ, ⅈ]
+<span class="prompt">&gt;&gt;</span>&gt; solve([x + <span class="number">5</span>*y - <span class="number">2</span>, -<span class="number">3</span>*x + <span class="number">6</span>*y - <span class="number">15</span>], [x, y])
+{<span class="symbol">x:</span> -<span class="number">3</span>, <span class="symbol">y:</span> <span class="number">1</span>}
+</code></pre><h2 id="线性代数">线性代数</h2><h3 id="矩阵">矩阵</h3><p>矩阵从Matrix类创建：</p>
+<pre><code>&gt;&gt;&gt; from sympy import Matrix, Symbol
+&gt;&gt;&gt; Matrix([[<span class="number">1</span>,<span class="number">0</span>], [<span class="number">0</span>,<span class="number">1</span>]])
+⎡<span class="number">1</span>  <span class="number">0</span>⎤
+⎢    ⎥
+⎣<span class="number">0</span>  <span class="number">1</span>⎦
+</code></pre><p>它可以包含符号：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">'x'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; y = <span class="constant">Symbol</span>(<span class="string">'y'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">A</span> = <span class="constant">Matrix</span>([[<span class="number">1</span>,x], [y,<span class="number">1</span>]])
+<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">A</span>
+⎡<span class="number">1</span>  x⎤
+⎢    ⎥
+⎣y  <span class="number">1</span>⎦
+<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">A</span>**<span class="number">2</span>
+⎡x⋅y + <span class="number">1</span>    <span class="number">2</span>⋅x  ⎤
+⎢                ⎥
+⎣  <span class="number">2</span>⋅y    x⋅y + <span class="number">1</span>⎦
+</code></pre><p>更多有关矩阵信息，参见线性代数教程。</p>
+<h2 id="模式匹配">模式匹配</h2><p>使用<code>.match()</code>方法，和Wild类对表达式实行模式匹配。这个方法将返回一个发生替换的字典，如下：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import <span class="constant">Symbol</span>, <span class="constant">Wild</span>
+<span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">'x'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; p = <span class="constant">Wild</span>(<span class="string">'p'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; (<span class="number">5</span>*x**<span class="number">2</span>).match(p*x**<span class="number">2</span>)
+{<span class="symbol">p:</span> <span class="number">5</span>}
+<span class="prompt">&gt;&gt;</span>&gt; q = <span class="constant">Wild</span>(<span class="string">'q'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; (x**<span class="number">2</span>).match(p*x**q)
+{<span class="symbol">p:</span> <span class="number">1</span>, <span class="symbol">q:</span> <span class="number">2</span>}
+</code></pre><p>如果匹配失败，将返回<code>None</code>：</p>
+<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> (x+<span class="number">1</span>).match(p**x)
+<span class="keyword">None</span>
+</code></pre><p>可以指定<code>Wild</code>类的排除参数去保证一些东西不出现在结果之中：</p>
+<pre><code>&gt;&gt;&gt; p = Wild(<span class="string">'p'</span>, exclude=[<span class="number">1</span>,x])
+&gt;&gt;&gt; print (x+<span class="number">1</span>).match(x+p) <span class="preprocessor"># <span class="number">1</span> is excluded</span>
+None
+&gt;&gt;&gt; print (x+<span class="number">1</span>).match(p+<span class="number">1</span>) <span class="preprocessor"># x is excluded</span>
+None
+&gt;&gt;&gt; print (x+<span class="number">1</span>).match(x+<span class="number">2</span>+p) <span class="preprocessor"># -<span class="number">1</span> is not excluded</span>
+{p_: -<span class="number">1</span>}
+</code></pre><h2 id="打印">打印</h2><p>这里有许多打印表达式的方法：</p>
+<p><strong>标准</strong></p>
+<p>这就是<code>str(expression)</code>返回的，看起来想这样：</p>
+<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy <span class="keyword">import</span> Integral
+<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy.abc <span class="keyword">import</span> x
+<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> x**<span class="number">2</span>
+x**<span class="number">2</span>
+<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> <span class="number">1</span>/x
+<span class="number">1</span>/x
+<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> Integral(x**<span class="number">2</span>, x)
+Integral(x**<span class="number">2</span>, x)
+</code></pre><p><strong>漂亮的打印</strong></p>
+<p><code>pprint</code>函数产生好看的ascii艺术打印：</p>
+<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy <span class="keyword">import</span> Integral, pprint
+<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy.abc <span class="keyword">import</span> x
+<span class="prompt">&gt;&gt;&gt; </span>pprint(x**<span class="number">2</span>)
+ <span class="number">2</span>
+x 
+<span class="keyword">None</span>
+<span class="prompt">&gt;&gt;&gt; </span>pprint(<span class="number">1</span>/x)
+<span class="number">1</span>
+─
+x
+<span class="keyword">None</span>
+<span class="prompt">&gt;&gt;&gt; </span>pprint(Integral(x**<span class="number">2</span>, x))
+⌠      
+⎮  <span class="number">2</span>   
+⎮ x  dx
+⌡      
+<span class="keyword">None</span>
+</code></pre><p>如果你安装了unicode字体，<code>pprint</code>函数将默认使用它。你可以使用<code>use_unicode</code>函数改变这个选项。：</p>
+<pre><code>&gt;&gt;&gt; pprint(Integral(x<span class="keyword">*</span><span class="keyword">*</span>2, x), use_unicode=False)
+  /     
+ |<span class="string">      
+ </span>|<span class="string">  2   
+ </span>|<span class="string"> x  dx
+ </span>|<span class="string">      
+/       
+None</span>
+</code></pre><p>更多好看的unicode打印另见维基<a href="https://github.com/sympy/sympy/wiki/Pretty-Printing" target="_blank" rel="external">Pretty Printing</a>。</p>
+<p>小技巧：在Python解释器中默认使用漂亮的打印，使用：</p>
+<pre><code>$ python
+Python <span class="number">2.5</span><span class="number">.2</span> (r252:<span class="number">60911</span>, Jun <span class="number">25</span> <span class="number">2008</span>, <span class="number">17</span>:<span class="number">58</span>:<span class="number">32</span>)
+[GCC <span class="number">4.3</span><span class="number">.1</span>] on linux2
+Type <span class="string">"help"</span>, <span class="string">"copyright"</span>, <span class="string">"credits"</span> or <span class="string">"license"</span> <span class="keyword">for</span> more information.
+&gt;&gt;&gt; from sympy import init_printing, var, Integral
+&gt;&gt;&gt; init_printing(use_unicode=False, wrap_line=False, no_global=True)
+&gt;&gt;&gt; var(<span class="string">"x"</span>)
+x
+&gt;&gt;&gt; x**<span class="number">3</span>/<span class="number">3</span>
+ <span class="number">3</span>
+x
+--
+<span class="number">3</span>
+&gt;&gt;&gt; Integral(x**<span class="number">2</span>, x) <span class="preprocessor">#doctest: +NORMALIZE_WHITESPACE</span>
+  /
+ |
+ |  <span class="number">2</span>
+ | x  dx
+ |
+/
+</code></pre><p><strong>Python打印</strong></p>
+<pre><code>&gt;&gt;&gt; from sympy<span class="class">.printing</span><span class="class">.python</span> import python
+&gt;&gt;&gt; from sympy import Integral
+&gt;&gt;&gt; from sympy<span class="class">.abc</span> import x
+&gt;&gt;&gt; print <span class="function"><span class="title">python</span><span class="params">(x**<span class="number">2</span>)</span></span>
+x = <span class="function"><span class="title">Symbol</span><span class="params">(<span class="string">'x'</span>)</span></span>
+e = x**<span class="number">2</span>
+&gt;&gt;&gt; print <span class="function"><span class="title">python</span><span class="params">(<span class="number">1</span>/x)</span></span>
+x = <span class="function"><span class="title">Symbol</span><span class="params">(<span class="string">'x'</span>)</span></span>
+e = <span class="number">1</span>/x
+&gt;&gt;&gt; print <span class="function"><span class="title">python</span><span class="params">(Integral(x**<span class="number">2</span>, x)</span></span>)
+x = <span class="function"><span class="title">Symbol</span><span class="params">(<span class="string">'x'</span>)</span></span>
+e = <span class="function"><span class="title">Integral</span><span class="params">(x**<span class="number">2</span>, x)</span></span>
+</code></pre><p><strong>LaTeX打印</strong></p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import <span class="constant">Integral</span>, latex
+<span class="prompt">&gt;&gt;</span>&gt; from sympy.abc import x
+<span class="prompt">&gt;&gt;</span>&gt; latex(x**<span class="number">2</span>)
+x^{<span class="number">2</span>}
+<span class="prompt">&gt;&gt;</span>&gt; latex(x**<span class="number">2</span>, mode=<span class="string">'inline'</span>)
+<span class="variable">$x</span>^{<span class="number">2</span>}<span class="variable">$
+</span><span class="prompt">&gt;&gt;</span>&gt; latex(x**<span class="number">2</span>, mode=<span class="string">'equation'</span>)
+\<span class="keyword">begin</span>{equation}x^{<span class="number">2</span>}\<span class="keyword">end</span>{equation}
+<span class="prompt">&gt;&gt;</span>&gt; latex(x**<span class="number">2</span>, mode=<span class="string">'equation*'</span>)
+\<span class="keyword">begin</span>{equation*}x^{<span class="number">2</span>}\<span class="keyword">end</span>{equation*}
+<span class="prompt">&gt;&gt;</span>&gt; latex(<span class="number">1</span>/x)
+\frac{<span class="number">1</span>}{x}
+<span class="prompt">&gt;&gt;</span>&gt; latex(<span class="constant">Integral</span>(x**<span class="number">2</span>, x))
+\int x^{<span class="number">2</span>}\,dx
+</code></pre><p><strong>MathML</strong></p>
+<pre><code>&gt;&gt;&gt; <span class="keyword">from</span> sympy.printing.mathml import mathml
+&gt;&gt;&gt; <span class="keyword">from</span> sympy import Integral, latex
+&gt;&gt;&gt; <span class="keyword">from</span> sympy.abc import x
+&gt;&gt;&gt; print mathml(x**<span class="number">2</span>)
+<span class="variable">&lt;apply&gt;</span><span class="variable">&lt;power/&gt;</span><span class="variable">&lt;ci&gt;</span>x<span class="variable">&lt;/ci&gt;</span><span class="variable">&lt;cn&gt;</span><span class="number">2</span><span class="variable">&lt;/cn&gt;</span><span class="variable">&lt;/apply&gt;</span>
+&gt;&gt;&gt; print mathml(<span class="number">1</span>/x)
+<span class="variable">&lt;apply&gt;</span><span class="variable">&lt;power/&gt;</span><span class="variable">&lt;ci&gt;</span>x<span class="variable">&lt;/ci&gt;</span><span class="variable">&lt;cn&gt;</span>-<span class="number">1</span><span class="variable">&lt;/cn&gt;</span><span class="variable">&lt;/apply&gt;</span>
+</code></pre><p><strong>Pylet</strong></p>
+<pre><code>&gt;&gt;&gt; from sympy import Integral, preview
+&gt;&gt;&gt; from sympy.abc import x
+&gt;&gt;&gt; preview(Integral(x**2, x))
+This is pdfTeX, <span class="keyword">Version</span> 3.1415926-2.4-1.40.13 (TeX Live 2012/<span class="keyword">Arch</span> Linux)
+ restricted \write18 enabled.
+entering extended mode
+(/tmp/tmpGYREx_.tex
+LaTeX2e &lt;2011/06/27&gt;
+Babel &lt;v3.8m&gt; and hyphenation patterns <span class="keyword">for</span> english, dumylang, nohyphenation, <span class="keyword">ge</span>
+rman-x-2012-05-30, ngerman-x-2012-05-30, afrikaans, ancientgreek, ibycus, arabi
+c, armenian, basque, bulgarian, catalan, pinyin, coptic, croatian, czech, danis
+<span class="keyword">h</span>, dutch, ukenglish, usenglishmax, esperanto, estonian, ethiopic, farsi, finnis
+<span class="keyword">h</span>, french, friulan, galician, german, ngerman, swissgerman, monogreek, greek, <span class="literal">h</span>
+ungarian, icelandic, assamese, bengali, gujarati, hindi, kannada, malayalam, <span class="keyword">ma</span>
+rathi, oriya, panjabi, tamil, telugu, indonesian, interlingua, irish, italian, 
+kurmanji, latin, latvian, lithuanian, mongolian, mongolianlmc, bokmal, nynorsk,
+ polish, portuguese, romanian, romansh, russian, sanskrit, serbian, serbianc, <span class="literal">s</span>
+lovak, slovenian, spanish, swedish, turkish, turkmen, ukrainian, uppersorbian, 
+welsh, loaded.
+(/usr/share/texmf-dist/tex/latex/base/article.cls
+Document <span class="keyword">Class</span>: article 2007/10/19 v1.4h Standard LaTeX document <span class="keyword">class</span>
+(/usr/share/texmf-dist/tex/latex/base/size12.<span class="keyword">clo</span>))
+(/usr/share/texmf-dist/tex/latex/amsmath/amsmath.sty
+<span class="keyword">For</span> additional information <span class="keyword">on</span> amsmath, <span class="keyword">use</span> the `?' option.
+(/usr/share/texmf-dist/tex/latex/amsmath/amstext.sty
+(/usr/share/texmf-dist/tex/latex/amsmath/amsgen.sty))
+(/usr/share/texmf-dist/tex/latex/amsmath/amsbsy.sty)
+(/usr/share/texmf-dist/tex/latex/amsmath/amsopn.sty))
+(/usr/share/texmf-dist/tex/latex/eulervm/eulervm.sty)
+<span class="keyword">No</span> <span class="keyword">file</span> tmpGYREx_.aux.
+(/usr/share/texmf-dist/tex/latex/eulervm/uzeur.fd)
+(/usr/share/texmf-dist/tex/latex/eulervm/uzeus.fd)
+(/usr/share/texmf-dist/tex/latex/eulervm/uzeuex.fd) [1] (./tmpGYREx_.aux) )
+Output written <span class="keyword">on</span> tmpGYREx_.dvi (1 page, 320 bytes).
+Transcript written <span class="keyword">on</span> tmpGYREx_.<span class="keyword">log</span>.
+This is dvipng 1.14 <span class="keyword">Copyright</span> 2002-2010 Jan-Ake Larsson
+[1] 
+</code></pre><p>如果pyglet被安装了，一个包含LaTeX渲染后表达式的pyglet窗口将被打开：</p>
+<p><img src="http://fmn.rrimg.com/fmn059/20120903/1210/p_large_ViwY_2fcc000000bf1262.jpg" alt="pyglet"></p>
+<h3 id="注意">注意</h3><p>isympy自动调用<code>pprint</code>,这就是为什么默认情况下你看到的是漂亮的打印。</p>
+<p>注意有一个可用的打印模块<code>sympy.printing</code>。其它通过这个模块的打印方法是：</p>
+<ul>
+<li><code>pretty(expr)</code>,<code>pretty_print(expr)</code>,<code>pprint(expr)</code>:分别漂亮的表示<code>expr</code>.这是和之前描述的第二层表示是一样的。</li>
+<li><code>latex(expr)</code>, <code>print_latex(expr)</code>：分别返回和打印<code>expr</code>的<a href="http://www.latex-project.org/" target="_blank" rel="external">LaTeX</a>表示。</li>
+<li><code>mathml(expr)</code>,<code>print_mathml(expr)</code>：分别返回和打印<code>expr</code>的<a href="http://www.w3.org/Math/" target="_blank" rel="external">MathML</a>表示。</li>
+<li><code>print_gtk(expr)</code>：在<a href="http://helm.cs.unibo.it/mml-widget/" target="_blank" rel="external">Gtkmathview</a>打印<code>expr</code>，这是一个呈现MathML代码的GTK部件。<a href="http://helm.cs.unibo.it/mml-widget/" target="_blank" rel="external">Gtkmathview</a>要求安装。</li>
+</ul>
+<h2 id="更多文档">更多文档</h2><p>现在该学更多有关SymPy的知识了。浏览<a href="http://docs.sympy.org/dev/guide.html#guide" target="_blank" rel="external">SymPy用户指南</a>和<a href="http://docs.sympy.org/dev/modules/index.html#module-docs" target="_blank" rel="external">SymPy模块参考</a>。</p>
+<p>一定也浏览我们的公共<a href="http://wiki.sympy.org/" target="_blank" rel="external">wiki.sympy.org</a>，那里包含了很多我们和我们的用户贡献的示例，教程，cookbook，请自由地编辑它。</p>
+<h2 id="翻译">翻译</h2><p>这个教程还有其它语言：</p>
+<p><a href="http://docs.sympy.org/dev/tutorial.de.html" target="_blank" rel="external">德语</a></p>
+<hr>
+<h2 id="FootNotes">FootNotes</h2><p>[^2]:Compute the summation of f with respect to the given summation variable over the given limits.</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/python/2012/08/24/scipy/" rel="next" title="SciPy入门指南(译)">
+                <i class="fa fa-chevron-left"></i> SciPy入门指南(译)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/python/2012/09/07/matplotlib-tutorial/" rel="prev" title="Matplotlib Tutorial(译)">
+                Matplotlib Tutorial(译) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SymPy_Tutorial"><span class="nav-number">1.</span> <span class="nav-text">SymPy Tutorial</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#引言"><span class="nav-number">1.1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SymPy第一步"><span class="nav-number">1.2.</span> <span class="nav-text">SymPy第一步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#isympy控制台"><span class="nav-number">1.2.1.</span> <span class="nav-text">isympy控制台</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用SymPy做计算器"><span class="nav-number">1.2.2.</span> <span class="nav-text">用SymPy做计算器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#符号"><span class="nav-number">1.2.3.</span> <span class="nav-text">符号</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代数"><span class="nav-number">1.3.</span> <span class="nav-text">代数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#演算"><span class="nav-number">1.4.</span> <span class="nav-text">演算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#极限"><span class="nav-number">1.4.1.</span> <span class="nav-text">极限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#微分"><span class="nav-number">1.4.2.</span> <span class="nav-text">微分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#级数展开"><span class="nav-number">1.4.3.</span> <span class="nav-text">级数展开</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#求和"><span class="nav-number">1.4.4.</span> <span class="nav-text">求和</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#积分"><span class="nav-number">1.4.5.</span> <span class="nav-text">积分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#复数"><span class="nav-number">1.4.6.</span> <span class="nav-text">复数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#函数"><span class="nav-number">1.4.7.</span> <span class="nav-text">函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#微分方程"><span class="nav-number">1.4.8.</span> <span class="nav-text">微分方程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代数方程"><span class="nav-number">1.4.9.</span> <span class="nav-text">代数方程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线性代数"><span class="nav-number">1.5.</span> <span class="nav-text">线性代数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#矩阵"><span class="nav-number">1.5.1.</span> <span class="nav-text">矩阵</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模式匹配"><span class="nav-number">1.6.</span> <span class="nav-text">模式匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#打印"><span class="nav-number">1.7.</span> <span class="nav-text">打印</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#注意"><span class="nav-number">1.7.1.</span> <span class="nav-text">注意</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更多文档"><span class="nav-number">1.8.</span> <span class="nav-text">更多文档</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#翻译"><span class="nav-number">1.9.</span> <span class="nav-text">翻译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FootNotes"><span class="nav-number">1.10.</span> <span class="nav-text">FootNotes</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

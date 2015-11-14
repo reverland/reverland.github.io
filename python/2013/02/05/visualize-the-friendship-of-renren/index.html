@@ -1,0 +1,738 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="networkx,python,web," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="可视化人人好友关系
+目录
+
+toc{: toc}
+
+
+受R分析人人网好友推荐系统和用python进行人人好友分析启发，完全用python的模块和方式实现了一遍，结果搞得好像一点也不Pythonic，倒好像有点继承了之前在lisp下养成的函数式风格……
+作为菜鸟深知代码写得不怎么样，写在这里，希望没什么基础的人都能体会到其中我所感受到的乐趣Happy hacking，也欢迎各路高手大牛不吝赐教。
+完">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python小练习：可视化人人好友关系">
+<meta property="og:url" content="http://reverland.org/python/2013/02/05/visualize-the-friendship-of-renren/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="可视化人人好友关系
+目录
+
+toc{: toc}
+
+
+受R分析人人网好友推荐系统和用python进行人人好友分析启发，完全用python的模块和方式实现了一遍，结果搞得好像一点也不Pythonic，倒好像有点继承了之前在lisp下养成的函数式风格……
+作为菜鸟深知代码写得不怎么样，写在这里，希望没什么基础的人都能体会到其中我所感受到的乐趣Happy hacking，也欢迎各路高手大牛不吝赐教。
+完">
+<meta property="og:image" content="http://fmn.rrfmn.com/fmn058/20130207/1135/large_ljoh_1281000032cc125c.jpg">
+<meta property="og:image" content="http://fmn.xnpic.com/fmn057/20130207/1135/large_C753_44f6000032d8125d.jpg">
+<meta property="og:image" content="http://fmn.rrfmn.com/fmn059/20130207/1135/large_HiaW_1161000032c9125c.jpg">
+<meta property="og:updated_time" content="2015-11-12T16:34:08.688Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python小练习：可视化人人好友关系">
+<meta name="twitter:description" content="可视化人人好友关系
+目录
+
+toc{: toc}
+
+
+受R分析人人网好友推荐系统和用python进行人人好友分析启发，完全用python的模块和方式实现了一遍，结果搞得好像一点也不Pythonic，倒好像有点继承了之前在lisp下养成的函数式风格……
+作为菜鸟深知代码写得不怎么样，写在这里，希望没什么基础的人都能体会到其中我所感受到的乐趣Happy hacking，也欢迎各路高手大牛不吝赐教。
+完">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> Python小练习：可视化人人好友关系 | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Python小练习：可视化人人好友关系
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2013-02-05T00:00:00+08:00" content="2013-02-05">
+              2013-02-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="可视化人人好友关系">可视化人人好友关系</h1><hr>
+<p><strong>目录</strong></p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<hr>
+<p>受<a href="http://cos.name/2011/04/exploring-renren-social-network/" target="_blank" rel="external">R分析人人网好友推荐系统</a>和<a href="http://blog.csdn.net/lkkang/article/details/7362888" target="_blank" rel="external">用python进行人人好友分析</a>启发，完全用python的模块和方式实现了一遍，结果搞得好像一点也不Pythonic，倒好像有点继承了之前在lisp下养成的函数式风格……</p>
+<p>作为菜鸟深知代码写得不怎么样，写在这里，希望没什么基础的人都能体会到其中我所感受到的乐趣<em>Happy hacking</em>，也欢迎各路高手大牛不吝赐教。</p>
+<p>完整代码见<a href="https://github.com/reverland/scripts/blob/master/python/renren.py" target="_blank" rel="external">github/reverland/scripts/renren.py</a></p>
+<h2 id="必要条件">必要条件</h2><p><strong>For Reader:</strong></p>
+<p>读者需要有一定python基础，如果没有，不妨花半个小时看看<a href="">Python简明教程</a>。</p>
+<p><strong>For Computer:</strong></p>
+<p>我在gentoo linux下完成所有的编写测试，也推荐想尝试的朋友选择linux环境。不过只是推荐，python作为著名的跨平台语言，其代码可以没什么差别的运行在各个平台上，但你需要以下一些必备的东西：</p>
+<ul>
+<li>python 2.7 也许2.5也行，cookielib之前好像不在标准库中，而python3中则有改动。</li>
+<li>networkx 一个分析，操作，绘制网络的python模块。</li>
+<li>matplotlib 经常用来绘图的python模块</li>
+</ul>
+<p>怎么安装请自行参照官方网站说明。对后两个模块，建议使用pip安装，这货就相当于个包管理器(一条命令完成搜索下载安装所有操作并自动处理所有依赖)。</p>
+<p>最后，还有可选的开发环境：ipython，该程序提供一个功能强大的交互环境，很方便做测试调试探索各种 <em>一次性</em> 工作。</p>
+<h2 id="我们要做些什么">我们要做些什么</h2><p>从人人网上抓取好友，绘制好友之间的关系图，还可以供进一步分析(貌似没什么好分析的)。</p>
+<p>为了实现这点我们需要做到以下几个工作：</p>
+<ul>
+<li>模拟登录[^1]</li>
+<li>提取数据以合适数据结构保存</li>
+<li>制作图像并绘制</li>
+</ul>
+<h3 id="模拟登录">模拟登录</h3><p>人人的模拟登录还是比较简单的。模拟登录最困难的部分就是对要登录网站登录过程的分析。通常办法是通过抓包，用wireshark总有种杀鸡用牛刀的感觉，而且当你像作者一样天天用socks代理时会发现什么也抓不到……所以IE/Chrome/Firefox的开发工具可能更合适。这里用firebug，你可以在火狐扩展中心找到并安装它。</p>
+<p><img src="http://fmn.rrfmn.com/fmn058/20130207/1135/large_ljoh_1281000032cc125c.jpg" alt="人人登录分析"></p>
+<p>然后在抓包过程中找到用户名<a href="在CSDN事发之后人人停止明文传送密码，可以在js文件中发现密码经过加密。以后有空再研究。">^2</a>和登录时请求的服务器。</p>
+<p>不过，之前有很多人已经分析过人人的登录过程(一般不会要求验证码，除非登录过于频繁)。你所必须要做的基本上只有两件事：</p>
+<ul>
+<li>将用户名和密码POST到服务器</li>
+<li>处理cookie</li>
+</ul>
+<p>模拟登录的工具使用python的标准库中的<code>urllib</code>,<code>urllib2</code>和<code>cookielib</code>即可</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"><span class="keyword">import</span> urllib2</span><br><span class="line"><span class="keyword">import</span> cookielib</span><br></pre></td></tr></table></figure>
+<p>如果对这三个标准库不熟悉，建议花时间看看下面两篇教程。不过也许无所谓，代码可以自己解释自己:p。</p>
+<ul>
+<li><a href="http://www.voidspace.org.uk/python/articles/urllib2.shtml" target="_blank" rel="external">urllib2 the missing manual</a></li>
+<li><a href="http://www.voidspace.org.uk/python/articles/cookielib.shtml" target="_blank" rel="external">cookielib</a></li>
+</ul>
+<p>当浏览器使用POST方法请求服务器时，它将参数经过编码附加到url后传递过去:</p>
+<pre><code><span class="string">http:</span><span class="comment">//www.renren.com/ajaxLogin/login&amp;email=username&amp;password=blablabla</span>
+</code></pre><p>登录成功后，还要获取人人中用来作为用户唯一标识额uid(打开人人主页注意url就看到了)并返回，以供将来使用。将来所有的抓取都通过独一无二的uid而非可能重名的姓名。</p>
+<p>使用正则抓去uid</p>
+<pre><code><span class="preprocessor"><span class="keyword">import</span> re</span>
+</code></pre><p>我们先写登录函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">login</span><span class="params">(username, password)</span>:</span></span><br><span class="line">    <span class="string">"""log in and return uid"""</span></span><br><span class="line">    logpage = <span class="string">"http://www.renren.com/ajaxLogin/login"</span></span><br><span class="line">    data = &#123;<span class="string">'email'</span>: username, <span class="string">'password'</span>: password&#125;</span><br><span class="line">    login_data = urllib.urlencode(data)</span><br><span class="line">    cj = cookielib.CookieJar()</span><br><span class="line">    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))</span><br><span class="line">    urllib2.install_opener(opener)</span><br><span class="line">    res = opener.open(logpage, login_data)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Login now ..."</span></span><br><span class="line">    html = res.read()</span><br><span class="line">    <span class="comment">#print html</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Get uid</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Getting user id of you now"</span></span><br><span class="line">    res = urllib2.urlopen(<span class="string">"http://www.renren.com/home"</span>)</span><br><span class="line">    html = res.read()</span><br><span class="line">    <span class="comment"># print html</span></span><br><span class="line">    uid = re.search(<span class="string">"'ruid':'(\d+)'"</span>, html).group(<span class="number">1</span>)</span><br><span class="line">    <span class="comment"># print uid</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Login and got uid successfully"</span></span><br><span class="line">    <span class="keyword">return</span> uid</span><br></pre></td></tr></table></figure>
+<p>不妨在ipython中先测试下。</p>
+<h3 id="抓取数据">抓取数据</h3><p>每个人的好友都可以从页面<code>http://friend.renren.com/GetFriendList.do?curpage=0&amp;id=uid</code>获取，虽然人人已经改版，但这个页面还能用。其中curpage参数的值是页码，id参数的值是拟抓取对象的用户ID。通过循环抓取所有好友并以用户id为键姓名为值保存为字典。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getfriends</span><span class="params">(uid)</span>:</span></span><br><span class="line">    <span class="string">"""Get the uid's friends and return the dict with uid as key,name as value."""</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Get %s 's friend list"</span> % str(uid)</span><br><span class="line">    pagenum = <span class="number">0</span></span><br><span class="line">    dict1 = &#123;&#125;</span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">        targetpage = <span class="string">"http://friend.renren.com/GetFriendList.do?curpage="</span> + str(pagenum) + <span class="string">"&amp;id="</span> + str(uid)</span><br><span class="line">        res = urllib2.urlopen(targetpage)</span><br><span class="line">        html = res.read()</span><br><span class="line"></span><br><span class="line">        pattern = <span class="string">'&lt;a href="http://www\.renren\.com/profile\.do\?id=(\d+)"&gt;&lt;img src="[\S]*" alt="[\S]*[\s]\((.*)\)" /&gt;'</span></span><br><span class="line"></span><br><span class="line">        m = re.findall(pattern, html)</span><br><span class="line">        <span class="comment">#print len(m)</span></span><br><span class="line">        <span class="keyword">if</span> len(m) == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(m)):</span><br><span class="line">            no = m[i][<span class="number">0</span>]</span><br><span class="line">            uname = m[i][<span class="number">1</span>]</span><br><span class="line">            <span class="comment">#print uname, no</span></span><br><span class="line">            dict1[no] = uname</span><br><span class="line">        pagenum += <span class="number">1</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Got %s 's friends list successfully."</span> % str(uid)</span><br><span class="line">    <span class="keyword">return</span> dict1</span><br></pre></td></tr></table></figure>
+<p>我们再写个获取好友关系字典的函数，为了避免我们每次为了获取字典都要登录抓取。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getdict</span><span class="params">(uid)</span>:</span></span><br><span class="line">    <span class="string">"""cache dict of uid in the disk."""</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> open(str(uid) + <span class="string">'.txt'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            dict_uid = p.load(f)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">with</span> open(str(uid) + <span class="string">'.txt'</span>, <span class="string">'w'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            p.dump(getfriends(uid), f)</span><br><span class="line">        dict_uid = getdict(uid)</span><br><span class="line">    <span class="keyword">return</span> dict_uid</span><br></pre></td></tr></table></figure>
+<p>我们还需要一个用来判断两个人关系的函数，来判断我们好友之间的关系。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getrelations</span><span class="params">(uid1, uid2)</span>:</span></span><br><span class="line">    <span class="string">"""receive two user id, If they are friends, return 1, otherwise 0."""</span></span><br><span class="line">    dict_uid1 = getdict(uid1)</span><br><span class="line">    <span class="keyword">if</span> uid2 <span class="keyword">in</span> dict_uid1:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<h3 id="绘制图像">绘制图像</h3><p>利用以上函数判断好友关系并通过networkx创建一个相应的网络。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getgraph</span><span class="params">(username, password)</span>:</span></span><br><span class="line">    <span class="string">"""Get the Graph Object and return it.</span><br><span class="line">    You must specify a Chinese font such as `SimHei` in ~/.matplotlib/matplotlibrc"""</span></span><br><span class="line">    uid = login(username, password)</span><br><span class="line">    dict_root = getdict(uid)  <span class="comment"># Get root tree</span></span><br><span class="line"></span><br><span class="line">    G = nx.Graph()  <span class="comment"># Create a Graph object</span></span><br><span class="line">    <span class="keyword">for</span> uid1, uname1 <span class="keyword">in</span> dict_root.items():</span><br><span class="line">        <span class="comment"># Encode Chinese characters for matplotlib **IMPORTANT**</span></span><br><span class="line">        <span class="comment"># if you want to draw Chinese labels,</span></span><br><span class="line">        uname1 = unicode(uname1, <span class="string">'utf8'</span>)</span><br><span class="line">        G.add_node(uname1)</span><br><span class="line">        <span class="keyword">for</span> uid2, uname2 <span class="keyword">in</span> dict_root.items():</span><br><span class="line">            uname2 = unicode(uname2, <span class="string">'utf8'</span>)</span><br><span class="line">            <span class="comment"># Not necessary for networkx</span></span><br><span class="line">            <span class="keyword">if</span> uid2 == uid1:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">if</span> getrelations(uid1, uid2):</span><br><span class="line">                G.add_edge(uname1, uname2)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> G</span><br></pre></td></tr></table></figure>
+<p>最后是绘图函数，有很多控制图像输出的参数，可能多次调整才会得到想要的图像。在matplotlib画出的图像在窗口中也可以放大缩小选取适当范围。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">draw_graph</span><span class="params">(username, password, filename=<span class="string">'graph.txt'</span>, label_flag=True, remove_isolated=True, different_size=True, iso_level=<span class="number">10</span>, node_size=<span class="number">40</span>)</span>:</span></span><br><span class="line">    <span class="string">"""Reading data from file and draw the graph.If not exists, create the file and re-scratch data from net"""</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Generating graph..."</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> open(filename, <span class="string">'r'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            G = p.load(f)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        G = getgraph(username, password)</span><br><span class="line">        <span class="keyword">with</span> open(filename, <span class="string">'w'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            p.dump(G, f)</span><br><span class="line">    <span class="comment">#nx.draw(G)</span></span><br><span class="line">    <span class="comment"># Judge whether remove the isolated point from graph</span></span><br><span class="line">    <span class="keyword">if</span> remove_isolated <span class="keyword">is</span> <span class="keyword">True</span>:</span><br><span class="line">        H = nx.empty_graph()</span><br><span class="line">        <span class="keyword">for</span> SG <span class="keyword">in</span> nx.connected_component_subgraphs(G):</span><br><span class="line">            <span class="keyword">if</span> SG.number_of_nodes() &gt; iso_level:</span><br><span class="line">                H = nx.union(SG, H)</span><br><span class="line">        G = H</span><br><span class="line">    <span class="comment"># Ajust graph for better presentation</span></span><br><span class="line">    <span class="keyword">if</span> different_size <span class="keyword">is</span> <span class="keyword">True</span>:</span><br><span class="line">        L = nx.degree(G)</span><br><span class="line">        G.dot_size = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> k, v <span class="keyword">in</span> L.items():</span><br><span class="line">            G.dot_size[k] = v</span><br><span class="line">        node_size = [G.dot_size[v] * <span class="number">10</span> <span class="keyword">for</span> v <span class="keyword">in</span> G]</span><br><span class="line">    pos = nx.spring_layout(G, iterations=<span class="number">50</span>)</span><br><span class="line">    nx.draw_networkx_edges(G, pos, alpha=<span class="number">0.2</span>)</span><br><span class="line">    nx.draw_networkx_nodes(G, pos, node_size=node_size, node_color=<span class="string">'r'</span>, alpha=<span class="number">0.3</span>)</span><br><span class="line">    <span class="comment"># Judge whether shows label</span></span><br><span class="line">    <span class="keyword">if</span> label_flag <span class="keyword">is</span> <span class="keyword">True</span>:</span><br><span class="line">        nx.draw_networkx_labels(G, pos, alpha=<span class="number">0.5</span>)</span><br><span class="line">    <span class="comment">#nx.draw_graphviz(G)</span></span><br><span class="line">    plt.show()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> G</span><br></pre></td></tr></table></figure>
+<p>把以上函数写进一个文件比如说renren.py，在ipython中导入。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">1</span>]: <span class="keyword">from</span> renren <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">In[<span class="number">2</span>]: username = yourusername</span><br><span class="line"></span><br><span class="line">In[<span class="number">3</span>]: password = yourpassword</span><br><span class="line"></span><br><span class="line">In[<span class="number">4</span>]: draw_graph(username, password)</span><br></pre></td></tr></table></figure>
+<p><img src="http://fmn.xnpic.com/fmn057/20130207/1135/large_C753_44f6000032d8125d.jpg" alt="模糊化生成的好友关系图"></p>
+<h2 id="总结">总结</h2><p>通过图像你会发现。这些绘图软件的算法相当不错的，你会发现很明显的聚类，这一片是大学同学、这片是小学初中同学，旁边与之联系紧密的是高中同学，这一片孤立的是网友等等。</p>
+<p>也许你还会发现你的某些好友竟然相互认识。</p>
+<p>抓取下来的数据还可以留待其它研究</p>
+<p><img src="http://fmn.rrfmn.com/fmn059/20130207/1135/large_HiaW_1161000032c9125c.jpg" alt="又是横竖坐标都没的渣图"></p>
+<p>你也许会发现有的好友和你的共同好友多得超乎他人，也许发现共同好友分布比较均匀</p>
+<p>就这么多这么简单。</p>
+<p>希望你也能体会到这个乐趣横生的过程，对我来说，探索和学习的过程是相当意趣盎然的，折腾出来还相当有成就感呢。</p>
+<h2 id="What’s_more">What’s more</h2><p>如果你想让matplotlib显示中文，你需要修改matplotlibrc更改字体。但有一种更通用的办法可以不用修改配置文件。自行google。</p>
+<p>ps:这回开高亮了，没感觉和不高亮有啥大区别。感觉还是vim中的高亮漂亮啊，哪天不用pygments直接用vim converto html = =</p>
+<h2 id="FootNotes">FootNotes</h2><p>[^1]:从来没用过api，搞不懂人人api，试着创建个应用Post过去结果认证失败，也没打算申请应用……总之不会搞= =</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/networkx/" rel="tag">#networkx</a>
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+            <a href="/tags/web/" rel="tag">#web</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/python/2013/01/28/visualize-your-shell-history/" rel="next" title="Visualize your shell history">
+                <i class="fa fa-chevron-left"></i> Visualize your shell history
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/python/2013/02/19/yet-another-photomosaic-generator/" rel="prev" title="Yet Another PhotoMosaic Generator">
+                Yet Another PhotoMosaic Generator <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#可视化人人好友关系"><span class="nav-number">1.</span> <span class="nav-text">可视化人人好友关系</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#必要条件"><span class="nav-number">1.1.</span> <span class="nav-text">必要条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#我们要做些什么"><span class="nav-number">1.2.</span> <span class="nav-text">我们要做些什么</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模拟登录"><span class="nav-number">1.2.1.</span> <span class="nav-text">模拟登录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抓取数据"><span class="nav-number">1.2.2.</span> <span class="nav-text">抓取数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#绘制图像"><span class="nav-number">1.2.3.</span> <span class="nav-text">绘制图像</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">1.3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#What’s_more"><span class="nav-number">1.4.</span> <span class="nav-text">What’s more</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FootNotes"><span class="nav-number">1.5.</span> <span class="nav-text">FootNotes</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

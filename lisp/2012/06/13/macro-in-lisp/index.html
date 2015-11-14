@@ -1,0 +1,718 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="land-of-lisp," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="lisp宏的魔力lisp的宏注意：此宏远与cpp中的宏有着天壤之别，而且远复杂很多倍。宏编程允许你创造自己的语言。当面对一个复杂编程挑战时，有经验的程序猿会问自己：那种语言适合解决这个问题？然后他用宏把lisp变成了那种语言。太扯了……
+先举例说明什么是宏
+看这个例子
+1(defun add (a b)&amp;#10;  (let ((x (+ a b)))&amp;#10;    (format t &amp;#34">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Macro in lisp">
+<meta property="og:url" content="http://reverland.org/lisp/2012/06/13/macro-in-lisp/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="lisp宏的魔力lisp的宏注意：此宏远与cpp中的宏有着天壤之别，而且远复杂很多倍。宏编程允许你创造自己的语言。当面对一个复杂编程挑战时，有经验的程序猿会问自己：那种语言适合解决这个问题？然后他用宏把lisp变成了那种语言。太扯了……
+先举例说明什么是宏
+看这个例子
+1(defun add (a b)&amp;#10;  (let ((x (+ a b)))&amp;#10;    (format t &amp;#34">
+<meta property="og:updated_time" content="2015-11-13T06:52:44.980Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Macro in lisp">
+<meta name="twitter:description" content="lisp宏的魔力lisp的宏注意：此宏远与cpp中的宏有着天壤之别，而且远复杂很多倍。宏编程允许你创造自己的语言。当面对一个复杂编程挑战时，有经验的程序猿会问自己：那种语言适合解决这个问题？然后他用宏把lisp变成了那种语言。太扯了……
+先举例说明什么是宏
+看这个例子
+1(defun add (a b)&amp;#10;  (let ((x (+ a b)))&amp;#10;    (format t &amp;#34">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> Macro in lisp | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Macro in lisp
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-06-13T00:00:00+08:00" content="2012-06-13">
+              2012-06-13
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="lisp宏的魔力">lisp宏的魔力</h1><h2 id="lisp的宏">lisp的宏</h2><p>注意：此宏远与cpp中的宏有着天壤之别，而且远复杂很多倍。<br>宏编程允许你创造自己的语言。当面对一个复杂编程挑战时，有经验的程序猿会问自己：那种语言适合解决这个问题？然后他用宏把lisp变成了那种语言。太扯了……</p>
+<p>先举例说明什么是宏</p>
+<p>看这个例子</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun add (a b)&#10;  (let ((x (+ a b)))&#10;    (format t &#34;The sum is ~a&#34; x)&#10;    x)) &#10;(add 3 4)</span><br></pre></td></tr></table></figure>
+<p>有没有感觉括号太多了？我们定义个let1宏</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defmacro let1 (var val &#38;body body)&#10;  `(let ((,var ,val))&#10;     ,@body))</span><br></pre></td></tr></table></figure>
+<p>&amp;body表示剩下的部分是表达式，而且隐含着一个progn的并行表达式，回忆”`”与”,”的作用”,@”相对于”，”用来表征并行表达式。</p>
+<p>试试你的宏</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(let ((foo (+ 2 3)))&#10;  (* foo foo))&#10;(let1 foo (+ 2 3)&#10;  (* foo foo))&#10;(defun add (a b)&#10;  (let1 x (+ a b)&#10;    (format t &#34;The sum is ~a&#34; x)&#10;    x))</span><br></pre></td></tr></table></figure>
+<h2 id="宏展开">宏展开</h2><p>宏的展开发生在运行期前，它把你非标准的程序转换成标准的lisp语言,然后传递给标准lisp解释器</p>
+<p>你可以用macroexpand来展开宏</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(macroexpand &#39;(let1 foo (+ 2 3)&#10;                (* foo foo)))</span><br></pre></td></tr></table></figure>
+<p>这将是很有效的调试方法。</p>
+<h2 id="更复杂一些的宏">更复杂一些的宏</h2><p>回忆下之前我们定义的尾递归优化length函数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun my-length (lst)&#10;  (labels ((f (lst acc)&#10;             (if lst&#10;               (f (cdr lst) (1+ acc))&#10;               acc)))&#10;    (f lst 0)))</span><br></pre></td></tr></table></figure>
+<p>正如所见，我们反复使用cdr，反复检查列表是否为空。我们用冗长的工作去创造局部函数f，我们可以用宏让它更简洁一些。</p>
+<h3 id="一个分割列表的宏">一个分割列表的宏</h3><p>一个能把列表分开，并能把列表头和尾提供给我们用split宏非常有用。我们可以得到这么一个有bug的宏：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Warning!Containing Bugs!&#10;(defmacro split (val yes no)&#10;  `(if ,val&#10;     (let ((head (car ,val))&#10;           (tail (cdr ,val)))&#10;       ,yes)&#10;     ,no))</span><br></pre></td></tr></table></figure>
+<p>列表的car和cdr分别保存在head和tail中。如果列表不能split，将不会创建head和tail变量。</p>
+<p>于是my-length函数整洁些了</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun my-length (lst)&#10;  (labels ((f (lst acc)&#10;             (split lst&#10;                    (f tail (1+ acc))&#10;                    acc)))&#10;    (f lst 0)))</span><br></pre></td></tr></table></figure>
+<h3 id="避免重复的执行">避免重复的执行</h3><p>试试这样：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(split (progn (princ &#34;Lisp rocks!&#34;)&#10;              &#39;(2 3))&#10;       (format t &#34;This can be split into ~a and ~a.&#34; head tail)&#10;       (format t &#34;This cannot be split.&#34;))</span><br></pre></td></tr></table></figure>
+<p>哦～为什么会执行三次打印Lisp rocks！展开宏看看</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(macroexpand &#39;(split (progn (princ &#34;Lisp rocks!&#34;)&#10;                            &#39;(2 3))&#10;                     (format t &#34;THis can be split into ~a and ~a.&#34; head tail)&#10;                     (format t &#34;This cannot be split&#34;)))</span><br></pre></td></tr></table></figure>
+<p>你看到了什么……某动作被执行了三次。</p>
+<p>我很惊异的是这种情况common lisp也接受，还可以这样把命令写在函数中。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(car (progn (princ &#34;Lisp rocks!&#34;) &#39;(2 3)))&#10;Lisp rocks!&#10;2</span><br></pre></td></tr></table></figure>
+<p>为了避免这种情况我们重新改写split宏，注意，还是有bug的版本</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Warning! Still contains a bug!&#10;(defmacro split (val yes no) &#10;  `(let1 x ,val &#10;     (if x &#10;       (let ((head (car x))&#10;             (tail (cdr x)))&#10;         ,yes) &#10;         ,no)))</span><br></pre></td></tr></table></figure>
+<p>可以在宏内使用其它宏，像这里我们用了之前的let1宏。我们用一个变量绑定表达式，这时就不会重复执行了。但有了个新问题。</p>
+<h3 id="避免变量捕获">避免变量捕获</h3><p>问题在哪里呢？试试下面的式子</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(let1 x 100&#10;  (split &#39;(2 3)&#10;         (+ x head)&#10;         nil))</span><br></pre></td></tr></table></figure>
+<p>什么情况，竟然报错了！！我们展开它看看</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(macroexpand &#39;(split &#39;(2 3)&#10;                     (+ x head)&#10;                     nil))</span><br></pre></td></tr></table></figure>
+<p>split意外地捕获了外部变量x并且覆盖了前者。怎么避免这个问题？？<br>这个函数专门用来解决这类问题</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gensym)</span><br></pre></td></tr></table></figure>
+<p>它返回随机的名字，并且一定不会和已有的变量重复。使用它我们可以获得最终能安全使用的split版本</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defmacro split (val yes no)&#10;  (let1 g (gensym)&#10;    `(let1 ,g ,val&#10;       (if ,g&#10;         (let ((head (car ,g))&#10;               (tail (cdr ,g)))&#10;           ,yes)&#10;         ,no))))</span><br></pre></td></tr></table></figure>
+<p>两次绑定，先随机生成一个变量名，在把具体的值绑在这个随机生成的变量名上。可以展开看看</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Each time is different&#10;(macroexpand &#39;(split &#39;(2 3)&#10;                     (+ x head)&#10;                     nil))</span><br></pre></td></tr></table></figure>
+<p>每次结果都不同。</p>
+<h2 id="递归宏">递归宏</h2><p>再次考虑我们的my-length函数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun my-length (lst)&#10;  (labels ((f (lst acc)&#10;             (split lst&#10;                    (f tail (1+ acc))&#10;                    acc)))&#10;    (f lst 0)))</span><br></pre></td></tr></table></figure>
+<p>局部函数f重复的建立。我们可以通过宏来简化它。想象这么一个recurse宏：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(recurse (n 9)&#10;(fresh-line)&#10;(if (zerop n)&#10;(princ &#34;lift-off!&#34;)&#10;(progn (princ n)&#10;(self (1- n)))))&#10;9&#10;8&#10;7&#10;6&#10;5&#10;4&#10;3&#10;2&#10;1&#10;lift-off!</span><br></pre></td></tr></table></figure>
+<p>为了将列表奇数项作为变量偶数项作为值，可以写一个函数来生成cons对。像这样</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(pairs &#39;(a b c d e f))&#10;((A . B) (C . D) (E . F))</span><br></pre></td></tr></table></figure>
+<p>函数可以这样定义,看着真绕……</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;tail-call-optimized list-eater&#10;(defun pairs (lst)&#10;  (labels ((f (lst acc)&#10;             (split lst&#10;                    (if tail&#10;                      (f (cdr tail) (cons (cons head (car tail)) acc))&#10;                      (reverse acc))&#10;                    (reverse acc))))&#10;    (f lst nil)))</span><br></pre></td></tr></table></figure>
+<p>然后可以写出recurse宏</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defmacro recurse (vars &#38;body body)&#10;  (let1 p (pairs vars)&#10;    `(labels ((self ,(mapcar #&#39;car p)&#10;                ,@body))&#10;       (self ,@(mapcar #&#39;cdr p)))))</span><br></pre></td></tr></table></figure>
+<p>重新定义我们的my-length函数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun my-length (lst)&#10;  (recurse (lst lst&#10;                acc 0)&#10;           (split lst&#10;                  (f tail (1+ acc))&#10;                  acc)))</span><br></pre></td></tr></table></figure>
+<p>作者费了一大圈后认为现在看着很简洁，你觉得呢？</p>
+<h2 id="宏的危险与其它选择">宏的危险与其它选择</h2><p>把语言定义成任意你想要的模式，这当然很危险。若干岁月后回头都看不懂你自己写的什么，何况别人！所以，能用函数式解决的问题就别用宏来解决吧，骚年。看看我们的my-length函数，可以用高阶函数reduce轻松简化。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun my-length (lst)&#10;  (reduce (lambda (x i)&#10;            (1+ x))&#10;          lst&#10;          :initial-value 0))</span><br></pre></td></tr></table></figure>
+<p>reduce可以连续调用上次结果并与当前列表项一同运算。i代表当前为第几项，对我们没什么用，最后x初值为0一定要加上。</p>
+<p>然而仍然有些问题用函数式并不能很好解决而用宏可以轻易处理。下一章？拭目以待吧。</p>
+<h2 id="小结">小结</h2><ul>
+<li><p>宏允许你用代码生成代码，通过宏，你可以创造自己的语言，并在lisp解释器解释之前转化成标准lisp。</p>
+</li>
+<li><p>宏允许你摆脱一种既视感。摆脱各种括号和重复</p>
+</li>
+<li><p>当你写宏的时候你必须小心，这样才不会导致意外的重复执行的代码</p>
+</li>
+<li><p>你需要避免变量捕获，这可以通过gensym来解决</p>
+</li>
+<li><p>如果一个宏创造的变量故意暴露，作为宏的一个特性，这种宏叫做anaphoric macros</p>
+</li>
+<li><p>宏编程是非常有力的技术。然而，尽量使用函数式编程代替宏来解决问题。宏是最后的法宝。</p>
+</li>
+</ul>
+<h2 id="最后的废话">最后的废话</h2><p>今天难得去图书馆了，三楼看到本real world haskell，只能感慨自己没空看了，二楼空无一人，看着散乱而泛黄的旧书顿生悲凉。一楼人倒挺多，都是来为四六级托福雅思考研等等等等自习的，很少有看书的。三楼人也有些，不过都集中在文学小说和艺术的区域。</p>
+<p>不知为什么，总有种世风日下的感觉。回忆起当初在图书馆看书的日子……</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/land-of-lisp/" rel="tag">#land-of-lisp</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Life/2012/06/12//" rel="next" title="近日简记">
+                <i class="fa fa-chevron-left"></i> 近日简记
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/lisp/2012/06/16/dsl/" rel="prev" title="传说中的DSL">
+                传说中的DSL <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#lisp宏的魔力"><span class="nav-number">1.</span> <span class="nav-text">lisp宏的魔力</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#lisp的宏"><span class="nav-number">1.1.</span> <span class="nav-text">lisp的宏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#宏展开"><span class="nav-number">1.2.</span> <span class="nav-text">宏展开</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更复杂一些的宏"><span class="nav-number">1.3.</span> <span class="nav-text">更复杂一些的宏</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个分割列表的宏"><span class="nav-number">1.3.1.</span> <span class="nav-text">一个分割列表的宏</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#避免重复的执行"><span class="nav-number">1.3.2.</span> <span class="nav-text">避免重复的执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#避免变量捕获"><span class="nav-number">1.3.3.</span> <span class="nav-text">避免变量捕获</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#递归宏"><span class="nav-number">1.4.</span> <span class="nav-text">递归宏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#宏的危险与其它选择"><span class="nav-number">1.5.</span> <span class="nav-text">宏的危险与其它选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">1.6.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后的废话"><span class="nav-number">1.7.</span> <span class="nav-text">最后的废话</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

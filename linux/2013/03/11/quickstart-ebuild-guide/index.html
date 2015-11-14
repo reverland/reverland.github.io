@@ -1,0 +1,840 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="gentoo," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="快速ebuild向导这页是个非常简洁的ebuild写作指南。它不包含许多开发者面临的细节和问题，而是给出足够用来理解ebuild如何工作的微小的例子。
+为了正确的涵盖所有来龙去脉，参见Ebuild Writing。General Concepts章节也很有用。
+注意这里的例子，虽然基于真实的ebuilds树，但有些部分大刀阔斧的修剪、更改和简化了。
+第一个Ebuild我们从Exuberant Ct">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Quickstart Ebuild Guide">
+<meta property="og:url" content="http://reverland.org/linux/2013/03/11/quickstart-ebuild-guide/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="快速ebuild向导这页是个非常简洁的ebuild写作指南。它不包含许多开发者面临的细节和问题，而是给出足够用来理解ebuild如何工作的微小的例子。
+为了正确的涵盖所有来龙去脉，参见Ebuild Writing。General Concepts章节也很有用。
+注意这里的例子，虽然基于真实的ebuilds树，但有些部分大刀阔斧的修剪、更改和简化了。
+第一个Ebuild我们从Exuberant Ct">
+<meta property="og:updated_time" content="2015-11-12T16:34:09.020Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Quickstart Ebuild Guide">
+<meta name="twitter:description" content="快速ebuild向导这页是个非常简洁的ebuild写作指南。它不包含许多开发者面临的细节和问题，而是给出足够用来理解ebuild如何工作的微小的例子。
+为了正确的涵盖所有来龙去脉，参见Ebuild Writing。General Concepts章节也很有用。
+注意这里的例子，虽然基于真实的ebuilds树，但有些部分大刀阔斧的修剪、更改和简化了。
+第一个Ebuild我们从Exuberant Ct">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> Quickstart Ebuild Guide | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Quickstart Ebuild Guide
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2013-03-11T00:00:00+08:00" content="2013-03-11">
+              2013-03-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="快速ebuild向导">快速ebuild向导</h1><p>这页是个非常简洁的ebuild写作指南。它不包含许多开发者面临的细节和问题，而是给出足够用来理解ebuild如何工作的微小的例子。</p>
+<p>为了正确的涵盖所有来龙去脉，参见<a href="http://devmanual.gentoo.org/ebuild-writing/index.html" target="_blank" rel="external">Ebuild Writing</a>。<a href="http://devmanual.gentoo.org/general-concepts/index.html" target="_blank" rel="external">General Concepts</a>章节也很有用。</p>
+<p>注意这里的例子，虽然基于真实的ebuilds树，但有些部分大刀阔斧的修剪、更改和简化了。</p>
+<h2 id="第一个Ebuild">第一个Ebuild</h2><p>我们从Exuberant Ctags工具开始，一个代码索引工具。这时一个简化的<code>dev-util/ctags/ctags-5.5.4.ebuild</code>(你能在主目录下找到真实的ebuild)</p>
+<pre><code><span class="comment"># Copyright 1999-2012 Gentoo Foundation</span>
+<span class="comment"># Distributed under the terms of the GNU General Public License v2</span>
+<span class="comment"># $Header: $</span>
+
+<span class="variable">EAPI=</span><span class="number">4</span>
+
+<span class="variable">DESCRIPTION=</span><span class="string">"Exuberant ctags generates tags files for quick source navigation"</span>
+<span class="variable">HOMEPAGE=</span><span class="string">"http://ctags.sourceforge.net"</span>
+<span class="variable">SRC_URI=</span><span class="string">"mirror://sourceforge/ctags/<span class="subst">${P}</span>.tar.gz"</span>
+
+<span class="variable">LICENSE=</span><span class="string">"GPL-2"</span>
+<span class="variable">SLOT=</span><span class="string">"0"</span>
+<span class="variable">KEYWORDS=</span><span class="string">"~mips ~sparc ~x86"</span>
+
+src_configure() {
+    econf --<span class="keyword">with</span>-posix-regex
+}
+
+src_install() {
+    emake <span class="variable">DESTDIR=</span><span class="string">"<span class="subst">${D}</span>"</span> install
+
+    dodoc FAQ NEWS README
+    dohtml EXTENDING.html ctags.html
+}
+</code></pre><h3 id="基本格式">基本格式</h3><p>如你所见，ebuilds仅仅是在特殊环境中执行的<code>bash</code>脚本。</p>
+<p>在ebuild的顶部是头块(header block)，出现在所有ebuild中。</p>
+<p>Ebuild使用tabs缩进，每个tab代表四格空格。参见<a href="http://devmanual.gentoo.org/ebuild-writing/file-format/index.html" target="_blank" rel="external">Ebuild File Format</a>.</p>
+<h3 id="信息变量">信息变量</h3><p>接着，有一系列变量将告诉Portage有关包和ebuild的各种东西。</p>
+<p>ebuild的<code>EAPI</code>，参见<a href="http://devmanual.gentoo.org/ebuild-writing/eapi/index.html" target="_blank" rel="external">EAPI Usage and Description</a></p>
+<p><code>DESCRIPTION</code>变量是包及包的作用的简短描述。</p>
+<p><code>HOMEPAGE</code>是链接到包的主页的链接。(切记包含<code>http://</code>部分)。</p>
+<p><code>SRC_URI</code>告诉Portage用来下载源码包的地址。这里，<code>mirror://sourceforge/</code>是意为“任何Sourceforge镜像”的特殊标记。<code>${P}</code>是由Portage设置的只读变量，即包名和版本——示例中是<code>ctags-5.5.4</code>。</p>
+<p><code>LICENSE</code>是协议<code>GPL-2</code>(GNU General Public License version 2)。</p>
+<p><code>SLOT</code>告诉Portage这个包安装到哪个slot。</p>
+<p><code>KEYWORDS</code>变量设置ebuild测试的架构。我们使用<code>～</code>keyword给我们新写的ebuild，包不允许被直接推送到稳定版，即使他们似乎工作。参见<a href="http://devmanual.gentoo.org/keywording/index.html" target="_blank" rel="external">Keywording</a>查看细节。</p>
+<h3 id="构建函数">构建函数</h3><p>接着一个叫<code>src_configure</code>的函数，Portage将在配置(<em>configure</em>)包时调用它。<code>econf</code>是执行<code>./configure</code>的一个封装。如果由于某些原因在<code>econf</code>时出错，Portage将停止而非继续安装。</p>
+<p>当Portage准备安装包时会调用<code>src_install</code>函数。这里有点微妙——并非直接安装到文件系统，我们必须安装到一个Portage通过<code>${D}</code>变量给出的特殊位置(Portage设置这个——参见<a href="http://devmanual.gentoo.org/general-concepts/install-destinations/index.html" target="_blank" rel="external">Install Destinations</a>和<a href="http://devmanual.gentoo.org/general-concepts/sandbox/index.html" target="_blank" rel="external">Sandbox</a>)</p>
+<p><strong>注意：常规安装方法是<code>emake DESTDIR=&quot;${D}&quot; install</code>，这适合所有符合标准的<code>Makefile</code>。如果给出sandbox错误，尝试用<code>einstall</code>代替。如果仍然失败，参看<a href="http://devmanual.gentoo.org/ebuild-writing/functions/src_install/index.html" target="_blank" rel="external">src_install</a>如何手工安装。</strong></p>
+<p><code>dodoc</code>和<code>dohtml</code>部分是安装文件到相应的<code>/usr/share/doc</code>部分的辅助函数。</p>
+<p>ebuild可以定义其它函数(参见<a href="http://devmanual.gentoo.org/ebuild-writing/functions/index.html" target="_blank" rel="external">Ebuild Functions</a>)。在大多情况下，Portage提供合理的默认实现，通常做正确的事情，不需要定义<code>src_unpack</code>和<code>src_compile</code>函数。例如，<code>src_unpack</code>函数被用来解包或给源码打补丁，但是这个例子中默认实现做了我们所需要的所有事情。同样默认的<code>src_compile</code>函数将调用<code>emake</code>——一个<code>make</code>的封装。</p>
+<p><strong>注意：先前<code>|| die</code>结构不得不添加到每个命令后去检查错误。这在EAPI 4中不在必要——如果什么出错的话Portage提供的函数将自己die。</strong></p>
+<h2 id="含依赖的ebuild">含依赖的ebuild</h2><p>在ctags的例子中，我们没告诉Portage有关任何依赖。当情况是这样时，没关系，因为ctags仅仅需要一个基本的工具链来编译和运行(参见<a href="http://devmanual.gentoo.org/general-concepts/dependencies/index.html#implicit-system-dependency" target="_blank" rel="external">Implicit System Dependency</a>理解为何我们不需要显式依赖)。然而事情很少这么简单。</p>
+<p>这是<code>app-misc/detox/detox-1.1.1.ebuild</code>：</p>
+<pre><code><span class="comment"># Copyright 1999-2012 Gentoo Foundation</span>
+<span class="comment"># Distributed under the terms of the GNU General Public License v2</span>
+<span class="comment"># $Header: $</span>
+
+<span class="variable">EAPI=</span><span class="number">4</span>
+
+<span class="variable">DESCRIPTION=</span><span class="string">"detox safely removes spaces and strange characters from filenames"</span>
+<span class="variable">HOMEPAGE=</span><span class="string">"http://detox.sourceforge.net/"</span>
+<span class="variable">SRC_URI=</span><span class="string">"mirror://sourceforge/<span class="subst">${PN}</span>/<span class="subst">${P}</span>.tar.bz2"</span>
+
+<span class="variable">LICENSE=</span><span class="string">"BSD"</span>
+<span class="variable">SLOT=</span><span class="string">"0"</span>
+<span class="variable">KEYWORDS=</span><span class="string">"~hppa ~mips sparc x86"</span>
+
+<span class="variable">RDEPEND=</span><span class="string">"dev-libs/popt"</span>
+<span class="variable">DEPEND=</span><span class="string">"<span class="subst">${RDEPEND}</span>
+    sys-devel/flex
+    sys-devel/bison"</span>
+
+src_configure() {
+    econf --<span class="keyword">with</span>-popt
+}
+
+src_install() {
+    emake <span class="variable">DESTDIR=</span><span class="string">"<span class="subst">${D}</span>"</span> install
+    dodoc README CHANGES
+}
+</code></pre><p>你再次看到ebuild头和不通的信息变量。在<code>SRC_URI</code>中，<code>${PN}</code>用来获取不含尾部版本的包名(还有更多的这种变量——参见<a href="http://devmanual.gentoo.org/ebuild-writing/variables/index.html#predefined-read-only-variables" target="_blank" rel="external">Predefined Read-Only Variables</a>)。</p>
+<p>我们再次定义了<code>src_configure</code>和<code>src_install</code>函数。</p>
+<p>Portage依靠<code>DEPEND</code>和<code>RDEPEND</code>变量决定构建和运行包需要哪些变量。<code>DEPEND</code>变量列出编译时依赖，<code>RDEPEND</code>变量列出运行时依赖。参见<a href="http://devmanual.gentoo.org/general-concepts/dependencies/index.html" target="_blank" rel="external">Dependencies</a>获取更复杂的例子。</p>
+<h2 id="带补丁的ebuild">带补丁的ebuild</h2><p>我们经常要打补丁。这通过<code>epatch</code>辅助函数在<code>src_prepare</code>函数中完成。为了使用<code>epatch</code>，必须告诉Portage需要的<code>eutils</code>eclass(eclass就像库一样)——这通过在ebuild顶部的<code>inherit eutils</code>完成。这是<code>app-misc/detoxdetox-1.1.0.ebuild</code>：</p>
+<pre><code><span class="comment"># Copyright 1999-2012 Gentoo Foundation</span>
+<span class="comment"># Distributed under the terms of the GNU General Public License v2</span>
+<span class="comment"># $Header: $</span>
+
+EAPI=<span class="number">4</span>
+
+inherit eutils
+
+DESCRIPTION=<span class="string">"detox safely removes spaces and strange characters from filenames"</span>
+HOMEPAGE=<span class="string">"http://detox.sourceforge.net/"</span>
+SRC_URI=<span class="string">"mirror://sourceforge/<span class="variable">${PN}</span>/<span class="variable">${P}</span>.tar.bz2"</span>
+
+LICENSE=<span class="string">"BSD"</span>
+SLOT=<span class="string">"0"</span>
+KEYWORDS=<span class="string">"~hppa ~mips ~sparc ~x86"</span>
+
+RDEPEND=<span class="string">"dev-libs/popt"</span>
+DEPEND=<span class="string">"<span class="variable">${RDEPEND}</span>
+    sys-devel/flex
+    sys-devel/bison"</span>
+
+<span class="function"><span class="title">src_prepare</span></span>() {
+    epatch <span class="string">"<span class="variable">${FILESDIR}</span>"</span>/<span class="variable">${P}</span>-destdir.patch \
+        <span class="string">"<span class="variable">${FILESDIR}</span>"</span>/<span class="variable">${P}</span>-parallel_build.patch
+}
+
+<span class="function"><span class="title">src_configure</span></span>() {
+    econf --with-popt
+}
+
+<span class="function"><span class="title">src_install</span></span>() {
+    emake DESTDIR=<span class="string">"<span class="variable">${D}</span>"</span> install
+    dodoc README CHANGES
+}
+</code></pre><p>注意<code>${FILESDIR}/${P}-destdir.patch</code>指向<code>detox-1.1.0-destdir.patch</code>，这个文件在Portage树的<code>files/</code>子文件夹中。更大的补丁文件必须在你的开发者空间<code>dev.gentoo.org</code>而不是<code>files/</code>或镜像中——参见<a href="http://devmanual.gentoo.org/general-concepts/mirrors/index.html#gentoo-mirrors" target="_blank" rel="external">Gentoo Mirrors</a>和<a href="http://devmanual.gentoo.org/ebuild-writing/functions/src_prepare/epatch/index.html" target="_blank" rel="external">Patching with epatch</a>。</p>
+<h2 id="带USE标记的ebuild">带USE标记的ebuild</h2><p>对<code>USE</code>标记，这里有个例子<code>dev-libs/libiconv/libiconv-1.9.2.ebuild</code>，一个<code>libc</code>实现的iconv替代。</p>
+<pre><code># Copyright <span class="number">1999</span>-<span class="number">2012</span> Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+<span class="constant">
+EAPI</span>=<span class="number">4</span>
+<span class="constant">
+DESCRIPTION</span>=<span class="string">"GNU charset conversion library for libc which doesn't implement it"</span>
+<span class="constant">HOMEPAGE</span>=<span class="string">"http://www.gnu.org/software/libiconv/"</span>
+<span class="constant">SRC_URI</span>=<span class="string">"ftp://ftp.gnu.org/pub/gnu/libiconv/${P}.tar.gz"</span>
+<span class="constant">
+LICENSE</span>=<span class="string">"LGPL-2.1"</span>
+<span class="constant">SLOT</span>=<span class="string">"0"</span>
+<span class="constant">KEYWORDS</span>=<span class="string">"~amd64 ~ppc ~sparc ~x86"</span>
+<span class="constant">IUSE</span>=<span class="string">"nls"</span>
+<span class="constant">
+DEPEND</span>=<span class="string">"!sys-libs/glibc"</span>
+
+src_configure() {
+    econf $(use_enable nls)
+}
+
+src_install() {
+    emake DESTDIR=<span class="string">"${D}"</span> install
+}
+</code></pre><p>注意<code>IUSE</code>变量。这列出了所有(非特殊)ebuild使用的use标记。除其它事项外，它还将被用作<code>emerge -pv</code>时输出。</p>
+<p>这个包的<code>./configure</code>脚本使用了常规的<code>--enable-nls</code>或<code>--disable-nls</code>参数。我们用<code>use_enable</code>工具函数依赖用户<code>USE</code>标记自动生成这个(参见<a href="http://devmanual.gentoo.org/function-reference/query-functions/index.html" target="_blank" rel="external">Query Function Reference</a>)。</p>
+<p>另一个复杂的例子是<code>mail-client/sylpheed/sylpheed-1.0.4.ebuild</code>：</p>
+<pre><code><span class="comment"># Copyright 1999-2012 Gentoo Foundation</span>
+<span class="comment"># Distributed under the terms of the GNU General Public License v2</span>
+<span class="comment"># $Header: $</span>
+
+EAPI=<span class="number">4</span>
+
+inherit eutils
+
+DESCRIPTION=<span class="string">"A lightweight email client and newsreader"</span>
+HOMEPAGE=<span class="string">"http://sylpheed.good-day.net/"</span>
+SRC_URI=<span class="string">"mirror://sourceforge/<span class="variable">${PN}</span>/<span class="variable">${P}</span>.tar.bz2"</span>
+
+LICENSE=<span class="string">"GPL-2"</span>
+SLOT=<span class="string">"0"</span>
+KEYWORDS=<span class="string">"alpha amd64 hppa ia64 ppc ppc64 sparc x86"</span>
+IUSE=<span class="string">"crypt imlib ipv6 ldap nls pda ssl xface"</span>
+
+RDEPEND=<span class="string">"=x11-libs/gtk+-2*
+    crypt? ( &gt;=app-crypt/gpgme-0.4.5 )
+    imlib? ( media-libs/imlib2 )
+    ldap? ( &gt;=net-nds/openldap-2.0.11 )
+    pda? ( app-pda/jpilot )
+    ssl? ( dev-libs/openssl )
+    xface? ( &gt;=media-libs/compface-1.4 )
+    app-misc/mime-types
+    x11-misc/shared-mime-info"</span>
+DEPEND=<span class="string">"<span class="variable">${RDEPEND}</span>
+    dev-util/pkgconfig
+    nls? ( &gt;=sys-devel/gettext-0.12.1 )"</span>
+
+<span class="function"><span class="title">src_prepare</span></span>() {
+    epatch <span class="string">"<span class="variable">${FILESDIR}</span>"</span>/<span class="variable">${PN}</span>-namespace.diff \
+        <span class="string">"<span class="variable">${FILESDIR}</span>"</span>/<span class="variable">${PN}</span>-procmime.diff
+}
+
+<span class="function"><span class="title">src_configure</span></span>() {
+    econf \
+        $(use_<span class="built_in">enable</span> nls) \
+        $(use_<span class="built_in">enable</span> ssl) \
+        $(use_<span class="built_in">enable</span> crypt gpgme) \
+        $(use_<span class="built_in">enable</span> pda jpilot) \
+        $(use_<span class="built_in">enable</span> ldap) \
+        $(use_<span class="built_in">enable</span> ipv6) \
+        $(use_<span class="built_in">enable</span> imlib) \
+        $(use_<span class="built_in">enable</span> xface compface)
+}
+
+<span class="function"><span class="title">src_install</span></span>() {
+    emake DESTDIR=<span class="string">"<span class="variable">${D}</span>"</span> install
+
+    doicon sylpheed.png
+    domenu sylpheed.desktop
+
+    dodoc [A-Z][A-Z]* ChangeLog*
+}
+</code></pre><p>注意可选依赖。有些<code>use_enable</code>行使用两个参数的版本——这在USE标记名不完全匹配<code>./configure</code>参数时非常有用。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/gentoo/" rel="tag">#gentoo</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/python/2013/03/07/image-to-css/" rel="next" title="Image to CSS">
+                <i class="fa fa-chevron-left"></i> Image to CSS
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/python/2013/03/13/advanced-python-constructs/" rel="prev" title="Advanced Python Constructs(译)">
+                Advanced Python Constructs(译) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#快速ebuild向导"><span class="nav-number">1.</span> <span class="nav-text">快速ebuild向导</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#第一个Ebuild"><span class="nav-number">1.1.</span> <span class="nav-text">第一个Ebuild</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本格式"><span class="nav-number">1.1.1.</span> <span class="nav-text">基本格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#信息变量"><span class="nav-number">1.1.2.</span> <span class="nav-text">信息变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构建函数"><span class="nav-number">1.1.3.</span> <span class="nav-text">构建函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#含依赖的ebuild"><span class="nav-number">1.2.</span> <span class="nav-text">含依赖的ebuild</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#带补丁的ebuild"><span class="nav-number">1.3.</span> <span class="nav-text">带补丁的ebuild</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#带USE标记的ebuild"><span class="nav-number">1.4.</span> <span class="nav-text">带USE标记的ebuild</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

@@ -1,0 +1,830 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python,scipy-lecture-notes," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="优化代码翻译自：http://scipy-lectures.github.com/advanced/optimizing/index.html
+作者:Gaël Varoquaux
+License:Creative Commons Attribution 3.0 United States License (CC-by) http://creativecommons.org/licenses/by/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="优化代码(Python)">
+<meta property="og:url" content="http://reverland.org/python/2012/10/19/python/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="优化代码翻译自：http://scipy-lectures.github.com/advanced/optimizing/index.html
+作者:Gaël Varoquaux
+License:Creative Commons Attribution 3.0 United States License (CC-by) http://creativecommons.org/licenses/by/">
+<meta property="og:updated_time" content="2015-11-12T16:34:08.672Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="优化代码(Python)">
+<meta name="twitter:description" content="优化代码翻译自：http://scipy-lectures.github.com/advanced/optimizing/index.html
+作者:Gaël Varoquaux
+License:Creative Commons Attribution 3.0 United States License (CC-by) http://creativecommons.org/licenses/by/">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> 优化代码(Python) | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                优化代码(Python)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-10-19T00:00:00+08:00" content="2012-10-19">
+              2012-10-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="优化代码">优化代码</h1><p>翻译自：<a href="http://scipy-lectures.github.com/advanced/optimizing/index.html" target="_blank" rel="external">http://scipy-lectures.github.com/advanced/optimizing/index.html</a></p>
+<p>作者:Gaël Varoquaux</p>
+<p>License:Creative Commons Attribution 3.0 United States License (CC-by) <a href="http://creativecommons.org/licenses/by/3.0/us" target="_blank" rel="external">http://creativecommons.org/licenses/by/3.0/us</a></p>
+<blockquote>
+<p>过早的优化是罪恶的根源。</p>
+<p>——Donald. Knuth</p>
+</blockquote>
+<p>这个章节涉及使Python代码运行更快的策略。</p>
+<p><strong>先决条件</strong></p>
+<ul>
+<li>line_profiler(<a href="http://packages.python.org/line_profiler/" target="_blank" rel="external">http://packages.python.org/line_profiler/</a>)</li>
+</ul>
+<p><strong>目录</strong></p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<h2 id="优化工作流">优化工作流</h2><ol>
+<li>让它工作：以简单<em>清晰</em>的方式书写代码。</li>
+<li>让它可靠的动作：书写自动化的测试实例，确认你的算法是正确的。如果你中止它，测试将捕捉到中断。</li>
+<li>优化代码：通过剖析(profile)简单的用例来发现瓶颈，并且加速这些瓶颈，找到更好的算法或实现。记住在剖析一个现实的实例和代码的简洁与执行速度之间权衡。对于有效率的工作，最好让剖析运行约十秒。</li>
+</ol>
+<h2 id="剖析(profile)Python代码">剖析(profile)Python代码</h2><p><strong>非测量，不优化</strong></p>
+<ul>
+<li><em>测量</em>：剖析(profiling)， 计时(timing)</li>
+</ul>
+<h3 id="Timeit">Timeit</h3><p>在Ipython中，使用<code>timeit</code>(<a href="http://docs.python.org/library/timeit.html" target="_blank" rel="external">http://docs.python.org/library/timeit.html</a>)来计算基本运算时间。</p>
+<pre><code>In [<span class="number">1</span>]: import numpy as np
+
+In [<span class="number">2</span>]: a = np.arange(<span class="number">1000</span>)
+
+In [<span class="number">3</span>]: %timeit a ** <span class="number">2</span>
+<span class="number">100000</span> loops, best of <span class="number">3</span>: <span class="number">3.55</span> us per loop
+
+In [<span class="number">4</span>]: %timeit a ** <span class="number">2.1</span>
+<span class="number">10000</span> loops, best of <span class="number">3</span>: <span class="number">105</span> us per loop
+
+In [<span class="number">5</span>]: %timeit a * a
+<span class="number">100000</span> loops, best of <span class="number">3</span>: <span class="number">3.5</span> us per loop
+</code></pre><p>使用这个指引你的策略选择。</p>
+<p><strong>注意：</strong>对于长时间运行的调用，使用<code>%time</code>代替<code>%timeit</code>;虽然精确度降低但运行更快。</p>
+<h3 id="分析器(Profiler)">分析器(Profiler)</h3><p>当你有个很大的程序去分析时会有用，例如以下文件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mport numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> scipy <span class="keyword">import</span> linalg</span><br><span class="line"><span class="keyword">from</span> sklearn.decomposition <span class="keyword">import</span> fastica</span><br><span class="line"><span class="comment"># from mdp import fastica</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    data = np.random.random((<span class="number">5000</span>, <span class="number">100</span>))</span><br><span class="line">    u, s, v = linalg.svd(data)</span><br><span class="line">    pca = np.dot(u[:<span class="number">10</span>, :], data) </span><br><span class="line">    results = fastica(pca.T, whiten=<span class="keyword">False</span>)</span><br><span class="line"></span><br><span class="line">test()</span><br></pre></td></tr></table></figure>
+<p>在IPython中我们可以测量脚本运行时间：</p>
+<pre><code><span class="tag">In</span> <span class="attr_selector">[6]</span>: %<span class="tag">run</span> <span class="tag">-t</span> <span class="tag">demo</span><span class="class">.py</span>
+
+<span class="tag">IPython</span> <span class="tag">CPU</span> <span class="tag">timings</span> (<span class="tag">estimated</span>):
+  <span class="tag">User</span>   :      11<span class="class">.03</span> <span class="tag">s</span>.
+  <span class="tag">System</span> :       0<span class="class">.43</span> <span class="tag">s</span>.
+<span class="tag">Wall</span> <span class="tag">time</span>:      13<span class="class">.12</span> <span class="tag">s</span>.
+</code></pre><p>然后分析(profile)它：</p>
+<pre><code>In [<span class="number">7</span>]: %run -p <span class="filename">demo.py
+
+1169 function calls in 10.765 seconds
+
+   Ordered by</span>: internal time
+
+   <span class="header"><span class="keyword">ncalls</span>  <span class="keyword">tottime</span>  percall  <span class="keyword">cumtime</span>  percall <span class="keyword">filename</span>:lineno(function)</span>
+        <span class="number">2</span>   <span class="number">10.693</span>    <span class="number">5.346</span>   <span class="number">10.699</span>    <span class="number">5.350</span> <span class="filename">decomp_svd.py</span>:<span class="number">14</span><span class="function">(<span class="title">svd</span>)</span>
+      <span class="number">144</span>    <span class="number">0.040</span>    <span class="number">0.000</span>    <span class="number">0.040</span>    <span class="number">0.000</span> {<span class="built_in">numpy.core.multiarray.dot</span>}
+        <span class="number">1</span>    <span class="number">0.015</span>    <span class="number">0.015</span>    <span class="number">0.015</span>    <span class="number">0.015</span> {<span class="built_in">method <span class="string">'random_sample'</span> of <span class="string">'mtrand.RandomState'</span> objects</span>}
+       <span class="number">20</span>    <span class="number">0.005</span>    <span class="number">0.000</span>    <span class="number">0.007</span>    <span class="number">0.000</span> <span class="filename">function_base.py</span>:<span class="number">526</span><span class="function">(<span class="title">asarray_chkfinite</span>)</span>
+        <span class="number">1</span>    <span class="number">0.003</span>    <span class="number">0.003</span>   <span class="number">10.764</span>   <span class="number">10.764</span> <span class="filename">demo.py</span>:<span class="number">1</span><span class="function">(&lt;<span class="title">module</span>&gt;)</span>
+       <span class="number">18</span>    <span class="number">0.002</span>    <span class="number">0.000</span>    <span class="number">0.002</span>    <span class="number">0.000</span> <span class="filename">decomp.py</span>:<span class="number">197</span><span class="function">(<span class="title">eigh</span>)</span>
+       <span class="number">17</span>    <span class="number">0.001</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.000</span> <span class="filename">fastica_.py</span>:<span class="number">219</span><span class="function">(<span class="title">gprime</span>)</span>
+       <span class="number">40</span>    <span class="number">0.001</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.000</span> {<span class="built_in">method <span class="string">'any'</span> of <span class="string">'numpy.ndarray'</span> objects</span>}
+       <span class="number">17</span>    <span class="number">0.001</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.000</span> <span class="filename">fastica_.py</span>:<span class="number">215</span><span class="function">(<span class="title">g</span>)</span>
+        <span class="number">1</span>    <span class="number">0.001</span>    <span class="number">0.001</span>    <span class="number">0.008</span>    <span class="number">0.008</span> <span class="filename">fastica_.py</span>:<span class="number">88</span><span class="function">(<span class="title">_ica_par</span>)</span>
+        <span class="number">1</span>    <span class="number">0.001</span>    <span class="number">0.001</span>   <span class="number">10.764</span>   <span class="number">10.764</span> {<span class="built_in">execfile</span>}
+       <span class="number">52</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.000</span> <span class="filename">twodim_base.py</span>:<span class="number">220</span><span class="function">(<span class="title">diag</span>)</span>
+       <span class="number">18</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.003</span>    <span class="number">0.000</span> <span class="filename">fastica_.py</span>:<span class="number">40</span><span class="function">(<span class="title">_sym_decorrelation</span>)</span>
+       <span class="number">18</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span> {<span class="built_in">method <span class="string">'mean'</span> of <span class="string">'numpy.ndarray'</span> objects</span>}
+</code></pre><p>显然<code>svd</code>(在<em>decomp.py</em>中)是占用我们时间最多的东西，即瓶颈。我们得找到一种方法来让这一步运行更快，或者避免这一步(算法优化)。加速代码剩下的部分并无益处。</p>
+<h3 id="Line-profiler">Line-profiler</h3><p>分析器(profiler)很棒：它告诉我们那个函数费时最多，但并不是它在哪里调用。</p>
+<p>对此，我们使用<a href="http://packages.python.org/line_profiler/" target="_blank" rel="external">line_profiler</a>：在原文件中，我们用<code>@profile</code>修饰一些我们想要检查的函数(不用导入它)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="decorator">@profile</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    data = np.random.random((<span class="number">5000</span>, <span class="number">100</span>))</span><br><span class="line">    u, s, v = linalg.svd(data)</span><br><span class="line">    pca = np.dot(u[:<span class="number">10</span>, :], data)</span><br><span class="line">    results = fastica(pca.T, whiten=<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure>
+<p>然后我们使用<a href="packages.python.org/line_profiler/kernprof.py">kernprof.py</a>程序，用-l和-v：</p>
+<pre><code>lyy@<span class="keyword">arch</span> ~ % kernprof.py -<span class="keyword">l</span> -v demo.py
+Wrote profile results to demo.py.lprof
+<span class="keyword">Timer</span> unit: 1e-06 <span class="literal">s</span>
+
+<span class="keyword">File</span>: demo.py
+Function: <span class="keyword">test</span> at <span class="keyword">line</span> 6
+<span class="keyword">Total</span> time: 10.5932 <span class="literal">s</span>
+
+<span class="keyword">Line</span> #      Hits         Time  Per Hit   % Time  <span class="keyword">Line</span> Contents
+==============================================================
+     6                                           @profile
+     7                                           def <span class="keyword">test</span>():
+     8         1        11070  11070.0      0.1          data = np.random.random((5000, 100))
+     9         1     10530291 10530291.0     99.4          <span class="keyword">u</span>, s, v = linalg.svd(data)
+    10         1        31026  31026.0      0.3          <span class="keyword">pca</span> = np.dot(<span class="keyword">u</span>[:10, :], data)
+    11         1        20766  20766.0      0.2          results = fastica(<span class="keyword">pca</span>.T)
+
+kernprof.py -<span class="keyword">l</span> -v demo.py  12.57s user 0.25s system 99% cpu 12.891 <span class="keyword">total</span>
+</code></pre><p><em>SVD占用了大部分时间</em>。我们需要优化这行。</p>
+<h2 id="让代码更快">让代码更快</h2><p>一旦我们确认了瓶颈，我们需要让相应的代码运行更快。</p>
+<h3 id="算法优化">算法优化</h3><p>首先寻找算法优化：有没有运算更少或更好的方式？</p>
+<p>对于更高层次地看待问题，充分理解算法后的数学很有帮助。然而，寻找简单的改变并不寻常，像<em>移动计算<a href="存疑">^1</a>和在循环外分配内存<a href="我不懂">^2</a></em>,会带来很大益处。</p>
+<p>####SVD的示例</p>
+<p>在以上每个例子中，SVD——<a href="http://en.wikipedia.org/wiki/Singular_value_decomposition" target="_blank" rel="external">奇异值分解</a>——是占用时间最多的。确实，当输入矩阵大小为n时算法计算代价大约是$n^3$。</p>
+<p>然而，这些例子中，我们都没有使用SVD的输出，但是仅仅使用它最开始返回的参数最初很少的几行。如果我们使用scipy的<code>svd</code>实现，我们可以获得一个不完整的SVD版本。注意这个在scipy中的线性代数实现比numpy中的更加丰富，应该优先使用。</p>
+<pre><code>In [<span class="number">4</span>]: %timeit np.linalg.svd(data)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">10.8</span> s per loop
+
+In [<span class="number">5</span>]: from scipy import linalg
+
+In [<span class="number">6</span>]: %timeit linalg.svd(data)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">10.4</span> s per loop
+
+In [<span class="number">7</span>]: %timeit linalg.svd(data, full_matrices=False)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">278</span> ms per loop
+
+In [<span class="number">8</span>]: %timeit np.linalg.svd(data, full_matrices=False)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">276</span> ms per loop
+</code></pre><p>真正的不完全SVD，例如仅仅计算前十个特征向量，可以用arpack<a href="[Arpack——fortran数值计算库](http://en.wikipedia.org/wiki/ARPACK)">^3</a>计算，可以在<code>scipy.sparse.linalg.eigsh</code>获得。</p>
+<p><strong>计算线性代数</strong></p>
+<p>对于确定的算法，许多瓶颈将是线性代数计算。在本例中，使用正确的函数解决正确的问题是关键。例如，一个对称矩阵的本征值问题比一个普通矩阵更容易解决。同样的，很多时候，你可以避免反转矩阵，并且使用代价更小(并更数值稳定)的运算。</p>
+<p>了解你的线性代数计算。当有疑问时，探索scipy.linalg，并且用%timeit 来对你的数据尝试不同的选择。</p>
+<h2 id="写更快的数值代码">写更快的数值代码</h2><p>一个完整的关于使用numpy的讨论可以在<a href="http://scipy-lectures.github.com/advanced/advanced_numpy/index.html#advanced-numpy" target="_blank" rel="external">Advanced Numpy</a>章节中找到，或者在van der Walt等人的文章<a href="http://hal.inria.fr/inria-00564007/en" target="_blank" rel="external">The NumPy array: a structure for efficient numerical computation</a>中。这里我们仅仅讨论加速代码运行速度常见的技巧。</p>
+<ul>
+<li><p>向量化循环</p>
+<p>找到技巧来避免使用numpy数组循环。对此，掩码(masks)数组和索引(indices)数组会更有用。</p>
+</li>
+<li><p>广播</p>
+<p>使用<a href="http://scipy-lectures.github.com/intro/numpy/operations.html#broadcasting" target="_blank" rel="external">广播(broadcasting)</a>来在结合它们之前对数组尽可能少的运算。</p>
+</li>
+<li><p>在适当的位置运算</p>
+<pre><code>In [<span class="number">9</span>]: a = np.zeros(<span class="number">1e7</span>)
+In [<span class="number">11</span>]: %timeit global a ; a *= <span class="number">0</span>
+<span class="number">10</span> loops, best of <span class="number">3</span>: <span class="number">29.1</span> ms per loop
+
+in [<span class="number">12</span>]: %timeit global a ; a = <span class="number">0</span>*a
+<span class="number">10</span> loops, best of <span class="number">3</span>: <span class="number">54.3</span> ms per loop
+</code></pre><p> <strong>注意：</strong>我们需要个<code>global a</code>让timeit工作，因为它被赋给a，因此将它视作一个局部变量。</p>
+</li>
+<li><p>善待内存：使用视图(views)而非拷贝(copies)</p>
+<p>拷贝一个大数组就像对它们进行简单的数值计算一样耗费资源</p>
+<pre><code>In [<span class="number">18</span>]: a = np.zeros(<span class="number">1e7</span>)
+
+In [<span class="number">19</span>]: %timeit a.copy()
+<span class="number">10</span> loops, best of <span class="number">3</span>: <span class="number">69</span> ms per loop
+
+In [<span class="number">20</span>]: %timeit a + <span class="number">1</span>
+<span class="number">10</span> loops, best of <span class="number">3</span>: <span class="number">56.2</span> ms per loop
+</code></pre></li>
+<li><p>小心缓存影响(cache effects)</p>
+<p>内存存取当是成组时是省资源的：以连续的方式存取一个大数组比随机存取更快。这意味着除其它事项外更小的元素间距更快(参见<a href="http://scipy-lectures.github.com/advanced/advanced_numpy/index.html#cache-effects" target="_blank" rel="external">CPU cache effects</a>)<a href="python科学计算里numpy部分讲得非常清楚，第二种间距小的明显快了很多。">^4</a></p>
+<p>  In [21]: c = np.zeros((1e4, 1e4), order=’C’)</p>
+<pre><code>In [<span class="number">22</span>]: %timeit c.sum(axis=<span class="number">0</span>)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">3.62</span> s per loop
+
+In [<span class="number">23</span>]: %timeit c.sum(axis=<span class="number">1</span>)
+<span class="number">10</span> loops, best of <span class="number">3</span>: <span class="number">171</span> ms per loop
+
+In [<span class="number">24</span>]: c.strides
+Out[<span class="number">24</span>]: (<span class="number">80000</span>, <span class="number">8</span>)
+
+In [<span class="number">25</span>]: c = np.zeros((<span class="number">1e4</span>, <span class="number">1e4</span>), order=<span class="string">'F'</span>)
+
+In [<span class="number">26</span>]: %timeit c.sum(axis=<span class="number">0</span>)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">166</span> ms per loop
+
+In [<span class="number">27</span>]: %timeit c.sum(axis=<span class="number">1</span>)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">3.63</span> s per loop
+</code></pre><p>这就是为何Fortran顺序或C顺序可能对运算的影响很大：</p>
+<pre><code>in [<span class="number">28</span>]: a = np.random.rand(<span class="number">20</span>, <span class="number">2</span>**<span class="number">18</span>)
+
+in [<span class="number">29</span>]: b = np.random.rand(<span class="number">20</span>, <span class="number">2</span>**<span class="number">18</span>)
+
+in [<span class="number">30</span>]: %timeit np.dot(b, a.T)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">278</span> ms per loop
+
+in [<span class="number">31</span>]: c = np.ascontiguousarray(a.T)
+
+in [<span class="number">32</span>]: %timeit np.dot(b, c)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">1.94</span> s per loop
+</code></pre></li>
+</ul>
+<p>  注意拷贝数据来解决这个影响不值得：</p>
+<pre><code>In [<span class="number">34</span>]: %timeit c = np.ascontiguousarray(a.T)
+<span class="number">10</span> loops, best of <span class="number">3</span>: <span class="number">45.4</span> ms per loop
+</code></pre><p>  使用numexpr来自动为这种效应优化会很有用。</p>
+<ul>
+<li><p>使用编译好的代码</p>
+<p>一旦你确定所有高层次的优化都已经摸索过了，最后手段是将热点，也就是耗费时间最多的代码或函数，变成编译好的代码。对于编译代码，最优的选择是使用<a href="http://www.cython.org/" target="_blank" rel="external">Cython</a>:它很轻松地让你将已知的Python代码转换成编译好的代码，并且对numpy数组很好利用<a href="http://docs.cython.org/src/tutorial/numpy.html" target="_blank" rel="external">numpy支持</a>产生有效率的代码，例如通过循环展开(unrolling loops)。</p>
+</li>
+</ul>
+<p><strong>Waring:</strong>对上述所有流程，分析(profile)并且计时(time)你的选择。不要以理论为依据来进行优化。<br>{: alert }</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+            <a href="/tags/scipy-lecture-notes/" rel="tag">#scipy-lecture-notes</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/python/2012/10/14/scikit-learn-machine-learning-in-python/" rel="next" title="Scikit Learn: 在python中机器学习">
+                <i class="fa fa-chevron-left"></i> Scikit Learn: 在python中机器学习
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/python/2012/10/22/scipy/" rel="prev" title="Scipy:高端科学计算">
+                Scipy:高端科学计算 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#优化代码"><span class="nav-number">1.</span> <span class="nav-text">优化代码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优化工作流"><span class="nav-number">1.1.</span> <span class="nav-text">优化工作流</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#剖析(profile)Python代码"><span class="nav-number">1.2.</span> <span class="nav-text">剖析(profile)Python代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Timeit"><span class="nav-number">1.2.1.</span> <span class="nav-text">Timeit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分析器(Profiler)"><span class="nav-number">1.2.2.</span> <span class="nav-text">分析器(Profiler)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Line-profiler"><span class="nav-number">1.2.3.</span> <span class="nav-text">Line-profiler</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#让代码更快"><span class="nav-number">1.3.</span> <span class="nav-text">让代码更快</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#算法优化"><span class="nav-number">1.3.1.</span> <span class="nav-text">算法优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#写更快的数值代码"><span class="nav-number">1.4.</span> <span class="nav-text">写更快的数值代码</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>
