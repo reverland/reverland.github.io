@@ -46,7 +46,7 @@
 
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+  <link rel="shortcut icon" type="image/x-icon" href="/images/default_avatar.jpg?v=0.4.5.2" />
 
 
 
@@ -67,7 +67,7 @@
 
 <script type="text/javascript" id="hexo.configuration">
   var CONFIG = {
-    scheme: 'Mist',
+    scheme: '',
     sidebar: 'post',
     motion: true
   };
@@ -202,6 +202,120 @@
             
               
                 
+                <a class="post-title-link" href="/Life/2014/05/04/360-hack-game/" itemprop="url">
+                  360 Hack game网络攻防
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-05-04T00:00:00+08:00" content="2014-05-04">
+              2014-05-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Life/" itemprop="url" rel="index">
+                    <span itemprop="name">Life</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>不知道把这篇文章归入哪一类，那就Life吧。Hack也是life的一部分吧。</p>
+<p>最开始是见有人在论坛上问第三道解码的题目。然后lz给出了个地址，就去看了看。后来还挺好玩，就继续做下去了。</p>
+<p>没必要在这里披露什么答案，<a href="http://bbs.blackbap.org/thread-5800-1-1.html" target="_blank" rel="external">习科</a>和<a href="http://www.freebuf.com/articles/web/33145.html" target="_blank" rel="external">FreeBuf</a>上已经有详细解答参考答案。就随便记下个人解题过程。</p>
+<p>第一关没什么压力。一看就知道显然是更改refer。</p>
+<p>第二关，习惯性打开js文件，赫然写着<code>password</code>几个大字。然后就是在浏览器调试工具或者node中跑呗。出题人耍了个小技巧，让结果不返回。反正我当时竟然凭着对js的一点浅薄知识一路复制粘帖用js一层一层解了三次。最后碰到一堆<code>[+&gt;]</code>的东西。我竟然以为是brainfuck，然后把自己电脑跑死机了……后来才忽然感觉是js，复制运行得到结果。</p>
+<p>第三关，一不小心在论坛上看到结果了，不过这显然对我不是什么问题。</p>
+<p>第四关，发了好久呆。不了解jpg文件格式，用vim打开也没看出什么。后来发现vim打开二进制文件必须加<code>-b</code>参数。再后来在论坛上其他人的提醒下发现竟然是两幅图。光看文件大小真看不出来。</p>
+<p>第五关，最简单有没有。虽然不知道都是些什么，全靠百度得来答案。。。是的，百度，谷歌都没用上。</p>
+<p>第六关，试了<code>~</code>后缀，最后论坛上有人提醒是vi……真是丧心病狂……</p>
+<p>第七关，还是仰仗论坛上提醒要大小写，又这么一碰竟然过了。然后128位的哈希一看就是md5,直接google得到结果。</p>
+<p>第八关，代码审计给跪了，php完全不会。考虑暴力穷举感觉尝试量太大，后来见论坛上有人穷举出来了……于是也随手写了个小程序穷举起来。最后论坛上其它人用我的程序穷举出来了我还没穷举出来……</p>
+<p>第九关，对着习科上答案来的……可能网络太差吧，等了好久。</p>
+<p>第十关，对着参考答案来，可每次文件名都变化。看到32字节长的文件名，就想是不是报头中某个变化的东西比如时间的md5？结果愣是没看出来cookie过期了。还抓了上千个哈希试图破解，却发现只有在cmd5可以找到，还是付费内容。写了个小脚本跑字典，也没解出来文件名到底怎么来的。算了，仰仗论坛上大婶的指点，反正过了。</p>
+<p>接下来我想写几样东西：</p>
+<ul>
+<li>关于扫描器的原理与实现</li>
+<li>某次抓取DVS/DVR信息的过程</li>
+<li>ftp搜索引擎</li>
+</ul>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/network/2014/05/04//" itemprop="url">
                   扫描器原理与实现
                 </a>
@@ -313,120 +427,6 @@ Nmap done: <span class="number">1</span> IP <span class="tag">address</span> (<s
 <p>时间和精力有限，语言技能点该怎么点呢？</p>
 <p>汇编、C、javascript、python3、lua、也许go、也许再个ruby.</p>
 <p>还有两本书等着看或正在看，TCP/IP internetworking和深入理解计算机系统.</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/Life/2014/05/04/360-hack-game/" itemprop="url">
-                  360 Hack game网络攻防
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-05-04T00:00:00+08:00" content="2014-05-04">
-              2014-05-04
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Life/" itemprop="url" rel="index">
-                    <span itemprop="name">Life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>不知道把这篇文章归入哪一类，那就Life吧。Hack也是life的一部分吧。</p>
-<p>最开始是见有人在论坛上问第三道解码的题目。然后lz给出了个地址，就去看了看。后来还挺好玩，就继续做下去了。</p>
-<p>没必要在这里披露什么答案，<a href="http://bbs.blackbap.org/thread-5800-1-1.html" target="_blank" rel="external">习科</a>和<a href="http://www.freebuf.com/articles/web/33145.html" target="_blank" rel="external">FreeBuf</a>上已经有详细解答参考答案。就随便记下个人解题过程。</p>
-<p>第一关没什么压力。一看就知道显然是更改refer。</p>
-<p>第二关，习惯性打开js文件，赫然写着<code>password</code>几个大字。然后就是在浏览器调试工具或者node中跑呗。出题人耍了个小技巧，让结果不返回。反正我当时竟然凭着对js的一点浅薄知识一路复制粘帖用js一层一层解了三次。最后碰到一堆<code>[+&gt;]</code>的东西。我竟然以为是brainfuck，然后把自己电脑跑死机了……后来才忽然感觉是js，复制运行得到结果。</p>
-<p>第三关，一不小心在论坛上看到结果了，不过这显然对我不是什么问题。</p>
-<p>第四关，发了好久呆。不了解jpg文件格式，用vim打开也没看出什么。后来发现vim打开二进制文件必须加<code>-b</code>参数。再后来在论坛上其他人的提醒下发现竟然是两幅图。光看文件大小真看不出来。</p>
-<p>第五关，最简单有没有。虽然不知道都是些什么，全靠百度得来答案。。。是的，百度，谷歌都没用上。</p>
-<p>第六关，试了<code>~</code>后缀，最后论坛上有人提醒是vi……真是丧心病狂……</p>
-<p>第七关，还是仰仗论坛上提醒要大小写，又这么一碰竟然过了。然后128位的哈希一看就是md5,直接google得到结果。</p>
-<p>第八关，代码审计给跪了，php完全不会。考虑暴力穷举感觉尝试量太大，后来见论坛上有人穷举出来了……于是也随手写了个小程序穷举起来。最后论坛上其它人用我的程序穷举出来了我还没穷举出来……</p>
-<p>第九关，对着习科上答案来的……可能网络太差吧，等了好久。</p>
-<p>第十关，对着参考答案来，可每次文件名都变化。看到32字节长的文件名，就想是不是报头中某个变化的东西比如时间的md5？结果愣是没看出来cookie过期了。还抓了上千个哈希试图破解，却发现只有在cmd5可以找到，还是付费内容。写了个小脚本跑字典，也没解出来文件名到底怎么来的。算了，仰仗论坛上大婶的指点，反正过了。</p>
-<p>接下来我想写几样东西：</p>
-<ul>
-<li>关于扫描器的原理与实现</li>
-<li>某次抓取DVS/DVR信息的过程</li>
-<li>ftp搜索引擎</li>
-</ul>
 
             
           </span>
@@ -3055,7 +3055,7 @@ ACCEPT
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-count">166</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -3069,7 +3069,7 @@ ACCEPT
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-count">57</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -3079,6 +3079,16 @@ ACCEPT
         
 
         <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/reverland" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
           
         </div>
 
@@ -3119,7 +3129,7 @@ ACCEPT
 <div class="theme-info">
   主题 -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Mist
+    NexT
   </a>
 </div>
 

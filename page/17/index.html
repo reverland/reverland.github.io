@@ -46,7 +46,7 @@
 
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+  <link rel="shortcut icon" type="image/x-icon" href="/images/default_avatar.jpg?v=0.4.5.2" />
 
 
 
@@ -67,7 +67,7 @@
 
 <script type="text/javascript" id="hexo.configuration">
   var CONFIG = {
-    scheme: 'Mist',
+    scheme: '',
     sidebar: 'post',
     motion: true
   };
@@ -179,6 +179,133 @@
 
     
     
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/linux/2012/03/25/archlinux3264/" itemprop="url">
+                  将Archlinux从32位迁移到64位
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-03-25T00:00:00+08:00" content="2012-03-25">
+              2012-03-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="将archlinux从32位迁移到64位">将archlinux从32位迁移到64位</h2><h3 id="概要">概要</h3><p>大致过程及要注意的地方,某天顺手把archlinux的中文wiki翻译了下，所以现在有个中文版的。不过有需求的同学们还是看英文wiki吧，不要太相信我翻译的水平……</p>
+<hr>
+<h3 id="过程">过程</h3><h4 id="准备">准备</h4><ul>
+<li>首先确定cpu支持64位，一般近几年的电脑都支持</li>
+<li>确定磁盘空间足够</li>
+<li>电力充足</li>
+<li>回退准备(说是这么说根本就没管)</li>
+</ul>
+<h4 id="迁移">迁移</h4><ul>
+<li>保存旧包</li>
+<li>改变架构，此时要注意</li>
+<li>Make sure the server lists in /etc/pacman.conf and /etc/pacman.d/mirrorlist use $arch instead of explicitly specifying i686 or x86_64.</li>
+<li>下载新包，注意lib32-glibc，在安装kernel之后再装,如果装不上加上-f参数强制安装</li>
+<li>重启后就进入字符界面了，可以确认内核已经64位了</li>
+<li>安装pacman，可能有一堆错误或警告。不要重启</li>
+<li>安装剩余的包</li>
+<li>清理busybox和lib32-glibc</li>
+<li>设定makepkg编译标志</li>
+<li><p>kde用户注意了，要运行</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm -rf /var/tmp/kde-&lt;username&gt;</span><br></pre></td></tr></table></figure>
+<p>  之后再startkde,否则会出现从splash直接退回到kdm而无法进入kde的情况。</p>
+</li>
+</ul>
+<h4 id="后续工作">后续工作</h4><p>比如说你要wine war3,那么很多lib32的库软件什么的就要装好，比如32位的显卡、lib32-mpg123等等。</p>
+<hr>
+<h3 id="参考文献">参考文献</h3><ol>
+<li><a href="https://wiki.archlinux.org/index.php/Migrating_Between_Architectures_Without_Reinstalling#Change_Pacman_architecture" target="_blank" rel="external">Migrating Between Architectures Without Reinstalling</a></li>
+<li><a href="http://fancyoung.com/blog/migrating-between-architectures-without-reinstalling/" target="_blank" rel="external">将Arch Linux从32位升到64位</a></li>
+<li><a href="http://lilydjwg.is-programmer.com/2012/2/23/migrate-to-64bit-archlinux.32230.html" target="_blank" rel="external">迁移到64位 ArchLinux</a></li>
+<li><a href="https://bbs.archlinux.org/viewtopic.php?id#79549" target="_blank" rel="external">Wine font rendering + libmpg123 question</a></li>
+<li><a href="http://forum.kde.org/viewtopic.php?f#17&amp;t#91736" target="_blank" rel="external">Since crash of plasma netbook, no login via kdm</a></li>
+</ol>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -817,7 +944,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-count">166</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -831,7 +958,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-count">57</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -841,6 +968,16 @@
         
 
         <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/reverland" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
           
         </div>
 
@@ -881,7 +1018,7 @@
 <div class="theme-info">
   主题 -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Mist
+    NexT
   </a>
 </div>
 

@@ -46,7 +46,7 @@
 
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+  <link rel="shortcut icon" type="image/x-icon" href="/images/default_avatar.jpg?v=0.4.5.2" />
 
 
 
@@ -67,7 +67,7 @@
 
 <script type="text/javascript" id="hexo.configuration">
   var CONFIG = {
-    scheme: 'Mist',
+    scheme: '',
     sidebar: 'post',
     motion: true
   };
@@ -779,6 +779,130 @@ Out[<span class="number">10</span>]: <span class="string">'9'</span>
 </code></pre><p>至此这个shellcode大致做了什么就比较清晰了。与远程主机建立连接，将计算机的机器名获取，又获取IP地址和MAC地址，然后构造HTTP报头发送给远端的机器。</p>
 <p>要更加清晰的知道shellcode在干什么，最好还是动态方式调试下。当然得写个测试shellcode的程序了，好像radare2有调试功能……不会用，唉，标记都用不好。</p>
 
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/uncategorized/2014/08/08/better-and-beautiful-console/" itemprop="url">
+                  Better and Beautiful Console
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-08-08T00:00:00+08:00" content="2014-08-08">
+              2014-08-08
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>一般的linux控制台（这还是gentoo配置过的默认bash呢）是这样的</p>
+<p><img src="/images/plainconsole.png" alt="普通控制台"></p>
+<p>而经过一番简单的配置之后，你的控制台是这样的</p>
+<p><img src="/images/fbterm.png" alt="fbterm"></p>
+<hr>
+<h2 id="如何美化Linux下控制台（Better_Framebuffer）">如何美化Linux下控制台（Better Framebuffer）</h2><p>如果你运气足够好，碰上个有良心的发行版会帮你稍微配置下bash，增加些显示当前目录啊、彩色输出啊的功能。如果你足够悲剧，选择了一个以KISS为目标的发行版或者碰到一个无良发行版，你的bash就是个勉强能用的悲剧。</p>
+<p>为了让终端在即使没有X也能漂亮起来，为了更加愉快的在没有X的Server下工作，为了不装X胜似装X。让我们开始配置一个漂亮的Linux控制台吧。</p>
+<p>我是在gentoo linux完成配置的，首先安装必要的程序：</p>
+<pre><code>emerge fbterm fcitx-fbterm fbv fbdump zsh oh-<span class="keyword">my</span>-zsh gpm
+</code></pre><h2 id="zsh">zsh</h2><p>1.把zsh改成默认shell</p>
+<pre><code>chsh <span class="operator">-s</span> zsh
+</code></pre><p>2.修改zsh主题</p>
+<pre><code><span class="setting">ZSH_THEME=<span class="value"><span class="string">"agnoster"</span></span></span>
+</code></pre><p>至此，zsh配置完成。</p>
+<h2 id="fbterm背景图片">fbterm背景图片</h2><p>3.为了让fbterm显示背景图像，建立一个比如说<code>.background_fbterm</code>作为fbterm启动的封装</p>
+<pre><code> ~ ⮀ cat .background_fbterm
+<span class="shebang">#!/bin/bash</span>
+<span class="comment"># fbterm-bi: a wrapper script to enable background image with fbterm</span>
+<span class="comment"># usage: fbterm-bi /path/to/image fbterm-options</span>
+<span class="built_in">echo</span> <span class="operator">-ne</span> <span class="string">"\e[?25l"</span> <span class="comment"># hide cursor</span>
+fbv -ciuker <span class="string">"<span class="variable">$1</span>"</span> &lt;&lt; EOF
+</code></pre><p>q<br>    EOF<br>    shift<br>    export FBTERM_BACKGROUND_IMAGE=1<br>    exec fbterm “$@”</p>
+<ol>
+<li><p>在<code>.zshrc</code>中添加一个别名，指定背景图片。</p>
+<h1 id="fbterm">fbterm</h1><p> alias fbterm=”sh ~/.background_fbterm ~/Pictures/wallpaper/girl.png”</p>
+</li>
+</ol>
+<h2 id="中文输入法">中文输入法</h2><ol>
+<li><p>在<code>.fbtermrc</code>中写入以下行，提供framebuffer下的中文输入法。</p>
+<h1 id="specify_the_favorite_input_method_program_to_run">specify the favorite input method program to run</h1><p> input-method=fcitx-fbterm</p>
+<h2 id="鼠标支持">鼠标支持</h2></li>
+</ol>
+<p>你会迷恋上中键粘帖的。</p>
+<hr>
+<p>看到没有，简单5步，即使没有X，一个漂亮、高效、支持中文显示和输入的控制台就诞生了。</p>
+<p>ps:关于终端截图。<code>fbgrab</code>获取的图像错位，</p>
+<p>即使多次尝试w和h：</p>
+<pre><code>cat /dev/fb0 &gt; fb<span class="class">.raw</span>
+fbgrab -<span class="tag">i</span> -w <span class="number">1056</span> -h <span class="number">1024</span> -<span class="tag">b</span> <span class="number">32</span> -f framebuffer<span class="class">.raw</span> fb.png
+</code></pre><p>获取的也是错位的图像。</p>
+<p>后来编译个<code>fbdump</code>挺好用的。</p>
+<pre><code><span class="tag">fbdump</span> &gt; <span class="tag">fb</span><span class="class">.ppm</span>
+</code></pre><p>然后用gimp啊等转成其它格式就随意了</p>
+<pre><code><span class="tag">gimp</span> <span class="tag">fb</span><span class="class">.ppm</span>
+</code></pre>
             
           </span>
         
@@ -2182,130 +2306,6 @@ Password OK!
 </ul>
 <p>I find an interesting book: RE-for-beginers</p>
 
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/uncategorized/2014/08/08/better-and-beautiful-console/" itemprop="url">
-                  Better and Beautiful Console
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-08-08T00:00:00+08:00" content="2014-08-08">
-              2014-08-08
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>一般的linux控制台（这还是gentoo配置过的默认bash呢）是这样的</p>
-<p><img src="/images/plainconsole.png" alt="普通控制台"></p>
-<p>而经过一番简单的配置之后，你的控制台是这样的</p>
-<p><img src="/images/fbterm.png" alt="fbterm"></p>
-<hr>
-<h2 id="如何美化Linux下控制台（Better_Framebuffer）">如何美化Linux下控制台（Better Framebuffer）</h2><p>如果你运气足够好，碰上个有良心的发行版会帮你稍微配置下bash，增加些显示当前目录啊、彩色输出啊的功能。如果你足够悲剧，选择了一个以KISS为目标的发行版或者碰到一个无良发行版，你的bash就是个勉强能用的悲剧。</p>
-<p>为了让终端在即使没有X也能漂亮起来，为了更加愉快的在没有X的Server下工作，为了不装X胜似装X。让我们开始配置一个漂亮的Linux控制台吧。</p>
-<p>我是在gentoo linux完成配置的，首先安装必要的程序：</p>
-<pre><code>emerge fbterm fcitx-fbterm fbv fbdump zsh oh-<span class="keyword">my</span>-zsh gpm
-</code></pre><h2 id="zsh">zsh</h2><p>1.把zsh改成默认shell</p>
-<pre><code>chsh <span class="operator">-s</span> zsh
-</code></pre><p>2.修改zsh主题</p>
-<pre><code><span class="setting">ZSH_THEME=<span class="value"><span class="string">"agnoster"</span></span></span>
-</code></pre><p>至此，zsh配置完成。</p>
-<h2 id="fbterm背景图片">fbterm背景图片</h2><p>3.为了让fbterm显示背景图像，建立一个比如说<code>.background_fbterm</code>作为fbterm启动的封装</p>
-<pre><code> ~ ⮀ cat .background_fbterm
-<span class="shebang">#!/bin/bash</span>
-<span class="comment"># fbterm-bi: a wrapper script to enable background image with fbterm</span>
-<span class="comment"># usage: fbterm-bi /path/to/image fbterm-options</span>
-<span class="built_in">echo</span> <span class="operator">-ne</span> <span class="string">"\e[?25l"</span> <span class="comment"># hide cursor</span>
-fbv -ciuker <span class="string">"<span class="variable">$1</span>"</span> &lt;&lt; EOF
-</code></pre><p>q<br>    EOF<br>    shift<br>    export FBTERM_BACKGROUND_IMAGE=1<br>    exec fbterm “$@”</p>
-<ol>
-<li><p>在<code>.zshrc</code>中添加一个别名，指定背景图片。</p>
-<h1 id="fbterm">fbterm</h1><p> alias fbterm=”sh ~/.background_fbterm ~/Pictures/wallpaper/girl.png”</p>
-</li>
-</ol>
-<h2 id="中文输入法">中文输入法</h2><ol>
-<li><p>在<code>.fbtermrc</code>中写入以下行，提供framebuffer下的中文输入法。</p>
-<h1 id="specify_the_favorite_input_method_program_to_run">specify the favorite input method program to run</h1><p> input-method=fcitx-fbterm</p>
-<h2 id="鼠标支持">鼠标支持</h2></li>
-</ol>
-<p>你会迷恋上中键粘帖的。</p>
-<hr>
-<p>看到没有，简单5步，即使没有X，一个漂亮、高效、支持中文显示和输入的控制台就诞生了。</p>
-<p>ps:关于终端截图。<code>fbgrab</code>获取的图像错位，</p>
-<p>即使多次尝试w和h：</p>
-<pre><code>cat /dev/fb0 &gt; fb<span class="class">.raw</span>
-fbgrab -<span class="tag">i</span> -w <span class="number">1056</span> -h <span class="number">1024</span> -<span class="tag">b</span> <span class="number">32</span> -f framebuffer<span class="class">.raw</span> fb.png
-</code></pre><p>获取的也是错位的图像。</p>
-<p>后来编译个<code>fbdump</code>挺好用的。</p>
-<pre><code><span class="tag">fbdump</span> &gt; <span class="tag">fb</span><span class="class">.ppm</span>
-</code></pre><p>然后用gimp啊等转成其它格式就随意了</p>
-<pre><code><span class="tag">gimp</span> <span class="tag">fb</span><span class="class">.ppm</span>
-</code></pre>
             
           </span>
         
@@ -4561,7 +4561,7 @@ Reading symbols <span class="built_in">from</span> /home/lyy/Work/msp430/main.el
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-count">166</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -4575,7 +4575,7 @@ Reading symbols <span class="built_in">from</span> /home/lyy/Work/msp430/main.el
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-count">57</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -4585,6 +4585,16 @@ Reading symbols <span class="built_in">from</span> /home/lyy/Work/msp430/main.el
         
 
         <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/reverland" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
           
         </div>
 
@@ -4625,7 +4635,7 @@ Reading symbols <span class="built_in">from</span> /home/lyy/Work/msp430/main.el
 <div class="theme-info">
   主题 -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Mist
+    NexT
   </a>
 </div>
 

@@ -46,7 +46,7 @@
 
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="http://wx.qlogo.cn/mmopen/xiaR0Twic472lOTwH1OBL4JeeIT174LxwcYvg3QBJYrV00Yfacmae1QTrhuQsjszkR4NhHbYWEtIE2ITRzVhVBRI4HuSpQBEwR/0?v=0.4.5.2" />
+  <link rel="shortcut icon" type="image/x-icon" href="/images/default_avatar.jpg?v=0.4.5.2" />
 
 
 
@@ -67,7 +67,7 @@
 
 <script type="text/javascript" id="hexo.configuration">
   var CONFIG = {
-    scheme: 'Mist',
+    scheme: '',
     sidebar: 'post',
     motion: true
   };
@@ -179,6 +179,104 @@
 
     
     
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/scheme/2012/06/05/scheme/" itemprop="url">
+                  Scheme初体验
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-06-05T00:00:00+08:00" content="2012-06-05">
+              2012-06-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/scheme/" itemprop="url" rel="index">
+                    <span itemprop="name">scheme</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="racket">racket</h2><p>这几天试了试racket</p>
+<p>相当漂亮，<a href="http://racket-lang.org/" target="_blank" rel="external">racket</a>是以前的PLT Scheme。是著名的scheme实现之一。</p>
+<p>drracket是racket图形环境。很漂亮，很图形化，功能很全面。采用分级教学，不同级别时返回不同错误信息，对初学者极度友好。非常适合配合<a href="http://www.htdp.org/" target="_blank" rel="external">How to Design Programs</a>学习scheme。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -1269,124 +1367,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/lisp/2012/05/10/streams-in-lisp/" itemprop="url">
-                  Streams in Lisp
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-05-10T00:00:00+08:00" content="2012-05-10">
-              2012-05-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/lisp/" itemprop="url" rel="index">
-                    <span itemprop="name">lisp</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>lisp中有多种流，不同的流与不同的资源交互。这些流包括控制台流，文件流，socket流和字符串流。</p>
-<p>流的处理方式是popup和push.</p>
-<p>流可依据方向分为输入流和输出流。</p>
-<p>Socket流允许网络上的计算机程序进行通信。我们必须在通信的两端都打开socket并且在程序间建立连接。</p>
-<p>字符串流允许我们使用不需要连接外部资源来使用流的函数来调试，同时能帮我们用优美有效率的方法（with-open-to-string）来建立复杂字符串。但这个宏不符合函数式编程原则，争议很大。</p>
-<p>下面是使用stream的一些例子</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;&#22312;&#20570;&#22270;&#30340;&#37027;&#37096;&#20998;&#24050;&#32463;&#35265;&#35782;&#36807;&#20102;&#10;;;to see if we have a valid output stream&#10;(output-stream-p *standard-output*) &#10;;;write a chracter to stream&#10;(write-char #\x *standard-output*)&#10;&#10;;;to see if we have a valid stream&#10;(input-stream-p *standard-input*)&#10;;;pop an item off the stream&#10;(read-char *standard-input*)&#10;;123&#10;;\#1&#10;;;reading and printing can be used too&#10;;;;reading and writing with files&#10;(with-open-file (my-stream &#34;data.txt&#34; :direction :output)&#10;  (print &#34;my data&#34; my-stream))&#10;(with-open-file (my-stream &#34;data.txt&#34; :direction :input)&#10;  (read my-stream))&#10;;;;some more complicated examples using print and read&#10;(let ((animal-noises &#39;((dog . woof)&#10;                       (cat . meow))))&#10;  (with-open-file (my-stream &#34;animal-noises.txt&#34; :direction :output)&#10;    (print animal-noises my-stream)))&#10;(with-open-file (my-stream &#34;animal-noises.txt&#34; :direction :input)&#10;  (read my-stream))&#10;;;if exists&#10;(with-open-file (my-stream &#34;data.txt&#34; :direction :output :if-exists :error)&#10;  (print &#34;my data&#34; my-stream)) &#10;(with-open-file (my-stream &#34;data.txt&#34; :direction :output :if-exists :supersede)&#10;  (print &#34;my data&#34; my-stream))&#10;;;stream over a socket&#10;(defparameter my-socket (socket-server 4321)) ;ON THE SERVER&#10;(defparameter my-stream (socket-accept my-socket)) ;ON THE SERVER&#10;;;It&#39;s a bidirectional stream&#10;;;princ may cause strange things&#10;(print &#34;Yo Server!&#34; my-stream) ;ON THE CLIENT&#10;(read my-stream) ;ON THE SERVER&#10;(print &#34;What up, Client!&#34; my-stream) ;ON THE SERVER&#10;(read my-stream) ;ON THE CLIENT&#10;;;tidying up after ourselves&#10;(close my-stream) ;ON BOTH&#10;(socket-server-close my-socket) ;ON THE SERVER&#10;;;;String Streams: The Oddball Type&#10;;;;They are useful for debugging, &#10;;;;as well as for creating complex strings efficiently.&#10;(defparameter foo (make-string-output-stream))&#10;(princ &#34;This will go into foo. &#34; foo)&#10;(princ &#34;This will also go into foo. &#34; foo)&#10;(get-output-stream-string foo)&#10;;;with-output-to-string&#10;(with-output-to-string (*standard-output*)&#10;  (princ &#34;the sum of &#34;)&#10;  (princ 5)&#10;  (princ &#34; and &#34;)&#10;  (princ 2)&#10;  (princ &#34; is &#34;)&#10;  (princ (+ 2 5)))</span><br></pre></td></tr></table></figure>
-<p>正如你所见，我们之前用过这些流，来完成与外界资源的交互。</p>
-<h2 id="学习到这些命令">学习到这些命令</h2><ul>
-<li>output-steam-p/input-stream-p</li>
-<li>write-char/read-char</li>
-<li>with-open-file</li>
-<li>make-string-output-stream</li>
-<li>get-output-stream-string</li>
-<li>with-output-to-string</li>
-<li>close</li>
-</ul>
-<p>clisp中特有：</p>
-<ul>
-<li>socket-server</li>
-<li>socket-accept</li>
-<li>socket-server-close</li>
-</ul>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1433,7 +1413,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">165</span>
+              <span class="site-state-item-count">166</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1447,7 +1427,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-count">57</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -1457,6 +1437,16 @@
         
 
         <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/reverland" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
           
         </div>
 
@@ -1497,7 +1487,7 @@
 <div class="theme-info">
   主题 -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Mist
+    NexT
   </a>
 </div>
 
