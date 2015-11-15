@@ -77,7 +77,7 @@ ARP欺骗使攻击者截取本地局域网(LAN)上的数据帧，更改流量">
 以下内容来自维基百科
 Arp Spoofing是一种攻击者在局域网上发送伪造的ARP消息的技术。通常是为了将另一个主机的IP地址关联到攻击者的MAC地址上。使那个主机的IP地址的流量定向到攻击者那里。
 ARP欺骗使攻击者截取本地局域网(LAN)上的数据帧，更改流量">
-<meta property="og:updated_time" content="2015-11-12T16:34:09.188Z">
+<meta property="og:updated_time" content="2015-11-15T06:01:31.519Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="网络上的欺骗">
 <meta name="twitter:description" content="首先，我们来被维基百科科普一下。然后试着执行一次中间人攻击。
@@ -299,7 +299,7 @@ ARP欺骗使攻击者截取本地局域网(LAN)上的数据帧，更改流量">
 <ul>
 <li>静态ARP表。</li>
 <li>一些软件通过某种形式的认证或交叉检查ARP响应的方式。DHCP服务器、独立主机、Ethernet交换机或其它网络设备都能有这种功能。比如多IP关联到一个MAC地址可能就预示着ARP欺骗。</li>
-<li>操作系统反应不一。Linux忽略任何不请自来的响应，但使用其它机器的可见请求来更新缓存。Solaris只在超时后更新缓存条目。Windows中，可以在<code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters, ArpCacheLife, ArpCacheMinReferenceLife, ArpUseEtherSNAP, ArpTRSingleRoute, ArpAlwaysSourceRoute, ArpRetryCount</code>配置。</li>
+<li>操作系统反应不一。Linux忽略任何不请自来的响应，但使用其它机器的可见请求来更新缓存。Solaris只在超时后更新缓存条目。Windows中，可以在<code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters, ArpCachelife, ArpCacheMinReferencelife, ArpUseEtherSNAP, ArpTRSingleRoute, ArpAlwaysSourceRoute, ArpRetryCount</code>配置。</li>
 <li>主机防御。可能拒绝任何和缓存中MAC地址不同的应答更新，可能接受不同的但会探测之前的MAC地址是否还在。这些是基于已有的缓存中MAC地址是合法的基础上。<a href="一般通过dhcp服务器分配ip地址的大概就没什么问题。不过要是伪造dhcp服务器……啧啧……">^4</a></li>
 <li>被动探测。探测网络上的ARP请求和响应建立一个IP-MAC数据库</li>
 <li>DHCP服务器在分配IP后建立和维护对应的列表供网关使用。</li>
@@ -400,7 +400,7 @@ ARP欺骗使攻击者截取本地局域网(LAN)上的数据帧，更改流量">
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/Life/2014/02/18//" rel="next" title="生命游戏">
+              <a href="/life/2014/02/18//" rel="next" title="生命游戏">
                 <i class="fa fa-chevron-left"></i> 生命游戏
               </a>
             
