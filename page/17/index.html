@@ -179,6 +179,156 @@
 
     
     
+      
+      
+
+      
+    
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/web/2012/04/13/How-I-built-this-blog/" itemprop="url">
+                  How I built this blog
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-04-13T00:00:00+08:00" content="2012-04-13">
+              2012-04-13
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/web/" itemprop="url" rel="index">
+                    <span itemprop="name">web</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/web/2012/04/13/How-I-built-this-blog/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="web/2012/04/13/How-I-built-this-blog/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="缘起">缘起</h2><p>大概两个月前，曾经折腾过jekyll和Octopress。当时对照<a href="http://chen.yanping.me/cn/blog/2011/12/15/building-static-sites-with-jekyll/" target="_blank" rel="external">【译文】用Jekyll构建静态网站</a>在archlinux实现了把jekyll。因为rvm的问题，octpress就怎么也搞不定了。再加上当时对vimwiki比较熟悉，jekyll和Octopress再也不曾碰过。</p>
+<p>然而几天前发现vimwiki的语法分析器甚至不支持xhtml，忽然又碰进<a href="http://www.soimort.org/" target="_blank" rel="external">Mort的主页里</a>.Mort绚丽的jekyll博客瞬时grasp my heart，一股不可抑制的折腾情怀升腾起来。</p>
+<h2 id="经过">经过</h2><h3 id="ruby版本控制">ruby版本控制</h3><p>当初没有继续折腾的原因之一，就是ruby搞不定。jekyll可以用ruby1.9.1或1.9.2,Octopress则要求1.9.2-p290.而archlinux当前版本的ruby是1.9.3。故使用rvm来控制ruby版本。</p>
+<p>####设置代理</p>
+<p>安装rvm，如果网络良好完全没问题。由于我在学校内使用的是sogou代理，而export http_proxy之流的命令偏偏不顶事，后来发现git和curl的网络链接根本就不继承shell环境的代理。</p>
+<p>为了装上rvm，先在curlrc中写入</p>
+<pre><code>proxy=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">1998</span>
+</code></pre><p>在gitconfig中写入</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[http]</span><br><span class="line">    proxy = http://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1998</span></span><br></pre></td></tr></table></figure>
+<p>然后参见文档开始安装就是，我比较悲催，开始不知道可以这样做。直接hack rvm那个安装脚本才搞定</p>
+<h4 id="ruby环境搭建">ruby环境搭建</h4><p>因为我既是ruby小白又是python小白，所以选什么都没区别，如果你对python熟悉，<a href="http://hyde.github.com/index.html" target="_blank" rel="external">Hyde</a>而非jekyll可能是更好的选择。</p>
+<p>装好rvm后，使用ruby1.9.2</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rvm install <span class="number">1.9</span>.<span class="number">2</span> &amp;&amp; rvm use <span class="number">1.9</span>.<span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>使用taobao的gem源</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gem sources -remove http://rubygem.org/ </span><br><span class="line">gem sources <span class="operator">-a</span> http://ruby.taobao.org/ --http-proxy http://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1998</span></span><br></pre></td></tr></table></figure>
+<p>安装对应的jekyll</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gem install --http-proxy http://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1998</span> jekyll</span><br></pre></td></tr></table></figure>
+<p>其它和官方文档就没什么区别了。</p>
+<p>ps:如果用socks代理请自行配置tsocks。</p>
+<h3 id="jekyll">jekyll</h3><p>直接从soimort扒来的源码和jekyllbootstrap的源码经过个人需求重新加工整合，这个过程比较繁琐,此处略去。</p>
+<p>然后就是push…</p>
+<h3 id="后续">后续</h3><h4 id="语法高亮">语法高亮</h4><p>之前我是用pygments解决的，没有按官方文档来，因为装python2-pygments后才有pygmentize命令…</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo pacman -S python2-pygments</span><br><span class="line">pygmentize -S default <span class="operator">-f</span> html &gt; ~css/pygments.css</span><br></pre></td></tr></table></figure>
+<p>后来发现还是syntaxhighlighter好看，于是把vimwiki那一大堆东西迁移过来了。结果搞的网页加载很慢，效果虽好很久出不来，所以先改会pygments</p>
+<hr>
+<h3 id="参考文献">参考文献</h3><h4 id="关于jekyll">关于jekyll</h4><ol>
+<li><a href="https://github.com/mojombo/jekyll/wiki/" target="_blank" rel="external">jekyll wiki</a></li>
+<li><a href="http://chen.yanping.me/cn/blog/2011/12/15/building-static-sites-with-jekyll/" target="_blank" rel="external">【译文】用Jekyll构建静态网站</a></li>
+<li><a href="http://www.yangzhiping.com/tech/wordpress-to-jekyll.html" target="_blank" rel="external">告别wordpress，拥抱jekyll</a></li>
+<li><a href="http://www.pizn.me/2012/03/01/some-tips-for-jekyll-blog.html" target="_blank" rel="external">搭建 Jekyll 博客的一些小技巧</a></li>
+<li><a href="http://jiyinyiyong.blog.163.com/blog/static/64699876201111291856363/" target="_blank" rel="external">尝试 Jekyll 博客</a></li>
+</ol>
+<h4 id="关于语法高亮">关于语法高亮</h4><ol>
+<li><a href="http://www.stehem.net/2012/02/14/how-to-get-pygments-to-work-with-jekyll.html" target="_blank" rel="external">How to get Pygments to work with Jekyll</a></li>
+<li><a href="http://bbs.laxjyj.com/read-htm-tid-162443.html" target="_blank" rel="external">Jekyll的代码高亮</a></li>
+<li><a href="http://www.v2ex.com/t/28708" target="_blank" rel="external">jekyll 是不是不能使用插件啊？</a></li>
+</ol>
+<h4 id="其它">其它</h4><ol>
+<li><a href="http://blog.csdn.net/huzhenwei/article/details/4369027" target="_blank" rel="external">wget和curl设置代理服务器的命令</a></li>
+<li><a href="http://chenhailong.iteye.com/blog/1340924" target="_blank" rel="external">Ruby Gem Proxy 代理设置</a></li>
+<li><a href="http://beginrescueend.com/workflow/proxy/" target="_blank" rel="external">Using RVM behind a proxy </a></li>
+<li><a href="http://beginrescueend.com/rvm/install/" target="_blank" rel="external">Installing RVM</a></li>
+</ol>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -986,7 +1136,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">166</span>
+              <span class="site-state-item-count">167</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
