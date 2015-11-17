@@ -207,132 +207,6 @@
             
               
                 
-                <a class="post-title-link" href="/lisp/2012/05/23/dice-of-doom/" itemprop="url">
-                  Dice of Doom
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-05-23T00:00:00+08:00" content="2012-05-23">
-              2012-05-23
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/lisp/" itemprop="url" rel="index">
-                    <span itemprop="name">lisp</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/lisp/2012/05/23/dice-of-doom/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/05/23/dice-of-doom/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="照例前面来些废话">照例前面来些废话</h2><p>前一阵忙着看通信原理，近来各科都陆续结课，又接连有这么几科让写个什么论文，忙忙碌碌之后发现lisp就没怎么看了，以致于这一章都看快一星期了还没看完。不过回头多看几次后，因为对游戏要生成个什么样的game tree有了整体上的把握，理解起来简单多了。所以奉劝其它读者先搞清楚要生成个什么样的game tree和作者的设计方案，再来看后面的代码部分。</p>
-<p>昨天还激动终于看到用lisp来实现人工智能了，结果一看几行代码实现个<a href="http://en.wikipedia.org/wiki/Minimax" target="_blank" rel="external">minmax</a>算法的问题……失望了。</p>
-<p>##Dice of Doom</p>
-<p>###游戏规则</p>
-<p>这是个怎么样的游戏？看看<a href="http://www.gamedesign.jp/flash/dice/dice.html" target="_blank" rel="external">这里</a>就知道了。我们现在就要用函数式编程风格写一个这样的游戏，当然，从简单的开始。简单到只有两个玩家，只以骰子数目多少来决定能否“占领”对方的领地。</p>
-<p>本想举个例子，不过画图挺麻烦的，现在没什么空。有空再补上。</p>
-<p>有这么一些规则：</p>
-<ul>
-<li>两个玩家占据着六边形阵列上的各个六边形。每个六边形都有一些立方体骰子，被两个玩家分别占有。</li>
-<li>在一个回合内，玩家可以执行任意数目的移动，但至少移动一次。如果他不能移动那么他就输了。</li>
-<li>移动包括攻击邻近的对方六边形。玩家发动攻击的六边形必须比要攻击的对方的六边形拥有更多骰子。将来可能我们会真的“转动”这些骰子。</li>
-<li>攻击结束后，输者在被攻击六边形的骰子被移除，发动攻击的六边形留下一个骰子，将其它所有骰子移到占领的新地方。</li>
-<li>当玩家完成他所有的移动，将获得他消灭的骰子总数减一的增援。增援从左上角开始给每个己方六角形增加一个骰子。若达到每个六边形的最大骰子数则跳过。</li>
-<li>如果玩家都不能移动，游戏结束，占据最多六边形的玩家获胜。</li>
-</ul>
-<p>###然后是漫长的源码……</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;Defining Some Global Variables&#10;;&#29609;&#23478;&#25968;&#20108;&#10;(defparameter *num-players* 2)&#10;;&#19968;&#20010;&#20845;&#36793;&#24418;&#26368;&#22810;3&#20010;&#39600;&#23376;&#10;(defparameter *max-dice* 3)&#10;(defparameter *board-size* 2)&#10;;2x2&#30340;board&#10;(defparameter *board-hexnum* (* *board-size* *board-size*))&#10;;clean&#10;;&#23558;list&#36716;&#21270;&#20026;array&#65292;&#20026;&#20170;&#21518;&#20248;&#21270;&#20570;&#20934;&#22791;&#10;(defun board-array (lst)&#10;  (make-array *board-hexnum* :initial-contents lst))&#10;;dirty&#10;;&#29983;&#25104;&#38543;&#26426;&#30340;&#29609;&#23478;&#20998;&#24067;&#21644;&#21147;&#37327;&#10;(defun gen-board ()&#10;  (board-array (loop for n below *board-hexnum*&#10;                     collect (list (random *num-players*)&#10;                                   (1+ (random *max-dice*))))))&#10;;clean&#10;;&#23558;&#29609;&#23478;&#21517;&#30001;&#25968;&#23383;&#36716;&#25442;&#25104;&#23383;&#27597;&#10;(defun player-letter (n)&#10;  (code-char (+ 97 n)))&#10;;dirty&#10;;&#36890;&#36807;&#20004;&#23618;&#24490;&#29615;&#25511;&#21046;&#36755;&#20986;&#65292;&#32472;&#21046;board&#10;(defun draw-board (board)&#10;  (loop for y below *board-size*&#10;        do (progn (fresh-line)&#10;                  (loop repeat (- *board-size* y)&#10;                        do (princ &#34; &#34;))&#10;                  (loop for x below *board-size*&#10;                        for hex = (aref board (+ x (* *board-size* y)))&#10;                        do (format t &#34;~a-~a &#34; (player-letter (first hex))&#10;                                   (second hex))))))&#10;;;;Decoupling Dice of Doom&#8217;s Rules from the Rest of the Game&#10;;;Generating a Game Tree&#10;;clean&#10;;&#20135;&#29983;&#19968;&#20010;game-tree&#65292;&#24418;&#22914;(player board (moves))&#10;(defun game-tree (board player spare-dice first-move)&#10;  (list player&#10;        board&#10;        (add-passing-move board&#10;                          player&#10;                          spare-dice&#10;                          first-move&#10;                          (attacking-moves board player spare-dice))))&#10;;;Calculating Passing Moves&#10;;clean&#10;;&#22914;&#26524;&#26159;&#31532;&#19968;&#27425;&#31227;&#21160;&#21017;&#36820;&#22238;&#21407;tree&#30340;moves&#65292;&#22914;&#26524;&#19981;&#26159;&#21017;&#28155;&#21152;nil&#34920;&#31034;&#10;;&#26080;&#27861;&#31227;&#21160;&#65292;&#24182;&#36882;&#24402;&#35843;&#29992;game-tree&#28155;&#21152;&#29609;&#23478;&#31227;&#21160;&#26641;&#10;(defun add-passing-move (board player spare-dice first-move moves)&#10;  (if first-move&#10;    moves&#10;    (cons (list nil&#10;                (game-tree (add-new-dice board player (1- spare-dice))&#10;                           (mod (1+ player) *num-players*)&#10;                           0&#10;                           t))&#10;          moves)))&#10;;clean&#10;;Calculating Attacking Moves&#10;;&#29983;&#25104;&#25915;&#20987;&#21487;&#34892;&#30340;&#25915;&#20987;game-tree&#20013;&#30340;moves&#10;(defun attacking-moves (board cur-player spare-dice)&#10;  (labels ((player (pos)&#10;             (car (aref board pos)))&#10;           (dice (pos)&#10;             (cadr (aref board pos))))&#10;    (mapcan (lambda (src)&#10;              (when (eq (player src) cur-player)&#10;                (mapcan (lambda (dst)&#10;                          (when (and (not (eq (player dst) cur-player))&#10;                                     (&#62; (dice src) (dice dst)))&#10;                            (list&#10;                              (list (list src dst)&#10;                                    (game-tree (board-attack board cur-player src dst (dice src))&#10;                                               cur-player&#10;                                               (+ spare-dice (dice dst))&#10;                                               nil)))))&#10;                        (neighbors src))))&#10;            (loop for n below *board-hexnum*&#10;              collect n))))&#10;;Finding the Neighbors&#10;;clean&#10;;&#36820;&#22238;&#37051;&#36817;&#30340;pos&#21015;&#34920;&#10;(defun neighbors (pos)&#10;  (let ((up (- pos *board-size*))&#10;        (down (+ pos *board-size*)))&#10;    (loop for p in (append (list up down)&#10;                           (unless (zerop (mod pos *board-size*))&#10;                             (list (1- up) (1- pos)))&#10;                           (unless (zerop (mod (1+ pos) *board-size*))&#10;                             (list (1+ pos) (1+ down))))&#10;          when (and (&#62;= p 0) (&#60; p *board-hexnum*))&#10;          collect p)))&#10;;Attacking&#10;;clean&#10;;&#29983;&#25104;attack&#21518;&#30340;board&#10;(defun board-attack (board player src dst dice)&#10;  (board-array (loop for pos;&#31532;&#19968;&#20010;for&#20026;&#20301;&#32622;&#10;                     for hex across board;&#25968;&#32452;&#29992;across&#10;                     collect (cond ((eq pos src) (list player 1))&#10;                                   ((eq pos dst) (list player (1- dice)))&#10;                                   (t hex)))))&#10;;Reinforcements&#10;;clean&#10;;&#26681;&#25454;spare-dice&#28155;&#21152;&#39600;&#23376;,&#36820;&#22238;&#26032;&#30340;board&#65288;&#25968;&#32452;&#65289;&#10;(defun add-new-dice (board player spare-dice)&#10;  (labels ((f (lst n)&#10;             (cond ((null lst) nil)&#10;                   ((zerop n) lst)&#10;                   (t (let ((cur-player (caar lst))&#10;                            (cur-dice (cadar lst)))&#10;                        (if (and (eq cur-player player) (&#60; cur-dice *max-dice*))&#10;                          (cons (list cur-player (1+ cur-dice))&#10;                                (f (cdr lst) (1- n)))&#10;                          (cons (car lst) (f (cdr lst) n))))))))&#10;    (board-array (f (coerce board &#39;list) spare-dice))))&#10;;;Playing Dice of Doom Against Another Human&#10;;The Main Loop&#10;;dirty&#10;;&#20154;&#20154;&#23545;&#25112;&#20027;&#20989;&#25968;&#10;(defun play-vs-human (tree)&#10;  (print-info tree)&#10;  (if (caddr tree)&#10;    (play-vs-human (handle-human tree))&#10;    (announce-winner (cadr tree))))&#10;;Giving Information About the State of the Game&#10;;dirty&#10;;&#25171;&#21360;&#24403;&#21069;&#20449;&#24687;&#65292;&#21253;&#25324;&#24403;&#21069;&#29609;&#23478;&#21644;board&#10;(defun print-info (tree)&#10;  (fresh-line)&#10;  (format t &#34;current player = ~a&#34; (player-letter (car tree)))&#10;  (draw-board (cadr tree)))&#10;;Handling Input from Human Players&#10;;dirty&#10;;&#22788;&#29702;&#20154;&#30340;&#34892;&#21160;&#30340;&#20989;&#25968;&#65292;&#26681;&#25454;&#20154;&#30340;&#36755;&#20837;&#36820;&#22238;&#19981;&#21516;move&#30340;&#23376;&#26641;&#10;(defun handle-human (tree)&#10;  (fresh-line)&#10;  (princ &#34;choose your move:&#34;)&#10;  (let ((moves (caddr tree)))&#10;    (loop for move in moves&#10;          for n from 1&#10;          do (let ((action (car move)))&#10;               (fresh-line)&#10;               (format t &#34;~a. &#34; n)&#10;               (if action&#10;                 (format t &#34;~a -&#62; ~a&#34; (car action) (cadr action))&#10;                 (princ &#34;end turn&#34;))))&#10;    (fresh-line)&#10;    (cadr (nth (1- (read)) moves))))&#10;&#10;;Determining the Winner&#10;(defun winners (board)&#10;  (let* ((tally (loop for hex across board&#10;                      collect (car hex)))&#10;         (totals (mapcar (lambda (player)&#10;                           (cons player (count player tally)))&#10;                         (remove-duplicates tally)))&#10;         (best (apply #&#39;max (mapcar #&#39;cdr totals))))&#10;    (mapcar #&#39;car&#10;            (remove-if (lambda (x)&#10;                         (not (eq (cdr x) best)))&#10;                       totals))))</span><br></pre></td></tr></table></figure>
-<p>现在可以试试新游戏：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(play-vs-human (game-tree (gen-board) 0 0 t))</span><br></pre></td></tr></table></figure>
-<p>其中0代表玩家0,第二个0代表刚开始获得的骰子为0,t代表第一次移动。</p>
-<p>##写在最后</p>
-<p>尼玛这怎么设计出来的，看起来倒容易，设计者真值得膜拜……</p>
-<p>着一个函数接着一个函数真是超级强烈的函数式编程风格好不好，我又想起来C语言这种强烈的面向过程风格，难道函数式就是功能式，其实就是过程式？</p>
-<p>要说有什么收获，什么cddrcdar搞得更清楚了，我觉得作者用one two three什么的看起来更方便些。loop for什么for什么的across什么算是开了眼界了。其它，只让我体会到强烈的面向过程风格，作为不能完美计划所有过程的小白我还是继续看c++去比较简单…………</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/lisp/2012/05/12/web-server-written-in-lisp/" itemprop="url">
                   Lisp Web Server
                 </a>
@@ -1357,6 +1231,163 @@
 <li>fresh-line</li>
 <li>char-upcase/char-downcase</li>
 </ul>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/life/2012/04/24//" itemprop="url">
+                  折腾
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-04-24T00:00:00+08:00" content="2012-04-24">
+              2012-04-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/life/" itemprop="url" rel="index">
+                    <span itemprop="name">life</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/life/2012/04/24//#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2012/04/24//" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <div class="audio"><br><audio controls="controls"><br><source src="http://lhtlyybox.googlecode.com/files/m.ogg" type="audio/ogg"><br>您的浏览器不支持 audio 标签。<br></audio><br>音乐：星光伴我心——郑中基<br></div>
+
+<hr>
+<h1 id="折腾">折腾</h1><p>时日多见旧友，每必寒暄，都言相别甚久，近来忙何。吾细思之，并无他言，唯折腾二字也。所折腾何物，唯计算机尔。</p>
+<hr>
+<p>这样的状态已经持续大半年了，整个心百分之七十都在计算机上。</p>
+<p>二月的时候我对自己说，嗯，该准备考研了，停止折腾吧</p>
+<p>三月的时候我对自己说，那个，该准备考研了，下个月开始停止折腾吧</p>
+<p>四月的时候我对自己说，妹的，继续折腾吧，下个月再准备考研吧</p>
+<p>然后四月末到来了</p>
+<p>一学期堆成山的课程稀稀拉拉都准备结课了，留下的是我不堪的到课记录和作业次数，还有准备考试无以名状的感觉。</p>
+<p>我还是在折腾，抽时间看着gimp的文档，没事翻译下wiki，自己折腾折腾写写心得，论坛上回答回答别人问题灌灌水，学习学习lisp……</p>
+<p>好像学校这世界与我无关。</p>
+<p>那些考研的同学都在努力学习，白天自习，晚上自习。报各种班，搜集各种资料，旁听各种课</p>
+<p>那些不考研的同学也在为各种将来的工作努力，做各种激情的事为青春留下难忘的记忆</p>
+<p>我依然在折腾，不离不弃</p>
+<p>然而生活的阴影就这么一点点吞噬自由的生活，越是紧迫，越是想把握住它，怕有生之年再也没机会做这些事，越紧握住这难得的自由不舍得放手。</p>
+<p>然而It’s time to say goodbye</p>
+<p>不忍心，却无奈。</p>
+<hr>
+<p>记忆如此美好，我不会忘记</p>
+<p>自己的坚守与信念，我不会忘记</p>
+<p>那些社区内热情的网友，我不会忘记</p>
+<p>追求自由、开放、分享、进步的心，我不会改变</p>
+<p>说是不会改变，只我不愿改变</p>
+<p>生命如斯，终将改变，思之黯然。</p>
+<hr>
+<p>我curse这个世界</p>
+<p>还有什么选择</p>
+<p>世界一次次让我失望至麻木</p>
+<p>整个世界</p>
+<p>如行尸走肉般的存在</p>
+<p>然而我不愿</p>
+<p>不愿为生计所迫，埋没残缺而小众的兴趣</p>
+<p>不愿熄灭了热情，失去了折腾的动力</p>
+<p>不愿失去了耐心，失去了坚持的信念</p>
+<p>不愿失去了信心，失去了进步的动力</p>
+<p>时光飞逝，依然想要还是那个我</p>
+<p>追随自己的兴趣，追求美，追求卓越</p>
+<p>追求革新</p>
+<p>追寻自我</p>
+<hr>
+<p>然而我在这里说，</p>
+<p>不再折腾了，考研</p>
+<p>很久前就想说，知道我会食言</p>
+<p>因为心存幻想，明知没有希望，心存侥幸</p>
+<p>没什么馅饼从天而降</p>
+<p>屈从命运？Fuck it.</p>
+<hr>
+<h3 id="Thanks">Thanks</h3><p>Who give my happiness,</p>
+<p>warmful help,</p>
+<p>predictable instruction,</p>
+<p>and who shared with me their philosophizing thoughts.</p>
+<p>Thanks all of you</p>
+<p>And bless my family and relatives who are really supporting me.</p>
 
             
           </span>

