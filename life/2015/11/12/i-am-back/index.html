@@ -37,11 +37,13 @@
 <link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="hexo,life,web," />
+  <meta name="keywords" content="life," />
 
 
 
 
+
+  <link rel="alternate" href="/atom.xml" title="Reverland的行知阁" type="application/atom+xml" />
 
 
 
@@ -65,7 +67,7 @@
 前几个月，我也很难过，一度不知道面对的是什么。我想说说看病的经历。
 症状是头疼，疼得特别厉害，晚上睡不着、或者睡着了半夜疼醒。眼眶下边，有时候太阳穴上头，耳朵旁边都会疼。
 总共去北邮社区医院耳鼻喉、口腔，北医三院耳鼻喉、神经内科(头疼专科)，某市中心医院耳鼻喉科、神经内科、眼科，北">
-<meta property="og:updated_time" content="2015-11-15T06:01:31.563Z">
+<meta property="og:updated_time" content="2015-11-18T10:18:25.431Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="我回来了">
 <meta name="twitter:description" content="看病与思考昨日，很遗憾听说一个朋友的兄弟在出车祸之后一个月后，终于还是走了。生死去来，棚头傀儡，一线断时，落落磊磊。
@@ -146,6 +148,16 @@
         </li>
       
         
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-archives">
           <a href="/archives" rel="section">
             
@@ -162,6 +174,16 @@
               <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
             
             标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
           </a>
         </li>
       
@@ -340,52 +362,7 @@
 <h2 id="从Jekyll迁移到Hexo">从Jekyll迁移到Hexo</h2><p>从jekyll迁移到了hexo。</p>
 <p>其实不想迁移，我不想打破很多现有的东西。</p>
 <p>jekyll要求ruby版本高于2.1. Ubuntu源里只到2.0。但我的笔记本散热不好，两次用rvm编译Ruby cpu过热直接灭了之后，还是用熟悉的node吧。话说，为了解决过热这种问题我把cpufrequtils和cpulimit都用上了。</p>
-<p>迁移碰到了几个问题：</p>
-<ol>
-<li>permalink不一致，以及空字符串slug</li>
-<li>语法高亮修改</li>
-<li>特殊字符escape</li>
-<li>textile文件</li>
-</ol>
-<h3 id="一致的url结构和文件命名方式">一致的url结构和文件命名方式</h3><p>以前，我用jeykll时，每个文件名字如下：</p>
-<pre><code><span class="number">2012</span>-<span class="number">11</span>-<span class="number">19</span>-<span class="keyword">this</span>-is-a-post.md
-</code></pre><p>对应的url为</p>
-<pre><code><span class="string">http:</span><span class="comment">//reverland.org/2012/11/19/this-is-a-post/</span>
-</code></pre><p>或者可以是</p>
-<pre><code><span class="string">http:</span><span class="comment">//reverland.org/2012/11/19/this-is-a-post</span>
-<span class="string">http:</span><span class="comment">//reverland.org/2012/11/19/this-is-a-post/index.html</span>
-</code></pre><p>首先，要把hexo也改成这样的，在<code>_config.yml</code>中：</p>
-<pre><code><span class="symbol">new_post_name:</span> <span class="symbol">:year-</span><span class="symbol">:month-</span><span class="symbol">:day-</span><span class="symbol">:title</span>.md <span class="comment"># File name of new posts</span>
-<span class="symbol">permalink:</span> <span class="symbol">:category/</span><span class="symbol">:year/</span><span class="symbol">:month/</span><span class="symbol">:day/</span><span class="symbol">:title/</span>
-</code></pre><p>但，还是有问题，具体可以参照<a href="https://github.com/hexojs/hexo/issues/1589" target="_blank" rel="external">我提的issue</a>，hexo如果看你的文件名是这样：</p>
-<pre><code><span class="number">2014</span>-<span class="number">06</span>-<span class="number">12</span>-.md
-</code></pre><p>会生成这样的url</p>
-<pre><code><span class="number">2015</span>/<span class="number">11</span>/<span class="number">13</span>/<span class="number">2014</span>-<span class="number">06</span>-<span class="number">12</span>
-</code></pre><p>显然这不是我们想要的。</p>
-<p>我们通过将<a href="https://github.com/hexojs/hexo-util/blob/cb685f19ecb5ba9ee48109049b21a21cd3da7dee/lib/permalink.js#L28" target="_blank" rel="external"><code>node_modules/hexo-util/lib/permalink.js</code>第28行</a>由</p>
-<pre><code><span class="keyword">return</span> <span class="string">'(.+?)'</span>;
-</code></pre><p>更改为</p>
-<pre><code><span class="keyword">return</span> <span class="string">'(.*?)'</span>;
-</code></pre><p>可以实现以前的jekyll风格。</p>
-<h3 id="语法高亮修改">语法高亮修改</h3><p>jekyll中，除了我用四个空格作为编码块区域缩进设定，还广泛使用了下面的代码来高亮。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;% highlight python %&#125;</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sum</span><span class="params">(a, b)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#123;% endhighlight %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% highlight cl%&#125;</span><br><span class="line">(cdr,</span><br><span class="line">  (add,</span><br><span class="line">    <span class="number">1</span>, <span class="number">1</span>))</span><br><span class="line">&#123;% endhighlight %&#125;</span><br></pre></td></tr></table></figure>
-<p>另外，我的每个文件里还有些jekyll特定命令来加入统计和评论什么的。(按理说不应该，当初从skydark那里就全盘接下来了。。。)</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% include JB/setup %&#125;</span><br></pre></td></tr></table></figure>
-<p>这样转换掉</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]highlight[[:space:]]\(.*\)[[:space:]]*%\&#125;/```\1/g'</span> <span class="built_in">source</span>/_posts/*.md  <span class="comment"># 注意有空格和没空格</span></span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]endhighlight[[:space:]]%\&#125;/```/g'</span> <span class="built_in">source</span>/_posts/*.md</span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]include JB\/setup[[:space:]]%\&#125;//g source/_posts/*.md'</span></span><br></pre></td></tr></table></figure>
-<h3 id="特殊字符escape">特殊字符escape</h3><p>flask那篇文章hexo解析报错，因为啊，<a href="https://hexo.io/docs/troubleshooting.html#Escape_Contents" target="_blank" rel="external">它用nunjunks来渲染</a>，如果文本中有<code>{&#123; }}</code>或者<code>{&#37; %}</code>会出错。我发现如果是缩进四格的代码标记或者<code>&#96;</code>会出错，但如果用另一种标记法<code> &#96;&#96;&#96;</code>则没关系。</p>
-<p>是在不行，我们可以用<a href="http://www.ascii.cl/htmlcodes.htm" target="_blank" rel="external">html实体编码</a>。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#60;code&#62;&#38;#97;&#38;#98;&#38;#99;&#60;/code&#62;</span><br></pre></td></tr></table></figure>
-<h3 id="textile文件">textile文件</h3><p>我试着用pandoc转换了下，发现几个问题：</p>
-<ol>
-<li>会将metadata错误地转换</li>
-<li>莫名的在行或特殊符号后面加反斜杠</li>
-<li>不能很好处理jekyll的代码高亮标记法</li>
-</ol>
-<p>于是就手工全改成markdown，话说这些sed代码都是之前尝试往pelican上迁移时写的辅助脚本。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 删除和转换jeykll特定标记</span></span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]include JB\/setup[[:space:]]%\&#125;//g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]highlight[[:space:]]\(.*\)[[:space:]]*%\&#125;/```\1/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]endhighlight[[:space:]]%\&#125;/```/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line"></span><br><span class="line"><span class="comment"># textile标记到markdown的转换</span></span><br><span class="line"><span class="comment"># 列表</span></span><br><span class="line">sed -i <span class="string">'s/^* /- /g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^# /- /g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line"><span class="comment"># 标题</span></span><br><span class="line">sed -i <span class="string">'s/^h1./#/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^h2./##/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^h3./###/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^h4./####/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^h5./#####/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line"><span class="comment"># 脚注</span></span><br><span class="line">sed -i <span class="string">'s/^fn\([[:digit:]]\)\./[\^\1]:/g'</span> <span class="built_in">source</span>/*.textile</span><br><span class="line">sed -i <span class="string">'s/\[\([[:digit:]]*\)\]/[\^\1]/g'</span> <span class="built_in">source</span>/*.textile</span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接</span></span><br><span class="line">sed -i <span class="string">'s/"\([^"]*\)"\([h|\/].*\)/[\1](\2)/g'</span> <span class="built_in">source</span>/*.textile</span><br><span class="line">sed -i <span class="string">'s/"\([^"]*\)"\([^h\/].*\)/[\1][\2]/g'</span> <span class="built_in">source</span>/*.textile</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 最后把后缀改了，hexo不会处理后缀是textile的文件</span></span><br><span class="line"><span class="keyword">for</span> file <span class="keyword">in</span> <span class="built_in">source</span>/_posts/*.textile; <span class="keyword">do</span></span><br><span class="line">cp <span class="variable">$file</span> <span class="built_in">source</span>/_posts/`basename <span class="variable">$file</span> .textile`.md</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-<p>当然，可能还是有手工劳动。</p>
-<p>另外，有这么个东西<a href="https://github.com/wzpan/hexo-renderer-pandoc" target="_blank" rel="external">hexo render pandoc</a>来替换hexo的渲染引擎，就能顺便支持textile。值得一试和研究，也许里头就用到对文档元数据或者跳过指定行数的转换吧。</p>
+<p>详情请期待之后的文章。</p>
 <h3 id="TODO">TODO</h3><ul>
 <li>RSS</li>
 <li>友链</li>
@@ -407,11 +384,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/hexo/" rel="tag">#hexo</a>
-          
             <a href="/tags/life/" rel="tag">#life</a>
-          
-            <a href="/tags/web/" rel="tag">#web</a>
           
         </div>
       
@@ -502,16 +475,16 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">167</span>
+              <span class="site-state-item-count">168</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
-            
+            <a href="/categories">
               <span class="site-state-item-count">23</span>
               <span class="site-state-item-name">分类</span>
-              
+              </a>
           </div>
 
           <div class="site-state-item site-state-tags">
@@ -523,6 +496,13 @@
 
         </nav>
 
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
         
 
         <div class="links-of-author motion-element">
@@ -544,6 +524,73 @@
 
         <div class="links-of-author motion-element">
           
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://reverland.bitbucket.org/" target="_blank">曾经的的vimwiki</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://liutos.github.com/" target="_blank">Liutos</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.phoenixlzx.com/" target="_blank">凤凰君</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://gndrive.org/" target="_blank">高达数字实验室</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.cherrot.com/" target="_blank">Cherrot</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://xwyam.github.com/" target="_blank">xw_y_am</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://ishell.me" target="_blank">小东</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.kochiya.me/" target="_blank">AS酱</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.skydark.info/" target="_blank">skydark</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://thorb.cn/" target="_blank">thorb</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.suzibin.cn/" target="_blank">doug</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://armsword.com/" target="_blank">armsword</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://zhangwenli.com/blog" target="_blank">Ovilia</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://lilydjwg.is-programmer.com/" target="_blank">仙子</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://gaohaoyang.github.io" target="_blank">HYG</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://simmer-jun.github.io" target="_blank">Simmer</a>
+              </span>
+            
+          
         </div>
 
       </section>
@@ -558,7 +605,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#看病与思考"><span class="nav-number">1.</span> <span class="nav-text">看病与思考</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#反馈"><span class="nav-number">1.1.</span> <span class="nav-text">反馈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#愿景"><span class="nav-number">1.2.</span> <span class="nav-text">愿景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关联分析"><span class="nav-number">1.3.</span> <span class="nav-text">关联分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#数据获取"><span class="nav-number">1.3.1.</span> <span class="nav-text">数据获取</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NLP"><span class="nav-number">1.3.2.</span> <span class="nav-text">NLP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可视化"><span class="nav-number">1.3.3.</span> <span class="nav-text">可视化</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#I’m_back|致谢"><span class="nav-number">2.</span> <span class="nav-text">I’m back|致谢</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从Jekyll迁移到Hexo"><span class="nav-number">3.</span> <span class="nav-text">从Jekyll迁移到Hexo</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一致的url结构和文件命名方式"><span class="nav-number">3.1.</span> <span class="nav-text">一致的url结构和文件命名方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#语法高亮修改"><span class="nav-number">3.2.</span> <span class="nav-text">语法高亮修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特殊字符escape"><span class="nav-number">3.3.</span> <span class="nav-text">特殊字符escape</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#textile文件"><span class="nav-number">3.4.</span> <span class="nav-text">textile文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TODO"><span class="nav-number">3.5.</span> <span class="nav-text">TODO</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#看病与思考"><span class="nav-number">1.</span> <span class="nav-text">看病与思考</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#反馈"><span class="nav-number">1.1.</span> <span class="nav-text">反馈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#愿景"><span class="nav-number">1.2.</span> <span class="nav-text">愿景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关联分析"><span class="nav-number">1.3.</span> <span class="nav-text">关联分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#数据获取"><span class="nav-number">1.3.1.</span> <span class="nav-text">数据获取</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NLP"><span class="nav-number">1.3.2.</span> <span class="nav-text">NLP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可视化"><span class="nav-number">1.3.3.</span> <span class="nav-text">可视化</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#I’m_back|致谢"><span class="nav-number">2.</span> <span class="nav-text">I’m back|致谢</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从Jekyll迁移到Hexo"><span class="nav-number">3.</span> <span class="nav-text">从Jekyll迁移到Hexo</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TODO"><span class="nav-number">3.1.</span> <span class="nav-text">TODO</span></a></li></ol></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
@@ -822,6 +869,30 @@
 
   
   
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
 
   
   

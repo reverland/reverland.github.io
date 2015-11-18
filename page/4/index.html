@@ -43,6 +43,8 @@
 
 
 
+  <link rel="alternate" href="/atom.xml" title="Reverland的行知阁" type="application/atom+xml" />
+
 
 
 
@@ -138,6 +140,16 @@
         </li>
       
         
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-archives">
           <a href="/archives" rel="section">
             
@@ -154,6 +166,16 @@
               <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
             
             标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
           </a>
         </li>
       
@@ -179,6 +201,248 @@
 
     
     
+      
+      
+
+      
+    
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/linux/2014/11/17/linux-audit/" itemprop="url">
+                  linux安全审计
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-11-17T00:00:00+08:00" content="2014-11-17">
+              2014-11-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/linux/2014/11/17/linux-audit/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2014/11/17/linux-audit/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p><a href="https://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf" target="_blank" rel="external">Guide to the Secure Configuration of Red Hat Enterprise Linux 5</a>安全审计部分，章节2.6.2</p>
+<p>rhel提供了安全审计服务audit，默认情况下，该服务审计SELinux <a href="https://www.nsa.gov/research/_files/selinux/papers/slinux/node30.shtml" target="_blank" rel="external">AVC</a> denials和一些类型的安全事件。比如程序执行的系统登录、账户修改、和认证事件。</p>
+<p>默认情况下，auditd消耗的磁盘空间不影响系统性能。无论你的系统有没有开启SELinux支持，都建议开启auditd的默认配置。</p>
+<p>比如美国国防部常见的审计需求有：</p>
+<ul>
+<li>确保审计确定的系统事件：<ul>
+<li>成功和不成功的使用打印机的命令</li>
+<li>成功或不成功的启动和关闭事件</li>
+</ul>
+</li>
+<li>确保被审计软件可以被记录以下审计事件：<ul>
+<li>事件的日期和时间</li>
+<li>执行时间的用户id</li>
+<li>时间类型</li>
+<li>时间成功或失败</li>
+<li>标识和认证事件请求的来源(比如terminal ID)</li>
+<li>对向用户地址空间引入对象的事件，对对象删除操作、对象名称和<a href="http://en.wikipedia.org/wiki/Multilevel_security" target="_blank" rel="external">MLS系统</a>中对象的安全级别。</li>
+</ul>
+</li>
+<li>确保至少每周备份到另一个系统或媒介上</li>
+<li>确保旧日志被关闭，新的审计日志每天开始。</li>
+<li>确保配置不可更改。在audit.rule中<code>-e 2</code>设定更改审计规则需要重启。</li>
+<li>确保审计数据文件权限为<code>644</code>或者更严格。</li>
+</ul>
+<h2 id="开启auditd服务">开启auditd服务</h2><p>enable auditd服务：</p>
+<pre><code>chkconfig auditd <span class="function_start"><span class="keyword">on</span></span>
+</code></pre><p>默认情况下，auditd只记录SELinux denials，特定安全事件类型比如用户账户更改，登录事件和调用<code>sudo</code></p>
+<p>数据保存在<code>/var/log/audit/audit.log</code>。默认情况下<code>auditd</code>rotates 4个5MB日志，总共占据20MB空间。这样减小了系统压力，但可能丢失审计数据。</p>
+<h2 id="配置auditd数据存储">配置auditd数据存储</h2><ul>
+<li><p>确定当个日志文件的最大大小<code>STOREMB</code>(单位为mb)，增减或更改<code>/etc/audit/auditd.conf</code>的如下行：</p>
+<p>  max_log_file = STOREMB</p>
+</li>
+<li><p>对日志文件使用单独的分区或者逻辑卷。在安装时分区，要比auditd要用的稍微大点(大于<code>max_log_file x num_logs</code>)，确保审计分区挂载在<code>/var/log/audit</code></p>
+</li>
+<li><p>如果当审计无法执行时需要停机，配置auditd在磁盘空间不足时中止系统。编辑<code>/etc/audit/auditd.conf</code>，增加或修改如下行(磁盘空间不足给管理员发邮件)：</p>
+<p>  space_left_action = email<br>  action_mail_act = root<br>  admin_space_left_action= halt</p>
+</li>
+</ul>
+<p>默认的action是当日志达到单个日志的最大大小，循环日志，丢弃最老的。如果保留尽可能多的日志很重要，即使空间耗尽执行<code>admin_space_left_action</code>中定义行为，添加或修改如下行：</p>
+<pre><code>max_<span class="built_in">log</span>_file_action = keep_logs
+</code></pre><p>需要日志文件的大小和审计的事件类型密切相关。首先配置审计记录所有感兴趣的事件，人工监控一段时间日志大小去做决定。</p>
+<p>使用单独的分区<code>/var/log/audit</code>来阻止auditd日志耗尽磁盘空间影响系统功能，最重要的是，阻止其它/var中的程序填满审计日志空间。</p>
+<p>有些机器需要不做出action，如果是这样，直接设定成在耗尽磁盘空间时关机就行。</p>
+<p>注意：较老的日志会被循环丢弃！</p>
+<p>注意！！！！：如果系统配置为不能记录日志时停机，确定正常情况下不会发生这种事！确保<code>/var/log/audit</code>在单独的分区上，并且比auditd需要的保留数据的最大大小要大。</p>
+<h2 id="配置使先于audit守护进程启动的进程生效">配置使先于audit守护进程启动的进程生效</h2><p>为了确保先于audit进程启动的进程被审计，在<code>/etc/grub.conf</code>添加内核启动参数<code>audit=1</code>：</p>
+<pre><code>kernel <span class="regexp">/vmlinuz-version ro vga=ext root=/</span>dev<span class="regexp">/VolGroup00/</span>LogVol00 rhgb quiet audit=<span class="number">1</span>
+</code></pre><p>系统上每个进程都有个<code>auditable</code>标志标识它们是否能被审计。尽管auditd负责使所有它之后被启动的进程被审计，添加内核参数确保在启动时为每个进程设置参数。</p>
+<h2 id="配置全面的审计规则">配置全面的审计规则</h2><p>auditd能对系统活动实行全面的审计。这一部分描述了推荐的设置，更全面的请参照其它资源。<code>linux-audit@redhat.com</code>邮件列表是个好的信息来源。</p>
+<p>审计子系统支持大量事件类型，包括：</p>
+<ul>
+<li>追踪任何进入或退出的系统调用(以名称或编号命名)。</li>
+<li>以PID，UID，调用成功与否，系统调用参数(有些限制)等等来过滤。</li>
+<li>监控特殊文件内容和元数据的更改。</li>
+</ul>
+<p>审计规则在<code>/etc/audit/audit.rules</code>控制，添加满足你审计需求的规则。该文件中每一行代表一系列传递给<code>auditctl</code>的参数，能用<code>auditctl</code>独立测试。参见<code>/usr/share/doc/audit-version</code>和相关man页面获取更多信息。</p>
+<p>推荐的审计规则在<code>/usr/share/doc/audit-version/stig.rules</code>提供，激活这些规则：</p>
+<pre><code>cp <span class="regexp">/usr/</span>share<span class="regexp">/doc/</span>audit-version<span class="regexp">/stig.rules /</span>etc<span class="regexp">/audit/</span>audit.rules
+</code></pre><p>然后编辑<code>/etc/audit/audit.rules</code>注释掉不适合你的架构的包含<code>arch=</code>的行。然后检查和理解其中的规则，确保需要的规则在合适的架构上被激活。</p>
+<p>检查完所有规则后，阅读以下章节，编辑和激活需要的新规则：</p>
+<pre><code><span class="title">service</span> auditd restart
+</code></pre><h2 id="记录更改日期和时间信息的事件">记录更改日期和时间信息的事件</h2><p>添加以下规则到<code>/etc/audit/audit.rules</code>，设置<code>ARCH</code>为你系统合适的架构，要么是<code>b32</code>，要么是<code>b64</code>:</p>
+<pre><code>-a always,exit -F arch=ARCH -S adjtimex -S settimeofday -S stime -k time-<span class="operator"><span class="keyword">change</span>
+-a <span class="keyword">always</span>,<span class="keyword">exit</span> -<span class="keyword">F</span> arch=ARCH -S clock_settime -<span class="keyword">k</span> <span class="keyword">time</span>-<span class="keyword">change</span>
+-w /etc/<span class="keyword">localtime</span> -<span class="keyword">p</span> wa -<span class="keyword">k</span> <span class="keyword">time</span>-<span class="keyword">change</span></span>
+</code></pre><p>(参见<code>man auditctl</code>)</p>
+<h2 id="记录更改用户/组信息的事件">记录更改用户/组信息的事件</h2><p>添加以下规则到<code>/etc/audit/audit.rules</code>，为了捕捉更改账户变化的事件：</p>
+<pre><code>-w /etc/group -<span class="tag">p</span> wa -k identity
+-w /etc/passwd -<span class="tag">p</span> wa -k identity
+-w /etc/gshadow -<span class="tag">p</span> wa -k identity
+-w /etc/shadow -<span class="tag">p</span> wa -k identity
+-w /etc/security/opasswd -<span class="tag">p</span> wa -k identity
+</code></pre><h2 id="记录更改系统网络环境的事件">记录更改系统网络环境的事件</h2><p>添加以下规则到<code>/etc/audit/audit.rules</code>，根据系统架构设置<code>ARCH</code>为或者<code>b32</code>或者<code>b64</code>：</p>
+<pre><code>-<span class="tag">a</span> exit,always -F arch=ARCH -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -<span class="tag">p</span> wa -k system-locale
+-w /etc/issue<span class="class">.net</span> -<span class="tag">p</span> wa -k system-locale
+-w /etc/hosts -<span class="tag">p</span> wa -k system-locale
+-w /etc/sysconfig/network -<span class="tag">p</span> wa -k system-locale
+</code></pre><h2 id="记录更改系统强制访问存取(MAC)策略的事件">记录更改系统强制访问存取(MAC)策略的事件</h2><p>添加<code>/etc/audit/audit.rules</code>:</p>
+<pre><code>-w /etc/selinux/ -<span class="tag">p</span> wa -k MAC-policy
+</code></pre><h2 id="记录登入注销变更事件的尝试">记录登入注销变更事件的尝试</h2><p>审计系统已经收集了所有用户和root的登录信息。去监视尝试手工更改存储登入事件的文件，向<code>/etc/audit.rules</code>添加以下行：</p>
+<pre><code>-<span class="ruby">w /var/log/faillog -p wa -k logins <span class="comment"># RHEL6中再无这个，pam_tally不再写入其中</span>
+</span>-<span class="ruby">w /var/log/lastlog -p wa -k logins</span>
+</code></pre><h2 id="记录更改进程和会话初始化信息的尝试">记录更改进程和会话初始化信息的尝试</h2><pre><code>-w /<span class="keyword">var</span>/<span class="keyword">run</span>/utmp -p wa -k session
+-w /<span class="keyword">var</span>/<span class="keyword">log</span>/btmp -p wa -k session
+-w /<span class="keyword">var</span>/<span class="keyword">log</span>/wtmp -p wa -k session
+</code></pre><h2 id="确保auditd收集任意存取控制权限更改事件">确保auditd收集任意存取控制权限更改事件</h2><p>最起码审计系统会收集所有用户和root的文件权限更改。添加以下到<code>/etc/audit/audit.rules</code>，设置<code>ARCH</code>为系统合适的架构，要么<code>b32</code>或者<code>b64</code>：</p>
+<pre><code>-a always,<span class="built_in">exit</span> -F arch=ARCH -S chmod -S fchmod -S fchmodat -F auid&gt;=<span class="number">500</span> \
+    -F auid!=<span class="number">4294967295</span> -k perm_mod
+-a always,<span class="built_in">exit</span> -F arch=ARCH -S chown -S fchown -S fchownat -S lchown -F auid&gt;=<span class="number">500</span> \
+    -F auid!=<span class="number">4294967295</span> -k perm_mod
+-a always,<span class="built_in">exit</span> -F arch=ARCH -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S \
+    lremovexattr -S fremovexattr -F auid&gt;=<span class="number">500</span> -F auid!=<span class="number">4294967295</span> -k perm_mod <span class="preprocessor"># 红帽的非权限用户起始uid为<span class="number">500</span>, <span class="number">4294967295</span>为最大<span class="number">32</span>位无符号整数</span>
+</code></pre><h2 id="使用auditd收集未认证的文件访问尝试(失败)">使用auditd收集未认证的文件访问尝试(失败)</h2><p>最起码审计系统收集所有用户和root的未授权文件访问信息。添加以下行到<code>/etc/audit/audit.rules</code>，设置<code>ARCH</code>：</p>
+<pre><code>-a always,exit -F arch=ARCH -S creat -S open -S openat -S <span class="operator"><span class="keyword">truncate</span> -S ftruncate \
+    -<span class="keyword">F</span> <span class="keyword">exit</span>=-EACCES -<span class="keyword">F</span> auid&gt;=<span class="number">500</span> -<span class="keyword">F</span> auid!=<span class="number">4294967295</span> -<span class="keyword">k</span> <span class="keyword">access</span>
+-a <span class="keyword">always</span>,<span class="keyword">exit</span> -<span class="keyword">F</span> arch=ARCH -S creat -S <span class="keyword">open</span> -S openat -S <span class="keyword">truncate</span> -S ftruncate \
+    -<span class="keyword">F</span> <span class="keyword">exit</span>=-EPERM -<span class="keyword">F</span> auid&gt;=<span class="number">500</span> -<span class="keyword">F</span> auid!=<span class="number">4294967295</span> -<span class="keyword">k</span> <span class="keyword">access</span></span>
+</code></pre><h2 id="确保auditd收集权限命令使用的信息">确保auditd收集权限命令使用的信息</h2><p>最起码审计系统收集所有用户和root的权限命令执行信息。这需要为每个要监视执行的<code>setuid</code>或者<code>setgid</code>程序添加规则。</p>
+<p>首先运行以下命令找到所有本地分区<code>PART</code>来生成规则，每个<code>setuid</code>或<code>setgid</code>程序一个规则：</p>
+<pre><code>find PART -xdev \( -perm -<span class="number">4000</span> -o -perm -<span class="number">2000</span> \) -type f | awk {print \
+    <span class="string">"-a always,exit -F path="</span> <span class="variable">$1</span> <span class="string">" -F perm=x -F auid&gt;=500 -F auid!=4294967295 \
+    -k privileged"</span> }
+</code></pre><p>然后添加打印的行到<code>/etc/audit/audit.rules</code>。</p>
+<h2 id="确保auditd搜集导出到介质上的信息(成功)">确保auditd搜集导出到介质上的信息(成功)</h2><p>(我不是很明白，看上去似乎是收集非权限用户的挂载信息)</p>
+<p>最起码审计系统收集所有用户和root的媒体导出事件。添加以下行到<code>/etc/audit/audit.rules</code>，设置<code>ARCH</code>：</p>
+<pre><code>-a always,<span class="built_in">exit</span> -F arch=ARCH -S mount -F auid&gt;=<span class="number">500</span> -F auid!=<span class="number">4294967295</span> -k <span class="keyword">export</span>
+</code></pre><h2 id="确保auditd搜集用户的文件删除事件(成功与失败)">确保auditd搜集用户的文件删除事件(成功与失败)</h2><p>最起码审计系统应该收集所有用户和root的文件删除事件。添加以下行到<code>/etc/audit/audit.rules</code>，设置ARCH：</p>
+<pre><code>-a always,exit -F arch=ARCH -S unlink -S unlinkat -S <span class="operator"><span class="keyword">rename</span> -S renameat -<span class="keyword">F</span> auid&gt;=<span class="number">500</span> \
+    -<span class="keyword">F</span> auid!=<span class="number">4294967295</span> -<span class="keyword">k</span> <span class="keyword">delete</span></span>
+</code></pre><h2 id="确保auditd收集系统管理行为">确保auditd收集系统管理行为</h2><p>(其实就是监视sudoer文件)</p>
+<p>最起码审计系统应该收集用户和root的管理员行为。添加以下到<code>/etc/audit/audit.rules</code>:</p>
+<pre><code>-w /etc/sudoers -<span class="tag">p</span> wa -k actions
+</code></pre><h2 id="确保auditd收集内核加载卸载信息">确保auditd收集内核加载卸载信息</h2><p>添加以下到<code>/etc/audit/audit.rules</code>，设置ARCH：</p>
+<pre><code>-w /sbin/insmod -<span class="tag">p</span> x -k modules
+-w /sbin/rmmod -<span class="tag">p</span> x -k modules
+-w /sbin/modprobe -<span class="tag">p</span> x -k modules
+-<span class="tag">a</span> always,exit -F arch=ARCH -S init_module -S delete_module -k modules
+</code></pre><h2 id="确保auditd配置不可更改">确保auditd配置不可更改</h2><p>添加以下作为<code>/etc/audit/audit.rules</code>的 <em>最后一行</em> ：</p>
+<pre><code><span class="operator">-e</span> <span class="number">2</span>
+</code></pre><p>通过这个设定，更改审计规则需要重启机器。</p>
+<h2 id="通过aureport总结和查看审计日志">通过aureport总结和查看审计日志</h2><p>仔细检查<code>aureport</code>的man页面。然后设计一系列便于日常研究审计日志的命令。这些命令可以通过在合适的命名文件在<code>/etc/crond.daily</code>中被加入到cron job中。(其它章节中有有关如何确保审计系统收集所有需要事件的信息)</p>
+<p>例如，为每个登录到机器的用户生成日报，可在<code>cron</code>中运行以下命令：</p>
+<pre><code>aureport -<span class="keyword">l</span> -i -ts yesterday -<span class="keyword">te</span> today
+</code></pre><p>查看所有异常行为审计活动，通常先从被触发审计规则摘要看起：</p>
+<pre><code><span class="comment">aureport</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">key</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">summary</span>
+</code></pre><p>如果违规访问很多，检查它们：</p>
+<pre><code><span class="comment">ausearch</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">key</span> <span class="comment">access</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">raw</span> <span class="comment">|</span> <span class="comment">aureport</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">file</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">summary</span>
+</code></pre><p>看看执行了哪些可执行文件：</p>
+<pre><code><span class="comment">ausearch</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">key</span> <span class="comment">access</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">raw</span> <span class="comment">|</span> <span class="comment">airport</span> <span class="literal">-</span><span class="comment">x</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">summary</span>
+</code></pre><p>如果非法访问发生在特定文件上，并且你想看看哪个用户做的：</p>
+<pre><code><span class="comment">ausearch</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">key</span> <span class="comment">access</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">file</span> <span class="comment">/etc/shadow</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">raw</span> <span class="comment">|</span> <span class="comment">aureport</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">user</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">summary</span> <span class="literal">-</span><span class="comment">i</span>
+</code></pre><p>检查异常活动(比如网卡设备更改到混杂模式，进程异常中止，登录失败次数达到上限)</p>
+<pre><code>aureport <span class="comment">--anomaly</span>
+</code></pre><p>审计分析的基础是使用key来分类事件。有关使用ausearch获取SELinux问题的信息在其它章节讨论</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -1190,142 +1454,6 @@ modprobe dm_crypt
             
               
                 
-                <a class="post-title-link" href="/python/2014/10/09/lrc/" itemprop="url">
-                  支持LRC歌词的终端播放器
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-10-09T00:00:00+08:00" content="2014-10-09">
-              2014-10-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/python/2014/10/09/lrc/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2014/10/09/lrc/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>最终效果可以看这里：</p>
-<p><a href="http://ascii.io/a/12843" target="_blank" rel="external">来自asciinema的终端录像</a></p>
-<h2 id="缘起">缘起</h2><p>自从降频之后，电脑特别卡……</p>
-<p>降频是因为总是自动关机</p>
-<p>自动关机据几个月观察是因为cpu过热</p>
-<p>cpu过热猜测是因为散热有问题了</p>
-<p>散热有问题猜测是该清灰换硅胶了</p>
-<p>但三星……非常麻烦，自从去年毕业自己把本拆了一遍后就再懒得拆机了。</p>
-<p>于是，想听歌时懒得打开vlc界面，就用命令行版本的cvlc来播放</p>
-<p>可是……没有歌词？</p>
-<p>某天想干脆自己做个支持lrc的终端播放器算了。</p>
-<p>作为一个脚本小子，我只习惯python……</p>
-<h2 id="说干就干">说干就干</h2><p>谷歌搜寻了下：</p>
-<ul>
-<li>python如何播放mp3音乐</li>
-<li>lrc文件的格式，考虑下如何在终端打印歌词</li>
-<li>vlc有没有python绑定</li>
-</ul>
-<p>于是，有了以下版本，仅仅100行的多彩歌词显示终端播放器(使用<code>pygame</code>来播放音乐)：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pygame <span class="keyword">import</span> mixer</span><br><span class="line"><span class="keyword">from</span> mutagen.mp3 <span class="keyword">import</span> MP3</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">f_mp3 = sys.argv[<span class="number">1</span>]</span><br><span class="line">f_lrc = sys.argv[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lrc2dict</span><span class="params">(lrc)</span>:</span></span><br><span class="line">    lrc_dict = &#123;&#125;</span><br><span class="line">    remove = <span class="keyword">lambda</span> x: x.strip(<span class="string">'[|]'</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> lrc.split(<span class="string">'\n'</span>):</span><br><span class="line">        time_stamps = re.findall(<span class="string">r'\[[^\]]+\]'</span>, line)</span><br><span class="line">        <span class="keyword">if</span> time_stamps:</span><br><span class="line">            <span class="comment"># 截取歌词</span></span><br><span class="line">            lyric = line</span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                lyric = lyric.replace(tplus, <span class="string">''</span>)</span><br><span class="line">            <span class="comment"># 解析时间</span></span><br><span class="line">            <span class="comment"># tplus: [02:31.79]</span></span><br><span class="line">            <span class="comment"># t 02:31.79</span></span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                t = remove(tplus)</span><br><span class="line">                tag_flag = t.split(<span class="string">':'</span>)[<span class="number">0</span>]</span><br><span class="line">                <span class="comment"># 跳过: [ar: 逃跑计划]</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> tag_flag.isdigit():</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                time_lrc = int(tag_flag) * <span class="number">60000</span></span><br><span class="line">                time_lrc += int(t.split(<span class="string">':'</span>)[<span class="number">1</span>].split(<span class="string">'.'</span>)[<span class="number">0</span>]) * <span class="number">1000</span></span><br><span class="line">                <span class="comment"># ms也许没有</span></span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    time_lrc += int(t.split(<span class="string">'.'</span>)[<span class="number">1</span>])</span><br><span class="line">                <span class="keyword">except</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">                time_lrc = time_lrc / <span class="number">100</span> * <span class="number">100</span></span><br><span class="line">                lrc_dict[time_lrc] = lyric</span><br><span class="line">    <span class="keyword">return</span> lrc_dict</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_lrc</span><span class="params">(mixer, lrc_d, color, wholetime)</span>:</span></span><br><span class="line">    mixer.music.play()</span><br><span class="line">    <span class="comment"># 防止开头歌词来不及播放</span></span><br><span class="line">    mixer.music.pause()</span><br><span class="line">    time.sleep(<span class="number">0.001</span>)</span><br><span class="line">    mixer.music.play()</span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">        t = mixer.music.get_pos() / <span class="number">100</span> * <span class="number">100</span></span><br><span class="line">        sys.stdout.write(<span class="string">'['</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>, time.localtime(t / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'/'</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>,</span><br><span class="line">                                       time.localtime(wholetime)) +</span><br><span class="line">                         <span class="string">'] '</span>)</span><br><span class="line">        <span class="keyword">if</span> t <span class="keyword">in</span> lrc_d:</span><br><span class="line">            sys.stdout.write(color + lrc_d[t] + <span class="string">'\033[0m'</span>)</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            sys.stdout.write(<span class="string">"\033[K"</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            <span class="comment"># sys.stdout.write("\033[K")</span></span><br><span class="line">        sys.stdout.write(<span class="string">'\r'</span>)</span><br><span class="line">        <span class="comment"># 播放停止时退出</span></span><br><span class="line">        <span class="keyword">if</span> t &lt; <span class="number">0</span>:</span><br><span class="line">            sys.exit(<span class="number">0</span>)</span><br><span class="line">        <span class="comment"># 0.05s循环</span></span><br><span class="line">        time.sleep(<span class="number">0.05</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(f_lrc) <span class="keyword">as</span> f:</span><br><span class="line">    lrc = f.read()</span><br><span class="line"></span><br><span class="line">lrc_d = lrc2dict(lrc)</span><br><span class="line"></span><br><span class="line">mixer.init()</span><br><span class="line">mixer.music.load(f_mp3)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    wholetime = MP3(f_mp3).info.length</span><br><span class="line"><span class="keyword">except</span>:</span><br><span class="line">    wholetime = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">colors = [</span><br><span class="line">    <span class="string">'\x1B[31m'</span>,  <span class="comment"># 红色</span></span><br><span class="line">    <span class="string">'\x1B[32m'</span>,  <span class="comment"># 绿色</span></span><br><span class="line">    <span class="string">'\x1B[33m'</span>,  <span class="comment"># 黄色</span></span><br><span class="line">    <span class="string">'\x1B[34m'</span>,  <span class="comment"># 蓝色</span></span><br><span class="line">    <span class="string">'\x1B[35m'</span>,  <span class="comment"># 紫色</span></span><br><span class="line">    <span class="string">'\x1B[36m'</span>,  <span class="comment"># 青色</span></span><br><span class="line">    <span class="string">'\x1B[37m'</span>  <span class="comment"># 灰白</span></span><br><span class="line">]</span><br><span class="line">color = random.choice(colors)</span><br><span class="line">print_lrc(mixer, lrc_d, color, wholetime)</span><br></pre></td></tr></table></figure>
-<p>那个不断循环查看播放进度打印对应歌词的实现真够丧心病狂的……精确到0.1s算了。</p>
-<pre><code>Be aware that MP3 support is limited. <span class="keyword">On</span> some systems <span class="keyword">an</span> unsupported <span class="keyword">format</span> can crash the <span class="keyword">program</span>, <span class="keyword">e</span>.<span class="keyword">g</span>. Debian Linux. Consider using OGG instead.
-</code></pre><p>开始在pygame的<a href="http://www.pygame.org/docs/ref/music.html" target="_blank" rel="external">文档</a>中看到这句话还没在意后来，播放某个叫<code>in my life</code>的mp3时发现完全不对劲……而且没有获取音频长度的功能[^1]</p>
-<p>后来想想，还是用vlc的py绑定吧。</p>
-<p>vlc的py绑定相当赞：</p>
-<p>完整覆盖libvlc功能，纯python，支持各个vlc版本和完整的文档。[^2]</p>
-<p>但开始我以为pip可以直接下载……后来发现pip搜索到的是macos独有的vlc python wrapper……和这个绑定是两码事……真给跪了……</p>
-<p>自行下载<a href="http://git.videolan.org/?p=vlc/bindings/python.git;a=tree;f=generated;b=HEAD" target="_blank" rel="external">vlc.py</a>到当前目录或者扔到python搜索路径。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> vlc</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">f_mp3 = sys.argv[<span class="number">1</span>]</span><br><span class="line">f_lrc = sys.argv[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lrc2dict</span><span class="params">(lrc)</span>:</span></span><br><span class="line">    lrc_dict = &#123;&#125;</span><br><span class="line">    remove = <span class="keyword">lambda</span> x: x.strip(<span class="string">'[|]'</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> lrc.split(<span class="string">'\n'</span>):</span><br><span class="line">        time_stamps = re.findall(<span class="string">r'\[[^\]]+\]'</span>, line)</span><br><span class="line">        <span class="keyword">if</span> time_stamps:</span><br><span class="line">            <span class="comment"># 截取歌词</span></span><br><span class="line">            lyric = line</span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                lyric = lyric.replace(tplus, <span class="string">''</span>)</span><br><span class="line">            <span class="comment"># 解析时间</span></span><br><span class="line">            <span class="comment"># tplus: [02:31.79]</span></span><br><span class="line">            <span class="comment"># t 02:31.79</span></span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                t = remove(tplus)</span><br><span class="line">                tag_flag = t.split(<span class="string">':'</span>)[<span class="number">0</span>]</span><br><span class="line">                <span class="comment"># 跳过: [ar: 逃跑计划]</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> tag_flag.isdigit():</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                time_lrc = int(tag_flag) * <span class="number">60000</span></span><br><span class="line">                time_lrc += int(t.split(<span class="string">':'</span>)[<span class="number">1</span>].split(<span class="string">'.'</span>)[<span class="number">0</span>]) * <span class="number">1000</span></span><br><span class="line">                <span class="comment"># ms也许没有</span></span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    time_lrc += int(t.split(<span class="string">'.'</span>)[<span class="number">1</span>])</span><br><span class="line">                <span class="keyword">except</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">                time_lrc = time_lrc / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">                lrc_dict[time_lrc] = lyric</span><br><span class="line">    <span class="keyword">return</span> lrc_dict</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_lrc</span><span class="params">(player, lrc_d, color)</span>:</span></span><br><span class="line">    player.play()</span><br><span class="line">    player.pause()</span><br><span class="line">    <span class="comment"># 防止无法获取整个音频时长</span></span><br><span class="line">    <span class="comment"># 音频时长必须加载才能读取</span></span><br><span class="line">    time.sleep(<span class="number">0.1</span>)</span><br><span class="line">    player.play()</span><br><span class="line">    wholetime = mediaObject.get_duration() / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        <span class="comment"># 截取到0.1s精度,降低cpu占用, notwork fine for vlc</span></span><br><span class="line">        <span class="comment"># <span class="doctag">FIXME:</span> get_time NOT WORK WELL, 只能精确到0.3s</span></span><br><span class="line">        <span class="comment"># t = player.get_position() * wholetime</span></span><br><span class="line">        t = player.get_time() / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">        <span class="comment"># sys.stdout.write(str(t) + '\r')</span></span><br><span class="line">        sys.stdout.write(<span class="string">'['</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>, time.localtime(t / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'/'</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>,</span><br><span class="line">                                       time.localtime(wholetime / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'] '</span>)</span><br><span class="line">        <span class="keyword">if</span> t <span class="keyword">not</span> <span class="keyword">in</span> lrc_d:</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            <span class="comment"># sys.stdout.write("\033[K")</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            sys.stdout.write(color + lrc_d[t] + <span class="string">'\033[0m'</span>)</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            sys.stdout.write(<span class="string">"\033[K"</span>)</span><br><span class="line">        sys.stdout.write(<span class="string">'\r'</span>)</span><br><span class="line">        <span class="comment"># 播放停止时退出</span></span><br><span class="line">        <span class="keyword">if</span> t == wholetime:</span><br><span class="line">            sys.exit(<span class="number">0</span>)</span><br><span class="line">        <span class="comment"># 0.05s循环</span></span><br><span class="line">        time.sleep(<span class="number">0.05</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(f_lrc) <span class="keyword">as</span> f:</span><br><span class="line">    lrc = f.read()</span><br><span class="line"></span><br><span class="line">lrc_d = lrc2dict(lrc)</span><br><span class="line"></span><br><span class="line">vlcInstance = vlc.Instance()</span><br><span class="line">player = vlcInstance.media_player_new()</span><br><span class="line">mediaObject = vlcInstance.media_new(f_mp3)</span><br><span class="line">player.set_media(mediaObject)</span><br><span class="line"></span><br><span class="line">colors = [</span><br><span class="line">    <span class="string">'\x1B[31m'</span>,  <span class="comment"># 红色</span></span><br><span class="line">    <span class="string">'\x1B[32m'</span>,  <span class="comment"># 绿色</span></span><br><span class="line">    <span class="string">'\x1B[33m'</span>,  <span class="comment"># 黄色</span></span><br><span class="line">    <span class="string">'\x1B[34m'</span>,  <span class="comment"># 蓝色</span></span><br><span class="line">    <span class="string">'\x1B[35m'</span>,  <span class="comment"># 紫色</span></span><br><span class="line">    <span class="string">'\x1B[36m'</span>,  <span class="comment"># 青色</span></span><br><span class="line">    <span class="string">'\x1B[37m'</span>  <span class="comment"># 灰白</span></span><br><span class="line">]</span><br><span class="line">color = random.choice(colors)</span><br><span class="line">print_lrc(player, lrc_d, color)</span><br></pre></td></tr></table></figure>
-<p>奇葩的还是那个丧心病狂的循环，查询播放进度最短间隔只有0.3s。只好把lrc歌词显示精度降到1s了</p>
-<p>反正对我是能用了。</p>
-<p>也许有空可以让它支持播放列表的，用vlc完全不是问题。</p>
-<p>嗯，完工。我擦嘞我竟然一天写了俩！</p>
-<h2 id="FootNotes">FootNotes</h2><p>[^1]: <a href="http://stackoverflow.com/questions/6936393/find-the-length-of-a-song-with-pygame" target="_blank" rel="external">Find the Length of a Song with Pygame</a><br>[^2]: <a href="https://wiki.videolan.org/Python_bindings" target="_blank" rel="external">Python bindings</a></p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/python/2014/10/09/" itemprop="url">
                   游泳日报
                 </a>
@@ -1431,6 +1559,142 @@ modprobe dm_crypt
 <li>原谅我渣一样的前端水平。</li>
 </ol>
 <p>好吧，本渣只是一个script kid……</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/python/2014/10/09/lrc/" itemprop="url">
+                  支持LRC歌词的终端播放器
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-10-09T00:00:00+08:00" content="2014-10-09">
+              2014-10-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2014/10/09/lrc/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2014/10/09/lrc/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>最终效果可以看这里：</p>
+<p><a href="http://ascii.io/a/12843" target="_blank" rel="external">来自asciinema的终端录像</a></p>
+<h2 id="缘起">缘起</h2><p>自从降频之后，电脑特别卡……</p>
+<p>降频是因为总是自动关机</p>
+<p>自动关机据几个月观察是因为cpu过热</p>
+<p>cpu过热猜测是因为散热有问题了</p>
+<p>散热有问题猜测是该清灰换硅胶了</p>
+<p>但三星……非常麻烦，自从去年毕业自己把本拆了一遍后就再懒得拆机了。</p>
+<p>于是，想听歌时懒得打开vlc界面，就用命令行版本的cvlc来播放</p>
+<p>可是……没有歌词？</p>
+<p>某天想干脆自己做个支持lrc的终端播放器算了。</p>
+<p>作为一个脚本小子，我只习惯python……</p>
+<h2 id="说干就干">说干就干</h2><p>谷歌搜寻了下：</p>
+<ul>
+<li>python如何播放mp3音乐</li>
+<li>lrc文件的格式，考虑下如何在终端打印歌词</li>
+<li>vlc有没有python绑定</li>
+</ul>
+<p>于是，有了以下版本，仅仅100行的多彩歌词显示终端播放器(使用<code>pygame</code>来播放音乐)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pygame <span class="keyword">import</span> mixer</span><br><span class="line"><span class="keyword">from</span> mutagen.mp3 <span class="keyword">import</span> MP3</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">f_mp3 = sys.argv[<span class="number">1</span>]</span><br><span class="line">f_lrc = sys.argv[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lrc2dict</span><span class="params">(lrc)</span>:</span></span><br><span class="line">    lrc_dict = &#123;&#125;</span><br><span class="line">    remove = <span class="keyword">lambda</span> x: x.strip(<span class="string">'[|]'</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> lrc.split(<span class="string">'\n'</span>):</span><br><span class="line">        time_stamps = re.findall(<span class="string">r'\[[^\]]+\]'</span>, line)</span><br><span class="line">        <span class="keyword">if</span> time_stamps:</span><br><span class="line">            <span class="comment"># 截取歌词</span></span><br><span class="line">            lyric = line</span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                lyric = lyric.replace(tplus, <span class="string">''</span>)</span><br><span class="line">            <span class="comment"># 解析时间</span></span><br><span class="line">            <span class="comment"># tplus: [02:31.79]</span></span><br><span class="line">            <span class="comment"># t 02:31.79</span></span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                t = remove(tplus)</span><br><span class="line">                tag_flag = t.split(<span class="string">':'</span>)[<span class="number">0</span>]</span><br><span class="line">                <span class="comment"># 跳过: [ar: 逃跑计划]</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> tag_flag.isdigit():</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                time_lrc = int(tag_flag) * <span class="number">60000</span></span><br><span class="line">                time_lrc += int(t.split(<span class="string">':'</span>)[<span class="number">1</span>].split(<span class="string">'.'</span>)[<span class="number">0</span>]) * <span class="number">1000</span></span><br><span class="line">                <span class="comment"># ms也许没有</span></span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    time_lrc += int(t.split(<span class="string">'.'</span>)[<span class="number">1</span>])</span><br><span class="line">                <span class="keyword">except</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">                time_lrc = time_lrc / <span class="number">100</span> * <span class="number">100</span></span><br><span class="line">                lrc_dict[time_lrc] = lyric</span><br><span class="line">    <span class="keyword">return</span> lrc_dict</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_lrc</span><span class="params">(mixer, lrc_d, color, wholetime)</span>:</span></span><br><span class="line">    mixer.music.play()</span><br><span class="line">    <span class="comment"># 防止开头歌词来不及播放</span></span><br><span class="line">    mixer.music.pause()</span><br><span class="line">    time.sleep(<span class="number">0.001</span>)</span><br><span class="line">    mixer.music.play()</span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">        t = mixer.music.get_pos() / <span class="number">100</span> * <span class="number">100</span></span><br><span class="line">        sys.stdout.write(<span class="string">'['</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>, time.localtime(t / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'/'</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>,</span><br><span class="line">                                       time.localtime(wholetime)) +</span><br><span class="line">                         <span class="string">'] '</span>)</span><br><span class="line">        <span class="keyword">if</span> t <span class="keyword">in</span> lrc_d:</span><br><span class="line">            sys.stdout.write(color + lrc_d[t] + <span class="string">'\033[0m'</span>)</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            sys.stdout.write(<span class="string">"\033[K"</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            <span class="comment"># sys.stdout.write("\033[K")</span></span><br><span class="line">        sys.stdout.write(<span class="string">'\r'</span>)</span><br><span class="line">        <span class="comment"># 播放停止时退出</span></span><br><span class="line">        <span class="keyword">if</span> t &lt; <span class="number">0</span>:</span><br><span class="line">            sys.exit(<span class="number">0</span>)</span><br><span class="line">        <span class="comment"># 0.05s循环</span></span><br><span class="line">        time.sleep(<span class="number">0.05</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(f_lrc) <span class="keyword">as</span> f:</span><br><span class="line">    lrc = f.read()</span><br><span class="line"></span><br><span class="line">lrc_d = lrc2dict(lrc)</span><br><span class="line"></span><br><span class="line">mixer.init()</span><br><span class="line">mixer.music.load(f_mp3)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    wholetime = MP3(f_mp3).info.length</span><br><span class="line"><span class="keyword">except</span>:</span><br><span class="line">    wholetime = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">colors = [</span><br><span class="line">    <span class="string">'\x1B[31m'</span>,  <span class="comment"># 红色</span></span><br><span class="line">    <span class="string">'\x1B[32m'</span>,  <span class="comment"># 绿色</span></span><br><span class="line">    <span class="string">'\x1B[33m'</span>,  <span class="comment"># 黄色</span></span><br><span class="line">    <span class="string">'\x1B[34m'</span>,  <span class="comment"># 蓝色</span></span><br><span class="line">    <span class="string">'\x1B[35m'</span>,  <span class="comment"># 紫色</span></span><br><span class="line">    <span class="string">'\x1B[36m'</span>,  <span class="comment"># 青色</span></span><br><span class="line">    <span class="string">'\x1B[37m'</span>  <span class="comment"># 灰白</span></span><br><span class="line">]</span><br><span class="line">color = random.choice(colors)</span><br><span class="line">print_lrc(mixer, lrc_d, color, wholetime)</span><br></pre></td></tr></table></figure>
+<p>那个不断循环查看播放进度打印对应歌词的实现真够丧心病狂的……精确到0.1s算了。</p>
+<pre><code>Be aware that MP3 support is limited. <span class="keyword">On</span> some systems <span class="keyword">an</span> unsupported <span class="keyword">format</span> can crash the <span class="keyword">program</span>, <span class="keyword">e</span>.<span class="keyword">g</span>. Debian Linux. Consider using OGG instead.
+</code></pre><p>开始在pygame的<a href="http://www.pygame.org/docs/ref/music.html" target="_blank" rel="external">文档</a>中看到这句话还没在意后来，播放某个叫<code>in my life</code>的mp3时发现完全不对劲……而且没有获取音频长度的功能[^1]</p>
+<p>后来想想，还是用vlc的py绑定吧。</p>
+<p>vlc的py绑定相当赞：</p>
+<p>完整覆盖libvlc功能，纯python，支持各个vlc版本和完整的文档。[^2]</p>
+<p>但开始我以为pip可以直接下载……后来发现pip搜索到的是macos独有的vlc python wrapper……和这个绑定是两码事……真给跪了……</p>
+<p>自行下载<a href="http://git.videolan.org/?p=vlc/bindings/python.git;a=tree;f=generated;b=HEAD" target="_blank" rel="external">vlc.py</a>到当前目录或者扔到python搜索路径。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> vlc</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">f_mp3 = sys.argv[<span class="number">1</span>]</span><br><span class="line">f_lrc = sys.argv[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lrc2dict</span><span class="params">(lrc)</span>:</span></span><br><span class="line">    lrc_dict = &#123;&#125;</span><br><span class="line">    remove = <span class="keyword">lambda</span> x: x.strip(<span class="string">'[|]'</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> lrc.split(<span class="string">'\n'</span>):</span><br><span class="line">        time_stamps = re.findall(<span class="string">r'\[[^\]]+\]'</span>, line)</span><br><span class="line">        <span class="keyword">if</span> time_stamps:</span><br><span class="line">            <span class="comment"># 截取歌词</span></span><br><span class="line">            lyric = line</span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                lyric = lyric.replace(tplus, <span class="string">''</span>)</span><br><span class="line">            <span class="comment"># 解析时间</span></span><br><span class="line">            <span class="comment"># tplus: [02:31.79]</span></span><br><span class="line">            <span class="comment"># t 02:31.79</span></span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                t = remove(tplus)</span><br><span class="line">                tag_flag = t.split(<span class="string">':'</span>)[<span class="number">0</span>]</span><br><span class="line">                <span class="comment"># 跳过: [ar: 逃跑计划]</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> tag_flag.isdigit():</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                time_lrc = int(tag_flag) * <span class="number">60000</span></span><br><span class="line">                time_lrc += int(t.split(<span class="string">':'</span>)[<span class="number">1</span>].split(<span class="string">'.'</span>)[<span class="number">0</span>]) * <span class="number">1000</span></span><br><span class="line">                <span class="comment"># ms也许没有</span></span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    time_lrc += int(t.split(<span class="string">'.'</span>)[<span class="number">1</span>])</span><br><span class="line">                <span class="keyword">except</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">                time_lrc = time_lrc / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">                lrc_dict[time_lrc] = lyric</span><br><span class="line">    <span class="keyword">return</span> lrc_dict</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_lrc</span><span class="params">(player, lrc_d, color)</span>:</span></span><br><span class="line">    player.play()</span><br><span class="line">    player.pause()</span><br><span class="line">    <span class="comment"># 防止无法获取整个音频时长</span></span><br><span class="line">    <span class="comment"># 音频时长必须加载才能读取</span></span><br><span class="line">    time.sleep(<span class="number">0.1</span>)</span><br><span class="line">    player.play()</span><br><span class="line">    wholetime = mediaObject.get_duration() / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        <span class="comment"># 截取到0.1s精度,降低cpu占用, notwork fine for vlc</span></span><br><span class="line">        <span class="comment"># <span class="doctag">FIXME:</span> get_time NOT WORK WELL, 只能精确到0.3s</span></span><br><span class="line">        <span class="comment"># t = player.get_position() * wholetime</span></span><br><span class="line">        t = player.get_time() / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">        <span class="comment"># sys.stdout.write(str(t) + '\r')</span></span><br><span class="line">        sys.stdout.write(<span class="string">'['</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>, time.localtime(t / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'/'</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>,</span><br><span class="line">                                       time.localtime(wholetime / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'] '</span>)</span><br><span class="line">        <span class="keyword">if</span> t <span class="keyword">not</span> <span class="keyword">in</span> lrc_d:</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            <span class="comment"># sys.stdout.write("\033[K")</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            sys.stdout.write(color + lrc_d[t] + <span class="string">'\033[0m'</span>)</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            sys.stdout.write(<span class="string">"\033[K"</span>)</span><br><span class="line">        sys.stdout.write(<span class="string">'\r'</span>)</span><br><span class="line">        <span class="comment"># 播放停止时退出</span></span><br><span class="line">        <span class="keyword">if</span> t == wholetime:</span><br><span class="line">            sys.exit(<span class="number">0</span>)</span><br><span class="line">        <span class="comment"># 0.05s循环</span></span><br><span class="line">        time.sleep(<span class="number">0.05</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(f_lrc) <span class="keyword">as</span> f:</span><br><span class="line">    lrc = f.read()</span><br><span class="line"></span><br><span class="line">lrc_d = lrc2dict(lrc)</span><br><span class="line"></span><br><span class="line">vlcInstance = vlc.Instance()</span><br><span class="line">player = vlcInstance.media_player_new()</span><br><span class="line">mediaObject = vlcInstance.media_new(f_mp3)</span><br><span class="line">player.set_media(mediaObject)</span><br><span class="line"></span><br><span class="line">colors = [</span><br><span class="line">    <span class="string">'\x1B[31m'</span>,  <span class="comment"># 红色</span></span><br><span class="line">    <span class="string">'\x1B[32m'</span>,  <span class="comment"># 绿色</span></span><br><span class="line">    <span class="string">'\x1B[33m'</span>,  <span class="comment"># 黄色</span></span><br><span class="line">    <span class="string">'\x1B[34m'</span>,  <span class="comment"># 蓝色</span></span><br><span class="line">    <span class="string">'\x1B[35m'</span>,  <span class="comment"># 紫色</span></span><br><span class="line">    <span class="string">'\x1B[36m'</span>,  <span class="comment"># 青色</span></span><br><span class="line">    <span class="string">'\x1B[37m'</span>  <span class="comment"># 灰白</span></span><br><span class="line">]</span><br><span class="line">color = random.choice(colors)</span><br><span class="line">print_lrc(player, lrc_d, color)</span><br></pre></td></tr></table></figure>
+<p>奇葩的还是那个丧心病狂的循环，查询播放进度最短间隔只有0.3s。只好把lrc歌词显示精度降到1s了</p>
+<p>反正对我是能用了。</p>
+<p>也许有空可以让它支持播放列表的，用vlc完全不是问题。</p>
+<p>嗯，完工。我擦嘞我竟然一天写了俩！</p>
+<h2 id="FootNotes">FootNotes</h2><p>[^1]: <a href="http://stackoverflow.com/questions/6936393/find-the-length-of-a-song-with-pygame" target="_blank" rel="external">Find the Length of a Song with Pygame</a><br>[^2]: <a href="https://wiki.videolan.org/Python_bindings" target="_blank" rel="external">Python bindings</a></p>
 
             
           </span>
@@ -1610,142 +1874,6 @@ modprobe dm_crypt
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2014/09/08/escape-plan/" itemprop="url">
-                  Escape Plan
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-09-08T00:00:00+08:00" content="2014-09-08">
-              2014-09-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2014/09/08/escape-plan/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2014/09/08/escape-plan/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="也许只是计划">也许只是计划</h2><blockquote>
-<p>这是一个不完美的世界，我们无法选择。<br>面对丑恶，面对创伤，面对死亡，事实上我们无路可逃。<br>所以逃跑的真正意义仅存在于<strong>计划</strong>。<br>我们能做出的反应大多只能是慌乱，<br>但也有例外，就是一些根本逃不掉的东西-<strong>热爱</strong>。<br>这是一个不完美的世界，我们无法选择。面对丑恶，面对创伤，面对痛苦，事实上我们无路可逃。 </p>
-<p>——逃跑计划</p>
-</blockquote>
-<p>我在想，今天在想，昨天在想，一周前在想，一个月前在想，一年前在想。</p>
-<p>离开实验室，</p>
-<p>干什么呢？</p>
-<p>像疯子一样追寻、奔跑、欢笑。</p>
-<p>锻炼身体，跑各种地方、游各种泳、打各种球。</p>
-<p>弹吉他、唱歌、背诵喜欢的诗句。</p>
-<p>画画，徒步，摄下瑰丽的风云。</p>
-<p>做梦、发呆、看日出和启明星。</p>
-<p>躺在树荫下的长椅，</p>
-<p>投过斑斑驳驳的绿色心情</p>
-<p>遥不可即的一朵蓝化作金色阳光中的白日梦</p>
-<p>梦里的世界都是彩色的。</p>
-<p>就像北师金秋灿烂的银杏叶，</p>
-<p>火一样燃烧着</p>
-<p>只有一次的人生，</p>
-<p>跳动着五颜六色的火焰</p>
-<p>梦里的游荡都是自由的</p>
-<p>就像高远晴空的浩瀚</p>
-<p>风一样穿行着</p>
-<p>只有一霎的记忆</p>
-<p>回味出五味杂陈的心酸</p>
-<h2 id="关于畏惧">关于畏惧</h2><blockquote>
-<p>You don’t get over the fear. You run towards it, with your knees buckling.</p>
-<p>Feel the fear and do it anyway!</p>
-<p>–<a href="http://www.quora.com/How-do-you-get-over-the-fear-of-quitting-your-job-to-start-a-startup" target="_blank" rel="external">Quora：你如何克服恐惧离开工作开始创业</a></p>
-</blockquote>
-<p>想说的话太多</p>
-<p>想谁的觉太困</p>
-<p>就这么一句，</p>
-<p>老子不怕。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1792,16 +1920,16 @@ modprobe dm_crypt
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">167</span>
+              <span class="site-state-item-count">168</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
-            
+            <a href="/categories">
               <span class="site-state-item-count">23</span>
               <span class="site-state-item-name">分类</span>
-              
+              </a>
           </div>
 
           <div class="site-state-item site-state-tags">
@@ -1813,6 +1941,13 @@ modprobe dm_crypt
 
         </nav>
 
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
         
 
         <div class="links-of-author motion-element">
@@ -1833,6 +1968,73 @@ modprobe dm_crypt
         
 
         <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://reverland.bitbucket.org/" target="_blank">曾经的的vimwiki</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://liutos.github.com/" target="_blank">Liutos</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.phoenixlzx.com/" target="_blank">凤凰君</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://gndrive.org/" target="_blank">高达数字实验室</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.cherrot.com/" target="_blank">Cherrot</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://xwyam.github.com/" target="_blank">xw_y_am</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://ishell.me" target="_blank">小东</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.kochiya.me/" target="_blank">AS酱</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.skydark.info/" target="_blank">skydark</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://thorb.cn/" target="_blank">thorb</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.suzibin.cn/" target="_blank">doug</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://armsword.com/" target="_blank">armsword</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://zhangwenli.com/blog" target="_blank">Ovilia</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://lilydjwg.is-programmer.com/" target="_blank">仙子</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://gaohaoyang.github.io" target="_blank">HYG</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://simmer-jun.github.io" target="_blank">Simmer</a>
+              </span>
+            
           
         </div>
 
@@ -1932,6 +2134,30 @@ modprobe dm_crypt
 
   
   
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
 
   
   
