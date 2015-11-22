@@ -4,7 +4,7 @@
   <subtitle><![CDATA[开放、分享、自由与进步]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://reverland.org/"/>
-  <updated>2015-11-18T11:13:54.255Z</updated>
+  <updated>2015-11-22T16:12:41.126Z</updated>
   <id>http://reverland.org/</id>
   
   <author>
@@ -15,11 +15,100 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title><![CDATA[The ES6 features I use these days]]></title>
+    <link href="http://reverland.org/javascript/2015/11/21/the-es6-features-i-use-these-days/"/>
+    <id>http://reverland.org/javascript/2015/11/21/the-es6-features-i-use-these-days/</id>
+    <published>2015-11-21T15:27:27.000Z</published>
+    <updated>2015-11-22T16:12:41.126Z</updated>
+    <content type="html"><![CDATA[<h2 id="ES6">ES6</h2><p>ES6标准，也称ES2015。在2015年6月正式批准，这是javascript语言标准从2009年首次大版本更新。</p>
+<p>这个版本带来了很多新东西，说是新东西，估计基本读者也都见过。比如python中常用的Destructuring assignment、模块导入、generator和map与set，java中的WeakHashMap、Proxy，在coffeescript中常用的class关键字与子类、模板字符串和剩余参数与默认参数等等。处处都已经有了ES6的影子。</p>
+<p>最近做了几件事：</p>
+<ol>
+<li>把nltk中wordnet corpus reader的python代码看了看，依葫芦画瓢画了个纯javascript版。</li>
+<li>热情地把<a href="http://eloquentjavascript.net/" target="_blank" rel="external">Eloquent Javascript</a>的项目和练习复习一遍，然后继续接着往下看。</li>
+</ol>
+<p>对此，有了两个新认识：</p>
+<ol>
+<li>Python是门强大的语言。特别是前几天在python中看到async关键字之后…</li>
+<li>javascript是门强大的语言但并不简单，ES6让它更强大也更好用更简单</li>
+</ol>
+<p>这时候发现有几个地方用ES6特性非常方便。</p>
+<p>本文不会解释这些特性是什么，所以，如果是查资料查到这里，略过吧。</p>
+<h2 id="Generator">Generator</h2><p>在<a href="https://github.com/nltk/nltk/blob/develop/nltk/corpus/reader/wordnet.py" target="_blank" rel="external">nltk wordnet corpus</a>中，对wordnet data文件进行逐行解析的时候，这样处理一行内容：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">_iter = iter(line.split())</span><br><span class="line">_next_token = <span class="keyword">lambda</span>: next(_iter)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line"></span><br><span class="line">    <span class="comment"># get the lemma and part-of-speech</span></span><br><span class="line">    lemma = _next_token()</span><br><span class="line">    pos = _next_token()</span><br><span class="line">    <span class="comment"># get the number of synsets for this lemma</span></span><br><span class="line">    n_synsets = int(_next_token())</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<p>显然，对每一行，首先生成一个iterator，这个iterator返回这一行用空格分隔的每一个单词。好在ES6中也支持generator/iterator了，对应如下。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> token = util.getIterator(line.split(<span class="regexp">/\s+/</span>).filter(v=&gt;v!==<span class="string">''</span>));</span><br><span class="line"><span class="comment">// or let token = line.split(/\s+/).filter(v=&gt;v!=='')[Symbol.iterator]();</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="comment">// lemma and pos</span></span><br><span class="line">  lemma = token.next().value;</span><br><span class="line">  pos = token.next().value;</span><br><span class="line">  <span class="comment">// get how many synsets for this lemma</span></span><br><span class="line">  nSynsets = <span class="built_in">parseInt</span>(token.next().value);</span><br><span class="line">  assert(nSynsets &gt; <span class="number">0</span>);</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+<p>其中，<code>getIterator</code>定义为一个generator函数，调用这个函数则生成对应的generator，下面的<code>for...of</code>用到了<a href="http://devdocs.io/javascript/global\_objects/symbol/iterator" target="_blank" rel="external"><code>array</code>对象本身就有一个generator函数</a>的特性。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">util.getIterator = <span class="function"><span class="keyword">function</span> *(<span class="params">array</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> value <span class="keyword">of</span> array) &#123;</span><br><span class="line">    <span class="keyword">yield</span> value;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>nltk中生成ngram的方法的js实现</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">ngrams</span>(<span class="params">sequence, n</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// Sadly, you cant use arrow function as generator here.</span></span><br><span class="line">  <span class="keyword">let</span>  g = (<span class="function"><span class="keyword">function</span> *(<span class="params">sequence</span>)</span>&#123;<span class="keyword">yield</span> *sequence&#125;)(sequence);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> history = [];</span><br><span class="line">  <span class="keyword">while</span> (n &gt; <span class="number">1</span>) &#123;</span><br><span class="line">    history.push(g.next().value);</span><br><span class="line">    n--;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> item <span class="keyword">of</span> g) &#123;</span><br><span class="line">    history.push(item);</span><br><span class="line">    <span class="comment">// look out here.</span></span><br><span class="line">    <span class="comment">// yield history; will yield reference.</span></span><br><span class="line">    <span class="keyword">yield</span> <span class="built_in">Array</span>.from(history);</span><br><span class="line">    history.shift();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Collections">Collections</h2><p>当我尝试用js实现<a href="http://www.matrix67.com/blog/archives/5044" target="_blank" rel="external">matrix67几年前在其博客讲到的新词发现算法</a>时，需要把一个穷举一个序列的所有分割可能。我这样实现的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">splitSet</span>(<span class="params">s</span>) </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> *<span class="title">_splitAll</span>(<span class="params">s</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (s.length == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">yield</span> s;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; s.length; i++) &#123;</span><br><span class="line">      <span class="keyword">let</span> left = s.substr(<span class="number">0</span>, i);</span><br><span class="line">      <span class="keyword">let</span> right = s.substr(i);</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> wl <span class="keyword">of</span> _splitAll(left)) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> wr <span class="keyword">of</span> _splitAll(right)) &#123;</span><br><span class="line">          <span class="keyword">yield</span> wl + <span class="string">" "</span> + wr;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">let</span> set = [];</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> w <span class="keyword">of</span> _splitAll(s))&#123;</span><br><span class="line">    set.push(w);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> set;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>想得很好，通过将序列分为左右两部分递归简化处理。结果发现同一分割出现了多词。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#62; splitSet(&#34;abc&#34;)&#10;[ &#39;abc&#39;, &#39;a bc&#39;, &#39;a b c&#39;, &#39;ab c&#39;, &#39;a b c&#39; ]</span><br></pre></td></tr></table></figure>
+<p>相同的结果需要排除，这时候ES6中的<code>Set</code>就很方便了…</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> set = <span class="keyword">new</span> <span class="built_in">Set</span>();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> w <span class="keyword">of</span> _splitAll(s))&#123;</span><br><span class="line">  set.add(w);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> set;</span><br></pre></td></tr></table></figure>
+<h2 id="Promise">Promise</h2><p>事实上，任何能使用Promise+Generator的地方我都会用，当然ES7中有了async和await关键字。比如在<a href="https://greasyfork.org/en/scripts/12758-youdaodict" target="_blank" rel="external">youdaodict Userscript</a>中实现调用audio API来播放有道mp3音频文件<a href="stackoverflow.com/questions/28554022/how-can-i-play-sound-with-a-greasemonkey-script-in-firefox-when-theres-a-conte">实现跨域发音的函数</a>.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">play</span>(<span class="params">word</span>) </span>&#123;</span><br><span class="line">  <span class="comment">//console.log("[DEBUG] PLAYOUND")</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">playSound</span>(<span class="params">buffer</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> source = context.createBufferSource();</span><br><span class="line">    source.buffer = buffer;</span><br><span class="line">    source.connect(context.destination);</span><br><span class="line">    source.start(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> context = <span class="keyword">new</span> AudioContext()</span><br><span class="line">  <span class="keyword">var</span> soundUrl = <span class="string">`https://dict.youdao.com/dictvoice?type=2&amp;audio=<span class="subst">$&#123;word&#125;</span>`</span></span><br><span class="line">  <span class="keyword">var</span> p = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> ret = GM_xmlhttpRequest(&#123;</span><br><span class="line">      method: <span class="string">"GET"</span>,</span><br><span class="line">      url: soundUrl,</span><br><span class="line">      responseType: <span class="string">'arraybuffer'</span>,</span><br><span class="line">      onload: <span class="function"><span class="keyword">function</span>(<span class="params">res</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          context.decodeAudioData(res.response, <span class="function"><span class="keyword">function</span>(<span class="params">buffer</span>) </span>&#123;</span><br><span class="line">            resolve(buffer);</span><br><span class="line">          &#125;)</span><br><span class="line">        &#125; <span class="keyword">catch</span>(e) &#123;</span><br><span class="line">          reject(e);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">  p.then(playSound, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(e);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>一般的观点是，凡是关系到异步返回值的时候，都应该尽量使用Promise，保证<a href="https://github.com/getify/You-Dont-Know-JS/blob/master/async%20&amp;%20performance/ch3.md" target="_blank" rel="external">回调只被执行一次、更好的错误处理、更明晰的流程结构</a>。</p>
+<p>Promise和Generator现在常作为将来ES7中<code>async/await</code>的过渡。比如著名的<code>co</code>模块，以下是一个简化<code>co</code>实现</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">co</span>(<span class="params">g</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> it = g.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">handle</span>(<span class="params">result</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (result.done)</span><br><span class="line">        <span class="keyword">return</span> result.value;</span><br><span class="line">      <span class="keyword">return</span> result.value.then(<span class="function"><span class="keyword">function</span>(<span class="params">res</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> handle(it.next(res))</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> handle(it.next())</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单来说，就是对<code>generator</code>中每个<code>yield</code>出一个promise时，检查这个promise是否已经完成，<br>完成就返回值。没有就在该promise上注册回调让其把完成后的值传回<code>generator</code>并等待<code>generator</code>再返回下一个Promise。</p>
+<p>好绕是不是?我跑题了抱歉。</p>
+<h2 id="Template_String">Template String</h2><p>其实上面的例子已经用到这个特性了。再举个例子，Coffeescript中可以这样写正则：</p>
+<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">OPERATOR = <span class="regexp">/// ^ (</span><br><span class="line">  ?: [-=]&gt;             <span class="comment"># function</span></span><br><span class="line">   | [-+*/%&lt;&gt;&amp;|^!?=]=  <span class="comment"># compound assign / compare</span></span><br><span class="line">   | &gt;&gt;&gt;=?             <span class="comment"># zero-fill right shift</span></span><br><span class="line">   | ([-+:])\1         <span class="comment"># doubles</span></span><br><span class="line">   | ([&amp;|&lt;&gt;])\2=?      <span class="comment"># logic / shift</span></span><br><span class="line">   | \?\.              <span class="comment"># soak access</span></span><br><span class="line">   | \.&#123;2,3&#125;           <span class="comment"># range or splat</span></span><br><span class="line">) ///</span></span><br></pre></td></tr></table></figure>
+<p>非常方便不是？虽然我开始是在<a href="www.nltk.org/book/ch03.html">nltk</a>中看到了这个功能，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">text = <span class="string">'That U.S.A. poster-print costs $12.40...'</span></span><br><span class="line">pattern = <span class="string">r'''(?x)    # set flag to allow verbose regexps</span><br><span class="line">    ([A-Z]\.)+        # abbreviations, e.g. U.S.A.</span><br><span class="line">  | \w+(-\w+)*        # words with optional internal hyphens</span><br><span class="line">  | \$?\d+(\.\d+)?%?  # currency and percentages, e.g. $12.40, 82%</span><br><span class="line">  | \.\.\.            # ellipsis</span><br><span class="line">  | [][.,;"'?():-_`]  # these are separate tokens;</span><br><span class="line">'''</span></span><br><span class="line">nltk.regexp_tokenize(text, pattern)</span><br><span class="line">[<span class="string">'That'</span>, <span class="string">'U.S.A.'</span>, <span class="string">'poster-print'</span>, <span class="string">'costs'</span>, <span class="string">'$12.40'</span>, <span class="string">'...'</span>]</span><br></pre></td></tr></table></figure>
+<p>想了想如何在js中自己实现，忽然想到了template string这个特性。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">r</span>(<span class="params">strings</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> returnS;</span><br><span class="line">  <span class="comment">// remove all space;</span></span><br><span class="line">  returnS = strings[<span class="number">0</span>];</span><br><span class="line">  <span class="keyword">let</span> comment = <span class="regexp">/\/\/.*\n/g</span>;</span><br><span class="line">  returnS = returnS.replace(comment, <span class="string">""</span>);</span><br><span class="line">  returnS = returnS.replace(<span class="regexp">/\s+/g</span>,<span class="string">""</span>);</span><br><span class="line">  <span class="keyword">return</span> returnS;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">r<span class="string">`</span><br><span class="line">    ([A-Z]\.)+        // abbreviations, e.g. U.S.A.</span><br><span class="line">  | \w+(-\w+)*        // words with optional internal hyphens</span><br><span class="line">  | \$?\d+(\.\d+)?%?  // currency and percentages, e.g. $12.40, 82%</span><br><span class="line">  | \.\.\.            // ellipsis</span><br><span class="line">  | [][.,;"'?():-_\`] // these are separate tokens; includes ], [</span><br><span class="line">`</span></span><br></pre></td></tr></table></figure>
+<p>这里用到了<a href="http://devdocs.io/javascript/template_strings" target="_blank" rel="external">Tagged template strings</a>的特性。</p>
+<p>另外，如果是多行连续文本时也应该使用template string。</p>
+<h2 id="class">class</h2><p>从本质上讲，javascript中的所有面向对象机制都是建构在原型链上的，但class这种语法糖也能比较方便。在coffeescript中我觉得那种浓烈ruby风的写法更合心意一些，<code>class</code>关键字总有些不怎么顺手的地方，比如 <em>设置类静态变量</em> 和有争议的 <em>mixin</em> 。参照nltk wordnet corpus reader类的时候也简单实践了下class关键字、继承等的使用。简单使用还是挺顺手的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Synset</span> <span class="keyword">extends</span> <span class="title">_WordNetObject</span> </span>&#123;</span><br><span class="line">  <span class="comment">/* lemma.pos.number to get a synset */</span></span><br><span class="line">  constructor() &#123;</span><br><span class="line">    <span class="keyword">super</span>();</span><br><span class="line">    <span class="comment">// initialized by the Reader</span></span><br><span class="line">    <span class="keyword">this</span>._name = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">this</span>._offset = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">this</span>._lexname = <span class="literal">null</span>; <span class="comment">// lexicographer file e.g. noun.animal</span></span><br><span class="line">    <span class="keyword">this</span>._pos = <span class="literal">null</span>;</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<h2 id="destructuring_assign">destructuring assign</h2><p>这是，非常好用的语法糖。终于可以</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[a, b] = [<span class="number">1</span>, <span class="number">2</span>];</span><br></pre></td></tr></table></figure>
+<h2 id="Spread_Operator">Spread Operator</h2><p>各种语法糖，处理rest parameter时省心很多，而且返回的是一个真正的Array对象。比较有意思的一个例子是，有次见有人讨论如何把<code>Math.min</code>应用到数组上。他说到javascript高级程序设计上的例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">min</span>(<span class="params">array</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Math</span>.min.apply(<span class="built_in">Math</span>, array);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>认为应该把<code>this</code>绑定到<code>null</code>而不是<code>Math</code>，于是我才知道<code>apply</code>时还是要小心不要污染全局变量空间。。。不过这个例子，我去翻了下<a href="https://github.com/v8/v8/blob/44c44521ae11859478b42004f57ea93df52526ee/src/js/math.js#L110-135" target="_blank" rel="external">v8的math.js</a>和<a href="https://github.com/ricardoquesada/Spidermonkey/blob/master/js/src/jsmath.cpp#L593-L616" target="_blank" rel="external">spidermonkey的Math实现</a>，都不关this什么事，所以，我觉得，爱绑定啥都行。。。</p>
+<p>关键在于，有了spread operator之后</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Math</span>.min(...array);</span><br></pre></td></tr></table></figure>
+<p>就行了。这些类似的应用场景很多的，比如打印数组中每个成员</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(...array);</span><br></pre></td></tr></table></figure>
+<p>少写多少代码：）</p>
+<h2 id="Arrow_Function">Arrow Function</h2><p>在前面的例子中你应该已经见到过，箭头函数让书写匿名函数(lambda)变得异常方便(少打很多字)，除了不能用箭头函数写一个generator这个设定有些意外。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(v=&gt;v+<span class="number">1</span>)(<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+<p>另外，箭头函数的this是提前绑定到所在词法作用域内的(和调用者无关、apply等指定的<code>this</code>都无关)，有兴趣的同学大概可以去看看v8和SpiderMonkey怎么实现的。</p>
+<h2 id="Proxy">Proxy</h2><p>差点忘了这个，因为，目前，截至到本文发稿，v8并不支持标准中的新特性(<code>--harmony_proxies</code>开启的是已废弃的Proxy API)，所以node也不支持。firefox倒是支持非常好哈哈。</p>
+<p>在python中，标准库中有个较<code>defaultdict</code>的东西。有什么作用看看下面的例子就知道了。事实上，nltk wordnet corpus reader生成映射的时候很依赖这个功能。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">In [3]: from collections import defaultdict</span><br><span class="line"></span><br><span class="line">In [4]: expanded_dict = defaultdict(dict)</span><br><span class="line"></span><br><span class="line">In [5]: expanded_dict['a']['b'] = 1</span><br><span class="line"></span><br><span class="line">In [6]: expanded_dict</span><br><span class="line">Out[6]: defaultdict(&lt;type 'dict'&gt;, &#123;'a': &#123;'b': 1&#125;&#125;)</span><br><span class="line"></span><br><span class="line">In [7]: dict['a']['b']</span><br><span class="line">---------------------------------------------------------------------------</span><br><span class="line">TypeError                                 Traceback (most recent call last)</span><br><span class="line">&lt;ipython-input-7-07dd2e624242&gt; in &lt;module&gt;()</span><br><span class="line">----&gt; 1 dict['a']['b']</span><br><span class="line"></span><br><span class="line">TypeError: 'type' object has no attribute '__getitem__'</span><br></pre></td></tr></table></figure>
+<p>显然我们不想让不存在的东西报错，我们也不想每次都写个if语句判断是吧。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> dct[<span class="string">'a'</span>]:</span><br><span class="line">    dct[<span class="string">'a'</span>] = &#123;&#125;</span><br><span class="line">dct[<span class="string">'a'</span>][<span class="string">'b'</span>] = <span class="number">1</span></span><br><span class="line">```    </span><br><span class="line"></span><br><span class="line">如果你知道`dct`中有哪些键当然也能全首先赋成字典，但是，很多情况下你并不知道有哪些键，还得依靠<span class="keyword">if</span>来判断。`defaultdict`优雅的解决了这个问题。</span><br><span class="line"></span><br><span class="line">遗憾的是，javascript中没有这种东西。忽然想到了[ES6 <span class="keyword">in</span> Depth: Proxies](https://hacks.mozilla.org/<span class="number">2015</span>/<span class="number">07</span>/es6-<span class="keyword">in</span>-depth-proxies-<span class="keyword">and</span>-reflect/)中的例子，想到可以依靠这个特性自己实现一个`defaultdict`。</span><br><span class="line"></span><br><span class="line">```javascript</span><br><span class="line">function Defaultdict() &#123;</span><br><span class="line">  handler = &#123;</span><br><span class="line">    get: function (target, prop, receiver) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!(prop <span class="keyword">in</span> target)) &#123;</span><br><span class="line">        target[prop] = &#123;&#125;;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> target[prop];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  var p = new Proxy(this, handler);</span><br><span class="line">  <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let expandedDct = new Defaultdict();</span><br><span class="line">expandedDct.a.b = <span class="number">1</span>;</span><br><span class="line">expandedDct.c.d = <span class="number">2</span>;</span><br><span class="line">console.log(expandedDct.a.b)</span><br><span class="line">console.log(Object.keys(expandedDct));</span><br></pre></td></tr></table></figure>
+<p>目前只有firefox支持标准的Proxy API。当然V8/node中可以polyfill出来，请自行github。</p>
+<p>用<code>Proxy</code>可以结合<code>Map</code>来实现<code>Map</code>版本的DefaultMap哈哈。</p>
+<p></p><p style="color:red">PS: 浏览器调试工具会调用一些方法。比如，你新建一个<code>expandedDct</code>之后，如果在firebug中想用<code>.</code>来查看变量，会对其调用很多方法。。。结果就是<code>expandedDct</code>多了很多firebug探查对象属性用到的函数名。。。我在这个问题上纠结了几乎两个小时没明白为啥多了这些奇怪的键而且一会儿有一会儿没。切切注意！！</p><p></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#62; Object.keys(expandedDct)&#10;[&#34;a&#34;, &#34;c&#34;, &#34;length&#34;, &#34;fullPath&#34;, &#34;fileSize&#34;, &#34;header&#34;, &#34;body&#34;, &#34;getSourceLink&#34;]</span><br></pre></td></tr></table></figure>
+<h2 id="总结">总结</h2><p>以上，就是最近感觉比较有意思的一些ES6特性，就这样吧。</p>
+<p>Have fun！</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="ES6">ES6</h2><p>ES6标准，也称ES2015。在2015年6月正式批准，这是javascript语言标准从2009年首次大版本更新。</p>
+<p>这个版本带来了很多新东西，说是新东西，估计基本读者也都见过。比如python中常用的Destruct]]>
+    </summary>
+    
+      <category term="ES2015" scheme="http://reverland.org/tags/es2015/"/>
+    
+      <category term="javascript" scheme="http://reverland.org/tags/javascript/"/>
+    
+      <category term="javascript" scheme="http://reverland.org/categories/javascript/"/>
+    
+  </entry>
+  
+  <entry>
     <title><![CDATA[从Jekyll迁移到Hexo]]></title>
     <link href="http://reverland.org/web/2015/11/18/notes-on-migrating-from-jeykll-to-hexo/"/>
     <id>http://reverland.org/web/2015/11/18/notes-on-migrating-from-jeykll-to-hexo/</id>
     <published>2015-11-17T16:00:00.000Z</published>
-    <updated>2015-11-18T11:13:54.255Z</updated>
+    <updated>2015-11-18T15:23:54.682Z</updated>
     <content type="html"><![CDATA[<p>上周，我将博客从jekyll平台迁移到hexo下。</p>
 <h2 id="缘起">缘起</h2><p>不为什么。本来不想换，奈何不能成功在ubuntu 14.10上用rvm成功编译<code>ruby 2.1+</code>，连续几次过热自动关机后，就默默装上了基于node的hexo。</p>
 <h2 id="迁移记录">迁移记录</h2><p>对jekyll，日志源文件都在<code>_posts/</code>目录下。而hexo则在<code>sources/_posts/</code>下。两者支持的都是带metadata的markdown文件。(当然，我还有一些用textile标记的文件。)简单来说，只要把相应的markdown文件迁移到hexo对应的位置就行。</p>
@@ -80,8 +169,7 @@
 <p>当然，最好脚本辅助，手工确认。</p>
 <p>另外，有这么个东西<a href="https://github.com/wzpan/hexo-renderer-pandoc" target="_blank" rel="external">hexo render pandoc</a>来替换hexo的渲染引擎，就能顺便支持textile。值得一试和研究，也许里头就用到对文档元数据或者跳过指定行数的转换吧。没有细看。话说，还看到<a href="http://codefalling.com/2015/11/15/new-version-of-hexo-renderer-org/" target="_blank" rel="external">@CodeFalling</a>使用emacs来做org渲染后端，hexo的灵活性可见一斑。</p>
 <h2 id="feed">feed</h2><p>默认的hexo竟然不像jekyll一样有feed生成支持！不过有<a href="https://github.com/hexojs/hexo-generator-feed" target="_blank" rel="external">hexo-generator-feed</a>这个插件来实现。具体参照文档就好。</p>
-<p>##　添加友情链接、分类页、标签页</p>
-<p>根据<a href="http://theme-next.iissnan.com/theme-settings.html" target="_blank" rel="external">根据Next主题的文档来就好</a>。</p>
+<h2 id="添加友情链接、分类页、标签页">添加友情链接、分类页、标签页</h2><p>根据<a href="http://theme-next.iissnan.com/theme-settings.html" target="_blank" rel="external">根据Next主题的文档来就好</a>。</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>上周，我将博客从jekyll平台迁移到hexo下。</p>
@@ -1391,330 +1479,6 @@ Out[<span class="number">17</span>]: &lt;Response [<span class="number">200</spa
       <category term="os" scheme="http://reverland.org/tags/os/"/>
     
       <category term="os" scheme="http://reverland.org/categories/os/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[Position Independent Code (PIC) in shared libraries]]></title>
-    <link href="http://reverland.org/linux/2015/03/19/position-independent-code-pic-in-shared-libraries/"/>
-    <id>http://reverland.org/linux/2015/03/19/position-independent-code-pic-in-shared-libraries/</id>
-    <published>2015-03-18T16:00:00.000Z</published>
-    <updated>2015-11-15T06:01:31.551Z</updated>
-    <content type="html"><![CDATA[<p>动态载入有好几个问题：</p>
-<ul>
-<li>需要时间载入，每次引用都要重定位</li>
-<li>让<code>.text</code>区域不能共享，浪费了RAM空间</li>
-<li><code>.text</code>必须能写入带来安全问题</li>
-</ul>
-<p>PIC能解决这些问题：</p>
-<p>PIC背后的思想很简单，为代码中的全局数据和函数引用外加一层重定向。通过利用链接和加载过程，可能让共享库中的<code>text</code>部分完全位置无关。它可以被映射到不同的内存地址无需修改。</p>
-<h2 id="洞见1：text和data段之间的偏移">洞见1：text和data段之间的偏移</h2><p>PIC依赖于数据段和代码段之间的偏移，这些数据在链接时就被链接器知道了。当链接结合几个目标文件时，链接器手机不同目标文件的各个段然后合成一个。因此，链接器知道段的尺寸相对位置。</p>
-<p>比如说数据段紧接着代码段，在代码段中引用数据段中某个数据的相对地址就能通过简单的计算得到。当前代码在代码段中的偏移已知，代码段基址与数据段之间的偏移已知，调用的相对地址就是两者之差。</p>
-<pre><code>(地址由低到高，位置都是已知的)
-text基址
-<span class="attribute">...</span>
-某需要相对引用指令-------<span class="subst">\</span>
-<span class="attribute">...</span>                       |
-<span class="built_in">data</span>基址                  |相对地址
-<span class="attribute">...</span>                       |
-被引用的数据      -------/
-<span class="attribute">...</span>
-</code></pre><h2 id="洞见2：基于程序指针的取址">洞见2：基于程序指针的取址</h2><p>x86没有对eip操作的指令，不能通过程序指针取地址，但x64可以啊</p>
-<p>x86很多指令需要绝对地址，通过相对与程序指针取址可以得到。</p>
-<p>很多shellcode用这个获取程序指针：</p>
-<pre><code><span class="keyword">call</span> something
-something：
-    <span class="keyword">pop</span> <span class="literal">ebx</span>
-</code></pre><p><code>ebx</code>中现在就是程序指针的值了</p>
-<h2 id="数据索引">数据索引</h2><h3 id="全局偏移表(GOT)">全局偏移表(GOT)</h3><p>面试被问及这个怎么组织的？我不是很明白什么意思。早年曾经就跟着这篇文章打开gdb很好奇的看got/plt是怎么回事。</p>
-<p>通过以上两个洞见，在x86上实现PIC也是可能的。通过GOT完成。</p>
-<p>GOT就是一个地址表，在数据段中。当一个代码段中的指令想引用某个变量，不是直接通过绝对地址(需要重定位),而是引用GOT中的条目。显然GOT的地址确定，GOT的条目则将保存变量的绝对地址。</p>
-<p><img src="http://eli.thegreenplace.net/images/2011/code_data_got_1.png" alt="got"></p>
-<p>GOT中的条目还是得重定位= =，但相对于载入时重定位，有两个好处</p>
-<ul>
-<li>重定位每个变量只重定位一次</li>
-<li>数据段是可写的，不被进程共享。添加重定位没什么影响。将重定位从代码段移过来，让代码段只读并且在进程间可以共享。</li>
-</ul>
-<h3 id="一个例子">一个例子</h3><p><code>ml_main_pic.c</code></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> myglob = <span class="number">42</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ml_util_func</span><span class="params">(<span class="keyword">int</span> a)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ml_func</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> c = b + ml_util_func(a);</span><br><span class="line">    myglob += c;</span><br><span class="line">    <span class="keyword">return</span> b + myglob;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>编译为PIC的动态库</p>
-<pre><code>~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/blackhat/</span>eli  gcc -fPIC -m32 -g -shared ml_main_pic.c -o libmlpic.so
-</code></pre><p>反汇编</p>
-<pre><code> ~/Work/project/blackhat/eli  objdump -d -Mintel libmlpic_dataonly.so   
-<span class="label">
-libmlpic_dataonly.so:</span>     file format elf32-i386
-...
-0000053c &lt;ml_func&gt;:
- 53c:   <span class="number">55</span>                      <span class="keyword">push</span>   <span class="literal">ebp</span>
- <span class="number">53d</span>:   <span class="number">89</span> e5                   <span class="keyword">mov</span>    <span class="literal">ebp</span>,<span class="literal">esp</span>
- 53f:   e8 1a <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>          <span class="keyword">call</span>   55e &lt;__x86.get_pc_thunk.cx&gt;
- <span class="number">544</span>:   <span class="number">81</span> c1 bc 1a <span class="number">00</span> <span class="number">00</span>       <span class="keyword">add</span>    <span class="literal">ecx</span>,<span class="number">0x1abc</span>
- 54a:   8b <span class="number">81</span> ec ff ff ff       <span class="keyword">mov</span>    <span class="literal">eax</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ecx</span>-<span class="number">0x14</span>]
- <span class="number">550</span>:   8b <span class="number">10</span>                   <span class="keyword">mov</span>    <span class="literal">edx</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">eax</span>]
- <span class="number">552</span>:   8b <span class="number">45</span> <span class="number">08</span>                <span class="keyword">mov</span>    <span class="literal">eax</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebp</span>+<span class="number">0x8</span>]
- <span class="number">555</span>:   <span class="number">01</span> c2                   <span class="keyword">add</span>    <span class="literal">edx</span>,<span class="literal">eax</span>
- <span class="number">557</span>:   8b <span class="number">45</span> 0c                <span class="keyword">mov</span>    <span class="literal">eax</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebp</span>+<span class="number">0xc</span>]
- 55a:   <span class="number">01</span> d0                   <span class="keyword">add</span>    <span class="literal">eax</span>,<span class="literal">edx</span>
- 55c:   <span class="number">5d</span>                      <span class="keyword">pop</span>    <span class="literal">ebp</span>
- <span class="number">55d</span>:   c3                      <span class="keyword">ret</span>    
-
-0000055e &lt;__x86.get_pc_thunk.cx&gt;:
- 55e:   8b 0c <span class="number">24</span>                <span class="keyword">mov</span>    <span class="literal">ecx</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">esp</span>]
- <span class="number">561</span>:   c3                      <span class="keyword">ret</span>    
- <span class="number">562</span>:   <span class="number">66</span> <span class="number">90</span>                   <span class="keyword">xchg</span>   <span class="literal">ax</span>,<span class="literal">ax</span>
-</code></pre><p>53f是获取程序指针的方法，把程序指针放到<code>ecx</code>中。</p>
-<p>在544后，<code>ecx</code>就持有GOT的地址。</p>
-<p>54a后，将<code>myglob</code>在GOT中的的绝对地址放入<code>eax</code></p>
-<p>550后，<code>myglob</code>的值被置入<code>edx</code></p>
-<p>然后就是简单的加上<code>a</code>和<code>b</code>。</p>
-<p>通过readelf可以查看共享库文件中GOT节信息</p>
-<pre><code> ~/Work/project/blackhat/eli  readelf -S libmlpic_dataonly.so 
-There are <span class="number">33</span> section headers, starting at offset <span class="number">0x1320</span>:
-
-Section Headers:
-  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
-  ...
-  [<span class="number">19</span>] .got              PROGBITS        <span class="number">00001f</span>e8 <span class="number">000f</span>e8 <span class="number">000018</span> <span class="number">04</span>  WA  <span class="number">0</span>   <span class="number">0</span>  <span class="number">4</span>
-  [<span class="number">20</span>] .got.plt          PROGBITS        <span class="number">00002000</span> <span class="number">001000</span> <span class="number">000014</span> <span class="number">04</span>  WA  <span class="number">0</span>   <span class="number">0</span>  <span class="number">4</span>
-  ...
-Key to Flags:
-  W (write), A (alloc), X (execute), M (merge), S (strings)
-  I (info), L (link order), G (group), T (TLS), E (exclude), x (unknown)
-  O (extra OS processing required) o (OS specific), p (processor specific)
-</code></pre><p>我们算算ELF中写的和编译器做的是否符合。</p>
-<pre><code><span class="number">0x544</span>+<span class="number">0x1abc</span>=<span class="number">0x2000</span>
-</code></pre><p>正好是<code>.got.plt</code>节的虚拟地址。再计算下myglob地址在GOT中的位置</p>
-<pre><code><span class="number">0x2000</span>-<span class="number">0x14</span>=<span class="number">0x1fec</span>
-</code></pre><p>我们看看ELF文件中的信息:</p>
-<pre><code> ~/Work/project/blackhat/eli  readelf -r libmlpic_dataonly<span class="class">.so</span>
-
-Relocation <span class="tag">section</span> <span class="string">'.rel.dyn'</span> at offset <span class="number">0</span>x358 contains <span class="number">9</span> entries:
- Offset     Info    Type            Sym<span class="class">.Value</span>  Sym. Name
- ...
-<span class="number">00001</span>fec  <span class="number">00000606</span> R_386_GLOB_DAT    <span class="number">00002018</span>   myglob
-...
-</code></pre><p>正好，这里有个重定位。这个重定位就是让链接器把符号地址直接放到这里。</p>
-<p>通过gdb看看：</p>
-<pre><code> ~/Work/project/blackhat/eli  gcc -m32 -o driver driver.o -L. -lmlpic_dataonly
- ~/Work/project/blackhat/eli  gdb -q driver 
-Reading symbols from /home/lyy/Work/project/blackhat/eli/driver..<span class="string">.done</span>.
-(gdb)  break ml_func
-Breakpoint <span class="number">1</span> <span class="preprocessor">at</span> <span class="number">0x80484c0</span>
-(gdb) r
-Starting program: /home/lyy/Work/project/blackhat/eli/driver 
-<span class="label">warning:</span> the debug information found <span class="keyword">in</span> <span class="string">"/usr/lib64/debug/lib64/ld-2.17.so.debug"</span> does <span class="keyword">not</span> match <span class="string">"/lib/ld-linux.so.2"</span> (CRC mismatch).
-
-addr myglob = <span class="number">0x804a024</span>
-
-Breakpoint <span class="number">1</span>, ml_func (a=<span class="number">1</span>, b=<span class="number">1</span>) <span class="preprocessor">at</span> ml_main_pic.c:<span class="number">5</span>
-<span class="number">5</span>           return myglob + a + b<span class="comment">;</span>
-(gdb) disas ml_func
-Dump of assembler code for function ml_func:
-   <span class="number">0xf7fd853c</span> &lt;+<span class="number">0</span>&gt;:     <span class="keyword">push</span>   <span class="literal">ebp</span>
-   <span class="number">0xf7fd853d</span> &lt;+<span class="number">1</span>&gt;:     <span class="keyword">mov</span>    <span class="literal">ebp</span>,<span class="literal">esp</span>
-   <span class="number">0xf7fd853f</span> &lt;+<span class="number">3</span>&gt;:     <span class="keyword">call</span>   <span class="number">0xf7fd855e</span> &lt;__x86.get_pc_thunk.cx&gt;
-   <span class="number">0xf7fd8544</span> &lt;+<span class="number">8</span>&gt;:     <span class="keyword">add</span>    <span class="literal">ecx</span>,<span class="number">0x1abc</span>
-=&gt; <span class="number">0xf7fd854a</span> &lt;+<span class="number">14</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">eax</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ecx</span>-<span class="number">0x14</span>]
-   <span class="number">0xf7fd8550</span> &lt;+<span class="number">20</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">edx</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">eax</span>]
-   <span class="number">0xf7fd8552</span> &lt;+<span class="number">22</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">eax</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebp</span>+<span class="number">0x8</span>]
-   <span class="number">0xf7fd8555</span> &lt;+<span class="number">25</span>&gt;:    <span class="keyword">add</span>    <span class="literal">edx</span>,<span class="literal">eax</span>
-   <span class="number">0xf7fd8557</span> &lt;+<span class="number">27</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">eax</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebp</span>+<span class="number">0xc</span>]
-   <span class="number">0xf7fd855a</span> &lt;+<span class="number">30</span>&gt;:    <span class="keyword">add</span>    <span class="literal">eax</span>,<span class="literal">edx</span>
-   <span class="number">0xf7fd855c</span> &lt;+<span class="number">32</span>&gt;:    <span class="keyword">pop</span>    <span class="literal">ebp</span>
-   <span class="number">0xf7fd855d</span> &lt;+<span class="number">33</span>&gt;:    <span class="keyword">ret</span>    
-End of assembler dump.
-(gdb) i registers 
-<span class="literal">eax</span>            <span class="number">0x1</span>      <span class="number">1</span>
-<span class="literal">ecx</span>            <span class="number">0xf7fda000</span>       -<span class="number">134373376</span>
-...
-(gdb) p/x <span class="number">0xf7fda000</span>-<span class="number">0x14</span> # GOT中glob绝对地址地址
-<span class="number">$2</span> = <span class="number">0xf7fd9fec</span>
-(gdb) x/x <span class="number">0xf7fd9fec</span>
-<span class="number">0xf7fd9fec</span>:     <span class="number">0x0804a024</span>
-(gdb) p &amp;myglob 
-<span class="number">$4</span> = (<span class="keyword">int</span> *) <span class="number">0x804a024</span> &lt;myglob&gt;
-</code></pre><p>就是这样</p>
-<h2 id="函数调用">函数调用</h2><p>额，函数调用，阿里电面时问我GOT干什么的，我说解析函数的吧。。。。。。(就是因为当年看得这篇留下的残缺印象)，当时为什么看这篇文章呢？因为发现函数调用竟然都不是直接调用的！！！</p>
-<p>函数不是像数据这样简单的引用的。</p>
-<h3 id="惰性绑定优化">惰性绑定优化</h3><p>共享库引用一个函数时，函数地址在载入时才能确定。解析这个地址的过程叫做绑定(binding)。这就是动态载入器把共享库载入进程内存空间时所做的。这个绑定过程不简单，载入器不得不通过在特殊的表中查找函数符号来实现。(共享库ELF目标文件确实有以此为目的的特殊的哈希表节)</p>
-<p>解析函数花时间，一般函数比全局变量多太多了，更何况很多函数可能根本不会被调用(比如错误处理或特殊情况)。</p>
-<p>为了加速函数绑定的过程，智能惰性绑定机制被设计出来。所谓惰性就是在需要的时候再做什么，计算机科学中很多应用比如<a href="http://en.wikipedia.org/wiki/Copy-on-write" target="_blank" rel="external">惰性求值</a>和<a href="http://en.wikipedia.org/wiki/Lazy_evaluation" target="_blank" rel="external">copy-on-write</a></p>
-<p>惰性绑定机制通过又一层重定向实现——PLT.</p>
-<h3 id="过程链接表(PLT)">过程链接表(PLT)</h3><p>PLT是可执行的<code>.text</code>一部分，包含一系列条目(每个条目对应一个共享库调用的外部函数)</p>
-<p>每个PLT条目都是段简短的可执行代码。</p>
-<p>代码调用PLT中的条目而不是直接调用函数，PLT中条目负责真正调用函数。</p>
-<p>这个设计被成为蹦床(‘trampoline’)<a href="这让我想起了函数式编程的一种优化递归设计。">^1</a>，每个PLT条目对应也在GOT中一个包含函数实际偏移的条目，但仅仅动态载入器解析它后才会对应上。</p>
-<p>PLT允许惰性解析，当共享库首次被载入后，函数调用还没被解析：</p>
-<p><img src="http://eli.thegreenplace.net/images/2011/plt_before.png" alt="调用时的解析过程"></p>
-<p>一点解说：PLT的第一个条目调用解析程序，该程序在动态链接器里(每个都有)。这个程序将把函数的实际地址解析。</p>
-<h4 id="第一次">第一次</h4><p>于是乎，当func第一次被调用时，调用<code>PLT[n]</code>的例程，接着根据<code>GOT[n]</code>中的内容跳到准备解析的指令，接着调用解析器，解析器会把func函数的实际地址写入<code>GOT[n]</code>然后调用<code>func</code>。</p>
-<h4 id="第二次">第二次</h4><p><img src="http://eli.thegreenplace.net/images/2011/plt_after.png" alt="事情不再相同"></p>
-<p>这时候<code>GOT[n]</code>中已经有函数实际地址，从PLT条目直接就跳到函数func的实际代码开始执行。</p>
-<p>不再需要解析器，只有一层多余的跳转。这样实际不用的函数永远不用被解析。</p>
-<p>同时，这个设计实现了库中代码段完全位置无关。只有GOT中使用了绝对地址，而GOT在数据段中并且会被动态载入器重定位。即使PLT自身都是PIC的，能放到只读的代码段中。</p>
-<p>解析器只是一段载入器里的程序，PLT条目中准备的参数，何时的重定向条目帮助它知道需要解析的符号和需要更新的GOT条目。</p>
-<h3 id="通过PLT和GOT实现的PIC函数调用——实例">通过PLT和GOT实现的PIC函数调用——实例</h3><p>费曼说：What I can not create, I do not understand. 我们自己亲手做做</p>
-<pre><code> ~/Work/project/blackhat/eli  cat ml_main_pic.c
-<span class="keyword">int</span> myglob = <span class="number">42</span>;
-
-<span class="function"><span class="keyword">int</span> <span class="title">ml_util_func</span><span class="params">(<span class="keyword">int</span> a)</span>
-</span>{
-    <span class="keyword">return</span> a + <span class="number">1</span>;
-}
-
-<span class="function"><span class="keyword">int</span> <span class="title">ml_func</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span>
-</span>{
-    <span class="keyword">int</span> c = b + ml_util_func(a);
-    myglob += c;
-    <span class="keyword">return</span> b + myglob;
-}
-
- ~/Work/project/blackhat/eli  gcc -fPIC -m32 -g -shared ml_main_pic.c -o libmlpic.so
-
- ~/Work/project/blackhat/eli  objdump -d -Mintel libmlpic.so 
-
-libmlpic.so:     file format elf32-i386
-...
-<span class="number">00000440</span> &lt;ml_util_func@plt&gt;:
- <span class="number">440</span>:   ff a3 <span class="number">14</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>       jmp    DWORD PTR [ebx+<span class="number">0x14</span>]
- <span class="number">446</span>:   <span class="number">68</span> <span class="number">10</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>          push   <span class="number">0x10</span>
- <span class="number">44</span>b:   e9 c0 ff ff ff          jmp    <span class="number">410</span> &lt;_init+<span class="number">0x30</span>&gt;
-...
-<span class="number">0000057</span>c &lt;ml_util_func&gt;:
- <span class="number">57</span>c:   <span class="number">55</span>                      push   ebp
- <span class="number">57</span>d:   <span class="number">89</span> e5                   mov    ebp,esp
- <span class="number">57f</span>:   <span class="number">8</span>b <span class="number">45</span> <span class="number">08</span>                mov    eax,DWORD PTR [ebp+<span class="number">0x8</span>]
- <span class="number">582</span>:   <span class="number">83</span> c0 <span class="number">01</span>                add    eax,<span class="number">0x1</span>
- <span class="number">585</span>:   <span class="number">5</span>d                      pop    ebp
- <span class="number">586</span>:   c3                      ret    
-
-<span class="number">00000587</span> &lt;ml_func&gt;:
- <span class="number">587</span>:   <span class="number">55</span>                      push   ebp
- <span class="number">588</span>:   <span class="number">89</span> e5                   mov    ebp,esp
- <span class="number">58</span>a:   <span class="number">53</span>                      push   ebx
- <span class="number">58</span>b:   <span class="number">83</span> ec <span class="number">24</span>                sub    esp,<span class="number">0x24</span>
- <span class="number">58</span>e:   e8 bd fe ff ff          call   <span class="number">450</span> &lt;__x86.get_pc_thunk.bx&gt;
- <span class="number">593</span>:   <span class="number">81</span> c3 <span class="number">6</span>d <span class="number">1</span>a <span class="number">00</span> <span class="number">00</span>       add    ebx,<span class="number">0x1a6d</span>
- <span class="number">599</span>:   <span class="number">8</span>b <span class="number">45</span> <span class="number">08</span>                mov    eax,DWORD PTR [ebp+<span class="number">0x8</span>]
- <span class="number">59</span>c:   <span class="number">89</span> <span class="number">04</span> <span class="number">24</span>                mov    DWORD PTR [esp],eax
- <span class="number">59f</span>:   e8 <span class="number">9</span>c fe ff ff          call   <span class="number">440</span> &lt;ml_util_func@plt&gt;
- ...
-</code></pre><p>注意59f行的调用，这时<code>ebx</code>是<code>GOT</code>的基址(做减法寻址。。。好奇怪)。</p>
-<p>注意440行,PLT条目包含的三部分，一个指向GOT条目中指向的跳转，一个准备解析器参数，一个调用解析器。</p>
-<p>我们不在乎410的解析器(PLT[0])</p>
-<p>在593的时候获得了<code>eip</code>，接着被加上<code>0x1a6d</code>。GOT的基址就是这个了。</p>
-<pre><code><span class="number">0x593</span>+<span class="number">0x1a6d</span>=<span class="number">0x2000</span>
-</code></pre><p>可以用<code>readelf</code>看看</p>
-<pre><code> ~/Work/project/blackhat/eli  readelf -x <span class="class">.got</span><span class="class">.plt</span> libmlpic<span class="class">.so</span> 
-
-Hex dump of <span class="tag">section</span> <span class="string">'.got.plt'</span>:
-  <span class="number">0</span>x00002000 <span class="number">001</span>f0000 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">26040000</span> ............&amp;...
-  <span class="number">0</span>x00002010 <span class="number">36040000</span> <span class="number">46040000</span>                   <span class="number">6</span>..<span class="class">.F</span>...
-</code></pre><p>条目<code>ml_util_func@plt</code>查看的GOT条目在<code>+0x14</code>位置，即<code>0x2014</code>,上图中可见是<code>0x446</code></p>
-<p>正好是<code>ml_util_func@plt</code>中<code>push</code>那一行。</p>
-<p>为了让动态链接器能起作用，重定位条目也被添加来指定在GOT中的哪个位置重定位<code>ml_util_func</code></p>
-<pre><code> ~/Work/project/blackhat/eli  readelf -r libmlpic.so
-
-Relocation section '.rel.dyn' at offset 0x380 contains 9 entries:
- Offset     Info    Type            Sym.Value  Sym. Name
-00001ef4  <span class="number">00000008</span> R_386_RELATIVE   
-00001ef8  <span class="number">00000008</span> R_386_RELATIVE   
-<span class="number">00002018</span>  <span class="number">00000008</span> R_386_RELATIVE   
-00001fe8  <span class="number">00000106</span> R_386_GLOB_DAT    <span class="number">00000000</span>   _ITM_deregisterTMClone
-00001fec  <span class="number">00000606</span> R_386_GLOB_DAT    <span class="number">0000201</span>c   myglob
-00001ff0  <span class="number">00000206</span> R_386_GLOB_DAT    <span class="number">00000000</span>   __cxa_finalize
-00001ff4  <span class="number">00000306</span> R_386_GLOB_DAT    <span class="number">00000000</span>   __gmon_start__
-00001ff8  <span class="number">00000406</span> R_386_GLOB_DAT    <span class="number">00000000</span>   _Jv_RegisterClasses
-00001ffc  <span class="number">00000506</span> R_386_GLOB_DAT    <span class="number">00000000</span>   _ITM_registerTMCloneTa
-
-Relocation section '.rel.plt' at offset 0x3c8 contains 3 entries:
- Offset     Info    Type            Sym.Value  Sym. Name
-<span class="number">0000200</span>c  <span class="number">00000207</span> R_386_JUMP_SLOT   <span class="number">00000000</span>   __cxa_finalize
-<span class="number">00002010</span>  <span class="number">00000307</span> R_386_JUMP_SLOT   <span class="number">00000000</span>   __gmon_start__
-<span class="number">00002014</span>  <span class="number">00000907</span> R_386_JUMP_SLOT   <span class="number">0000057</span>c   ml_util_func
-</code></pre><p>最后一行很表示载入器应该把符号<code>ml_util_func</code>的地址放入<code>0x2014</code>中(这个函数的GOT条目)</p>
-<p>以上是在elf文件中。虽然</p>
-<p>我们在gdb中检查首次调用函数后GOT条目的更改：</p>
-<pre><code> ~/Work/project/blackhat/eli  gdb -q ./driver
-Reading symbols from /home/lyy/Work/project/blackhat/eli/driver..<span class="string">.done</span>.
-(gdb) b ml_func
-Breakpoint <span class="number">1</span> <span class="preprocessor">at</span> <span class="number">0x80484b0</span>
-(gdb) run
-Starting program: /home/lyy/Work/project/blackhat/eli/./driver 
-<span class="label">warning:</span> the debug information found <span class="keyword">in</span> <span class="string">"/usr/lib64/debug/lib64/ld-2.17.so.debug"</span> does <span class="keyword">not</span> match <span class="string">"/lib/ld-linux.so.2"</span> (CRC mismatch).
-
-addr myglob = <span class="number">0x804a024</span>
-
-Breakpoint <span class="number">1</span>, ml_func (a=<span class="number">1</span>, b=<span class="number">1</span>) <span class="preprocessor">at</span> ml_main_pic.c:<span class="number">10</span>
-<span class="number">10</span>          <span class="keyword">int</span> c = b + ml_util_func(a)<span class="comment">;</span>
-(gdb) disas ml_func
-Dump of assembler code for function ml_func:
-   <span class="number">0xf7fd8587</span> &lt;+<span class="number">0</span>&gt;:     <span class="keyword">push</span>   <span class="literal">ebp</span>
-   <span class="number">0xf7fd8588</span> &lt;+<span class="number">1</span>&gt;:     <span class="keyword">mov</span>    <span class="literal">ebp</span>,<span class="literal">esp</span>
-   <span class="number">0xf7fd858a</span> &lt;+<span class="number">3</span>&gt;:     <span class="keyword">push</span>   <span class="literal">ebx</span>
-   <span class="number">0xf7fd858b</span> &lt;+<span class="number">4</span>&gt;:     <span class="keyword">sub</span>    <span class="literal">esp</span>,<span class="number">0x24</span>
-   <span class="number">0xf7fd858e</span> &lt;+<span class="number">7</span>&gt;:     <span class="keyword">call</span>   <span class="number">0xf7fd8450</span> &lt;__x86.get_pc_thunk.bx&gt;
-   <span class="number">0xf7fd8593</span> &lt;+<span class="number">12</span>&gt;:    <span class="keyword">add</span>    <span class="literal">ebx</span>,<span class="number">0x1a6d</span>
-=&gt; <span class="number">0xf7fd8599</span> &lt;+<span class="number">18</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">eax</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebp</span>+<span class="number">0x8</span>]
-   <span class="number">0xf7fd859c</span> &lt;+<span class="number">21</span>&gt;:    <span class="keyword">mov</span>    <span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">esp</span>],<span class="literal">eax</span>
-   <span class="number">0xf7fd859f</span> &lt;+<span class="number">24</span>&gt;:    <span class="keyword">call</span>   <span class="number">0xf7fd8440</span> &lt;ml_util_func@plt&gt;
-   <span class="number">0xf7fd85a4</span> &lt;+<span class="number">29</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">edx</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebp</span>+<span class="number">0xc</span>]
-   <span class="number">0xf7fd85a7</span> &lt;+<span class="number">32</span>&gt;:    <span class="keyword">add</span>    <span class="literal">eax</span>,<span class="literal">edx</span>
-   <span class="number">0xf7fd85a9</span> &lt;+<span class="number">34</span>&gt;:    <span class="keyword">mov</span>    <span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebp</span>-<span class="number">0xc</span>],<span class="literal">eax</span>
-   <span class="number">0xf7fd85ac</span> &lt;+<span class="number">37</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">eax</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebx</span>-<span class="number">0x14</span>]
-   <span class="number">0xf7fd85b2</span> &lt;+<span class="number">43</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">edx</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">eax</span>]
-   <span class="number">0xf7fd85b4</span> &lt;+<span class="number">45</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">eax</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebp</span>-<span class="number">0xc</span>]
-   <span class="number">0xf7fd85b7</span> &lt;+<span class="number">48</span>&gt;:    <span class="keyword">add</span>    <span class="literal">edx</span>,<span class="literal">eax</span>
-   <span class="number">0xf7fd85b9</span> &lt;+<span class="number">50</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">eax</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebx</span>-<span class="number">0x14</span>]
-   <span class="number">0xf7fd85bf</span> &lt;+<span class="number">56</span>&gt;:    <span class="keyword">mov</span>    <span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">eax</span>],<span class="literal">edx</span>
-   <span class="number">0xf7fd85c1</span> &lt;+<span class="number">58</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">eax</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebx</span>-<span class="number">0x14</span>]
-   <span class="number">0xf7fd85c7</span> &lt;+<span class="number">64</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">edx</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">eax</span>]
-   <span class="number">0xf7fd85c9</span> &lt;+<span class="number">66</span>&gt;:    <span class="keyword">mov</span>    <span class="literal">eax</span>,<span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebp</span>+<span class="number">0xc</span>]
-   <span class="number">0xf7fd85cc</span> &lt;+<span class="number">69</span>&gt;:    <span class="keyword">add</span>    <span class="literal">eax</span>,<span class="literal">edx</span>
-   <span class="number">0xf7fd85ce</span> &lt;+<span class="number">71</span>&gt;:    <span class="keyword">add</span>    <span class="literal">esp</span>,<span class="number">0x24</span>
----Type &lt;return&gt; to continue, <span class="keyword">or</span> q &lt;return&gt; to quit---q
-Quit
-(gdb) i registers <span class="literal">ebx</span>   #GOT基址
-<span class="literal">ebx</span>            <span class="number">0xf7fda000</span>       -<span class="number">134373376</span>
-(gdb) x/x <span class="number">0xf7fda000</span>+<span class="number">0x14</span>   # GOT中ml_util_func的地址
-<span class="number">0xf7fda014</span>:     <span class="number">0xf7fd8446</span>  #和之前ELF文件中类似
-(gdb) disas <span class="number">0xf7fd8440</span>  # ml_util_func@plt
-Dump of assembler code for function ml_util_func@plt:
-   <span class="number">0xf7fd8440</span> &lt;+<span class="number">0</span>&gt;:     <span class="keyword">jmp</span>    <span class="preprocessor">DWORD</span> <span class="preprocessor">PTR</span> [<span class="literal">ebx</span>+<span class="number">0x14</span>]
-   <span class="number">0xf7fd8446</span> &lt;+<span class="number">6</span>&gt;:     <span class="keyword">push</span>   <span class="number">0x10</span>
-   <span class="number">0xf7fd844b</span> &lt;+<span class="number">11</span>&gt;:    <span class="keyword">jmp</span>    <span class="number">0xf7fd8410</span>
-End of assembler dump.
-</code></pre><p>调用一次：</p>
-<pre><code>(gdb) n
-<span class="number">11</span>          myglob += c;
-(gdb) x/x <span class="number">0xf7fda000</span>+<span class="number">0x14</span>
-<span class="number">0xf7fda014</span>:     <span class="number">0xf7fd857c</span>
-(gdb) p &amp;ml_util_func
-$<span class="number">1</span> = (<span class="keyword">int</span> (*)(<span class="keyword">int</span>)) <span class="number">0xf7fd857c</span> &lt;ml_util_func&gt;
-</code></pre><p>可见GOT条目已经被更改。</p>
-<h2 id="通过环境变量控制载入解析">通过环境变量控制载入解析</h2><p>通过<code>LD_BIND_NOW</code>和<code>LD_BIND_NOT</code>来定义加载方式。</p>
-<pre><code><span class="keyword">man</span> ld.<span class="keyword">so</span>
-</code></pre><h3 id="PIC的代价">PIC的代价</h3><ul>
-<li>所有PIC中外部数据代码引用都需要额外的重定向，需要更多的内存。</li>
-<li>在x86平台上多占用了一个通用寄存器，结果就需要更多内存引用。</li>
-</ul>
-<h3 id="结论">结论</h3><p>x64的好像作者没有写了。。。。。。。</p>
-<p>x64平台上，因为能相对<code>rip</code>寻址，不需要通过某种方式获取程序指针。</p>
-<p>关于<code>.got</code>和<code>.got.plt</code>提下，就是为了区分数据和函数引用，一个从GOT基址负引用<code>ebx-0x14</code>一个正引用<code>ebx+0x14</code>。这个设计= =</p>
-<h2 id="Footnotes">Footnotes</h2>]]></content>
-    <summary type="html">
-    <![CDATA[<p>动态载入有好几个问题：</p>
-<ul>
-<li>需要时间载入，每次引用都要重定位</li>
-<li>让<code>.text</code>区域不能共享，浪费了RAM空间</li>
-<li><code>.text</code>必须能写入带来安全问题</li>
-</ul>
-<]]>
-    </summary>
-    
-      <category term="linux" scheme="http://reverland.org/tags/linux/"/>
-    
-      <category term="linux" scheme="http://reverland.org/categories/linux/"/>
     
   </entry>
   

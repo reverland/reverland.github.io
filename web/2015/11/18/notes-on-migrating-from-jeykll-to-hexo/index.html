@@ -65,7 +65,7 @@
 <meta property="og:description" content="上周，我将博客从jekyll平台迁移到hexo下。
 缘起不为什么。本来不想换，奈何不能成功在ubuntu 14.10上用rvm成功编译ruby 2.1+，连续几次过热自动关机后，就默默装上了基于node的hexo。
 迁移记录对jekyll，日志源文件都在_posts/目录下。而hexo则在sources/_posts/下。两者支持的都是带metadata的markdown文件。(当然，我还有一些用">
-<meta property="og:updated_time" content="2015-11-18T11:13:54.255Z">
+<meta property="og:updated_time" content="2015-11-18T15:23:54.682Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从Jekyll迁移到Hexo">
 <meta name="twitter:description" content="上周，我将博客从jekyll平台迁移到hexo下。
@@ -337,8 +337,7 @@
 <p>当然，最好脚本辅助，手工确认。</p>
 <p>另外，有这么个东西<a href="https://github.com/wzpan/hexo-renderer-pandoc" target="_blank" rel="external">hexo render pandoc</a>来替换hexo的渲染引擎，就能顺便支持textile。值得一试和研究，也许里头就用到对文档元数据或者跳过指定行数的转换吧。没有细看。话说，还看到<a href="http://codefalling.com/2015/11/15/new-version-of-hexo-renderer-org/" target="_blank" rel="external">@CodeFalling</a>使用emacs来做org渲染后端，hexo的灵活性可见一斑。</p>
 <h2 id="feed">feed</h2><p>默认的hexo竟然不像jekyll一样有feed生成支持！不过有<a href="https://github.com/hexojs/hexo-generator-feed" target="_blank" rel="external">hexo-generator-feed</a>这个插件来实现。具体参照文档就好。</p>
-<p>##　添加友情链接、分类页、标签页</p>
-<p>根据<a href="http://theme-next.iissnan.com/theme-settings.html" target="_blank" rel="external">根据Next主题的文档来就好</a>。</p>
+<h2 id="添加友情链接、分类页、标签页">添加友情链接、分类页、标签页</h2><p>根据<a href="http://theme-next.iissnan.com/theme-settings.html" target="_blank" rel="external">根据Next主题的文档来就好</a>。</p>
 </span>
       
     </div>
@@ -365,6 +364,10 @@
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/javascript/2015/11/21/the-es6-features-i-use-these-days/" rel="prev" title="The ES6 features I use these days">
+                The ES6 features I use these days <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -436,7 +439,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">168</span>
+              <span class="site-state-item-count">169</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -450,7 +453,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">57</span>
+              <span class="site-state-item-count">58</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -566,7 +569,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#缘起"><span class="nav-number">1.</span> <span class="nav-text">缘起</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#迁移记录"><span class="nav-number">2.</span> <span class="nav-text">迁移记录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#与jekyll之前配置一致的url结构和文件命名方式"><span class="nav-number">2.1.</span> <span class="nav-text">与jekyll之前配置一致的url结构和文件命名方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#语法高亮修改"><span class="nav-number">2.2.</span> <span class="nav-text">语法高亮修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特殊字符escape"><span class="nav-number">2.3.</span> <span class="nav-text">特殊字符escape</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#textile文件"><span class="nav-number">2.4.</span> <span class="nav-text">textile文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#feed"><span class="nav-number">3.</span> <span class="nav-text">feed</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#缘起"><span class="nav-number">1.</span> <span class="nav-text">缘起</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#迁移记录"><span class="nav-number">2.</span> <span class="nav-text">迁移记录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#与jekyll之前配置一致的url结构和文件命名方式"><span class="nav-number">2.1.</span> <span class="nav-text">与jekyll之前配置一致的url结构和文件命名方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#语法高亮修改"><span class="nav-number">2.2.</span> <span class="nav-text">语法高亮修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特殊字符escape"><span class="nav-number">2.3.</span> <span class="nav-text">特殊字符escape</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#textile文件"><span class="nav-number">2.4.</span> <span class="nav-text">textile文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#feed"><span class="nav-number">3.</span> <span class="nav-text">feed</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#添加友情链接、分类页、标签页"><span class="nav-number">4.</span> <span class="nav-text">添加友情链接、分类页、标签页</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
