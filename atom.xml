@@ -4,7 +4,7 @@
   <subtitle><![CDATA[开放、分享、自由与进步]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://reverland.org/"/>
-  <updated>2015-11-22T16:46:37.754Z</updated>
+  <updated>2015-11-23T14:57:01.083Z</updated>
   <id>http://reverland.org/</id>
   
   <author>
@@ -13,6 +13,49 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[在linux下使用科技论文在线TeX模板]]></title>
+    <link href="http://reverland.org/linux/2015/11/23/linux-tex/"/>
+    <id>http://reverland.org/linux/2015/11/23/linux-tex/</id>
+    <published>2015-11-23T14:50:01.000Z</published>
+    <updated>2015-11-23T14:57:01.083Z</updated>
+    <content type="html"><![CDATA[<p>原文2015.10.14 14:56 <a href="http://www.jianshu.com/p/1d4c06470960" target="_blank" rel="external">首发简书</a>。</p>
+<p>我看到有tex模板。我用ubuntu 14.04LTS，并不用Office</p>
+<p>下载下来是一个zip文件，解压。Readme.txt乱码</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/927981-81fbd592e5d1b0b9.png" alt="Screenshot from 2015-10-14 14:38:50.png"></p>
+<p>抱着试试看的心理用 <code>iconv</code>转换</p>
+<pre><code>iconv <span class="operator">-f</span> gbk -t utf8 Readme.txt
+</code></pre><p>看到</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/927981-d48210cf5e804111.png" alt="Readme里信息"></p>
+<p>基于ctex宏包开发，可以用pdflatex或者xelatex。我一直用xelatex，但不想装了。</p>
+<pre><code>sudo apt-get <span class="operator"><span class="keyword">install</span> texlive-lang-cjk sudo apt-<span class="keyword">get</span> <span class="keyword">install</span> texlive-bibtex-extra</span>
+</code></pre><p>首先，你得装<code>simsun.ttc</code>这个宋体Truetype字体了。还要改配置，不然找不到字体</p>
+<pre><code>!pdfTeX <span class="keyword">error</span>: pdflatex (<span class="keyword">file</span> simsun.ttc): cannot <span class="keyword">open</span> TrueType font <span class="keyword">file</span> <span class="keyword">for</span> reading
+</code></pre><p>配置<code>/etc/texmf/texmf.d/01csofont.cnf</code>，添加如下行(因为我的宋体安装在<code>~/.fonts</code>这里)</p>
+<pre><code><span class="attribute">OSFONTDIR</span>=<span class="string">~/.fonts</span>
+</code></pre><p>更新配置文件</p>
+<pre><code><span class="title">sudo</span> update-texmf
+</code></pre><p>编译</p>
+<pre><code><span class="tag">pdflatex</span> <span class="tag">csosampleUTF8</span><span class="class">.tex</span>
+</code></pre><h2 id="附记">附记</h2><p>如果你选择xelatex，就是官方推荐，注意也要更改配置文件。当然，xelatex是要安装的。</p>
+<p>参考<a href="https://wiki.archlinux.org/index.php/TeX_Live_%28%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%29#.E4.B8.AD.E6.96.87.E5.8C.96" target="_blank" rel="external">Archlinux维基关于TexLive中文化</a>。这部分还是我写的哈哈哈。</p>
+<p>我要写论文了，have fun</p>
+<h2 id="提交时的补记">提交时的补记</h2><p>今天在科技论文在线提交时，发现科技论文在线的标题关键字基金等提取有bug。如果标题或关键字等后面有注释比如<code>% some comments</code>，就不能提取出tex文件中对应内容。</p>
+<p>如果发现提交不上去tex源文件，可以检查下是不是有多余的注释。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>原文2015.10.14 14:56 <a href="http://www.jianshu.com/p/1d4c06470960" target="_blank" rel="external">首发简书</a>。</p>
+<p>我看到有tex模板。我用ubuntu 14.]]>
+    </summary>
+    
+      <category term="linux" scheme="http://reverland.org/tags/linux/"/>
+    
+      <category term="tex" scheme="http://reverland.org/tags/tex/"/>
+    
+      <category term="linux" scheme="http://reverland.org/categories/linux/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[The ES6 features I use these days]]></title>
@@ -1433,55 +1476,6 @@ Out[<span class="number">17</span>]: &lt;Response [<span class="number">200</spa
       <category term="spider" scheme="http://reverland.org/tags/spider/"/>
     
       <category term="python" scheme="http://reverland.org/categories/python/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[boot sequence]]></title>
-    <link href="http://reverland.org/os/2015/03/30/boot-sequence/"/>
-    <id>http://reverland.org/os/2015/03/30/boot-sequence/</id>
-    <published>2015-03-29T16:00:00.000Z</published>
-    <updated>2015-11-15T06:01:31.551Z</updated>
-    <content type="html"><![CDATA[<h2 id="POST">POST</h2><p>Power-on  Self-Test, 定位设备</p>
-<h2 id="主引导记录">主引导记录</h2><p>如果设备的启动扇区的511和512字节是<code>0x55</code>和<code>0xAA</code>。BIOS会发现这样的启动扇区，载入内存<code>0x0000:0x7c00</code>(有些是<code>0x7c0:0x0000</code>， 同一个物理地址)。让<code>CS:IP</code>在启动扇区的最开始是个好的实践。</p>
-<p>执行被移交给刚加载的启动记录。软盘上所有的512字节都会是可执行代码。硬盘上则在偏移为<code>0x0000-0x01bd</code>的主引导记录处放置可执行代码。然后是四个主分区的表条目，每个条目使用16字节(<code>0x01fd-0x01be</code>),还有两字节的签名(<code>0x01ef-0x01ff</code>)</p>
-<h2 id="早期环境">早期环境</h2><p>早期执行环境高度依赖实现。特定的BIOS有特定的实现。不要做关于寄存器中内容的任何假设。也许被初始化为0,也许包含假的值。</p>
-<p>CPU现在在实模式。你不仅要写激活保护模式的代码还要添加测试条件看看有没有激活。</p>
-<h2 id="内核">内核</h2><p>启动载入器把内核载入内存并移交控制权。</p>
-<h2 id="载入">载入</h2><p>我们已经知道要载入什么，但不知道如何载入。</p>
-<p>如果从硬盘载入，引导记录(boot record)只有446字节大小。以下是内核镜像启动前必须要做的：</p>
-<ul>
-<li>从哪个分区启动</li>
-<li>找到启动分区上的内核镜像</li>
-<li>将内核镜像载入内存</li>
-<li>激活实模式</li>
-<li>为内核准备运行时环境</li>
-</ul>
-<p>不用按顺序来，但调用<code>kmain()</code>之前做完这些。</p>
-<p>To make things worse，gcc只生成保护模式的可执行代码，所以这部分是你用C做不到的。</p>
-<p>有几种解决问题的方式：</p>
-<ul>
-<li>geek loading：把上面列出的一切都挤压到引导记录中。这几乎不可能，会让接下来的特例处理和有用的错误信息无处安放。</li>
-<li>One-stage loading: 写一个stub来转换，链接到内核镜像之前。引导记录加载内核镜像(在1mb(因为<code>[ES:BX]</code>0xffff x 0xffff = 1114095b约为1mb)内存标志下,实模式的最大内存上限),跳转到stub，stub转换到保护模式并准备运行环境，跳入内核。</li>
-<li>Two-stage loading: 写一个分开的stub，这个stub载入到1mb内存标志下，然后做以上列表中的所有事。</li>
-</ul>
-<h3 id="传统方式">传统方式</h3><p>传统，MBR重定位到<code>0x0000:0x0600</code>，找到有用分区的分区表，载入分区表的第一个扇区(分区引导记录)至<code>0x0000:0x7c00</code>，并跳转到该地址。这叫链式载入，想要自己写的引导记录能双启动的话就模仿这种方式。</p>
-<h3 id="简单方法">简单方法</h3><p>除非你真得想因为教学目的自制启动载入器(记录/stub)，推荐使用可用的启动载入器。</p>
-<p>其中最突出的是GRUB，一个two-stage启动载入器，不仅提供能链式载入的启动菜单，而且准备好环境(包括保护模式和读取BIOS上有价值的信息)，把普通的可执行文件作为内核载入(而不是像很多启动载入器要求flat binary(不包含任何头的二进制文件))，支持可选的内核模块，不同的文件系统，甚至无盘启动(如果配置得当)</p>
-<ul>
-<li><a href="http://duartes.org/gustavo/blog/post/how-computers-boot-up" target="_blank" rel="external">How computers boot up</a></li>
-<li><a href="http://duartes.org/gustavo/blog/post/kernel-boot-process" target="_blank" rel="external">The Kernel Boot Process</a></li>
-<li><a href="http://www.ibm.com/developerworks/library/l-linuxboot/index.html" target="_blank" rel="external">Inside the Linux boot process</a></li>
-</ul>
-]]></content>
-    <summary type="html">
-    <![CDATA[<h2 id="POST">POST</h2><p>Power-on  Self-Test, 定位设备</p>
-<h2 id="主引导记录">主引导记录</h2><p>如果设备的启动扇区的511和512字节是<code>0x55</code>和<code>0xAA</code>。]]>
-    </summary>
-    
-      <category term="os" scheme="http://reverland.org/tags/os/"/>
-    
-      <category term="os" scheme="http://reverland.org/categories/os/"/>
     
   </entry>
   

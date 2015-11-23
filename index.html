@@ -224,6 +224,131 @@
             
               
                 
+                <a class="post-title-link" href="/linux/2015/11/23/linux-tex/" itemprop="url">
+                  在linux下使用科技论文在线TeX模板
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-11-23T22:50:01+08:00" content="2015-11-23">
+              2015-11-23
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/linux/2015/11/23/linux-tex/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2015/11/23/linux-tex/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>原文2015.10.14 14:56 <a href="http://www.jianshu.com/p/1d4c06470960" target="_blank" rel="external">首发简书</a>。</p>
+<p>我看到有tex模板。我用ubuntu 14.04LTS，并不用Office</p>
+<p>下载下来是一个zip文件，解压。Readme.txt乱码</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/927981-81fbd592e5d1b0b9.png" alt="Screenshot from 2015-10-14 14:38:50.png"></p>
+<p>抱着试试看的心理用 <code>iconv</code>转换</p>
+<pre><code>iconv <span class="operator">-f</span> gbk -t utf8 Readme.txt
+</code></pre><p>看到</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/927981-d48210cf5e804111.png" alt="Readme里信息"></p>
+<p>基于ctex宏包开发，可以用pdflatex或者xelatex。我一直用xelatex，但不想装了。</p>
+<pre><code>sudo apt-get <span class="operator"><span class="keyword">install</span> texlive-lang-cjk sudo apt-<span class="keyword">get</span> <span class="keyword">install</span> texlive-bibtex-extra</span>
+</code></pre><p>首先，你得装<code>simsun.ttc</code>这个宋体Truetype字体了。还要改配置，不然找不到字体</p>
+<pre><code>!pdfTeX <span class="keyword">error</span>: pdflatex (<span class="keyword">file</span> simsun.ttc): cannot <span class="keyword">open</span> TrueType font <span class="keyword">file</span> <span class="keyword">for</span> reading
+</code></pre><p>配置<code>/etc/texmf/texmf.d/01csofont.cnf</code>，添加如下行(因为我的宋体安装在<code>~/.fonts</code>这里)</p>
+<pre><code><span class="attribute">OSFONTDIR</span>=<span class="string">~/.fonts</span>
+</code></pre><p>更新配置文件</p>
+<pre><code><span class="title">sudo</span> update-texmf
+</code></pre><p>编译</p>
+<pre><code><span class="tag">pdflatex</span> <span class="tag">csosampleUTF8</span><span class="class">.tex</span>
+</code></pre><h2 id="附记">附记</h2><p>如果你选择xelatex，就是官方推荐，注意也要更改配置文件。当然，xelatex是要安装的。</p>
+<p>参考<a href="https://wiki.archlinux.org/index.php/TeX_Live_%28%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%29#.E4.B8.AD.E6.96.87.E5.8C.96" target="_blank" rel="external">Archlinux维基关于TexLive中文化</a>。这部分还是我写的哈哈哈。</p>
+<p>我要写论文了，have fun</p>
+<h2 id="提交时的补记">提交时的补记</h2><p>今天在科技论文在线提交时，发现科技论文在线的标题关键字基金等提取有bug。如果标题或关键字等后面有注释比如<code>% some comments</code>，就不能提取出tex文件中对应内容。</p>
+<p>如果发现提交不上去tex源文件，可以检查下是不是有多余的注释。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/javascript/2015/11/21/the-es6-features-i-use-these-days/" itemprop="url">
                   The ES6 features I use these days
                 </a>
@@ -1712,142 +1837,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2015/05/24/hacking-security/" itemprop="url">
-                  Hacking Security
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-05-24T00:00:00+08:00" content="2015-05-24">
-              2015-05-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2015/05/24/hacking-security/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/05/24/hacking-security/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="TSCTF2015">TSCTF2015</h2><p><img src="/images/tsctf.png" alt="TSCTF2015" title="TSCTF2015"></p>
-<p>准备折腾近乎三周的TSCTF终于在昨天圆满结束，这三周来眼见到主板者的耐心与热情，亲历他们的付出与坚持。非常敬佩在此次活动中付诸心血和时间的所有人，以及他们在比赛承办过程中显示的卓越智慧和气质。</p>
-<p>至于为何社团忽然建立，为何和阿里巴巴技术联盟一起举办了个校内赛，其中错综复杂种种并不清楚。后来颁奖阿里巴巴安全部技术总监和一位HR姐姐来了，对总监的名字非常眼熟，但我记得是在绿盟而不是阿里，抱着试试看的心理一问竟然真是siblly。没想到绿盟上市后这么多人离开了。</p>
-<p>第一次见到天枢的幕后BOSS，没有他大概场地和资源都连影都没有，当然没有阿里也就没有主干道不输天池大数据和微软编程之美的霸气展板和外场宣传，也没影了大多数奖品，一个校赛宣传和奖品规格真是不低。</p>
-<p>比赛中出了两道misc题目。有兴趣可以玩玩，根据题目提示获取flag，flag形式为TSCTF{xxxxxxxxxxxxxxxxx}的格式</p>
-<ul>
-<li>初赛misc3：<a href="http://buptlug.cn/steganography.html" target="_blank" rel="external">Steganography</a></li>
-<li>决赛misc4：<a href="http://buptlug.cn/what-you-copy-is-not-you-want.html" target="_blank" rel="external">What You Copy is Not What You Want</a></li>
-</ul>
-<p>如果觉得有意思不要忘记评论点赞哈哈。</p>
-<p>我并没有怎么参加过CTF这种牛逼哄哄的比赛，只是前一阵的ALICTF，被室友拉去打了个酱油，再我碌碌无为并未成功调出任何逆向题目和web题目的情况下，队友连下apk和web若干题目，硬是把排名拉到63左右。</p>
-<p>我个人只玩过360在14年的hack game，overthewire上natas，krypto和bandit的题目，coolshell博主当年给大家玩得一个游戏。能有幸参与TSCTF的出题，真是不胜荣幸。</p>
-<p>题目的设计要有粘性，有趣味，能吸引玩家往下继续深入。而不是依靠隐藏某些信息或假设玩家知道哪些信息，玩家可能是千差万别的所以一个好的题目设计并不容易。我想谈谈所看到TSCTF中的一些题目设计。</p>
-<h3 id="ws">ws</h3><p>首先是我自己的决赛Misc4。最开始的设计来源于<a href="http://www.soimort.org/posts/154/" target="_blank" rel="external">soimort的一个博文</a>，告诫大家不要把html中的代码直接复制到可执行环境中去，并展示了这种危险性。我觉得一个题目要让大家感觉到很有意思，就要用令人惊奇的方式欺骗大家的眼睛，但这种欺骗并不是为了掩盖有利于解题的信息，而是让玩家能在解题的道路上体验到这种惊奇的感觉。</p>
-<p>所以，开始的时候是提示了一个</p>
-<pre><code><span class="built_in">echo</span> VGVhY2hlciBHOiB0aGVyZSBpcyBhIGxhbmd1YWdlIHdob3NlIG5hbWUgaXMgd2hpdGVzcGFjZQ== | base64 <span class="operator">-d</span>
-</code></pre><p>我的想法很简单，玩家看到这个命令后很可能会直接把命令复制到控制台，实际上这个html偷偷藏了个输出到文件的(有点危险额)命令。</p>
-<p>万万没想到，大部分人并不使用Unix，他们甚至没有看内容直接看源代码去了。。。卧槽。。。</p>
-<p>后来看到使用mac的nemo直接往控制台里粘帖了，可惜后来已经不这么设计了。结果就是他在那里奇怪怎么粘帖的东西和复制的不一样= =</p>
-<p>于是，为了引导玩家和照顾非unix使用者，我重新设计了游戏。对js部分进行编码(没有丧心病狂进行加密我好良心的好不好)，让html的dom结构看上去是那么回事，但一旦按下键盘按键或者鼠标就更改dom结构。</p>
-<p>之后又改了几次出题组试了试几种常见浏览器，最后才是最终的版本。其实这是给初赛出的题目，Cao直接给放到决赛了。为了引导玩家进行了非常明显的提示，cslei觉得题目应该给分少些，但Cao给了350pts，最终决赛的时候大家率先把misc4完成了，分低的misc123反而好久没人做出来。。。。。。个人觉得misc123缺乏引导，这让人很难想到怎么回事，但一旦知道思路一切都不是问题，所以hint出来后misc1几乎被全A了，没放hint的misc23似乎没什么人玩。关于misc5,一道图片藏图片藏xx藏xx的题目，玩了一晚上，几经崩溃。。。这不是游戏，这是变着戏法虐人。</p>
-<h3 id="sandbox">sandbox</h3><p>nemo为决赛出了两道相关的linux下shellcode和sandbox题目，sandbox题目按其设计意图是在shellcode题目的基础上完成。不过后来事情有些出乎意料。</p>
-<p>sandbox的题目发到出题组的时候，我完全理解错他的意思了，他设计题目的时候想的是循环计数那里有漏洞，让玩家通过逆向分析，然后用exploit和shellcode来利用那个漏洞。我特么以为是escape shell玩了一晚上，丧心病狂以各种奇葩方式escape shell和dos nemo那个restricted shell环境的结果就是，nemo不断为其过滤黑名单添加各种过滤条件，为了防止fork bomb折腾linux系统配置到两点(建议大家不要在生产环境使用kali，那个给用户的权限高限制少)。我猜肯定还有我们没注意的其它方式，nemo已然不想管了，线下赛反正什么都方便。如果有人通过非设计者设计的方式获得flag那也算一种方式。果然，后来决赛的时候应验了。。。特么有个队shellcode根本没做就把sandbox给a掉了……</p>
-<h3 id="天枢web对战平台">天枢web对战平台</h3><p>Teacher G出了一道非常灵活的决赛web题目。基于他们比赛的经验，他从一周前开始设想，最终实现、测试、上线对战系统。题目出得很是新颖，不过玩家的反应有些不太适应。Teacher G最后总结时说大家还是不太灵活。很多他设想的玩法都没有队伍去做。</p>
-<p>其设计了一个有多个可利用漏洞的系统，让玩家能通过这几种方式进行对打。设计一个灵活的系统就是必须考虑各种奇葩的状况和面对奇葩的bug，结果就是为了实现这么个平台投入了大量开发和测试运维人力，Teacher G都快被bug和限制玩家的策略折磨哭了<br>，哈哈。</p>
-<p>对实现的具体细节，有不同理解的cslei和Teacher G又进行了大量争论和妥协，最终上线后，发现有某个队开始一支独秀，其它队伍还在傻眼被虐中，并且很多人的解题策略安排都被这个题给打乱了。</p>
-<p>好在是线下赛，经过我们npc的宏观调控(其实是一个强力的伪玩家，开始设计只是想作为玩家虐待目标)和不断的明示暗示之后，大多数队伍都走上正轨，开始了burp suite对刷大战。之后关于这个平台又放出若干提示，可惜已经晚了，平台大多功能并没有被玩家们使用。甚至。。。第一名竟然放弃了这道题= =</p>
-<p>如果时间足够的话，我们还想做web可视化的攻防效果呢。可惜只有Teacher G用mascuee标签实现的好像营业厅广告般的实时战况信息。</p>
-<p>很棒的一个想法和实现，总得来说。</p>
-<h3 id="Coding题目">Coding题目</h3><p>Coding题目很是中规中矩，cslei在运营社团诸多繁杂事项的时候还一力承担起coding题目。出乎意料的一个是，本来有道分类识别的题目，发现解题者根本没写程序识别而是人工识别。。。。。。</p>
-<p>我们说到底还真是人力不足，测试不充分。</p>
-<p>大致我关注且印象比较深刻的就这些。</p>
-<p>还有件惊奇的事，半年前的暑假，有个大三的学生来我们实验室做过一阵APT攻击的什么研究，今天说起来，才发现出题人之一竟然是他。。。。。。</p>
-<p><img src="/images/dubhe.jpg" alt="Hacking Security" title="hacking security"></p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1894,7 +1883,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">169</span>
+              <span class="site-state-item-count">170</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1908,7 +1897,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">58</span>
+              <span class="site-state-item-count">59</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

@@ -224,6 +224,223 @@
             
               
                 
+                <a class="post-title-link" href="/python/2012/08/24/scipy/" itemprop="url">
+                  SciPy入门指南(译)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-08-24T00:00:00+08:00" content="2012-08-24">
+              2012-08-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2012/08/24/scipy/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/08/24/scipy/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="SciPy入门指南">SciPy入门指南</h1><p>这个教程是为了帮助初学者掌握scipy并且肯能快地实际使用。</p>
+<ul>
+<li>toc<br>{:toc }</li>
+</ul>
+<p><img src="http://fmn.rrimg.com/fmn056/20120825/1810/p_large_LzVl_40d700008a811261.jpg" alt="optimization"></p>
+<h2 id="什么是scipy、numpy、matplotlib？">什么是scipy、numpy、matplotlib？</h2><p><em>Python</em>是一种通用语言。它被解释运行，是动态类型语言，并且非常适合交互工作和快速实现原型，然而又足够强大用来写大型应用。</p>
+<p><em>NumPy</em>是一个定义了数值数组和矩阵类型和它们的基本运算的语言扩展。</p>
+<p><em>SciPy</em>是另一种使用NumPy来做高等数学、信号处理、优化、统计和许多其它科学任务的语言扩展。</p>
+<p><em>Matplotlib</em>是一个帮助绘图的语言扩展。</p>
+<h2 id="它们是用来干什么的？">它们是用来干什么的？</h2><p>SciPy和其它这些能用来完成许多任务：</p>
+<ul>
+<li><p>首先它们很适于用来进行严重依赖数学和数值运算的计算,它们可以原生地使用数组、矩阵和对数组和矩阵的运算，求出特征根，计算积分，解决微分方程。</p>
+<p>NumPy的数组类(被用来实现矩阵类的基础)是考虑速度的实现，所以存取NumPy数组比存取Python列表速度更快。此外，NumPy实现一种<em>数组语言</em>，以致于不需要大多数循环。例如，普通Python(C等等也是相似的):</p>
+<pre><code><span class="tag">a</span> = <span class="function"><span class="title">range</span><span class="params">(<span class="number">10000000</span>)</span></span>
+<span class="tag">b</span> = <span class="function"><span class="title">range</span><span class="params">(<span class="number">10000000</span>)</span></span>
+c = []
+<span class="keyword">for</span> <span class="tag">i</span> <span class="keyword">in</span> <span class="function"><span class="title">range</span><span class="params">(len(a)</span></span>):
+  c.<span class="function"><span class="title">append</span><span class="params">(a[i] + b[i])</span></span>
+</code></pre><p>这个循环将在几GHz的处理器上耗时5到10秒，而NumPy：</p>
+<pre><code>import numpy as np
+<span class="tag">a</span> = np.<span class="function"><span class="title">arange</span><span class="params">(<span class="number">10000000</span>)</span></span>
+<span class="tag">b</span> = np.<span class="function"><span class="title">arange</span><span class="params">(<span class="number">10000000</span>)</span></span>
+c = <span class="tag">a</span> + b
+</code></pre><p>不仅这个更加简洁和易读，而且相比几乎是瞬间的，甚至NumPy的导入都比普通Python中的循环更快。为什么？Python是一种动态类型的解释语言，这意味着在每次循环迭代时它都必须检查运算对象a和b的类型来选则<code>+</code>正确的意义。(在python中<code>+</code>被用到许多地方，比如连接字符串、可以有不同元素类型的列表)当’+’的操作对象之一是一个NumPy数组时，NumPy的<code>add</code>函数将被Python自动选择，仅仅检测一次类型。然后它通过编译C函数执行”真正的”加法循环。这和普通python中的解释循环相比是非常快的。</p>
+</li>
+<li><p>有许多通用的或特定用途的数值代码使用了numpy和scipy。参考<a href="http://scipy.org/Topical_Software" target="_blank" rel="external">局部软件索引</a>来查看部分列表。Python有许多用来创建交互应用的高级的模块(例如<a href="http://scipy.org/TraitsUI" target="_blank" rel="external">TraitsUI</a>和<a href="http://scipy.org/Cookbook/wxPython_dialogs" target="_blank" rel="external">wxPython</a>)。和scipy一同使用这些是最快的创建科学应用的方法。</p>
+</li>
+<li><p>使用<a href="http://ipython.scipy.org/" target="_blank" rel="external">ipython</a>使得交互工作更加简单。数据处理，数值模型探索，在运行中尝试运算可以很快地从一个想法得到结果(参考<a href="https://cirl.berkeley.edu/fperez/papers/ipython-cise-final.pdf" target="_blank" rel="external">artical on ipython</a>)。</p>
+</li>
+<li><a href="http://matplotlib.sourceforge.net/" target="_blank" rel="external">matplotlib</a>模块制造高质量的绘图，通过它你可以把你的数据和模型转化为展示或文章用的图像。不必在一个程序中做数值计算，保存数据，然后用另一个绘图。</li>
+</ul>
+<h2 id="如何使用scipy工作">如何使用scipy工作</h2><p>Python是一门语言，它有几个用户界面。没有一个单独的程序可以开始并且给一个集成的用户体验。取而代之的是各种使用python的方法。<a href="是这样？还是我理解错了？">^1</a></p>
+<p>最普遍的方法是使用高级python交互shell来输入命令和运行脚本。脚本可以用任何编辑器来写，例如<a href="http://stani.be/python/spe/" target="_blank" rel="external">SPE</a>,PyScripter,甚至notepad，emacs或者vi/vim。</p>
+<p>scipy和numpy默认都没有提供绘图函数。它们仅仅是数值工具。推荐的绘图工具包是<a href="http://matplotlib.sourceforge.net/" target="_blank" rel="external">matplotlib</a>。</p>
+<p>在Windows、Mac OS X和Linux下，所有这些工具都被<a href="http://www.enthought.com/products/epd.php" target="_blank" rel="external">Enthought Python发行版</a>提供，获取更多关于安装这些的指导参考此站点<a href="http://www.scipy.org/Installing_SciPy" target="_blank" rel="external">安装scipy</a>部分。</p>
+<h2 id="学习使用scipy">学习使用scipy</h2><p>最快的使用scipy工作的方法可能就是这个<a href="http://www.scipy.org/Additional_Documentation/Astronomy_Tutorial" target="_blank" rel="external">交互数据分析教程</a></p>
+<p>去学习Python语言，python教程可以让你迅速熟悉python语法和对象。你可以从<a href="http://docs.python.org/download.html" target="_blank" rel="external">http://docs.python.org/download.html</a>下载这个教程。</p>
+<p>Dave Kuhlman的numpy和scipy教程是另一个很好的介绍：<a href="http://www.rexx.com/~dkuhlman/scipy\_course\_01.html" target="_blank" rel="external">http://www.rexx.com/~dkuhlman/scipy_course_01.html</a>.</p>
+<p>本站点上的<a href="http://docs.scipy.org/" target="_blank" rel="external">文档</a>和<a href="http://www.scipy.org/Cookbook" target="_blank" rel="external">Cookbook</a>部分提供更多学习材料。</p>
+<h2 id="示例会话">示例会话</h2><h3 id="交互工作">交互工作</h3><p>让我们看看在矩形窗函数的傅利叶变换。我们将使用一个交互python shell——ipython来做这个。因为我们想要通过交互绘图呈现结果，我们将启动使用<code>--pylab</code>参数启动ipython，这个参数允许使用<a href="http://matplotlib.sourceforge.net/" target="_blank" rel="external">matplotlib</a>交互。</p>
+<pre><code>$ ipython <span class="comment">--pylab</span>
+Python <span class="number">2.5</span>.<span class="number">1</span> (r251:<span class="number">54863</span>, May  <span class="number">2</span> <span class="number">2007</span>, <span class="number">16</span>:<span class="number">27</span>:<span class="number">44</span>)
+<span class="keyword">Type</span> <span class="string">"copyright"</span>, <span class="string">"credits"</span> <span class="keyword">or</span> <span class="string">"license"</span> <span class="keyword">for</span> more information.
+IPython <span class="number">0.7</span>.<span class="number">3</span> <span class="comment">-- An enhanced Interactive Python.</span>
+?       -&gt; Introduction <span class="keyword">to</span> IPython<span class="attribute">'s</span> features.
+%magic  -&gt; Information about IPython<span class="attribute">'s</span> <span class="attribute">'magic</span>' % functions.
+help    -&gt; Python<span class="attribute">'s</span> own help system.
+object? -&gt; Details about <span class="attribute">'object</span>'. ?object also works, ?? prints more.
+  Welcome <span class="keyword">to</span> pylab, a matplotlib-based Python environment.
+  <span class="keyword">For</span> more information, <span class="keyword">type</span> <span class="attribute">'help</span>(pylab)'.
+</code></pre><p>ipython提供了许多方便的特性，想tab补全python函数和一个优秀的帮助系统。</p>
+<pre><code>In [<span class="number">1</span>]: %logstart
+Activating auto-logging. Current session state plus future input saved.
+<span class="string">Filename       :</span> ipython_log.py
+<span class="string">Mode           :</span> rotate
+Output <span class="string">logging :</span> False
+Raw input <span class="string">log  :</span> False
+<span class="string">Timestamping   :</span> False
+<span class="string">State          :</span> active
+</code></pre><p>这个激活一个登录会话到一个文件。登录文件格式允许在以后就像一个python脚本一样被简单的执行，或编辑进一个程序。ipython也记录所有的输入输出(并把它们保存在叫In和Out的列表中)，因此你可以启动有追溯的登录。</p>
+<pre><code>In [<span class="number">2</span>]: <span class="keyword">from</span> scipy <span class="keyword">import</span> *
+</code></pre><p>因为numpy和scipy不是构建在python中的，你必须显示地告诉python加载它们的特性。Scipy提供numpy所以当导入scipy时导入它是不必要的。</p>
+<p>现在开始实际的数学：</p>
+<pre><code>In [<span class="number">3</span>]: <span class="tag">a</span> = <span class="function"><span class="title">zeros</span><span class="params">(<span class="number">1000</span>)</span></span>
+In [<span class="number">4</span>]: <span class="tag">a</span>[:<span class="number">100</span>]=<span class="number">1</span>
+</code></pre><p>第一行正如你所期望的那样简单地创建了一个有1000个0的数组;numpy默认使这些0是双精度浮点数，但是如果我想要单精度或复数，我可以指定<code>zeors</code>的额外参数。第二行把一百个元素设置成-1.</p>
+<p>然后我想要对这个数组进行傅利叶变换，scipy提供<code>fft</code>函数来完成这些：</p>
+<pre><code><span class="tag">b</span> = <span class="function"><span class="title">fft</span><span class="params">(a)</span></span>
+</code></pre><p>为了看看b是什么样的，我将使用matplotlib库。如果你使用”–pylab”启动ipython将不需要导入matplotlib。否则你应导入它:<code>from pylab import *</code>但是你将没有交互功能(当你创建时自动绘图)。</p>
+<pre><code>In [<span class="number">6</span>]: plot(abs(b))
+Out[<span class="number">6</span>]: <span class="annotation">[&lt;matplotlib.lines.Line2D instance at 0xb7b9144c&gt;]</span>
+In [<span class="number">7</span>]: show()
+</code></pre><p><img src="http://fmn.rrimg.com/fmn056/20120825/1810/p_large_34di_40d700008a7f1261.jpg" alt="fft"></p>
+<p>这将出现一个显示b的图像的窗口，如果你启动ipython时使用<code>--pylab</code>的话<code>show</code>命令是不必要的。</p>
+<p>我注意到如果我把b的0频移动到中间看起来更好。我可以通过连接b的后半部分和前半部分来实现，但是我记不清concatenate的语法了:</p>
+<pre><code><span class="keyword">In</span> [<span class="number">8</span>]: concatenate?
+<span class="keyword">Type</span>:           builtin_function_or_method
+Base <span class="keyword">Class</span>:     &lt;<span class="keyword">type</span> <span class="string">'builtin_function_or_method'</span>&gt;
+String Form:    &lt;built-<span class="keyword">in</span> <span class="function"><span class="keyword">function</span> <span class="title">concatenate</span>&gt;
+<span class="title">Namespace</span>:</span>      Interactive
+Docstring:
+    concatenate((a1, a2, ...), axis=<span class="number">0</span>)
+    <span class="keyword">Join</span> arrays together.
+    The <span class="keyword">tuple</span> <span class="keyword">of</span> sequences (a1, a2, ...) are joined along the given axis
+    (<span class="keyword">default</span> <span class="keyword">is</span> the first one) <span class="keyword">into</span> a single numpy <span class="keyword">array</span>.
+    Example:
+    &gt;&gt;&gt; concatenate( ([<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>], [<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>]) )
+    <span class="keyword">array</span>([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>])
+<span class="keyword">In</span> [<span class="number">9</span>]: f=arange(-<span class="number">500</span>,<span class="number">500</span>,<span class="number">1</span>)
+<span class="keyword">In</span> [<span class="number">10</span>]: grid(<span class="keyword">True</span>)
+<span class="keyword">In</span> [<span class="number">11</span>]: plot(f,abs(concatenate((b[<span class="number">500</span>:],b[:<span class="number">500</span>]))))
+<span class="keyword">Out</span>[<span class="number">11</span>]: [&lt;matplotlib.lines.Line2D instance at <span class="number">0</span>xb360ca4c&gt;]
+<span class="keyword">In</span> [<span class="number">12</span>]: show()
+</code></pre><p><img src="http://fmn.rrimg.com/fmn062/20120825/1810/p_large_fk20_40d700008a801261.jpg" alt="scipy-2"></p>
+<p>这得到了我想要的图像。我可以使用交互控制上下移动和缩放图片，并且为包含在出版物中产生postscript输出(如果你想要学习更多绘图知识，建议你阅读<a href="http://matplotlib.sourceforge.net/tutorial.html" target="_blank" rel="external">matplotlib教程</a>)。</p>
+<h3 id="运行脚本">运行脚本</h3><p>当你一遍又一遍重复做着相同的工作，把一些命令保存在文件中并把它们作为脚本在ipython中运行将很有用。你可以使用”Ctrl-D”退出当前的ipython会话并且编辑<code>ipython_log.py</code>文件。当你想要执行这个文件中的指令时，你可以打开一个新的ipython会话输入命令<code>%run -i ipython_log.py</code>。</p>
+<p>当编辑一个脚本文件时，在ipython中尝试一些命令也很方便。这将允许你在保存和运行之前，对一些简单的情况逐行尝试你的脚本。</p>
+<h3 id="一些关于导入(import)的笔记">一些关于导入(import)的笔记</h3><p>如果你仅仅初学scipy和与其伴侣，以下的东西对你并不那么重要，不要太操心。但是当你开发一些大型的应用时最好记住它。</p>
+<p>对交互工作(在ipython中)和一些小型的脚本使用<code>from scipy import *</code>没什么。这样将会有个优点就是所有的功能在当前命名空间都是立即可用的。然而，对大型的程序和软件包来说，建议只导入你真正需要的函数和模块。让我们考虑这种情况：你(为了无论什么理由)想要比较numpy和scipy的<code>fft</code>函数。在你的脚本中你应这样写：</p>
+<pre><code># import from module numpy.fft
+from numpy.fft import fft
+# import scipy's fft implementation and <span class="operator"><span class="keyword">rename</span> it;</span>
+# Note: `from scipy import fft` actually imports numpy.fft.fft (<span class="operator"><span class="keyword">check</span> <span class="keyword">with</span>
+# <span class="string">`scipy.fft?`</span> <span class="keyword">in</span> Ipython <span class="keyword">or</span> look <span class="keyword">at</span> .../site-packages/scipy/__init__.py)
+<span class="keyword">from</span> scipy.fftpack <span class="keyword">import</span> fft <span class="keyword">as</span> scipy_fft</span>
+</code></pre><p>这个优势就是，当你查看代码时，你可以显式的知道你在导入什么，代码便因此变得清晰和可读。而且，这通常比通过<code>import *</code>导入所有东西更快，特别是如果你是从一个像scipy一样特别大的库中导入。</p>
+<p>然而，如果你使用许多不同的numpy函数，如果你显式导入每一个函数导入声明将变得非常长。但是你可以导入整个包来代替使用<code>import *</code>。</p>
+<pre><code><span class="built_in">from</span> numpy import *  <span class="comment"># bad</span>
+<span class="built_in">from</span> numpy import <span class="built_in">abs</span>, concatenate, <span class="built_in">sin</span>, <span class="constant">pi</span>, dot, amin, amax, asarray, cov, diag, zeros, <span class="constant">empty</span>, <span class="built_in">exp</span>, eye, kaiser <span class="comment"># very long</span>
+import numpy         <span class="comment"># good</span>
+<span class="comment"># use numpy.fft.fft() on array 'a'</span>
+b = numpy.fft.fft(<span class="operator">a</span>)
+</code></pre><p>没关系，因为通常<code>import numpy</code>非常快。另一方面，scipy相当大(有很多子包)。因此<code>from scipy import *</code>第一次导入可能非常慢(所有接下来的导入声明将会更迅速地执行，因为实际上没有再次导入)。这是为什么当你导入scipy时子包的导入默认被禁止(像scipy.fft)，这样它才能像<code>import numpy</code>一样快。如果你想使用比如说scipy.fft，你不得不显式的导入它(这无论如何是个好的想法)。如果你想要一次加载所有子包，你将不得不<code>import scipy; scipy.pkgbuild()</code>。使用ipython的交互会话，你可以通过scipy profile调用它(<code>ipython -p scipy</code>),为你读取scipy的配置文件(通常在~/.ipython/ipythonrc-scipy)和加载所有scipy。对在即时交互环境使用scipy和matplotlib绘图，你可以用像这样的命令<code>ipython --pylab -p scipy</code>。</p>
+<p>获得更多有关全面概述包结构和”pythonic”导入惯例的信息，看一看<a href="http://www.python.org/doc/2.5.4/tut/node8.html#SECTION008400000000000000000" target="_blank" rel="external">Python教程的这一部分</a></p>
+<hr>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/python/2012/08/22/numpy/" itemprop="url">
                   试验性NumPy教程(译)
                 </a>
@@ -2395,164 +2612,6 @@ pylab.show()
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/math/2012/07/05/" itemprop="url">
-                  概率论与数理统计基础
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-07-05T00:00:00+08:00" content="2012-07-05">
-              2012-07-05
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/math/" itemprop="url" rel="index">
-                    <span itemprop="name">math</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/math/2012/07/05/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="math/2012/07/05//" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="概率论与数理统计基础">概率论与数理统计基础</h1><h2 id="为什么有了这篇文章">为什么有了这篇文章</h2><p>按以往的风格，大概是我想做什么所以就做了什么。但这次不太一样，首先是代人上数学实验课，matlab搞得我云里雾里，一年前深以为然并给我很大影响的东西都忘到九霄云外了，老师布置个聚类分析的练习一点都不会，完全不知怎么下手。其次加上忙着准备考研，无心折腾这折腾那，虽然很有意思……，再次网上看到满天的牛，飞过来飞过去，那个自惭形晦。好了，我胡言乱语，莫深究什么意思。</p>
-<p>想想一年了，在各个领域摸爬滚打之后发现自己一无是处，收获在哪里？只能说开阔了视野，告诉自己很多东西我曾经也知道过，思考过，选择过。</p>
-<p>下午看了看概率论与统计，想到自己当初拿着好几本讲R的书学习的日子，现在连个痕迹都没有留下，数学建模学到的东西也忘的精光，唉，先看看基础吧。然后回到寝室，忽然就想试试sagemath和markdown……</p>
-<h2 id="概率论基本概念">概率论基本概念</h2><p>先来个全概率公式：<br>     设实验E的样本空间为S，A为E的事件，$B_1,\cdots,B_n $为S的一个划分，且 $P(B_i) &gt; 0 (i = 1,2,\cdots,n)$,则</p>
-<p>$$<br>P(A)=\sum_{i=1}^n P(A \vert B_i)P(B_i)<br>$$</p>
-<p>再来个贝叶斯公式：</p>
-<p>$$<br>P(B_i \vert A) = \frac{P(A \vert B_i)P(B<em>i)}{\sum</em>{j=1}^n P(A|B_j)P(B_j)} , i=1,2,\cdots ,n.<br>$$</p>
-<p>A,B,C三个事件相互独立</p>
-<p>$$<br>\begin{equation<em>}<br>\left.<br>\begin{array}{l}<br>P(AB)=P(A)P(B) \<br>P(BC)=P(B)P(C) \<br>P(AC)=P(A)P(C) \<br>P(ABC)=P(A)P(B)P(C)<br>\end{array}<br>\right}<br>\end{equation</em>}<br>$$</p>
-<h2 id="离散随机变量常见分布">离散随机变量常见分布</h2><p>先来个(0-1)分布<a href="表格做的好难看……有空再改吧">^1</a></p>
-<table>
-<thead>
-<tr>
-<th>X</th>
-<th style="text-align:center">0</th>
-<th style="text-align:center">1</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>$P_k$</td>
-<td style="text-align:center">1-p</td>
-<td style="text-align:center">p</td>
-</tr>
-</tbody>
-</table>
-<p>二项分布,记为$X \sim b(n,p)$</p>
-<p>$$<br>P{X=k}=\binom{n}{k}p^kq^{n-k},k=0,1,2,\cdots,n.<br>$$</p>
-<p>泊松分布,记做$X \sim \pi(\lambda)$</p>
-<p>$$<br>P{X = k}=\frac{\lambda^ke^{-\lambda}}{k!},k=0,1,2,\cdots,<br>$$</p>
-<p>泊松定理</p>
-<p>$$<br>\lim\limits_{n\to \infty} \binom{n}{k}p_n^k(1-p_n)^{n-k} = \frac{\lambda^ke^{-\lambda}}{k!}<br>$$</p>
-<h2 id="三种连续型随机变量">三种连续型随机变量</h2><p>###均匀分布</p>
-<p>概率密度函数，图中取$b=2,a=1$。</p>
-<p>$$<br>\begin{equation}<br>f(x)=\left{<br>\begin{array}{l}<br>\frac{1}{b-a},a &lt; x &lt; b \<br>0, else<br>\end{array}<br>\right.<br>\end{equation}<br>$$</p>
-<p><img src="http://fmn.rrfmn.com/fmn058/20120705/2310/p_large_Wt1C_4925000043391261.jpg" hight="200" width="400" alt="均匀分布概率密度"></p>
-<p>其分布函数为</p>
-<p>$$<br>\begin{equation}<br>F(x)=\left{<br>\begin{array}{l}<br>0,  x&lt;a \<br>\frac{x-a}{b-a}, a \leq x &lt; b \<br>1, x \geq b<br>\end{array}<br>\right.<br>\end{equation}<br>$$</p>
-<p><img src="http://fmn.rrimg.com/fmn059/20120705/2310/p_large_DfWR_4925000043381261.jpg" hight="200" width="400" alt="均匀分布分布函数"></p>
-<h2 id="指数分布">指数分布</h2><p>概率分布函数，图像中红、蓝、绿三种颜色曲线分别是$\theta$取0.5、1、2时所绘制。</p>
-<p>$$<br>\begin{equation}<br>f(x)=\left{<br>\begin{array}{l}<br>\frac{1}{\theta}e^{-\frac{x}{\theta}}, x &gt; 0,\<br>0, else,<br>\end{array}<br>\right.<br>\end{equation}<br>$$</p>
-<p><img src="http://fmn.rrimg.com/fmn056/20120705/2310/p_large_sWxZ_49250000433a1261.jpg" hight="200" width="400" alt="指数分布概率密度"></p>
-<p>分布函数</p>
-<p>$$<br>\begin{equation}<br>F(x)=\left{<br>\begin{array}{l}<br>1-e^{-\frac{x}{\theta}}, x &gt; 0,\<br>0, else,<br>\end{array}<br>\right.<br>\end{equation}<br>$$</p>
-<p><img src="http://fmn.rrfmn.com/fmn058/20120705/2310/p_large_KHxd_49250000433b1261.jpg" hight="200" width="400" alt="指数函数分布函数"></p>
-<h2 id="正态分布">正态分布</h2><p>概率密度函数,图中$\mu$为0,红、蓝、绿三种颜色图像分别取$\sigma=0.5,1,2$。</p>
-<p>$$<br>f(x)=\frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x-\mu)^2}{2\sigma^2}},-\infty &lt; x &lt;\infty<br>$$</p>
-<p><img src="http://fmn.rrimg.com/fmn059/20120705/2310/p_large_PZvg_49250000433c1261.jpg" hight="200" width="400" alt="正态分布概率密度函数"></p>
-<p>分布函数</p>
-<p>$$<br>F(x)=\frac{1}{\sqrt{2\pi}\sigma}\int_{-\infty}^x e^{-\frac{(x-\mu)^2}{2\sigma^2}} dt<br>$$</p>
-<hr>
-<h2 id="后记">后记</h2><p>markdown+mathjax不是一般蛋疼啊……，<code>\$B_i,B_j\$</code>总把<code>i,B</code>给强调了，让它以代码形式mathjax又不解析了……最近看不进英文的文档了，mathjax的文档胡乱翻了半天什么也没记住……</p>
-<p>textile倒好，可没想到出现更奇葩的<code>P(C)</code>竟然解析成P &#169; ……<code>= =</code></p>
-<p>总之，I hate math，以后再也不自己瞎折腾了……</p>
-<h2 id="Changelog">Changelog</h2><p>###2012年07月06日 星期五 08时18分46秒</p>
-<p>早上爬起来看看mathjax文档，然后试试发现昨天的奇葩问题消失了……懒得折腾的孩子们参考这里处理：<a href="http://doswa.com/2011/07/20/mathjax-in-markdown.html" target="_blank" rel="external">MathJax in Markdown</a>,想折腾的可以去折腾什么pandoc<a href="据说是haskell写的">^2</a>的……</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2599,7 +2658,7 @@ pylab.show()
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">169</span>
+              <span class="site-state-item-count">170</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2613,7 +2672,7 @@ pylab.show()
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">58</span>
+              <span class="site-state-item-count">59</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

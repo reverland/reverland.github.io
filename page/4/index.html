@@ -224,6 +224,322 @@
             
               
                 
+                <a class="post-title-link" href="/linux/2014/11/20/account-and-access-control/" itemprop="url">
+                  Account and Access Control
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-11-20T00:00:00+08:00" content="2014-11-20">
+              2014-11-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/linux/2014/11/20/account-and-access-control/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2014/11/20/account-and-access-control/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>传统的Unix中，一旦攻击者获得对应帐号的shell，他就能执行该账户所能行使的任何行为，存取该账户能存取的任何文件。因此，让未授权的人获得指定帐号shell更加困难(特别是对权限账户)，是系统安全重要的部分。本文介绍如何引入限制账户登录的机制。</p>
+<h2 id="限制基于密码的登录来保护账户">限制基于密码的登录来保护账户</h2><p>传统Unix账户通过提供用户名和密码登录，这些用户名和密码会和储存在<code>/etc/passwd</code>和<code>/etc/shadow</code>中的内容对比。密码登录可能被被猜测，被嗅探，被中间人截取，无论是从网络还是不安全的控制台中。因此，限制账户密码登录的机制很重要。</p>
+<h3 id="限制root只能在系统控制台登录">限制root只能在系统控制台登录</h3><p>编辑<code>/etc/securetty</code>，确保只有以下行：</p>
+<ul>
+<li><p>基本的系统控制台设备：</p>
+<pre><code><span class="built_in">console</span>
+</code></pre></li>
+<li><p>虚拟控制台设备</p>
+<pre><code>tty1
+tty2
+tty3
+tty4
+...
+</code></pre></li>
+<li><p>如果需要，保留这些废弃的控制台接口来保留向后兼容。</p>
+<pre><code>vc/<span class="number">1</span>
+vc/<span class="number">2</span>
+...
+</code></pre></li>
+<li><p>如果需要，添加串口控制台：</p>
+<pre><code><span class="title">ttyS0</span>
+ttyS1
+</code></pre></li>
+</ul>
+<p>仅在紧急情况下才允许root直接登录。通常，管理员可以通过唯一的非权限用户使用<code>su</code>或者<code>sudo</code>来执行权限命令。不鼓励管理员直接使用root用户有助于对多管理员系统的审计工作。减少root能直接连接的通道减少了root密码被猜解的几率。</p>
+<p><code>login</code>程序使用<code>/etc/securetty</code>确定哪些接口允许root登录。虚拟设备<code>/dev/console</code>和<code>/dev/tty*</code>代表系统控制台(通过<code>Ctrl-Alt-F1</code>等打开)。默认的<code>securetty</code>文件也包含<code>/dev/vc/*</code>，来保留历史兼容性。</p>
+<p>root用户也应该禁止通过网络协议登录。本文暂不讨论。</p>
+<h3 id="限制su到root账户">限制su到root账户</h3><p>确保组<code>wheel</code>存在，所有持有root权限的管理员用户名作为其中的组员。</p>
+<pre><code><span class="keyword">grep</span> ^wheel <span class="regexp">/etc/g</span>roup
+</code></pre><p>编辑文件<code>/etc/pam.d/su</code>，添加、注释或者更改该行：</p>
+<pre><code>auth    required    pam_wheel<span class="class">.so</span>    use_uid
+</code></pre><p><code>su</code>命令允许用户从其它用户通过输入密码获得权限。因此限制已知管理员使用root是必要的。一般<code>wheel</code>用户组包含允许运行权限命令的全部用户。PAM模块<code>pam_wheel.so</code>被用来限制一组用户的接入。</p>
+<h3 id="配置sudo改善对root访问的审计">配置sudo改善对root访问的审计</h3><p>确保<code>wheel</code>存在，所有持有root权限的管理员用户名作为其中的组员。</p>
+<pre><code><span class="keyword">grep</span> ^wheel <span class="regexp">/etc/g</span>roup
+</code></pre><p>编辑<code>/etc/sudoers</code>，添加、取消注释或者更改如下行：</p>
+<pre><code>%wheel  <span class="built_in">ALL</span>=(<span class="built_in">ALL</span>)   <span class="built_in">ALL</span>
+</code></pre><p><code>sudo</code>能很好的控制哪个用户能用其它账户执行命令。这为每个权限用户执行的命令提供了审计可能。也许恶意管理员会绕过这个限制，但这个机制保证审计更容易。</p>
+<p>手工编辑<code>/etc/sudoer</code>很危险，配置错误也许会禁用远程root访问。推荐的方式是用<code>visudo</code>命令编辑这个文件，该命令会在保存前检查文件语法。</p>
+<p>权衡sudo带来的审计好处和安全风险。永远不要使用<code>NOPASSWD</code>指令，这会允许任何获取管理员账户的人在不知管理员密码的情况下以root身份执行命令。</p>
+<p>更多定制参见<code>sudoers</code> man页面</p>
+<h3 id="禁止非root系统账户登录和使用shell">禁止非root系统账户登录和使用shell</h3><p>！！！！！！！！注意：不要对root执行以下配置</p>
+<p>使用一下命令查看<code>/etc/passwd</code></p>
+<pre><code>awk -F: '{<span class="literal">print</span> <span class="variable">$1</span> <span class="string">":"</span> <span class="variable">$3</span> <span class="string">":"</span> <span class="variable">$7</span>}' /etc/passwd
+</code></pre><p>找到那些UID低于500(系统账户)，不是root的账户：</p>
+<p>对每个系统账户<code>SYSACCT</code>，锁定：</p>
+<pre><code><span class="title">usermod</span> -L SYSACCT
+</code></pre><p>禁用它们的shell：</p>
+<pre><code>usermod <span class="operator">-s</span> /sbin/nologin SYSACCT
+</code></pre><h3 id="确认密码被适当存储和哈希">确认密码被适当存储和哈希</h3><h4 id="确保没有账户有空密码">确保没有账户有空密码</h4><p>使用以下命令查看：</p>
+<pre><code>awk -<span class="string">F:</span> <span class="string">'($2 == "") {print}'</span> <span class="regexp">/etc/</span>shadow
+</code></pre><p>如果有输出，检查这些账户并设置密码。</p>
+<h4 id="确保所有账户密码哈希都被shadow">确保所有账户密码哈希都被shadow</h4><p>确保没有在<code>/etc/passwd</code>中保存密码哈希：</p>
+<pre><code>awk -<span class="string">F:</span> <span class="string">'($2 != "x") {print}'</span> <span class="regexp">/etc/</span>passwd
+</code></pre><p>这个命令应该没有输出，所有密码哈希应该保存在<code>/etc/shadow</code>而不是所有用户都能读的<code>/etc/passwd</code></p>
+<h3 id="确认没有非root用户的UID为0">确认没有非root用户的UID为0</h3><p>列出所有UID为0的用户：</p>
+<pre><code>awk -<span class="string">F:</span> <span class="string">'($3 == "0") {print}'</span> <span class="regexp">/etc/</span>passwd
+</code></pre><p>通常，最好的审计实践是所有root账户的使用都限制到使用su或这sudo。有些站点使用多个管理员拥有UID 0，这种做法可能有意料外的副作用，并不推荐。</p>
+<h3 id="设置密码过期参数">设置密码过期参数</h3><p>编辑<code>/etc/login.defs</code>指定某个新账户的密码过期时间。添加或修改如下行：</p>
+<pre><code>PASS_MAX_DAYS <span class="number">60</span>
+PASS_MIN_DAYS <span class="number">7</span>
+PASS_MIN_LEN <span class="number">14</span>
+PASS_WARN_AGE <span class="number">7</span>
+</code></pre><p>对已经存在的人类用户<code>USER</code>，更改当前过期设置如下：</p>
+<pre><code>chage -M <span class="number">60</span> -m <span class="number">7</span> -W <span class="number">7</span> USER
+</code></pre><p>更改密码要在稳定性和安全性之间权衡，90到360天比较推荐。</p>
+<h4 id="从libuser-conf移除密码参数">从libuser.conf移除密码参数</h4><p>确保<code>/etc/libuser.conf</code>在<code>[import]</code>节包含：</p>
+<pre><code>login_defs = <span class="regexp">/etc/login</span>.defs
+</code></pre><p>同时确保在<code>[userdefaults]</code>下没有以下单词开头的行，这些设定会覆盖<code>/etc/log   in.defs</code>的设定：</p>
+<pre><code><span class="title">LU_SHADOWMAX</span>
+LU_SHADOWMIN
+LU_SHADOWWARNING
+</code></pre><p><code>/etc/libuser.conf</code>文件包含libuser库的配置选项，这个库提供了一套操作和管理用户和组帐号的标准接口。默认情况下从<code>/etc/login.defs</code>读取密码设置，但是<code>/etc/libuser.conf</code>能覆盖这些参数。查看<code>libuser.conf</code>的man页面获取更多信息。</p>
+<h3 id="移除密码文件中遗留的+条目">移除密码文件中遗留的+条目</h3><p>用一下命令找到这些行：</p>
+<pre><code><span class="keyword">grep</span> <span class="string">"^+:"</span> <span class="regexp">/etc/</span>passwd <span class="regexp">/etc/</span>shadow <span class="regexp">/etc/g</span>roup
+</code></pre><p>确保没有输出。</p>
+<p><code>+</code>被用来将来自NIS的数据映射到已知文件。一个<code>/etc/passwd</code>中NIS包含错误，但NIS没有运行会导致任意用户以<code>+</code>用户名免密码访问。</p>
+<p>告诉本地系统使用网络数据库，比如LDAP或NIS，来获取用户信息的正确的方式是确保在<code>/etc/nsswitch.conf</code>中适当的配置。</p>
+<h2 id="通过Unix组来加强安全">通过Unix组来加强安全</h2><p>通过标准Unix权限的访问控制很弱，但也可以利用。</p>
+<h3 id="为每个账户创建一个唯一默认组">为每个账户创建一个唯一默认组</h3><p>当使用<code>useradd</code>命令时，不要使用<code>-g</code>参数覆盖默认组。</p>
+<p>RedHat默认为每个用户创建相同名称的唯一所属组。推荐这样，保护组写权限的文件。</p>
+<h3 id="创建和维护包含所有人类账户的组">创建和维护包含所有人类账户的组</h3><p>找到系统上所有人类用户，比如UID大于500的，一旦确认，创建一个<code>usergroup</code>组，并且把每个人类账户加进去：</p>
+<pre><code>groupadd usergroup
+usermod -G usergroup huma<span class="label">n1</span>
+usermod -G usergroup huma<span class="label">n2</span>
+usermod -G usergroup huma<span class="label">n3</span>
+usermod -G usergroup huma<span class="label">n4</span>
+</code></pre><p>当用<code>useradd</code>添加新用户时，用<code>-G usergroup</code>将人类账户添加到改组。</p>
+<p>这样做便于管理人类用户，比如为<code>/path/to/graphical/command</code>授权用户：</p>
+<pre><code>chgrp usergroup /path/<span class="built_in">to</span>/graphical/<span class="command"><span class="keyword">command</span></span>
+chmod <span class="number">750</span> /path/<span class="built_in">to</span>/graphical/<span class="command"><span class="keyword">command</span></span>
+</code></pre><p>同时，限制非人类系统账户执行命令也非常重要。</p>
+<h2 id="通过配置PAM保护帐号">通过配置PAM保护帐号</h2><p>PAM，可插拔认证模块是为linux程序提供认证的模块。PAM是一个框架，提供可配置的系统认证架构来最小化系统所面对的风险。</p>
+<p>PAM被作为一套动态共享库实现，在任何应用程序想认证用户的时候被加载和调用。通常为了使用PAM应用程序需要以root运行，传统的权限网络监听比如sshd和SUID程序比如sudo已经满足了这个要求。一个叫做<code>userhelper</code>的SUID root应用被用来为没有SUID或权限的程序提供利用PAM的可能。</p>
+<p>PAM在<code>/etc/pam.d/</code>下搜寻应用特异的配置信息。比如对<code>login</code>程序，PAM库会遵循<code>/etc/pam.d/login</code>中的指示。</p>
+<p>一个非常重要的文件是<code>/etc/pam.d/system-auth</code>。这个文件被许多其它文件包含(奇怪的是从RHEL6开始sshd只包含<code>/etc/pam.d/password-auth</code>)，作为默认的系统认证措施，更改这个文件能确保全面的更改。</p>
+<p>更改PAM的配置要十分小心，语法很复杂，更改可能有意料外的结果。默认配置对大多数用户足够了。</p>
+<p>注意！！！！！！！！！！：运行<code>authconfig</code>或者<code>system-config-authentication</code>将覆盖PAM配置文件，摧毁任何手动的更改，将其覆盖成系统默认。</p>
+<h3 id="设定密码质量要求">设定密码质量要求</h3><p>默认的PAM模块<code>pam_cracklib</code>提供了加强的密码检查。它可以执行一系列检查包含字典单词的相似，最小长度，不是之前的密码，不是之前密码的简单大小写修改等。也能要求密码包含特定类型的字符。</p>
+<p><code>pam_passwdqc</code>模块提供了更严格的密码强度强制要求。可通过RPM包下载。</p>
+<h4 id="如果使用pam_cracklib,设置密码质量需求">如果使用pam_cracklib,设置密码质量需求</h4><p>用<code>pam_cracklib</code>配置密码至少包含一个大写、小写、数字和其它字符，定位<code>/etc/pam.d/system-auth</code>中的一下行：</p>
+<pre><code>password requisite pam_cracklib<span class="class">.so</span> retry=<span class="number">3</span>
+</code></pre><p>更改为(呵呵，required意指即使失败仍然会继续后面required的模块验证，然后在返回错误，让用户不知道哪里出的问题)</p>
+<pre><code>password required pam_cracklib.so retry=<span class="number">3</span> minlen=<span class="number">14</span> \
+                    dcredit=-<span class="number">1</span>, ucredit=-<span class="number">1</span> ocredit=-<span class="number">1</span> lcredit=-<span class="number">1</span>
+</code></pre><p>如果必要，更改为符合你要求的配置。</p>
+<h4 id="如果使用pam_passwdqc,设置密码质量需求">如果使用pam_passwdqc,设置密码质量需求</h4><p>如果需要比<code>pam_cracklib</code>保证的密码强度更强，使用<code>pam_passwdqc</code>模块。</p>
+<p>更改<code>/etc/pam.d/system-auth</code>中的如下行：</p>
+<pre><code>password requisite pam_cracklib<span class="class">.so</span> retry=<span class="number">3</span>
+</code></pre><p>为(呵呵，这个直接requisite，只要不符合要求PAM就直接返回错误了)<br>    password requisite pam_passwdqc.so min=disabled,disabled,16,12,8</p>
+<p>按自己需要配置。</p>
+<h3 id="设置失败密码尝试锁定">设置失败密码尝试锁定</h3><p>使用<code>pam_tally2.so</code>模块来实现一定数量错误登录尝试后锁定账户。在<code>/etc/pam.d/system-auth</code>中添加到第一个auth开头的行上头(呵呵，RHEL6后<code>/etc/pam.d/sshd</code>包含的是<code>/etc/pam.d/password-auth</code>而不是<code>/etc/pam.d/system-auth</code>，所以，对ssh登录尝试锁定应该是对<code>password-auth</code>这个文件更改。)</p>
+<pre><code>auth required pam_tally2.so deny=<span class="number">5</span> onerr=fail unlock_time=<span class="number">900</span>
+</code></pre><p>在account开头的行上头加上一行：</p>
+<pre><code><span class="tag">account</span> <span class="tag">required</span> <span class="tag">pam_tally2</span><span class="class">.so</span>
+</code></pre><p>root要单独设置<code>root_unlock_time=900</code></p>
+<p>要解锁用户使用<code>pam_tally2</code>命令</p>
+<pre><code>/sbin/pam_tally2 --<span class="keyword">user</span> <span class="title">username</span> --reset
+</code></pre><p>锁定用户造成潜在的DOS攻击，但能阻止密码猜解。权衡利弊设置<code>unlock_time</code></p>
+<h3 id="使用pam_deny-so快速禁止访问服务">使用pam_deny.so快速禁止访问服务</h3><p>通过PAM阻止服务SVCNAME的访问，编辑<code>/etc/pam.d/SVCNAME</code>文件，添加这一行：</p>
+<pre><code><span class="tag">auth</span>    <span class="tag">requisite</span>   <span class="tag">pam_deny</span><span class="class">.so</span>
+</code></pre><p>这不是啥值得推荐的方法，不过挺方便，呵呵。</p>
+<h3 id="仅控制台用户执行userhelper">仅控制台用户执行userhelper</h3><p>如果你的环境定义了一个组<code>usergroup</code>包含所有系统上的人类用户，限制<code>userhelper</code>程序只能由这些用户执行。(4710中的4表示suid/guid)</p>
+<pre><code>chgrp usergroup <span class="regexp">/usr/</span>sbin/userhelper
+chmod <span class="number">4710</span> <span class="regexp">/usr/</span>sbin/userhelper
+</code></pre><p><code>userhelper</code>程序提供必须以root运行的图形服务认证，比如<code>system-config-</code>族图形配置程序。只有登录到系统控制台的人类用户可以运行这些。以上提供了一定对<code>userhelper</code>实现缺陷的保护，防止被侵入的系统账户进一步提权。</p>
+<p><code>userhelper</code>程序在<code>/etc/securetty/console.app/</code>下的文件配置。每个文件指定了程序以什么身份运行，成功认证后应该执行什么。</p>
+<p>注意：这些配置和PAM的配置<code>/etc/pam.d</code>下的配置相配合才能起作用。首先<code>userhelper</code>决定服务应该以什么身份运行(比如root)，然后<code>userhelper</code>使用PAM API来允许运行程序的用户尝试认证为想要借身份运行的用户。PAM的API交互被封装在GUI中，如果程序配置要求的话。</p>
+<h3 id="升级密码哈希算法到SHA-512">升级密码哈希算法到SHA-512</h3><p>需要编辑3个文件：</p>
+<p>首先<code>/etc/pam.d/system-auth</code>中确保sha512被<code>pam_unix.so</code>模块在password节使用。而不是使用其它算法：(可能得改password-auth)</p>
+<pre><code>password sufficient pam_unix<span class="class">.so</span> sha512 shadow nullok try_first_pass use_authtok
+</code></pre><p>其次，编辑文件<code>/etc/login.defs</code>添加或更改以下行(确认下就好)：</p>
+<pre><code><span class="title">ENCRYPT_METHOD</span> SHA512
+</code></pre><p>最后，编辑<code>/etc/libuser.conf</code>添加或更改以下行：</p>
+<pre><code><span class="attribute">crypt_style</span>=<span class="string">sha512</span>
+</code></pre><p>其实吧，这是RHEL6的默认配置，呵呵。</p>
+<h3 id="限制密码重用">限制密码重用</h3><p><code>pam_unix</code>模块使用<code>remember</code>参数可以防止用户重用最近的密码。为了阻止用户使用最近5次的密码，向<code>/etc/pam.d/system-auth</code>文件中，使用<code>pam_unix</code>模块的<code>password</code>行添加<code>remember=5</code>参数。</p>
+<p>旧的密码(禁止重用的)保存在<code>/etc/security/opasswd</code>中。</p>
+<h3 id="尽可能移除pam_crreds包">尽可能移除pam_crreds包</h3><p>除非用到认证缓存功能，移除<code>pam_ccreds</code>包：</p>
+<pre><code>yum <span class="built_in">erase</span> pam_ccreds
+</code></pre><p>该包包含setuid文件<code>/usr/sbin/ccreds_validate</code>。如果系统被入侵，任何系统上缓存的认证信息都会被获取。</p>
+<h2 id="对登录用户使用安全会话配置文件">对登录用户使用安全会话配置文件</h2><p>当一个用户登录进Unix账户时，系统通过读取大量文件配置用户会话。许多这些文件在家目录下。错误或者不当的配置都会造成弱权限。攻击者可以修改甚至读取特定类型的账户信息，对受影响的账户获得全面的访问权限。因此，额是和修正账户特别是权限账户的配置文件权限非常重要。</p>
+<h3 id="确保Root_PATH不存在危险目录">确保Root PATH不存在危险目录</h3><p>登录一个root shell运行：</p>
+<pre><code>echo <span class="variable">$PATH</span>
+</code></pre><p>将给出冒号分隔的文件夹路径。</p>
+<p>防止root执行未知或者不受信任的程序很重要，这些程序可能带有恶意代码。因此，root不应该运行非权限用户安装的程序。root经常工作在不受信任的目录，比如<code>.</code>代表的当前目录总不该出现在root的PATH中，任何非权限用户或系统用户能写入的目录都是如此。</p>
+<p>对系统管理员来说，总是打出命令的绝对路径是个好习惯。</p>
+<h4 id="确保Root_PATH不包含相对路径或者空目录">确保Root PATH不包含相对路径或者空目录</h4><p>对每个路径中的目录<code>DIR</code>，确保<code>DIR</code>不是一个单一的<code>.</code>，或者任何可能导致相对路径遍历的符号比如<code>..</code>，或者不是以<code>/</code>开头。同时，确保路径中没有空元素，如下：</p>
+<pre><code><span class="constant">PATH=</span><span class="symbol">:/bin</span>
+<span class="constant">PATH=</span>/<span class="symbol">bin:</span>
+<span class="constant">PATH=</span>/<span class="symbol">bin:</span><span class="symbol">:/sbin</span>
+</code></pre><p>这些空元素和一个<code>.</code>有相同效果。</p>
+<p>我觉得这样比较方便：</p>
+<pre><code>echo <span class="variable">$PATH</span> | awk -F: <span class="string">'{for(i=1;i&lt;NF;i++) print $i}'</span>
+</code></pre><h4 id="确保ROOT路径不包含全局可写或组可写的目录">确保ROOT路径不包含全局可写或组可写的目录</h4><p>对PATH中的每一个元素，执行：</p>
+<pre><code><span class="keyword">ls</span> -ld <span class="keyword">DIR</span>
+</code></pre><p>确保组和其它的写权限被禁用。</p>
+<p>我觉得这样比较好：</p>
+<pre><code>ls -ld `echo <span class="variable">$PATH</span> | awk -F: <span class="string">'{for(i=1;i&lt;NF;i++) print $i}'</span>`
+</code></pre><h3 id="确保用户家目录不是组可写或者全局可读的">确保用户家目录不是组可写或者全局可读的</h3><p>首先通知你的用户。</p>
+<p>对每个人类账户<code>USER</code>，查看账户权限：</p>
+<pre><code>ls -<span class="keyword">ld</span> /home/USER
+</code></pre><p>确保目录不是组可写和全局可读的，必要时修正：</p>
+<pre><code>chmod g-w /home/<span class="keyword">USER</span>
+<span class="title">chmod</span> o-rwx /home/USER
+</code></pre><p>家目录包含许多影响账户行为的配置，其它用户不该有权限写入。组共享目录应该在子目录或者其它什么地方而不是家目录。通常，家目录也不该全局可读。如果有一小撮用户非得读取其它用户目录，通过组来提供权限。</p>
+<h3 id="确保用户dot文件不是全局可写">确保用户dot文件不是全局可写</h3><p>确保用户USER家目录下的dot文件不是全局可写：</p>
+<pre><code>ls -ld /home/<span class="keyword">USER</span> <span class="title">/.[A-Za-z0-9</span>]*
+</code></pre><p>确保任何文件都不是组或全局可写的。通过以下方式修正某个<code>FILE</code>：</p>
+<pre><code>chmod go-w /home/USER/<span class="keyword">FILE</span>
+</code></pre><p>能更改其它用户配置文件的用户可能以那个用户权限执行命令，窃取数据，摧毁文件或者发起进一步攻击。</p>
+<h3 id="确保用户有合理的umask值">确保用户有合理的umask值</h3><p>编辑全局配置<code>/etc/profile</code>,<code>/etc/bashrc</code>和<code>/etc/csh.cshrc</code>.添加或修改以下行:</p>
+<pre><code><span class="built_in">umask</span> <span class="number">077</span>
+</code></pre><p>其实profile里看是不是uid大于200且有效组名等于用户名,则设为002(目录775，文件644).否则设为022(目录755，文件644).</p>
+<p>编辑<code>/etc/login.defs</code>:</p>
+<pre><code>UMASK   <span class="number">077</span>
+</code></pre><p>查看<code>/etc/csh.login</code>和<code>/etc/profile.d/*</code>中的其它文件，确保没有重定义umask。除非有什么好的理由重定义umask。</p>
+<pre><code><span class="keyword">grep</span> -r umask <span class="regexp">/etc/</span>profile <span class="regexp">/etc/</span>csh.* <span class="regexp">/etc/</span>bashrc <span class="regexp">/etc/</span>login.defs
+</code></pre><p>编辑root shell的配置文件<code>/root/.bashrc</code>和<code>/root/.bash_profile</code>,<code>/root/.cshrc</code>，<code>/root/.tcshrc</code>。添加或修改以下行：</p>
+<pre><code><span class="built_in">umask</span> <span class="number">077</span>
+</code></pre><p>这样做确保任何用户创建的文件不会被其它用户读写与执行。如果有特殊需要，则使用<code>chmod</code>命令修改它。单个用户可以通过将umask设为<code>027</code>让其所在组用户能读和执行其文件。用户名和默认组一致，完全可以直接设成<code>007</code>来与组成员共享文件。</p>
+<p>另外，暂时更改root 的umask来安装能让其它用户读取的软件或文件，或者修改特定服务帐号的umask默认设定的行为，都是必要的。但严格的默认限制能更好的保护意外泄漏。</p>
+<h3 id="确保用户没有-netrc文件">确保用户没有.netrc文件</h3><p>对每个人类用户<code>USER</code>，确保没有用户有<code>.netrc</code>文件。</p>
+<pre><code><span class="built_in">find</span> /home -<span class="built_in">name</span> .netrc
+</code></pre><p>应该没有返回。如果有联系用户讨论删除事宜。</p>
+<p><code>.netrc</code>是用来通过ftp无人登录到其它系统的配置文件。这个文件通常包含攻击其它系统未加密的密码。</p>
+<h2 id="保护物理控制台访问">保护物理控制台访问</h2><p>不大可能保护系统免于物理接触攻击。有些步骤能让攻击者更加难以快速和不被发现地从控制台更改系统。</p>
+<h3 id="设置BIOS密码">设置BIOS密码</h3><p>x86系统的BIOS是机器首先运行代码的地方，控制着许多非常重要的系统参数，包含系统从哪个设备以什么顺序启动的信息。</p>
+<p>为BIOS配置设置密码防止修改。尽管物理接触的攻击者通常很容易清除密码。</p>
+<h3 id="设置Boot_Loader密码">设置Boot Loader密码</h3><p>Boot Loader通常负责启动内核并把参数传递给它。boot loader允许选择多个分区或者介质上的不同内核，能传递给内核的参数包括单用户模式(提供无需认证的root访问)，禁用SELinux。阻止本地用户更改启动参数。为防止本地用户更改启动参数危害安全，启动器配置需要用密码保护：</p>
+<p>Grub这样保护：</p>
+<p>运行<code>grub-md5-crypt</code>得到md5后的哈希<code>password-hash</code></p>
+<p>在<code>/etc/grub.conf</code>注释头下第一行添加：</p>
+<pre><code>password <span class="comment">--md5 password-hash</span>
+</code></pre><p>确保<code>/etc/grub.conf</code>的权限。(指向<code>../boot/grub/grub.conf</code>)</p>
+<pre><code>chown <span class="string">root:</span>root <span class="regexp">/etc/</span>grub.conf
+chmod <span class="number">600</span> <span class="regexp">/etc/</span>grub.conf
+</code></pre><p>其它boot loader有类似的密码保护特性。</p>
+<h3 id="要求单用户模式登录认证">要求单用户模式登录认证</h3><p>单用户模式被设计用来回复系统，通过启动选项给单用户root权限。默认情况下不需要认证，这造成了安全隐患。</p>
+<p>即使以单用户模式启动，也要求输入root密码。在<code>/etc/sysconfig/init</code>文件中更改：</p>
+<pre><code>sed -i 's/SINGLE=<span class="command">\/</span>sbin<span class="command">\/</span>sushell/SINGLE=<span class="command">\/</span>sbin<span class="command">\/</span>sulogin/' /etc/sysconfig/init
+</code></pre><h3 id="禁用交互式启动">禁用交互式启动</h3><p>编辑<code>/etc/sysconfig/init</code>。添加或更改设置：</p>
+<pre><code>sed -<span class="tag">i</span> <span class="string">'s/^PROMPT.*/PROMPT=no/g'</span> /etc/sysconfig/init
+</code></pre><p>交互式启动，用户也许能禁用审计、防火墙和其它服务弱化系统安全。</p>
+<h3 id="对登录shell实现不活动超时">对登录shell实现不活动超时</h3><p>如果系统不运行X windows，登录shell可以配置为一段时间不活动自动登出用户。以下指令对运行X Windows的系统不合适，因为这将自动(深有体会！！)关闭X环境下的终端。</p>
+<p>针对<code>/bin/bash</code>，实现一个15分钟的空闲超时，在目录<code>/etc/profile.d/</code>下新建文件<code>tmout.sh</code>，写入如下行：</p>
+<pre><code>TMOUT=<span class="number">900</span>
+<span class="built_in">readonly</span> TMOUT
+<span class="built_in">export</span> TMOUT
+</code></pre><p>对<code>tcsh</code>，在<code>/etc/profile.d/</code>下新建<code>autologout.sh</code>，添加如下行：</p>
+<pre><code><span class="built_in">set</span> -r autologout <span class="number">15</span>
+</code></pre><p>其它登录shell应该类似。</p>
+<p>仅仅在shell是前台进程时才会自动登录超时。比如，一个<code>vi</code>会话空闲着并不会自动超时登出。</p>
+<p>当通过远程连接时，比如SSH，通过该服务设置超时更加有效。</p>
+<h3 id="配置锁屏">配置锁屏</h3><p>一个是图形界面的锁屏(比如kde的Lock Screen)，一个是控制台(vlock)。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/linux/2014/11/18/file-permissions-and-masks/" itemprop="url">
                   File Permissions and Masks
                 </a>
@@ -1790,153 +2106,6 @@ modprobe dm_crypt
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/python/2014/10/09/" itemprop="url">
-                  游泳日报
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-10-09T00:00:00+08:00" content="2014-10-09">
-              2014-10-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/python/2014/10/09/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2014/10/09//" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="一起学游泳吧">一起学游泳吧</h2><p><code>点我----&gt;</code><a href="http://swim.reverland.org" target="_blank" rel="external">游泳日报</a><code>&lt;-----点我！</code></p>
-<p>满满的热爱之心。</p>
-<h2 id="缘起">缘起</h2><p>作为一个游泳的狂热爱好者。狂热到恨不得每天都泡在水里。</p>
-<p>被诊断为支气管炎的时候</p>
-<p>双腿因为爬山废掉路都快走不动的时候</p>
-<p>天降暴雨电闪雷鸣马路成海的时候</p>
-<p>都义无反顾地冲去泳池</p>
-<p>泡在水里……</p>
-<p>这样自由随性的游了一年。</p>
-<p>后来，</p>
-<p>和一群游起来非常优雅漂亮的半职业运动员们一起游了几次</p>
-<p>或者十几次</p>
-<p>抑或几十次，之后</p>
-<p>我觉得得好好学习下。</p>
-<p>于是通过伟大的互联网，</p>
-<p>在<a href="http://topswim.net/" target="_blank" rel="external">游泳梦工厂</a>找到了很多</p>
-<p>很多泳痴留下的武林秘笈。</p>
-<p>欣喜异常！</p>
-<p>但我觉得论坛上不好看……</p>
-<p>于是诞生了把论坛上的帖子爬下来美化给自己看的愿望。</p>
-<p>于是写了个爬虫……</p>
-<p>后来，又想生成pdf，于是又折腾了下html转pdf。</p>
-<p>后来，那阵经常刷知乎日报……于是又萌生了</p>
-<p>制作<code>游泳日报</code>的想法。</p>
-<p>最终写了一堆 <em>脚本</em> 来行使爬虫和静态页面生成的功能及其它辅助功能。</p>
-<p>源码见<a href="https://github.com/reverland/topswim" target="_blank" rel="external">https://github.com/reverland/topswim</a></p>
-<p>静态页面见<a href="https://github.com/reverland/topswim/tree/gh-pages" target="_blank" rel="external">https://github.com/reverland/topswim/tree/gh-pages</a></p>
-<h2 id="具体实现">具体实现</h2><h3 id="爬虫部分">爬虫部分</h3><p>不是啥优雅的方法。</p>
-<p>使用<code>lxml</code>和<code>requests</code>，把论坛页面的内容抓下来然后加上自定的内容。自己定义css文件。</p>
-<h3 id="静态页面生成部分">静态页面生成部分</h3><p>首先是具体内容页面。根据爬取的内容，加上自定义的html内容。可能用jinja2啊什么模板什么的应该更优雅些，我这就以一种quick和dirty的脚本方式实现。</p>
-<p>其次是首页生成方式。读取<code>rebuild.sh</code>文件取最新的六条生成首页。</p>
-<p>最后是总目录页的生成。读取<code>rebuild.sh</code>内容获取所有内容。</p>
-<h3 id="辅助构建部分">辅助构建部分</h3><p><code>update.sh</code>是主更新脚本。</p>
-<p><code>update_index.py</code>和<code>update_toc.py</code>分别更新首页和总目录页。</p>
-<p><code>rebuild.sh</code>负责重新构建所有内容页面。</p>
-<h3 id="生成pdf部分">生成pdf部分</h3><p>使用<code>weasyprint</code>模块。</p>
-<p>将视频替换为对应地址。</p>
-<p>ps:开始使用<code>xhtml2pdf</code>模块，这东西支持中文字体要改，最关键的是中文不换行！！！即使最后按网上找来的设置什么wordwrap为cjk还是不换行。总之不推荐。</p>
-<h2 id="其它">其它</h2><p>很多似乎需要优化的地方。</p>
-<ol>
-<li>把html文本和程序分离出来比较合适。</li>
-<li>命令行参数处理用argparse啥的处理应该更加优雅</li>
-<li>原谅我渣一样的前端水平。</li>
-</ol>
-<p>好吧，本渣只是一个script kid……</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1983,7 +2152,7 @@ modprobe dm_crypt
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">169</span>
+              <span class="site-state-item-count">170</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1997,7 +2166,7 @@ modprobe dm_crypt
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">58</span>
+              <span class="site-state-item-count">59</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
