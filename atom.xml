@@ -4,7 +4,7 @@
   <subtitle><![CDATA[开放、分享、自由与进步]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://reverland.org/"/>
-  <updated>2015-11-24T16:11:38.721Z</updated>
+  <updated>2015-11-24T16:45:01.329Z</updated>
   <id>http://reverland.org/</id>
   
   <author>
@@ -19,11 +19,11 @@
     <link href="http://reverland.org/javascript/2015/11/24/web-based-input-method/"/>
     <id>http://reverland.org/javascript/2015/11/24/web-based-input-method/</id>
     <published>2015-11-24T10:07:23.000Z</published>
-    <updated>2015-11-24T16:11:38.721Z</updated>
-    <content type="html"><![CDATA[<p>two days’ dirty hack，很多天之前写的一个利用百度云输入法的Userscript，没有你们想得这么高大上两天自己开发了个输入法ORZ。。。</p>
+    <updated>2015-11-24T16:45:01.329Z</updated>
+    <content type="html"><![CDATA[<p>two days’ dirty hack，很多天之前写的一个利用<a href="https://greasyfork.org/zh-CN/scripts/13193-baiducloudinput" target="_blank" rel="external">百度云输入法的Userscript</a>，没有你们想得这么高大上两天自己开发了个输入法ORZ。。。</p>
 <p>2015.10.18 23:32, 首发<a href="http://www.jianshu.com/p/5e56524c91fc" target="_blank" rel="external">简书</a>。</p>
 <p>我想总结下在写这个过程中学到了些什么。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/927981-0133862b083c1a93.gif" alt="baiducloudinput_first_edition-2.gif"></p>
+<p><img src="http://img.vim-cn.com/5d/a20cb0ec4c83d7f3e6d8cbd6e2e8bf36930958.gif" alt="最终版本"></p>
 <h2 id="综述">综述</h2><p>设计很简单，简单分为网络请求-用户界面-控制逻辑三部分。</p>
 <h2 id="网络请求">网络请求</h2><p>原理非常简单。简单分析下百度云输入法，关键在这么一个请求</p>
 <pre><code>http://olime.baidu.com/py?input=shuru&amp;inputtype=py&amp;bg=<span class="number">0</span>&amp;ed=<span class="number">20</span>&amp;<span class="literal">result</span>=hanzi&amp;resultcoding=unicode&amp;ch_en=<span class="number">0</span>&amp;clientinfo=web&amp;version=<span class="number">1</span>
@@ -173,13 +173,12 @@ shuru               |&lt;---输入提示(已经输入的内容)
 </blockquote>
 <p>至此，这篇瞎逼扯的文章变成一篇软文233。</p>
 <p>最后奉上原始版本。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/927981-3d485a07ce9d5cd3.gif" alt="baiducloudinput_first_edition.gif"></p>
+<p><img src="http://img.vim-cn.com/2f/d42431ca004bae8ab13fd18d15bef4d4549844.gif" alt="输入法的第一个版本"></p>
 <p>写到这里好累，前前后后几个小时过去。文笔很乱也不加修改，如若能于其中有半点涟漪，也不负我在屏幕前的叹息了。</p>
 <p>Have fun</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>two days’ dirty hack，很多天之前写的一个利用百度云输入法的Userscript，没有你们想得这么高大上两天自己开发了个输入法ORZ。。。</p>
-<p>2015.10.18 23:32, 首发<a href="http://www.jianshu.com]]>
+    <![CDATA[<p>two days’ dirty hack，很多天之前写的一个利用<a href="https://greasyfork.org/zh-CN/scripts/13193-baiducloudinput" target="_blank" rel="external">百度云输入]]>
     </summary>
     
       <category term="javascript" scheme="http://reverland.org/tags/javascript/"/>
@@ -193,15 +192,15 @@ shuru               |&lt;---输入提示(已经输入的内容)
     <link href="http://reverland.org/linux/2015/11/23/linux-tex/"/>
     <id>http://reverland.org/linux/2015/11/23/linux-tex/</id>
     <published>2015-11-23T14:50:01.000Z</published>
-    <updated>2015-11-24T10:00:55.284Z</updated>
+    <updated>2015-11-24T16:47:57.417Z</updated>
     <content type="html"><![CDATA[<p>原文2015.10.14 14:56 <a href="http://www.jianshu.com/p/1d4c06470960" target="_blank" rel="external">首发简书</a>。</p>
 <p>我看到有tex模板。我用ubuntu 14.04LTS，并不用Office</p>
 <p>下载下来是一个zip文件，解压。Readme.txt乱码</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/927981-81fbd592e5d1b0b9.png" alt="Screenshot from 2015-10-14 14:38:50.png"></p>
+<p><img src="http://img.vim-cn.com/bb/627c475c9a3ec5d544ec9f5fce25f09fa98fce.png" alt="科技论文在线Tex模板README中文乱码"></p>
 <p>抱着试试看的心理用 <code>iconv</code>转换</p>
 <pre><code>iconv <span class="operator">-f</span> gbk -t utf8 Readme.txt
 </code></pre><p>看到</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/927981-d48210cf5e804111.png" alt="Readme里信息"></p>
+<p><img src="http://img.vim-cn.com/e1/d7daa7e58a0d5703e45f9fe40e64f917f43bba.png" alt="Readme里信息"></p>
 <p>基于ctex宏包开发，可以用pdflatex或者xelatex。我一直用xelatex，但不想装了。</p>
 <pre><code>sudo apt-get <span class="operator"><span class="keyword">install</span> texlive-lang-cjk sudo apt-<span class="keyword">get</span> <span class="keyword">install</span> texlive-bibtex-extra</span>
 </code></pre><p>首先，你得装<code>simsun.ttc</code>这个宋体Truetype字体了。还要改配置，不然找不到字体</p>
@@ -409,10 +408,10 @@ shuru               |&lt;---输入提示(已经输入的内容)
     <link href="http://reverland.org/javascript/2015/11/17/greasemonkey-userscript/"/>
     <id>http://reverland.org/javascript/2015/11/17/greasemonkey-userscript/</id>
     <published>2015-11-17T14:21:25.000Z</published>
-    <updated>2015-11-17T14:55:28.434Z</updated>
+    <updated>2015-11-24T16:42:08.801Z</updated>
     <content type="html"><![CDATA[<p>这两天，写了一个简单的基于有道在线翻译的GreaseMonkey屏幕取词脚本。</p>
 <p><a href="https://greasyfork.org/en/scripts/12758-youdaodict" target="_blank" rel="external">点我查看GreaseFork</a></p>
-<p><img src="http://upload-images.jianshu.io/upload_images/927981-c88125ce5a60959a.gif" alt="youdaodict-1.gif"></p>
+<p><img src="http://img.vim-cn.com/6d/513d2b37bf298b4ae77bc663c597260e5a115e.gif" alt="有道取词Userscript"></p>
 <p>我想做这件事很久了，从我还不是一个前端开发者的时候，就一直想做这么一个轻量的浏览器脚本，方便自己查看英文的文档和文章。没想到想了这么久，真正没做多久。</p>
 <p>作为一个Ubuntu Linux用户，浏览器取词我有几个选择：</p>
 <ol>
