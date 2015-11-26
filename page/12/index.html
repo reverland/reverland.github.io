@@ -201,6 +201,211 @@
 
     
     
+      
+      
+
+      
+    
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/python/2012/11/19/flask/" itemprop="url">
+                  Flask驱动的静态站点生成器(译)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-11-19T00:00:00+08:00" content="2012-11-19">
+              2012-11-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2012/11/19/flask/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/11/19/flask/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>翻译自：<a href="https://nicolas.perriault.net/code/2012/dead-easy-yet-powerful-static-website-generator-with-flask/" target="_blank" rel="external">Dead easy yet powerful static website generator with Flask</a></p>
+<p>纯意译……以下是正文，和jekyll很像的感觉，哈？34行代码完成一个静态站点生成器。</p>
+<hr>
+<p>我想将我的在线身份统合到一个单独的托管地方很久了，因此有了你现在浏览的这个网站。我也寻找一个静态网站架构有段时间了，尝试了许多但一个也不中意。这真令人沮丧。</p>
+<p>然后遇到<a href="https://twitter.com/#!/mitsuhiko/statuses/166570613295689728" target="_blank" rel="external">Armin Ronacher的这个tweet</a>：</p>
+<blockquote class="twitter-tweet tw-align-center"><br>    <p>Frozen-Flask is really, really useful. Should have used that earlier.</p>&mdash; Armin Ronacher (@mitsuhiko) <a href="https://twitter.com/mitsuhiko/status/166570613295689728" data-datetime="2012-02-06T17:15:03+00:00" target="_blank" rel="external">February 6, 2012</a><br></blockquote>
+
+<p><a href="http://lucumr.pocoo.org/" target="_blank" rel="external">Armin</a>是<a href="http://flask.pocoo.org/" target="_blank" rel="external">Flask</a>这个Python微框架的作者，我喜欢flask的简洁。所以这个tweet一个机灵，我便开始探索<a href="http://packages.python.org/Frozen-Flask/" target="_blank" rel="external">Frozen-Flask</a>的玩法。</p>
+<p>Frozen-Flask将Flask应用<em>冻结</em>成静态文件，这样你能够高速而无痛地部署它们。再佐以<a href="http://packages.python.org/Flask-FlatPages/" target="_blank" rel="external">Flask-FlatPages</a>，你获得了完美的生成静态站点工具集，这个站点将有所以你使用框架能得到的特性。</p>
+<ul>
+<li>酷的urls和简单的路径管理</li>
+<li>强大的模板</li>
+<li>本地动态服务</li>
+<li>静态版本管理</li>
+</ul>
+<h2 id="第一轮：项目搭建">第一轮：项目搭建</h2><p>在新文件夹中创建个新的<a href="http://pypi.python.org/pypi/virtualenv" target="_blank" rel="external">virtualenv</a>，使用<a href="http://pypi.python.org/pypi/pip" target="_blank" rel="external">pip</a>安装必要的包：</p>
+<pre><code><span class="variable">$ </span>mkdir sample_project &amp;&amp; cd !<span class="variable">$
+</span><span class="variable">$ </span>mkvirtualenv --no-site-packages <span class="string">`pwd`</span>/env
+<span class="variable">$ </span>source env/bin/activate
+<span class="variable">$ </span>pip install <span class="constant">Flask</span> <span class="constant">Frozen</span>-<span class="constant">Flask</span> <span class="constant">Flask</span>-<span class="constant">FlatPages</span>
+</code></pre><p>写我们第一个版本的<code>sitebuilder.py</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="decorator">@app.route("/")</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">"Hello World!"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    app.run(port=<span class="number">8000</span>)</span><br></pre></td></tr></table></figure>
+<p>运行它;你应该看到类似：</p>
+<pre><code><span class="variable">$ </span>python sitebuilder.py 
+ * <span class="constant">Running</span> on <span class="symbol">http:</span>/<span class="regexp">/127.0.0.1:8000/</span> 
+ * <span class="constant">Restarting</span> <span class="keyword">with</span> reloader
+</code></pre><p>用浏览器打开<em><a href="http://:127.0.0.1:8000" target="_blank" rel="external">http://:127.0.0.1:8000</a></em>看是否正常。</p>
+<h2 id="又一轮：添加纯文本页面">又一轮：添加纯文本页面</h2><p><a href="http://packages.python.org/Flask-FlatPages/" target="_blank" rel="external">Flask-FlatPages</a>为你的Flask应用提供一套页面。相对动态页面从关系数据库构建，静态页面是从纯文本文件构建。</p>
+<p>在你的项目跟文件夹下创建一个<code>pages/</code>目录，新建一个<code>hello-wolrd.md</code>扔进去：</p>
+<p>$ mkdir pages<br>$ vi pages/hello-world.md</p>
+<p><code>hello-world.md</code>文件：</p>
+<pre><code><span class="attribute">title</span>: <span class="string">Hello World</span>
+<span class="attribute">date</span>: <span class="string">2012-03-04</span>
+
+<span class="gherkin"><span class="keyword">*</span><span class="keyword">*</span>Hello World<span class="keyword">*</span><span class="keyword">*</span>, from a <span class="keyword">*</span>page<span class="keyword">*</span>!</span>
+</code></pre><p>如你所见你可以在页面内容中写入<a href="/404">Markdown</a>。所以让我们重新写我们的应用来为通过文件名为任何纯文本提供服务。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"><span class="keyword">from</span> flask_flatpages <span class="keyword">import</span> FlatPages</span><br><span class="line"></span><br><span class="line">DEBUG = <span class="keyword">True</span></span><br><span class="line">FLATPAGES_AUTO_RELOAD = DEBUG</span><br><span class="line">FLATPAGES_EXTENSION = <span class="string">'.md'</span></span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.config.from_object(__name__)</span><br><span class="line">pages = FlatPages(app)</span><br><span class="line"></span><br><span class="line"><span class="decorator">@app.route('/')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">"Hello World"</span></span><br><span class="line"></span><br><span class="line"><span class="decorator">@app.route('/&lt;path:path&gt;/')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">page</span><span class="params">(path)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> pages.get_or_404(path).html</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    app.run(port=<span class="number">8000</span>)</span><br></pre></td></tr></table></figure>
+<p>现在访问<code>http://127.0.0.1:8000/hello-world/</code>将呈现渲染后的纯文本。注意通过page对象获得html属性markdown源码被转换成html。</p>
+<h2 id="又一轮：添加模板">又一轮：添加模板</h2><p>flask使用<a href="http://jinja.pocoo.org/docs/" target="_blank" rel="external">jinja2</a>模板引擎，让我们创建一些模板来装饰页面。首先在项目根目录下创建一个<code>templates</code>文件夹：</p>
+<pre><code><span class="variable">$ </span>mkdir templates
+</code></pre><p>在<code>templates/base.html</code>中创建基本布局：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="doctype">&lt;!doctype html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">meta</span> <span class="attribute">charset</span>=<span class="value">"utf-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">title</span>&gt;</span>My site<span class="tag">&lt;/<span class="title">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">h1</span>&gt;</span><span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">"&#123;&#123; url_for("</span><span class="value">index")</span> &#125;&#125;"&gt;</span>My site<span class="tag">&lt;/<span class="title">a</span>&gt;</span><span class="tag">&lt;/<span class="title">h1</span>&gt;</span></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="title">p</span>&gt;</span>Default content to be displayed<span class="tag">&lt;/<span class="title">p</span>&gt;</span></span><br><span class="line">&#123;% endblock content %&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="title">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>注意<code>url_for()</code>这个模板函数，这是我们使用Flask和Jinjia2生成url的方式。</p>
+<p>现在用<code>page.html</code>模板来填充页面内容的布局：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "base.html" %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">  <span class="tag">&lt;<span class="title">h2</span>&gt;</span>&#123;&#123; page.title &#125;&#125;<span class="tag">&lt;/<span class="title">h2</span>&gt;</span></span><br><span class="line"></span><br><span class="line">&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>我们的应用现在应该是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, render_template</span><br><span class="line"><span class="keyword">from</span> flask_flatpages <span class="keyword">import</span> FlatPages</span><br><span class="line"></span><br><span class="line">DEBUG = <span class="keyword">True</span></span><br><span class="line">FLATPAGES_AUTO_RELOAD = DEBUG</span><br><span class="line">FLATPAGES_EXTENSION = <span class="string">'.md'</span></span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.config.from_object(__name__)</span><br><span class="line">pages = FlatPages(app)</span><br><span class="line"></span><br><span class="line"><span class="decorator">@app.route('/')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">"Hello World"</span></span><br><span class="line"></span><br><span class="line"><span class="decorator">@app.route('/&lt;path:path&gt;/')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">page</span><span class="params">(path)</span>:</span></span><br><span class="line">    page = pages.get_or_404(path)</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">'page.html'</span>, page=page)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    app.run(port=<span class="number">8000</span>)</span><br></pre></td></tr></table></figure>
+<p>见鬼，我们刚刚做了什么？</p>
+<ul>
+<li>创建了一个应用的模板;一个通用布局(base.html)和一个页面模板(page.html)</li>
+<li>我们使用<code>render_template</code>函数对页面用页面模板装饰。</li>
+<li>页面模板扩展基本模板来避免在每个页面都复制粘帖相同的内容。</li>
+</ul>
+<h2 id="又一轮：在主页呈现页面列表">又一轮：在主页呈现页面列表</h2><p>现在我们的主页弱爆了。我们让它列出所有存在的页面。</p>
+<p>创建一个<code>templates/index.html</code>：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "base.html" %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">  <span class="tag">&lt;<span class="title">h2</span>&gt;</span>List of stuff<span class="tag">&lt;/<span class="title">h2</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">ul</span>&gt;</span></span><br><span class="line">    &#123;% for page in pages %&#125;</span><br><span class="line">      <span class="tag">&lt;<span class="title">li</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">"&#123;&#123; url_for("</span><span class="value">page",</span> <span class="attribute">path</span>=<span class="value">page.path)</span> &#125;&#125;"&gt;</span>&#123;&#123; page.title &#125;&#125;<span class="tag">&lt;/<span class="title">a</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="title">li</span>&gt;</span></span><br><span class="line">    &#123;% else %&#125;</span><br><span class="line">      <span class="tag">&lt;<span class="title">li</span>&gt;</span>No stuff.<span class="tag">&lt;/<span class="title">li</span>&gt;</span></span><br><span class="line">    &#123;% endfor %&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="title">ul</span>&gt;</span></span><br><span class="line">&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>随意地创建更多纯文本页面，就像我们创建<code>hello-world.md</code>一样，将文件保存在<code>pages/</code>目录下，使用<code>.md</code>扩展名。</p>
+<p>我们应用中的<code>index()</code>路径现在应该这样：</p>
+<p>重载主页，页面列表将呈现。真他妈简单。</p>
+<h2 id="又一轮：给页面添加元数据">又一轮：给页面添加元数据</h2><p>Flask-FlatPages允许像我们创建和<code>hello-world.md</code>的标题和日期一样添加元数据，并且通过<code>page.meta</code>来存取它们，获得看上去蠢蠢的python字典。真令人吃惊，不是吗？</p>
+<p>让我们假设想要给页面添加标签，我们的<code>hello-world.md</code>将变成：</p>
+<pre><code><span class="attribute">title</span>: <span class="string">Hello World</span>
+<span class="attribute">date</span>: <span class="string">2012-03-04</span>
+<span class="attribute">tags</span>: <span class="string">[general, awesome, stuff]</span>
+
+<span class="gherkin"><span class="keyword">*</span><span class="keyword">*</span>Hello World<span class="keyword">*</span><span class="keyword">*</span>, from a <span class="keyword">*</span>page<span class="keyword">*</span>!</span>
+</code></pre><p>元数据用<a href="http://yaml.org/" target="_blank" rel="external">YAML</a>描述，因此你能够使用字符串、布尔、整数、浮点、列表、甚至字典，它们将转换成Python相应的内在等价物。</p>
+<p>我们将使用两个包含共享部分的不同的模板来列出普通页面和标签页面，<code>index.html</code>现在应该是：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "base.html" %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="title">h2</span>&gt;</span>List of stuff<span class="tag">&lt;/<span class="title">h2</span>&gt;</span></span><br><span class="line">    &#123;% with pages=pages  %&#125;</span><br><span class="line">        &#123;% include "_list.html" %&#125;</span><br><span class="line">    &#123;% endwith %&#125;</span><br><span class="line">&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>创建<code>tag.html</code>模板，它将用来呈现标签页面列表：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends "base.html" %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="title">h2</span>&gt;</span>List of stuff tagged <span class="tag">&lt;<span class="title">em</span>&gt;</span>&#123;&#123; tag &#125;&#125;<span class="tag">&lt;/<span class="title">em</span>&gt;</span><span class="tag">&lt;/<span class="title">h2</span>&gt;</span></span><br><span class="line">    &#123;% with pages=pages  %&#125;</span><br><span class="line">        &#123;% include "_list.html" %&#125;</span><br><span class="line">    &#123;% endwith %&#125;</span><br><span class="line">&#123;% endblock content %&#125;</span><br></pre></td></tr></table></figure>
+<p>新建的<code>_list.html</code>模板应该包含：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">ul</span>&gt;</span></span><br><span class="line">&#123;% for page in pages %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="title">li</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">"&#123;&#123; url_for("</span><span class="value">page",</span> <span class="attribute">path</span>=<span class="value">page.path)</span> &#125;&#125;"&gt;</span>&#123;&#123; page.title &#125;&#125;<span class="tag">&lt;/<span class="title">a</span>&gt;</span></span><br><span class="line">    &#123;% if page.meta.tags|length %&#125;</span><br><span class="line">        | Tagged:</span><br><span class="line">        &#123;% for page_tag in page.meta.tags %&#125;</span><br><span class="line">            <span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">"&#123;&#123; url_for("</span><span class="value">tag",</span> <span class="attribute">tag</span>=<span class="value">page_tag)</span> &#125;&#125;"&gt;</span>&#123;&#123; page_tag &#125;&#125;<span class="tag">&lt;/<span class="title">a</span>&gt;</span></span><br><span class="line">        &#123;% endfor %&#125;</span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="title">li</span>&gt;</span></span><br><span class="line">&#123;% else %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="title">li</span>&gt;</span>No page.<span class="tag">&lt;/<span class="title">li</span>&gt;</span></span><br><span class="line">&#123;% endfor %&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="title">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>向应用中添加新的tag路径，使用新的<code>tag.html</code>模板：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="decorator">@app.route('/tag/&lt;string:tag&gt;/')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">tag</span><span class="params">(tag)</span>:</span></span><br><span class="line">    tagged = [p <span class="keyword">for</span> p <span class="keyword">in</span> pages <span class="keyword">if</span> tag <span class="keyword">in</span> p.meta.get(<span class="string">'tags'</span>, [])]</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">'tag.html'</span>, pages=tagged, tag=tag)</span><br></pre></td></tr></table></figure>
+<p>注：若你之前不喜欢python的<a href="http://www.network-theory.co.uk/docs/pytut/ListComprehensions.html" target="_blank" rel="external">列表推导式</a>，现在你会了。</p>
+<h2 id="又一轮：生成静态页面">又一轮：生成静态页面</h2><p>好的，现在我们只要有一个动态网站，为存储在文件系统上的纯文本页面提供服务：废话。但是我们当然不是Flask应用而是一堆静态文件，省去了任何应用服务器。</p>
+<p>来进入Frozen-Flask。它的使用真他妈简单：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, render_template</span><br><span class="line"><span class="keyword">from</span> flask_flatpages <span class="keyword">import</span> FlatPages</span><br><span class="line"><span class="keyword">from</span> flask_frozen <span class="keyword">import</span> Freezer</span><br><span class="line"></span><br><span class="line">DEBUG = <span class="keyword">True</span></span><br><span class="line">FLATPAGES_AUTO_RELOAD = DEBUG</span><br><span class="line">FLATPAGES_EXTENSION = <span class="string">'.md'</span></span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.config.from_object(__name__)</span><br><span class="line">pages = FlatPages(app)</span><br><span class="line">freezer = Freezer(app)</span><br><span class="line"></span><br><span class="line"><span class="decorator">@app.route('/')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">'index.html'</span>, pages=pages)</span><br><span class="line"></span><br><span class="line"><span class="decorator">@app.route('/tag/&lt;string:tag&gt;/')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">tag</span><span class="params">(tag)</span>:</span></span><br><span class="line">    tagged = [p <span class="keyword">for</span> p <span class="keyword">in</span> pages <span class="keyword">if</span> tag <span class="keyword">in</span> p.meta.get(<span class="string">'tags'</span>, [])]</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">'tag.html'</span>, pages=tagged, tag=tag)</span><br><span class="line"></span><br><span class="line"><span class="decorator">@app.route('/&lt;path:path&gt;/')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">page</span><span class="params">(path)</span>:</span></span><br><span class="line">    page = pages.get_or_404(path)</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">'page.html'</span>, page=page)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="keyword">if</span> len(sys.argv) &gt; <span class="number">1</span> <span class="keyword">and</span> sys.argv[<span class="number">1</span>] == <span class="string">"build"</span>:</span><br><span class="line">        freezer.freeze()</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        app.run(port=<span class="number">8000</span>)</span><br></pre></td></tr></table></figure>
+<p>然后运行：</p>
+<pre><code>$ python sitebuilder<span class="class">.py</span> build
+</code></pre><p>打开构建文件夹键入如下命令：</p>
+<pre><code>$ tree
+.
+├── hello-world
+│   └── index<span class="class">.html</span>
+├── index<span class="class">.html</span>
+└── tag
+    ├── awesome
+    │   └── index<span class="class">.html</span>
+    ├── general
+    │   └── index<span class="class">.html</span>
+    └── stuff
+        └── index<span class="class">.html</span>
+
+<span class="number">5</span> directories, <span class="number">5</span> files
+</code></pre><h2 id="想法：吓坏了">想法：吓坏了</h2><p>你现在能部署<code>build</code>目录下的任何文件到任何能托管静态文件的地方了，而你仅仅用34行Python代码就完成了……不错吧？</p>
+<p>当然，现在的版本弱爆了，你能一点一点的为它添加各种特性了。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -3893,560 +4098,6 @@ s          str     Hello <span class="literal">word</span>
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/python/2012/09/07/matplotlib-tutorial/" itemprop="url">
-                  Matplotlib Tutorial(译)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-09-07T00:00:00+08:00" content="2012-09-07">
-              2012-09-07
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/python/2012/09/07/matplotlib-tutorial/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/09/07/matplotlib-tutorial/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="Matplotlib_Tutorial(译)">Matplotlib Tutorial(译)</h1><p>翻译自:<a href="http://www.loria.fr/~rougier/teaching/matplotlib/" target="_blank" rel="external">Matplotlib tutorial</a>Nicolas P. Rougier - Euroscipy 2012</p>
-<ul>
-<li>toc<br>{: toc}</li>
-</ul>
-<p>这个教程基于可以从<a href="http://scipy-lectures.github.com/" target="_blank" rel="external">scipy lecture note</a>得到的 Mike Müller的<a href="http://scipy-lectures.github.com/intro/matplotlib/matplotlib.html" target="_blank" rel="external">教程</a>。</p>
-<p>源代码可从<a href="http://www.loria.fr/~rougier/teaching/matplotlib/matplotlib.rst" target="_blank" rel="external">这里</a>获得。图像在<a href="http://www.loria.fr/~rougier/teaching/matplotlib/figures/" target="_blank" rel="external">figures</a>文件夹内，所有的脚本位于<a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/" target="_blank" rel="external">scripts</a>文件夹。</p>
-<p>所有的代码和材料以<a href="http://creativecommons.org/licenses/by/3.0/us" target="_blank" rel="external">Creative Commons Attribution 3.0 United States License (CC-by)</a>发布。</p>
-<p>特别感谢Bill Wing和Christoph Deil的检查和校正。</p>
-<h2 id="引言">引言</h2><p>matplotlib大概是被使用最多的二维绘图Python包。它不仅提供一个非常快捷的用python可视化数据的方法，而且提供了出版质量的多种格式图像。我们将要探索matplotlib包含最常见情况的交互模式。</p>
-<h3 id="Ipython_和_pylab模式">Ipython 和 pylab模式</h3><p><a href="http://ipython.org/" target="_blank" rel="external">IPython</a>是一个增强的Python交互shell，它拥有很多有趣的特性包括被命名的输入与输出，可使用shell命令，增强的调试和许多其它特性。当我们在命令参数中用<code>-pylab</code>(自从IPython0.12版变成<code>--pylab</code>),它容许交互的matplotlib会话有像Matlab/Mathematica样的功能。</p>
-<h3 id="pylab">pylab</h3><p>pylab提供了一个针对matplotlib面向对象绘图库的程序界面。它模仿Matlab(TM)开发。因此，pylab大部分的绘图命令和参数和Matlab(TM)相似。重要的命令被交互示例解释。</p>
-<h2 id="简单绘图">简单绘图</h2><p>在这一部分，我们想在同一个图片中绘制正弦和余弦函数。从默认设置开始，我们将一步一步地改进使它看上去更棒。</p>
-<p>首先获得正弦和余弦函数的数据：</p>
-<pre><code>from pylab <span class="preprocessor"><span class="keyword">import</span> *</span>
-
-X = np.linspace(-np.<span class="built_in">pi</span>, np.<span class="built_in">pi</span>, <span class="number">256</span>,endpoint=<span class="literal">True</span>)
-C,S = np.<span class="built_in">cos</span>(X), np.<span class="built_in">sin</span>(X)
-</code></pre><p>X现在是一个numpy数组，包含从-π到+π(包含π)等差分布的256个值。C是正弦(256个值)，S是余弦(256个值)。</p>
-<p>运行这个例子，你可以在IPython交互会话键入它们</p>
-<pre><code>[lyy@arch ~]$ ipython2 <span class="comment">--pylab</span>
-Python <span class="number">2.7</span>.<span class="number">3</span> (<span class="keyword">default</span>, Apr <span class="number">24</span> <span class="number">2012</span>, <span class="number">00</span>:<span class="number">00</span>:<span class="number">54</span>) 
-<span class="keyword">Type</span> <span class="string">"copyright"</span>, <span class="string">"credits"</span> <span class="keyword">or</span> <span class="string">"license"</span> <span class="keyword">for</span> more information.
-
-IPython <span class="number">0.13</span> <span class="comment">-- An enhanced Interactive Python.</span>
-?         -&gt; Introduction <span class="keyword">and</span> overview <span class="keyword">of</span> IPython<span class="attribute">'s</span> features.
-%quickref -&gt; Quick reference.
-help      -&gt; Python<span class="attribute">'s</span> own help system.
-object?   -&gt; Details about <span class="attribute">'object</span>', <span class="keyword">use</span> <span class="attribute">'object</span>??' <span class="keyword">for</span> extra details.
-
-Welcome <span class="keyword">to</span> pylab, a matplotlib-based Python environment [backend: Qt4Agg].
-<span class="keyword">For</span> more information, <span class="keyword">type</span> <span class="attribute">'help</span>(pylab)'.
-</code></pre><p>或者你可以下载每个示例然后使用普通的的python运行它：</p>
-<pre><code>$ <span class="keyword">python</span> exercice_1.<span class="keyword">py</span>
-</code></pre><p>你可以点击相应图片的获得每一步的源码。</p>
-<h3 id="使用默认">使用默认</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_1.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_1.png" alt="using defaults"></a></p>
-<p>matplotlib有一套允许定制各种属性的默认设置。你可以几乎控制matplotlib中的每一个默认属性：图像大小，每英寸点数，线宽，色彩和样式，子图(axes)，坐标轴和网格属性，文字和字体属性，等等。虽然matplotlib的默认设置在大多数情况下相当好，你却可能想要在一些特别的情形下更改一些属性。</p>
-<pre><code>from pylab <span class="preprocessor"><span class="keyword">import</span> *</span>
-
-X = np.linspace(-np.<span class="built_in">pi</span>, np.<span class="built_in">pi</span>, <span class="number">256</span>,endpoint=<span class="literal">True</span>)
-C,S = np.<span class="built_in">cos</span>(X), np.<span class="built_in">sin</span>(X)
-
-plot(X,C)
-plot(X,S)
-
-show()
-</code></pre><h3 id="示例默认">示例默认</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_2.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_2.png" alt="using defaults"></a></p>
-<p>在以下脚本中，我们示例(并注释)所有影响图像外观的图像设定。这些设定被显式地设置成它们的默认值，但是现在你可以交互地尝试这些值来探索它们的作用(参考之后的<a href="#">线条属性</a>和<a href="#">线条样式</a>)。</p>
-<pre><code><span class="preprocessor"># Import everything from matplotlib (numpy is accessible via 'np' alias)</span>
-from pylab import *
-
-<span class="preprocessor"># Create a new figure of size 8x6 points, using 80 dots per inch</span>
-figure(figsize=(<span class="number">8</span>,<span class="number">6</span>), dpi=<span class="number">80</span>)
-
-<span class="preprocessor"># Create a new subplot from a grid of 1x1</span>
-subplot(<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>)
-
-X = np.linspace(-np.pi, np.pi, <span class="number">256</span>,endpoint=True)
-C,S = np.cos(X), np.sin(X)
-
-<span class="preprocessor"># Plot cosine using blue color with a continuous line of width 1 (pixels)</span>
-plot(X, C, color=<span class="string">"blue"</span>, linewidth=<span class="number">1.0</span>, linestyle=<span class="string">"-"</span>)
-
-<span class="preprocessor"># Plot sine using green color with a continuous line of width 1 (pixels)</span>
-plot(X, S, color=<span class="string">"green"</span>, linewidth=<span class="number">1.0</span>, linestyle=<span class="string">"-"</span>)
-
-<span class="preprocessor"># Set x limits</span>
-xlim(-<span class="number">4.0</span>,<span class="number">4.0</span>)
-
-<span class="preprocessor"># Set x ticks</span>
-xticks(np.linspace(-<span class="number">4</span>,<span class="number">4</span>,<span class="number">9</span>,endpoint=True))
-
-<span class="preprocessor"># Set y limits</span>
-ylim(-<span class="number">1.0</span>,<span class="number">1.0</span>)
-
-<span class="preprocessor"># Set y ticks</span>
-yticks(np.linspace(-<span class="number">1</span>,<span class="number">1</span>,<span class="number">5</span>,endpoint=True))
-
-<span class="preprocessor"># Save figure using 72 dots per inch</span>
-<span class="preprocessor"># savefig("exercice_2.png",dpi=72)</span>
-
-<span class="preprocessor"># Show result on screen</span>
-show()
-</code></pre><h3 id="更改色彩和线宽">更改色彩和线宽</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_3.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_3.png" alt="using defaults"></a></p>
-<p>首先，我们想要余弦是蓝色而正弦是红色，它们的线条都稍厚一点。我们将也稍微更改图片大小来使它更宽一点。</p>
-<pre><code><span class="function"><span class="title">figure</span><span class="params">(figsize=(<span class="number">10</span>,<span class="number">6</span>)</span></span>, dpi=<span class="number">80</span>)
-<span class="function"><span class="title">plot</span><span class="params">(X, C, color=<span class="string">"blue"</span>, linewidth=<span class="number">2.5</span>, linestyle=<span class="string">"-"</span>)</span></span>
-<span class="function"><span class="title">plot</span><span class="params">(X, S, color=<span class="string">"red"</span>,  linewidth=<span class="number">2.5</span>, linestyle=<span class="string">"-"</span>)</span></span>
-</code></pre><h3 id="设置边界">设置边界</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_4.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_4.png" alt="using defaults"></a></p>
-<p>当前的图像边界有点太紧了一点，而且我们想要预留一点空间使数据点更清晰。</p>
-<pre><code><span class="function"><span class="title">xlim</span><span class="params">(X.min()</span></span>*<span class="number">1.1</span>, X.<span class="function"><span class="title">max</span><span class="params">()</span></span>*<span class="number">1.1</span>)
-<span class="function"><span class="title">ylim</span><span class="params">(C.min()</span></span>*<span class="number">1.1</span>, C.<span class="function"><span class="title">max</span><span class="params">()</span></span>*<span class="number">1.1</span>)
-</code></pre><h3 id="设置刻度">设置刻度</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_5.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_5.png" alt="using defaults"></a></p>
-<p>当前刻度并不理想，因为它们不显示正余弦中我们感兴趣的值(+/-π,+/-π/2)。我们将更改它们让它们只显式这些值。</p>
-<pre><code>xticks( [-np.pi, -np.pi/<span class="number">2</span>, <span class="number">0</span>, np.pi/<span class="number">2</span>, np.pi])
-yticks([-<span class="number">1</span>, <span class="number">0</span>, +<span class="number">1</span>])
-</code></pre><h3 id="设置刻度标签">设置刻度标签</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_6.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_6.png" alt="using defaults"></a></p>
-<p>刻度已经放置合适但是他们的标签并不很清楚，我们可以猜出3.142是π但是最好让它更直接。当我们设置刻度值时，我们也可以在第二个参数列表中提供相应的标签。注意，我们用latex获得更好渲染的标签。</p>
-<pre><code>xticks([-np.pi, -np.pi/<span class="number">2</span>, <span class="number">0</span>, np.pi/<span class="number">2</span>, np.pi],
-       [<span class="string">r'$-\pi$'</span>, <span class="string">r'$-\pi/2$'</span>, <span class="string">r'$0$'</span>, <span class="string">r'$+\pi/2$'</span>, <span class="string">r'$+\pi$'</span>])
-
-yticks([-<span class="number">1</span>, <span class="number">0</span>, +<span class="number">1</span>],
-       [<span class="string">r'$-1$'</span>, <span class="string">r'$0$'</span>, <span class="string">r'$+1$'</span>])
-</code></pre><h3 id="移动轴线(spine)">移动轴线(spine)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_7.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_7.png" alt="using defaults"></a></p>
-<p>轴线(spines)是连接刻度标志和标示数据区域边界的线。它们现在可以被放置在任意地方，它们在子图的边缘。我们将改变这点，因为我们想让它们位于中间。因为一共有四个轴线(上/下/左/右)。我们将通过将它们的颜色设置成None，舍弃位于顶部和右部轴线。然后我们把底部和左部的轴线移动到数据空间坐标中的零点。</p>
-<pre><code>ax = <span class="function"><span class="title">gca</span><span class="params">()</span></span>
-ax<span class="class">.spines</span>[<span class="string">'right'</span>].<span class="function"><span class="title">set_color</span><span class="params">(<span class="string">'none'</span>)</span></span>
-ax<span class="class">.spines</span>[<span class="string">'top'</span>].<span class="function"><span class="title">set_color</span><span class="params">(<span class="string">'none'</span>)</span></span>
-ax<span class="class">.xaxis</span><span class="class">.set_ticks_position</span>(<span class="string">'bottom'</span>)
-ax<span class="class">.spines</span>[<span class="string">'bottom'</span>].<span class="function"><span class="title">set_position</span><span class="params">((<span class="string">'data'</span>,<span class="number">0</span>)</span></span>)
-ax<span class="class">.yaxis</span><span class="class">.set_ticks_position</span>(<span class="string">'left'</span>)
-ax<span class="class">.spines</span>[<span class="string">'left'</span>].<span class="function"><span class="title">set_position</span><span class="params">((<span class="string">'data'</span>,<span class="number">0</span>)</span></span>)
-</code></pre><h3 id="添加图例">添加图例</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_8.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_8.png" alt="using defaults"></a></p>
-<p>让我们在图片左上角添加一个图例。这仅仅需要向plot命令添加关键字参数label(之后将被图例框使用)。</p>
-<pre><code><span class="function"><span class="title">plot</span><span class="params">(X, C, color=<span class="string">"blue"</span>, linewidth=<span class="number">2.5</span>, linestyle=<span class="string">"-"</span>, label=<span class="string">"cosine"</span>)</span></span>
-<span class="function"><span class="title">plot</span><span class="params">(X, S, color=<span class="string">"red"</span>,  linewidth=<span class="number">2.5</span>, linestyle=<span class="string">"-"</span>, label=<span class="string">"sine"</span>)</span></span>
-
-<span class="function"><span class="title">legend</span><span class="params">(loc=<span class="string">'upper left'</span>)</span></span>
-</code></pre><h3 id="注解某些点">注解某些点</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_9.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_9.png" alt="using defaults"></a></p>
-<p>让我们现在使用annotate命令注解一些我们感兴趣的点。我们选择2π/3作为我们想要注解的正弦和余弦值。我们将在曲线上做一个标记和一个垂直的虚线。然后，使用annotate命令来显示一个箭头和一些文本。</p>
-<pre><code>t = <span class="number">2</span>*np.pi/<span class="number">3</span>
-<span class="function"><span class="title">plot</span><span class="params">([t,t],[<span class="number">0</span>,np.cos(t)</span></span>], <span class="attribute">color</span> =<span class="string">'blue'</span>, linewidth=<span class="number">2.5</span>, linestyle=<span class="string">"--"</span>)
-<span class="function"><span class="title">scatter</span><span class="params">([t,],[np.cos(t)</span></span>,], <span class="number">50</span>, <span class="attribute">color</span> =<span class="string">'blue'</span>)
-
-<span class="function"><span class="title">annotate</span><span class="params">(r<span class="string">'$sin(\frac{2\pi}{3})=\frac{\sqrt{3}}{2}$'</span>,
-         xy=(t, np.sin(t)</span></span>), xycoords=<span class="string">'data'</span>,
-         xytext=(+<span class="number">10</span>, +<span class="number">30</span>), textcoords=<span class="string">'offset points'</span>, fontsize=<span class="number">16</span>,
-         arrowprops=<span class="function"><span class="title">dict</span><span class="params">(arrowstyle=<span class="string">"-&gt;"</span>, connectionstyle=<span class="string">"arc3,rad=.2"</span>)</span></span>)
-
-<span class="function"><span class="title">plot</span><span class="params">([t,t],[<span class="number">0</span>,np.sin(t)</span></span>], <span class="attribute">color</span> =<span class="string">'red'</span>, linewidth=<span class="number">2.5</span>, linestyle=<span class="string">"--"</span>)
-<span class="function"><span class="title">scatter</span><span class="params">([t,],[np.sin(t)</span></span>,], <span class="number">50</span>, <span class="attribute">color</span> =<span class="string">'red'</span>)
-
-<span class="function"><span class="title">annotate</span><span class="params">(r<span class="string">'$cos(\frac{2\pi}{3})=-\frac{1}{2}$'</span>,
-         xy=(t, np.cos(t)</span></span>), xycoords=<span class="string">'data'</span>,
-         xytext=(-<span class="number">90</span>, -<span class="number">50</span>), textcoords=<span class="string">'offset points'</span>, fontsize=<span class="number">16</span>,
-         arrowprops=<span class="function"><span class="title">dict</span><span class="params">(arrowstyle=<span class="string">"-&gt;"</span>, connectionstyle=<span class="string">"arc3,rad=.2"</span>)</span></span>)
-</code></pre><h2 id="魔鬼在于细节">魔鬼在于细节</h2><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/exercice_10.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/exercice_10.png" alt="using defaults"></a></p>
-<p>由于蓝色和红色的线，刻度标签现在很难看清。。我们可以让它们更大并且调整它们的属性使它们的背景半透明。这将让我们把数据和标签都看清。</p>
-<pre><code><span class="keyword">for</span> <span class="tag">label</span> <span class="keyword">in</span> ax.<span class="function"><span class="title">get_xticklabels</span><span class="params">()</span></span> + ax.<span class="function"><span class="title">get_yticklabels</span><span class="params">()</span></span>:
-    <span class="tag">label</span>.<span class="function"><span class="title">set_fontsize</span><span class="params">(<span class="number">16</span>)</span></span>
-    <span class="tag">label</span>.<span class="function"><span class="title">set_bbox</span><span class="params">(dict(facecolor=<span class="string">'white'</span>, edgecolor=<span class="string">'None'</span>, alpha=<span class="number">0.65</span> )</span></span>)
-</code></pre><h2 id="图像，子区，子图，刻度(Figures,Subplots,Axes,Ticks)">图像，子区，子图，刻度(Figures,Subplots,Axes,Ticks)</h2><p><em>Note:这一段很绕，我不知道该怎么翻译好。在matplotlib中axes容器处于核心地位。翻译成子图因为在《Python科学计算》中作者这样称呼.subplot翻译成子区</em></p>
-<p>目前我们已经隐式地使用了图像(figure)和子图(axes)的创建。这对快速绘图很方便。我们通过显式使用figure，subplot，axes可以控制更多图像的呈现。一个图像(figure)意味着用户界面的整个窗口。在一个图像中可以有些子区(subplot)。subplot将绘图放置在常规的网格位置上而axes允许更自由的放置。它们都非常有用，取决于你的意图。我们已经隐式地使用了figure和subplot。当我们调用plot时，matplotlib调用gca来获取当前axes反过来调用gcf()获取当前图像(figure)。如果没有当前图像(figure)，它调用figure()创建一个，严格地说，是创建一个subplot(111)。让我们详细看看。</p>
-<h3 id="图像(Figure)">图像(Figure)</h3><p>图像是一个图形用户界面的窗口，以”Figure #”作为标题。相对于Python通常是0索引的，图像是从一开始的。这显然是matlab风格。这里有几个决定图像外观的参数：</p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>默认</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>num</td>
-<td>1</td>
-<td>图像编号</td>
-</tr>
-<tr>
-<td>figsize</td>
-<td>figure.figsize</td>
-<td>图像大小(宽度，高度)(英寸)</td>
-</tr>
-<tr>
-<td>dpi</td>
-<td>figure.dpi</td>
-<td>每英寸分辨率</td>
-</tr>
-<tr>
-<td>facecolor</td>
-<td>figure.facecolor</td>
-<td>背景色</td>
-</tr>
-<tr>
-<td>edgecolor</td>
-<td>figure.edgecolor</td>
-<td>绘图背景边沿色</td>
-</tr>
-<tr>
-<td>frameon</td>
-<td>True</td>
-<td>绘制框架与否</td>
-</tr>
-</tbody>
-</table>
-<p>默认可以在资源文件<a href="资源文件？">^1</a>指定，并将在大多数时间被使用。只有图像的编号频繁变动。</p>
-<p>当你使用图形用户界面时，你可以通过点击右上角<a href="有时是左上角">^2</a>的<code>x</code>来关闭一个图像。但也可以用一种编程方式调用close来关闭一个图像。取决于参数它关闭(1)当前图像(无参数)，(2)一个指定的图像(以图像编号或图像实例作为参数),(3)所有图像(以all作为参数)。</p>
-<p>和其它对象一样，你可以通过<code>setp</code>或<code>set_somethin</code>方法来设置图像属性。</p>
-<h3 id="子区(subplots)">子区(subplots)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/subplot-horizontal.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/subplot-horizontal.png" alt="using defaults"></a></p>
-<p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/subplot-vertical.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/subplot-vertical.png" alt="using defaults"></a></p>
-<p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/subplot-grid.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/subplot-grid.png" alt="using defaults"></a></p>
-<p>你可以通过subplot在正常网格中布置图像。你需要指定行数和列数和区域的编号。注意<a href="http://matplotlib.sourceforge.net/users/gridspec.html" target="_blank" rel="external">gridspec</a>命令是个更强大的选择。</p>
-<h3 id="子图(axes)">子图(axes)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/gridspec.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/gridspec.png" alt="using defaults"></a></p>
-<p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/axes.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/axes.png" alt="using defaults"></a></p>
-<p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/axes-2.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/axes-2.png" alt="using defaults"></a></p>
-<p>子图和子区(subplot)非常相似，但是允许把图片放置到图像(figure)中的任何地方。所以如果我们想要在一个大图片中嵌套一个小点的图片，我们通过子图(axes)来完成它。</p>
-<h3 id="刻度(ticks)">刻度(ticks)</h3><p>良好格式化的刻度是准备发表的图片中的重要部分。Matplotlib为刻度提供完全可配置的系统。刻度定位器指定刻度出现的位置，刻度格式器让刻度看起来如你所愿。主刻度和次要刻度可以分别放置和格式化，每个默认主刻度并不显示，也就是，它们只有一个空列表，因为它们作为空定位器(NullLocator)(参见下面)。</p>
-<h4 id="刻度定位器(Tick_Locator)">刻度定位器(Tick Locator)</h4><p>这有几个针对不同种类需求的各种定位器：</p>
-<table>
-<thead>
-<tr>
-<th>Class</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>NullLocator</td>
-<td>没有刻度.</td>
-</tr>
-<tr>
-<td></td>
-<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-NullLocator.png" alt=""></td>
-</tr>
-<tr>
-<td>IndexLocator</td>
-<td>每到一个基数的倍数点放置一个刻度</td>
-</tr>
-<tr>
-<td></td>
-<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-IndexLocator.png" alt=""></td>
-</tr>
-<tr>
-<td>FixedLocator</td>
-<td>刻度位置是固定的</td>
-</tr>
-<tr>
-<td></td>
-<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-FixedLocator.png" alt=""></td>
-</tr>
-<tr>
-<td>LinearLocator</td>
-<td>决定刻度位置</td>
-</tr>
-<tr>
-<td></td>
-<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-LinearLocator.png" alt=""></td>
-</tr>
-<tr>
-<td>MultipleLocator</td>
-<td>在每个基于基数倍数的整数点放置刻度</td>
-</tr>
-<tr>
-<td></td>
-<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-MultipleLocator.png" alt=""></td>
-</tr>
-<tr>
-<td>AutoLocator</td>
-<td>在不错的位置选择不超过n个间隔</td>
-</tr>
-<tr>
-<td></td>
-<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-AutoLocator.png" alt=""></td>
-</tr>
-<tr>
-<td>LogLocator</td>
-<td>以log坐标决定刻度位置</td>
-</tr>
-<tr>
-<td></td>
-<td><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/ticks-LogLocator.png" alt=""></td>
-</tr>
-</tbody>
-</table>
-<p>所有这些定位器源于matplotlib基类matplotlib.ticker.Locator。你可以源于它创建你自己的定位器。处理时间刻度可能非常棘手。因此，matplotlib在matplotlib.dates中提供了特殊的定位器。</p>
-<h2 id="其它种类绘图">其它种类绘图</h2><h3 id="常规绘图">常规绘图</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/plot_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/plot_ex.png" alt="reguler plots"></a></p>
-<p>从下面的代码开始，尝试重新生成上边的填充图形。</p>
-<pre><code>from pylab import *
-
-n = <span class="number">256</span>
-<span class="keyword">X</span> = np.linspace(-np.pi,np.pi,n,endpoint=True)
-<span class="keyword">Y</span> = np.sin(<span class="number">2</span>*<span class="keyword">X</span>)
-
-plot (<span class="keyword">X</span>, <span class="keyword">Y</span>+<span class="number">1</span>, color=<span class="string">'blue'</span>, alpha=<span class="number">1</span><span class="number">.00</span>)
-plot (<span class="keyword">X</span>, <span class="keyword">Y</span>-<span class="number">1</span>, color=<span class="string">'blue'</span>, alpha=<span class="number">1</span><span class="number">.00</span>)
-show()
-</code></pre><p>提示：你需要使用<a href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.fill_between" target="_blank" rel="external">fill_between</a>命令。</p>
-<p>点击图片获取答案。</p>
-<h3 id="散点图(scatter_plots)">散点图(scatter plots)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/scatter_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/scatter_ex.png" alt="reguler plots"></a></p>
-<p>从以下代码开始，尝试生成上边的图形，注意标记大小，颜色和透明度。</p>
-<pre><code>from pylab import *
-
-<span class="keyword">n</span> = 1024
-X = np.random.<span class="literal">normal</span>(0,1,<span class="keyword">n</span>)
-Y = np.random.<span class="literal">normal</span>(0,1,<span class="keyword">n</span>)
-
-<span class="keyword">scatter</span>(X,Y)
-show()
-</code></pre><p>提示：色彩由(X,Y)角度给出。</p>
-<p>点击图像获取答案。</p>
-<h3 id="条形图(bar_plots)">条形图(bar plots)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/bar_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/bar_ex.png" alt="reguler plots"></a></p>
-<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
-<pre><code>from pylab import *
-
-n = <span class="number">12</span>
-<span class="keyword">X</span> = np.arange(n)
-<span class="keyword">Y</span><span class="number">1</span> = (<span class="number">1</span>-<span class="keyword">X</span>/float(n)) * np.random.uniform(<span class="number">0</span><span class="number">.5</span>,<span class="number">1</span><span class="number">.0</span>,n)
-<span class="keyword">Y</span><span class="number">2</span> = (<span class="number">1</span>-<span class="keyword">X</span>/float(n)) * np.random.uniform(<span class="number">0</span><span class="number">.5</span>,<span class="number">1</span><span class="number">.0</span>,n)
-
-bar(<span class="keyword">X</span>, +<span class="keyword">Y</span><span class="number">1</span>, facecolor=<span class="string">'#9999ff'</span>, edgecolor=<span class="string">'white'</span>)
-bar(<span class="keyword">X</span>, -<span class="keyword">Y</span><span class="number">2</span>, facecolor=<span class="string">'#ff9999'</span>, edgecolor=<span class="string">'white'</span>)
-
-for x,y in zip(<span class="keyword">X</span>,<span class="keyword">Y</span><span class="number">1</span>):
-    text(x+<span class="number">0</span><span class="number">.4</span>, y+<span class="number">0</span><span class="number">.05</span>, <span class="string">'%.2f'</span> % y, ha=<span class="string">'center'</span>, va= <span class="string">'bottom'</span>)
-
-ylim(-<span class="number">1</span><span class="number">.25</span>,+<span class="number">1</span><span class="number">.25</span>)
-show()
-</code></pre><p>提示:你要注意文本对齐。</p>
-<p>点击图像获取答案。</p>
-<h3 id="等高线图(contour_plots)">等高线图(contour plots)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/contour_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/contour_ex.png" alt="reguler plots"></a></p>
-<p>从以下代码开始，尝试生成上边的图形，注意色彩表。(参见<a href="http://www.loria.fr/~rougier/teaching/matplotlib/#colormaps" target="_blank" rel="external">色彩表</a>)</p>
-<pre><code><span class="keyword">from</span> pylab <span class="keyword">import</span> *
-
-<span class="function"><span class="keyword">def</span> <span class="title">f</span><span class="params">(x,y)</span>:</span> <span class="keyword">return</span> (<span class="number">1</span>-x/<span class="number">2</span>+x**<span class="number">5</span>+y**<span class="number">3</span>)*np.exp(-x**<span class="number">2</span>-y**<span class="number">2</span>)
-
-n = <span class="number">256</span>
-x = np.linspace(-<span class="number">3</span>,<span class="number">3</span>,n)
-y = np.linspace(-<span class="number">3</span>,<span class="number">3</span>,n)
-X,Y = np.meshgrid(x,y)
-
-contourf(X, Y, f(X,Y), <span class="number">8</span>, alpha=<span class="number">.75</span>, cmap=<span class="string">'jet'</span>)
-C = contour(X, Y, f(X,Y), <span class="number">8</span>, colors=<span class="string">'black'</span>, linewidth=<span class="number">.5</span>)
-show()
-</code></pre><p>提示：你需要使用<a href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.clabel" target="_blank" rel="external">clabel</a>命令。</p>
-<p>点击图像获取答案。</p>
-<h3 id="Imshow">Imshow</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/imshow_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/imshow_ex.png" alt="reguler plots"></a></p>
-<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
-<pre><code><span class="keyword">from</span> pylab <span class="keyword">import</span> *
-
-<span class="function"><span class="keyword">def</span> <span class="title">f</span><span class="params">(x,y)</span>:</span> <span class="keyword">return</span> (<span class="number">1</span>-x/<span class="number">2</span>+x**<span class="number">5</span>+y**<span class="number">3</span>)*np.exp(-x**<span class="number">2</span>-y**<span class="number">2</span>)
-
-n = <span class="number">10</span>
-x = np.linspace(-<span class="number">3</span>,<span class="number">3</span>,<span class="number">4</span>*n)
-y = np.linspace(-<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>*n)
-X,Y = np.meshgrid(x,y)
-imshow(f(X,Y)), show()
-</code></pre><p>提示:你需要注意imshow命令中图像的<em>来源</em>，并且使用色<a href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.colorbar" target="_blank" rel="external">彩条</a>(colorbar)。</p>
-<p>点击图像获取答案。</p>
-<h3 id="饼图(Pie_charts)">饼图(Pie charts)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/pie_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/pie_ex.png" alt="reguler plots"></a></p>
-<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
-<pre><code>from pylab import *
-
-n = <span class="number">20</span>
-Z = np.random.uniform(<span class="number">0</span>,<span class="number">1</span>,n)
-pie(Z), show()
-</code></pre><p>提示：你需要改变Z。</p>
-<p>点击图像获取答案。</p>
-<h3 id="矢量图(quiver_plots)">矢量图(quiver plots)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/quiver_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/quiver_ex.png" alt="reguler plots"></a></p>
-<p>从以下代码开始，尝试生成上边的图形，注意色彩和方向。</p>
-<pre><code>from pylab import *
-
-n = <span class="number">8</span>
-<span class="keyword">X</span>,<span class="keyword">Y</span> = np.mgrid[<span class="number">0</span>:n,<span class="number">0</span>:n]
-quiver(<span class="keyword">X</span>,<span class="keyword">Y</span>), show()
-</code></pre><p>提示：你需要画两次箭头。</p>
-<p>点击图像获取答案。</p>
-<h3 id="网格(grids)">网格(grids)</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/grid_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/grid_ex.png" alt="reguler plots"></a></p>
-<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
-<pre><code>from pylab import *
-
-axes = gca<span class="comment">()</span>
-axes.set_xlim<span class="comment">(0,4)</span>
-axes.set_ylim<span class="comment">(0,3)</span>
-axes.set_xticklabels<span class="comment">([])</span>
-axes.set_yticklabels<span class="comment">([])</span>
-
-show<span class="comment">()</span>
-</code></pre><p>点击图像获取答案。</p>
-<h3 id="多图绘制">多图绘制</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/multiplot_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/multiplot_ex.png" alt="reguler plots"></a></p>
-<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
-<pre><code><span class="function">from pylab import *
-
-<span class="title">subplot</span><span class="params">(<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>)</span>
-<span class="title">subplot</span><span class="params">(<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>)</span>
-<span class="title">subplot</span><span class="params">(<span class="number">2</span>,<span class="number">2</span>,<span class="number">4</span>)</span>
-
-<span class="title">show</span><span class="params">()</span></span>
-</code></pre><p>提示：你可以对不同部分使用几个subplot命令。</p>
-<p>点击图像获取答案。</p>
-<h3 id="极轴图">极轴图</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/polar_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/polar_ex.png" alt="reguler plots"></a></p>
-<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
-<pre><code><span class="label">from</span> pylab <span class="preprocessor">import</span> *
-
-<span class="label">axes</span>([<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>])
-
-N = <span class="number">20</span>
-<span class="label">theta</span> = np.arange(<span class="number">0</span>.<span class="number">0</span>, <span class="number">2</span>*np.pi, <span class="number">2</span>*np.pi/N)
-<span class="label">radii</span> = <span class="number">10</span>*np.random.rand(N)
-<span class="label">width</span> = np.pi/<span class="number">4</span>*np.random.rand(N)
-<span class="keyword">bars </span>= <span class="keyword">bar(theta, </span>radii, width<span class="label">=width</span>, <span class="keyword">bottom=0.0)
-</span>
-<span class="label">for</span> r,<span class="keyword">bar </span>in zip(radii, <span class="keyword">bars):
-</span>    <span class="keyword">bar.set_facecolor( </span>cm.jet(r/<span class="number">10</span>.))
-    <span class="keyword">bar.set_alpha(0.5)
-</span>
-<span class="label">show</span>()
-</code></pre><p>提示：你仅仅需要修改<em>axes</em>这行。</p>
-<p>点击图像获取答案。</p>
-<h3 id="三维绘图">三维绘图</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/plot3d_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/plot3d_ex.png" alt="reguler plots"></a></p>
-<p>从以下代码开始，尝试生成上边的图形，添加标签和红色条形。</p>
-<pre><code>from pylab import *
-from mpl_toolkits.mplot3d import Axes3D
-
-fig = figure()
-ax = Axes3D(fig)
-<span class="keyword">X</span> = np.arange(-<span class="number">4</span>, <span class="number">4</span>, <span class="number">0</span><span class="number">.25</span>)
-<span class="keyword">Y</span> = np.arange(-<span class="number">4</span>, <span class="number">4</span>, <span class="number">0</span><span class="number">.25</span>)
-<span class="keyword">X</span>, <span class="keyword">Y</span> = np.meshgrid(<span class="keyword">X</span>, <span class="keyword">Y</span>)
-<span class="keyword">R</span> = np.sqrt(<span class="keyword">X</span>**<span class="number">2</span> + <span class="keyword">Y</span>**<span class="number">2</span>)
-<span class="keyword">Z</span> = np.sin(<span class="keyword">R</span>)
-
-ax.plot_surface(<span class="keyword">X</span>, <span class="keyword">Y</span>, <span class="keyword">Z</span>, rstride=<span class="number">1</span>, cstride=<span class="number">1</span>, cmap=<span class="string">'hot'</span>)
-
-show()
-</code></pre><p>提示：你需要使用<a href="http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.contourf" target="_blank" rel="external">contourf</a>命令。</p>
-<p>点击图像获取答案。</p>
-<h3 id="绘制文本">绘制文本</h3><p><a href="http://www.loria.fr/~rougier/teaching/matplotlib/scripts/text_ex.py" target="_blank" rel="external"><img src="http://www.loria.fr/~rougier/teaching/matplotlib/figures/text_ex.png" alt="reguler plots"></a></p>
-<p>试着从头做这个！提示：看一看<a href="http://matplotlib.sourceforge.net/examples/api/logo2.html" target="_blank" rel="external">matplotlib logo</a></p>
-<p>点击图像获取答案。</p>
-<h2 id="此教程之外">此教程之外</h2><p>matplotlib受益于丰富的文档和巨大的用户和开发者社区。这有几个有关的链接：</p>
-<h3 id="教程">教程</h3><p><a href="http://matplotlib.sourceforge.net/users/pyplot_tutorial.html" target="_blank" rel="external">pyplot教程</a></p>
-<p><a href="http://matplotlib.sourceforge.net/users/image_tutorial.html" target="_blank" rel="external">图像教程</a></p>
-<p><a href="http://matplotlib.sourceforge.net/users/index_text.html" target="_blank" rel="external">文本教程</a></p>
-<p><a href="http://matplotlib.sourceforge.net/users/artists.html" target="_blank" rel="external">artist对象教程</a></p>
-<p><a href="http://matplotlib.sourceforge.net/users/path_tutorial.html" target="_blank" rel="external">路径教程</a></p>
-<p><a href="http://matplotlib.sourceforge.net/users/transforms_tutorial.html" target="_blank" rel="external">变换教程</a></p>
-<h3 id="matplotlib文档">matplotlib文档</h3><p><a href="http://matplotlib.sourceforge.net/users/index.html" target="_blank" rel="external">用户手册</a></p>
-<p><a href="http://matplotlib.sourceforge.net/faq/index.html" target="_blank" rel="external">常见问题</a></p>
-<p><a href="http://matplotlib.sourceforge.net/users/screenshots.html" target="_blank" rel="external">截图</a></p>
-<h3 id="代码文档">代码文档</h3><p>代码相当好的文档化了，你可以在python会话中快速查询指定命令</p>
-<pre><code>&gt;&gt;&gt; <span class="built_in">from</span> pylab import *
-&gt;&gt;&gt; help(plot)
-Help <span class="command"><span class="keyword">on</span> <span class="title">function</span> <span class="title">plot</span> <span class="title">in</span> <span class="title">module</span> <span class="title">matplotlib</span>.<span class="title">pyplot</span>:</span>
-
-plot(*args, **kwargs)
-   Plot <span class="keyword">lines</span> <span class="operator">and</span>/<span class="operator">or</span> markers <span class="built_in">to</span> <span class="operator">the</span>
-   :class:`~matplotlib.axes.Axes`.  *args* is <span class="operator">a</span> <span class="built_in">variable</span> <span class="built_in">length</span>
-   argument, allowing <span class="keyword">for</span> multiple *x*, *y* pairs <span class="operator">with</span> <span class="operator">an</span>
-   optional <span class="built_in">format</span> <span class="keyword">string</span>.  For example, <span class="keyword">each</span> <span class="operator">of</span> <span class="operator">the</span> following is
-   legal::
-
-       plot(x, y)         <span class="comment"># plot x and y using default line style and color</span>
-       plot(x, y, <span class="string">'bo'</span>)   <span class="comment"># plot x and y using blue circle markers</span>
-       plot(y)            <span class="comment"># plot y using x as index array 0..N-1</span>
-       plot(y, <span class="string">'r+'</span>)      <span class="comment"># ditto, but with red plusses</span>
-
-   If *x* <span class="operator">and</span>/<span class="operator">or</span> *y* is <span class="number">2</span>-dimensional, <span class="keyword">then</span> <span class="operator">the</span> corresponding columns
-   will be plotted.
-</code></pre><h3 id="画廊(Galleries)">画廊(Galleries)</h3><p>当你搜寻如何绘制指定图像时，<a href="http://matplotlib.sourceforge.net/gallery.html" target="_blank" rel="external">matplotlib gallery</a>也相当有用。每个例子和它的源码一同被提供。</p>
-<p>一个较小的画廊在<a href="http://www.loria.fr/~rougier/coding/gallery/" target="_blank" rel="external">这里</a></p>
-<h3 id="邮件列表">邮件列表</h3><p>最后，这里有一个<a href="https://lists.sourceforge.net/lists/listinfo/matplotlib-users" target="_blank" rel="external">用户邮件列表</a>，那里你可以寻求帮助。一个<a href="https://lists.sourceforge.net/lists/listinfo/matplotlib-devel" target="_blank" rel="external">开发者邮件列表</a>是更加技术性的。</p>
-<h2 id="快速参考">快速参考</h2><p>没什么好翻译的，看原文吧……<a href="http://www.loria.fr/~rougier/teaching/matplotlib/#quick-references" target="_blank" rel="external">传送门</a></p>
-<h3 id="线条属性">线条属性</h3><h3 id="线型">线型</h3><h3 id="标记">标记</h3><h3 id="色彩表">色彩表</h3><hr>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -4493,7 +4144,7 @@ plot(*args, **kwargs)
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">171</span>
+              <span class="site-state-item-count">172</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -4507,7 +4158,7 @@ plot(*args, **kwargs)
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">59</span>
+              <span class="site-state-item-count">60</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

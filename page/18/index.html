@@ -229,6 +229,133 @@
             
               
                 
+                <a class="post-title-link" href="/lisp/2012/02/23/vimlisp/" itemprop="url">
+                  在vim中使用lisp
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-02-23T00:00:00+08:00" content="2012-02-23">
+              2012-02-23
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/lisp/2012/02/23/vimlisp/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/02/23/vimlisp/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="在Vim中使用lisp">在Vim中使用lisp</h2><h3 id="安装slimv">安装slimv</h3><p>和普通的vim插件安装方式并无二异。<br>详情请参见<a href="http://www.vim.org/scripts/script.php?script_id#2531" target="_blank" rel="external">这里</a></p>
+<h3 id="使用slimv">使用slimv</h3><p>使用也很简单，教程见这里<a href="http://kovisoft.bitbucket.org/tutorial.html" target="_blank" rel="external">slimv教程</a></p>
+<h3 id="那我写这个wiki干嘛">那我写这个wiki干嘛</h3><p>有些需要注意的地方:</p>
+<ul>
+<li><p>注意自己python版本.arch用户得手动把<code>swank.py</code>这个文件的标识行中<code>python</code>改成<code>python2</code>.或者在<code>vimrc</code>中指定</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">let</span> g:slimv_python <span class="comment"># 'python2'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>一般slimv会自动搜索你的lisp实现。比如我是clisp，也可以手动指定，在vimrc中：</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">let</span> g:slimv_impl <span class="comment"># 'clisp'</span></span><br></pre></td></tr></table></figure>
+<p>  详见手册。</p>
+</li>
+<li><p>确保你有<code>xterm</code>，虽然手册没说，但这个很重要。请先</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> g:slimv_swank_cmd</span><br></pre></td></tr></table></figure>
+<p>  可以看到</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">! xterm -iconic <span class="operator">-e</span> <span class="string">"clisp"</span> -i <span class="string">"/home/lyy/.vim/bundle/slimv/slime/start-swank.lisp"</span> &amp;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用本地hyperspec(lisp手册一类的东西,可以在lispworks上下载或在线使用……名字真奇怪)在vimrc中写入</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">let</span> g:slimv_clhs_root = <span class="string">"path/to/HyperSpec/Body/"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果有什么问题，请参看手册。</p>
+</li>
+</ul>
+<hr>
+<p>最后上个图</p>
+<p><img src="/images/slimv.png" hight="200" width="400" alt="slimv环境"></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/linux/2012/02/07/vim-latexxelatex/" itemprop="url">
                   vim-latex插件对xelatex的配置
                 </a>
@@ -397,7 +524,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">171</span>
+              <span class="site-state-item-count">172</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -411,7 +538,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">59</span>
+              <span class="site-state-item-count">60</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

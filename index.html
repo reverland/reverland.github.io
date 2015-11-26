@@ -224,6 +224,206 @@
             
               
                 
+                <a class="post-title-link" href="/web/2015/11/26/click-and-comment/" itemprop="url">
+                  评注功能测试
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-11-26T10:40:13+08:00" content="2015-11-26">
+              2015-11-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/web/" itemprop="url" rel="index">
+                    <span itemprop="name">web</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/web/2015/11/26/click-and-comment/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="web/2015/11/26/click-and-comment/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>嗨，各位，来点好玩的。移动端什么表现就不知道了</p>
+<p>双击文章内容任意地方开启点评功能</p>
+<p>回车确定，只允许短评呦~虽然我没有做任何限制，just for fun。</p>
+<p>将鼠标移动到点评园钮上将显示评论内容。</p>
+<p>评论是实时的。你在一个页面上的评论，会立即同步到所有打开该页面的浏览器中。</p>
+<h2 id="这是四点零八分的北京">这是四点零八分的北京</h2><p>这是四点零八分的北京，<br>一片手的海洋翻动；<br>这是四点零八分的北京，<br>一声雄伟的汽笛长鸣。</p>
+<p>北京车站高大的建筑，<br>突然一阵剧烈的抖动。<br>我双眼吃惊地望着窗外，<br>不知发生了什么事情。</p>
+<p>我的心骤然一阵疼痛，一定是<br>妈妈缀扣子的针线穿透了心胸。<br>这时，我的心变成了一只风筝，<br>风筝的线绳就在妈妈手中。</p>
+<p>线绳绷得太紧了，就要扯断了，<br>我不得不把头探出车厢的窗棂。<br>直到这时，直到这时候，<br>我才明白发生了什么事情。</p>
+<p>——一阵阵告别的声浪，<br>就要卷走车站；<br>北京在我的脚下，<br>已经缓缓地移动。</p>
+<p>我再次向北京挥动手臂，<br>想一把抓住他的衣领，<br>然后对她大声地叫喊：<br>永远记着我，妈妈啊，北京！</p>
+<p>终于抓住了什么东西，<br>管他是谁的手，不能松，<br>因为这是我的北京，<br>这是我的最后的北京。</p>
+<script src="https://cdn.wilddog.com/js/client/current/wilddog.js"></script>
+<script type="text/javascript">
+//var text = "";
+var ref = new Wilddog("https://wilddog-yurz-0583.wilddogio.com/comments");
+var articlebody = document.querySelector('[itemprop="articleBody"]');
+document.body.style.postion = "relative";
+
+ref.on('child_added', function(datasnapshot) {
+  var key = datasnapshot.key();
+  console.log("key when child_added", key);
+  var comment = datasnapshot.val();
+    var dot = document.createElement('a');
+    dot.classList.toggle('dot');
+    dot.style.left = comment.x + "px";
+    dot.style.top = comment.y  + "px";
+    dot.style.position = "absolute";
+    dot.style.height = "20px";
+    dot.style.width = "20px";
+    dot.style.borderRadius = "10px";
+    dot.style.background = "rgba(52, 152, 233, 0.6)";
+    dot.setAttribute('title', comment.comment);
+    document.body.appendChild(dot);
+})
+
+articlebody.addEventListener('dblclick', function(e) {
+  if (e.target.tagName == "TEXTAREA") {
+    e.stopPropagation();
+    return;
+  }
+
+  // add a dot
+
+  var dot = document.createElement('a');
+  dot.classList.toggle("dot");
+  dot.style.left = e.pageX - 5 + "px";
+  dot.style.top = e.pageY - 5 + "px";
+  dot.style.position = "absolute";
+  dot.style.height = "20px";
+  dot.style.width = "20px";
+  dot.style.borderRadius = "10px";
+  dot.style.background = "rgba(52, 152, 233, 0.6)";
+  document.body.appendChild(dot);
+
+  // add a comment text
+  var comment = document.createElement('div');
+  comment.classList.toggle("comment");
+
+  var textarea = document.createElement('textarea');
+  textarea.style.position = "absolute";
+  textarea.style.left = "10px";
+  textarea.style.top = "10px";
+  textarea.style.height = "40px";
+  textarea.style.width = "280px";
+  textarea.setAttribute("placeholder", "输入评论");
+//  textarea.value = text;
+  textarea.addEventListener('keydown', function(e) {
+    if (e.which == 13) {
+      e.preventDefault();// 为啥没阻止换行，keyup不行
+      e.stopPropagation();
+      if (textarea.value == "") {
+        document.body.removeChild(dot);
+        return;
+      }
+      dot.setAttribute("title", textarea.value);
+      comment.removeChild(textarea);
+      ref.push({
+          x: parseInt(dot.style.left),
+          y: parseInt(dot.style.top),
+          comment: dot.getAttribute('title')
+      });
+      document.body.removeChild(dot);
+    }
+  })
+  textarea.addEventListener('blur', function(e) {
+    if(!textarea.value) {
+      document.body.removeChild(dot);
+    } else {
+      //text = textarea.value;
+      document.body.removeChild(dot);
+    }
+  })
+  comment.appendChild(textarea);
+  dot.appendChild(comment);
+  textarea.focus();
+});
+</script>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/javascript/2015/11/24/web-based-input-method/" itemprop="url">
                   百度云输入法Userscript——实践和思考
                 </a>
@@ -1818,152 +2018,6 @@ shuru               |&lt;---输入提示(已经输入的内容)
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2015/06/12/" itemprop="url">
-                  一团乱麻
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-06-12T00:00:00+08:00" content="2015-06-12">
-              2015-06-12
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2015/06/12/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/06/12//" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>这一个月在完成实验室的某某项目，对浏览器的混乱性有更加身临其境的体会。</p>
-<p>顺便，因为看了别人的metasploit模块，自己也写了个图书馆登录brute force玩玩。跟着wiki和已有的模块好像也不是什么难事。结果真是爱上ruby这门让程序员感到快乐的语言了。正如metasploit unleash 里所说的，因为mixin和各种语法糖，ruby rocks！</p>
-<p>而js，由于种种历史和现实原因，可以说是一团乱麻。把javascript the good parts看完，感慨这门语言的强大表现力和灵活性的同时，也感慨灵活而来的种种问题。</p>
-<p>百度前端技术学院的作业倒是很久没有动手了，360的前端培训营我给拒了。。。很庆幸没去，到白河湾臭水沟get漂流技能，到高大上的英东游泳馆get摄影技能和跳发技能。感谢某大软安和某游泳队，哈哈。</p>
-<p>但是，js却一直在看，没怎么写，总觉得太灵活驾驭不住。把YDKJS的scope那本看完，似乎对很多问题都清楚了很多，然后this、object和prototype只看到mixin章节，不过感觉基础的知识都讲到了。另外YDKJS关于ES6讲的比较多，额。。。</p>
-<p>想做个qq机器人，最后也没空做，看到<a href="https://github.com/xhan/qqbot" target="_blank" rel="external">qqbot</a>又瞄了两眼coffee script，觉得似乎ES6和coffee script解决了相同的问题= =，然而coffee script的语法比纯js，es6的js更好看。。。</p>
-<p>康神把相机留给我玩了，这两天北京的蓝天和白云美的让人心醉。<a href="http://d0u9.xyz" target="_blank" rel="external">d0u9</a>带着我开始拍云彩，爬到主楼阴森的顶楼排夜景。直到开始处理图像，才觉得电脑性能真是不堪。</p>
-<p>n多计划，一团乱麻。</p>
-<ul>
-<li>囚徒健身</li>
-<li><p>包干游泳</p>
-</li>
-<li><p>图像处理技能</p>
-</li>
-<li>绘图技能</li>
-<li><p>摄影技能</p>
-</li>
-<li><p>在树莓派上布置蜜罐。</p>
-</li>
-<li>完善ssh扫描器搜集iphone信息</li>
-<li>完善某项目中关于某设备的批量扫描嗅探</li>
-<li><p>看各种lkm/内存映射/用户态/GPU rootkit代码，写rootkit</p>
-</li>
-<li><p>百度前端技术学院作业，PC版和移动版</p>
-</li>
-<li><p>在树莓派上写个基于node+websocket的聊天室玩</p>
-</li>
-<li><p>把搁置多年的操作系统写完，也许再用rust写一遍。</p>
-</li>
-<li><p>看书，rust手册，YDKJS，metasploit unleash</p>
-</li>
-<li>看代码，某设备加密算法js实现，某些js库的一些源码，metasploit的一些代码，一些linux内核模块代码(iptables)</li>
-<li><p>linux下安全审计接触的一些东西。如何发现被入侵，pam，audit，iptables这些都怎么回事。嗯。。。还有SELinux。。。</p>
-</li>
-<li><p>毕设，操作系统原理，shellcode和libemu，各种数据挖掘算法。</p>
-</li>
-</ul>
-<p>几篇可能会补上的：</p>
-<ol>
-<li>浏览器安全，xss能做到什么，怎么做，keylogger实现，扫描器，beef项目。</li>
-<li>metasploit模块编写——ruby rocks</li>
-<li>树莓派——坑爹的安装配置之旅。升级到jessie，配置winATE。</li>
-<li>某某加密算法源码解析(不公开)</li>
-</ol>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2010,7 +2064,7 @@ shuru               |&lt;---输入提示(已经输入的内容)
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">171</span>
+              <span class="site-state-item-count">172</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2024,7 +2078,7 @@ shuru               |&lt;---输入提示(已经输入的内容)
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">59</span>
+              <span class="site-state-item-count">60</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

@@ -1,0 +1,912 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="comment,javascript,web," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Reverland的行知阁" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/default_avatar.jpg?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="嗨，各位，来点好玩的。移动端什么表现就不知道了
+双击文章内容任意地方开启点评功能
+回车确定，只允许短评呦~虽然我没有做任何限制，just for fun。
+将鼠标移动到点评园钮上将显示评论内容。
+评论是实时的。你在一个页面上的评论，会立即同步到所有打开该页面的浏览器中。
+这是四点零八分的北京这是四点零八分的北京，一片手的海洋翻动；这是四点零八分的北京，一声雄伟的汽笛长鸣。
+北京车站高大的建筑，突然">
+<meta property="og:type" content="article">
+<meta property="og:title" content="评注功能测试">
+<meta property="og:url" content="http://reverland.org/web/2015/11/26/click-and-comment/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="嗨，各位，来点好玩的。移动端什么表现就不知道了
+双击文章内容任意地方开启点评功能
+回车确定，只允许短评呦~虽然我没有做任何限制，just for fun。
+将鼠标移动到点评园钮上将显示评论内容。
+评论是实时的。你在一个页面上的评论，会立即同步到所有打开该页面的浏览器中。
+这是四点零八分的北京这是四点零八分的北京，一片手的海洋翻动；这是四点零八分的北京，一声雄伟的汽笛长鸣。
+北京车站高大的建筑，突然">
+<meta property="og:updated_time" content="2015-11-26T07:12:53.200Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="评注功能测试">
+<meta name="twitter:description" content="嗨，各位，来点好玩的。移动端什么表现就不知道了
+双击文章内容任意地方开启点评功能
+回车确定，只允许短评呦~虽然我没有做任何限制，just for fun。
+将鼠标移动到点评园钮上将显示评论内容。
+评论是实时的。你在一个页面上的评论，会立即同步到所有打开该页面的浏览器中。
+这是四点零八分的北京这是四点零八分的北京，一片手的海洋翻动；这是四点零八分的北京，一声雄伟的汽笛长鸣。
+北京车站高大的建筑，突然">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: '',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> 评注功能测试 | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                评注功能测试
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-11-26T10:40:13+08:00" content="2015-11-26">
+              2015-11-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/web/" itemprop="url" rel="index">
+                    <span itemprop="name">web</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/web/2015/11/26/click-and-comment/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="web/2015/11/26/click-and-comment/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>嗨，各位，来点好玩的。移动端什么表现就不知道了</p>
+<p>双击文章内容任意地方开启点评功能</p>
+<p>回车确定，只允许短评呦~虽然我没有做任何限制，just for fun。</p>
+<p>将鼠标移动到点评园钮上将显示评论内容。</p>
+<p>评论是实时的。你在一个页面上的评论，会立即同步到所有打开该页面的浏览器中。</p>
+<h2 id="这是四点零八分的北京">这是四点零八分的北京</h2><p>这是四点零八分的北京，<br>一片手的海洋翻动；<br>这是四点零八分的北京，<br>一声雄伟的汽笛长鸣。</p>
+<p>北京车站高大的建筑，<br>突然一阵剧烈的抖动。<br>我双眼吃惊地望着窗外，<br>不知发生了什么事情。</p>
+<p>我的心骤然一阵疼痛，一定是<br>妈妈缀扣子的针线穿透了心胸。<br>这时，我的心变成了一只风筝，<br>风筝的线绳就在妈妈手中。</p>
+<p>线绳绷得太紧了，就要扯断了，<br>我不得不把头探出车厢的窗棂。<br>直到这时，直到这时候，<br>我才明白发生了什么事情。</p>
+<p>——一阵阵告别的声浪，<br>就要卷走车站；<br>北京在我的脚下，<br>已经缓缓地移动。</p>
+<p>我再次向北京挥动手臂，<br>想一把抓住他的衣领，<br>然后对她大声地叫喊：<br>永远记着我，妈妈啊，北京！</p>
+<p>终于抓住了什么东西，<br>管他是谁的手，不能松，<br>因为这是我的北京，<br>这是我的最后的北京。</p>
+<script src="https://cdn.wilddog.com/js/client/current/wilddog.js"></script>
+<script type="text/javascript">
+//var text = "";
+var ref = new Wilddog("https://wilddog-yurz-0583.wilddogio.com/comments");
+var articlebody = document.querySelector('[itemprop="articleBody"]');
+document.body.style.postion = "relative";
+
+ref.on('child_added', function(datasnapshot) {
+  var key = datasnapshot.key();
+  console.log("key when child_added", key);
+  var comment = datasnapshot.val();
+    var dot = document.createElement('a');
+    dot.classList.toggle('dot');
+    dot.style.left = comment.x + "px";
+    dot.style.top = comment.y  + "px";
+    dot.style.position = "absolute";
+    dot.style.height = "20px";
+    dot.style.width = "20px";
+    dot.style.borderRadius = "10px";
+    dot.style.background = "rgba(52, 152, 233, 0.6)";
+    dot.setAttribute('title', comment.comment);
+    document.body.appendChild(dot);
+})
+
+articlebody.addEventListener('dblclick', function(e) {
+  if (e.target.tagName == "TEXTAREA") {
+    e.stopPropagation();
+    return;
+  }
+
+  // add a dot
+
+  var dot = document.createElement('a');
+  dot.classList.toggle("dot");
+  dot.style.left = e.pageX - 5 + "px";
+  dot.style.top = e.pageY - 5 + "px";
+  dot.style.position = "absolute";
+  dot.style.height = "20px";
+  dot.style.width = "20px";
+  dot.style.borderRadius = "10px";
+  dot.style.background = "rgba(52, 152, 233, 0.6)";
+  document.body.appendChild(dot);
+
+  // add a comment text
+  var comment = document.createElement('div');
+  comment.classList.toggle("comment");
+
+  var textarea = document.createElement('textarea');
+  textarea.style.position = "absolute";
+  textarea.style.left = "10px";
+  textarea.style.top = "10px";
+  textarea.style.height = "40px";
+  textarea.style.width = "280px";
+  textarea.setAttribute("placeholder", "输入评论");
+//  textarea.value = text;
+  textarea.addEventListener('keydown', function(e) {
+    if (e.which == 13) {
+      e.preventDefault();// 为啥没阻止换行，keyup不行
+      e.stopPropagation();
+      if (textarea.value == "") {
+        document.body.removeChild(dot);
+        return;
+      }
+      dot.setAttribute("title", textarea.value);
+      comment.removeChild(textarea);
+      ref.push({
+          x: parseInt(dot.style.left),
+          y: parseInt(dot.style.top),
+          comment: dot.getAttribute('title')
+      });
+      document.body.removeChild(dot);
+    }
+  })
+  textarea.addEventListener('blur', function(e) {
+    if(!textarea.value) {
+      document.body.removeChild(dot);
+    } else {
+      //text = textarea.value;
+      document.body.removeChild(dot);
+    }
+  })
+  comment.appendChild(textarea);
+  dot.appendChild(comment);
+  textarea.focus();
+});
+</script>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/comment/" rel="tag">#comment</a>
+          
+            <a href="/tags/javascript/" rel="tag">#javascript</a>
+          
+            <a href="/tags/web/" rel="tag">#web</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/javascript/2015/11/24/web-based-input-method/" rel="next" title="百度云输入法Userscript——实践和思考">
+                <i class="fa fa-chevron-left"></i> 百度云输入法Userscript——实践和思考
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      </div>
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">172</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/reverland" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://reverland.bitbucket.org/" target="_blank">曾经的的vimwiki</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://liutos.github.com/" target="_blank">Liutos</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.phoenixlzx.com/" target="_blank">凤凰君</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://gndrive.org/" target="_blank">高达数字实验室</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.cherrot.com/" target="_blank">Cherrot</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://xwyam.github.com/" target="_blank">xw_y_am</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://ishell.me" target="_blank">小东</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.kochiya.me/" target="_blank">AS酱</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.skydark.info/" target="_blank">skydark</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://thorb.cn/" target="_blank">thorb</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.suzibin.cn/" target="_blank">doug</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://armsword.com/" target="_blank">armsword</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://zhangwenli.com/blog" target="_blank">Ovilia</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://lilydjwg.is-programmer.com/" target="_blank">仙子</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://gaohaoyang.github.io" target="_blank">HYG</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://simmer-jun.github.io" target="_blank">Simmer</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#这是四点零八分的北京"><span class="nav-number">1.</span> <span class="nav-text">这是四点零八分的北京</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'reverlandblog';
+      var disqus_identifier = 'web/2015/11/26/click-and-comment/';
+      var disqus_title = '评注功能测试';
+      var disqus_url = 'http://reverland.org/web/2015/11/26/click-and-comment/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+</body>
+</html>

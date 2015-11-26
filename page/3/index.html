@@ -201,6 +201,136 @@
 
     
     
+      
+      
+
+      
+    
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/python/2015/04/02/baidu-music/" itemprop="url">
+                  Python Spider: 爬取百度音乐
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-04-02T00:00:00+08:00" content="2015-04-02">
+              2015-04-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2015/04/02/baidu-music/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2015/04/02/baidu-music/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="Take_a_sad_song,_and_make_it_better：爬取百度音乐">Take a sad song, and make it better：爬取百度音乐</h2><p>以下，个人的一个trial and error的过程，仅供参考。</p>
+<p>用到一些基本知识比如HTTP请求啊，html啊，json啊，ajax啊，当然，不懂也没关系……<br>使用了一些工具比如firefox啊，firebug啊，python啊……当然你们喜欢用chrome/chromium还是IE都一样……</p>
+<p>也许是我听的歌太小众了，经常会发现有些歌在线听的好好的，竟然没有下载链接</p>
+<p><img src="/images/spider/baidu_music.png" alt="" title="baidu音乐">]</p>
+<p>对此，很不理解，在线可以听到就说明浏览器已经把媒体文件下载下来并且播放出来了……为啥会告诉我没有下载链接？</p>
+<p>某天，听到Beatles的Hey Jude，我忽然觉得得动手找找音乐文件是哪里的。于是，打开firebug，选择network标签下的media标签，可是什么也没有。</p>
+<p><img src="/images/spider/baidumusic.png" alt=""></p>
+<p>唉？于是又确认了下，百度音乐在线播放器不是flash，满满的html5标签= =</p>
+<p>凭借直觉，应该和xmlhttprequest有关系，于是抱着试试看的心理打开firebug上的xhr标签</p>
+<p><img src="/images/spider/baidumusic1.png" alt=""></p>
+<p>哇，果然有好多请求，咦？songlink？凭借直觉似乎是音乐链接地址……</p>
+<p>打开返回的json看了看果然有个来自file.qianqian.com的疑似歌曲链接(有时候用firebug的搜索功能也不失为良策)……</p>
+<p><img src="/images/spider/baidumusic3.png" alt=""></p>
+<p>把引号中的链接复制粘帖到地址栏，哇，果然是歌曲mp3啊</p>
+<p><img src="/images/spider/baidumusic4.png" alt=""></p>
+<p>我们可以再认真看看返回的json，其中有lrc歌词链接，有封面图片链接、歌曲文件大小啊等等</p>
+<p>接下来的问题是，如果想下载其它歌曲怎么办。首先观察之前我们获取想要mp3链接的POST请求。</p>
+<p><img src="/images/spider/baidumusic2.png" alt=""></p>
+<p>请求参数中有一个songID？似乎很清晰的样子，我猜吧，每个歌曲在百度音乐库中都对应这么一个ID</p>
+<p>后来发现确实差不多。</p>
+<p>至此，可以开始写自己的爬虫了……</p>
+<p>关键部分大致这样</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">download_by_song_id_list</span><span class="params">(song_id_list)</span>:</span></span><br><span class="line">    song_data = <span class="string">'songIds='</span> + <span class="string">"%2C"</span>.join(song_id_list)</span><br><span class="line">    song_link_url = <span class="string">"http://play.baidu.com/data/music/songlink"</span></span><br><span class="line">    headers = &#123;<span class="string">"X-Requested-With"</span>: <span class="string">"XMLHttpRequest"</span>,</span><br><span class="line">               <span class="string">"Content-Type"</span>: <span class="string">"application/x-www-form-urlencoded;\</span><br><span class="line">               charset=UTF-8"</span>&#125;</span><br><span class="line">    r = requests.post(song_link_url, data=song_data, headers=headers)</span><br><span class="line">    data = json.loads(r.content)</span><br><span class="line">    <span class="keyword">for</span> it <span class="keyword">in</span> data[<span class="string">'data'</span>][<span class="string">'songList'</span>]:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'\n'</span> + it[<span class="string">'songName'</span>], <span class="string">': '</span>, it[<span class="string">'size'</span>], <span class="string">"bytes"</span></span><br><span class="line">        <span class="comment"># print it['songLink']</span></span><br><span class="line">        r_song = requests.get(it[<span class="string">'songLink'</span>], stream=<span class="keyword">True</span>)</span><br><span class="line">        <span class="keyword">with</span> open(it[<span class="string">'songName'</span>] + <span class="string">'.'</span> + it[<span class="string">'format'</span>], <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            dl = <span class="number">0</span></span><br><span class="line">            total_length = int(it[<span class="string">'size'</span>])</span><br><span class="line">            <span class="keyword">for</span> b <span class="keyword">in</span> r_song.iter_content():</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> b:</span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line">                dl += len(b)</span><br><span class="line">                f.write(b)</span><br><span class="line">                done = int(<span class="number">50</span> * dl / total_length)</span><br><span class="line">                sys.stdout.write(<span class="string">"\r[%s%s] %.2f%%"</span></span><br><span class="line">                                 % (<span class="string">'='</span> * done, <span class="string">' '</span></span><br><span class="line">                                    * (<span class="number">50</span> - done), <span class="number">100.0</span> * dl / total_length))</span><br><span class="line">                sys.stdout.flush()</span><br><span class="line">            <span class="keyword">print</span> <span class="string">'\n'</span> + it[<span class="string">'songName'</span>] + <span class="string">'.'</span> + it[<span class="string">'format'</span>], <span class="string">" finished"</span></span><br></pre></td></tr></table></figure>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -2527,139 +2657,6 @@ Program received signal SIGSEGV, Segmentation fault.
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2015/03/02/2015s-first-post/" itemprop="url">
-                  2015's First Post
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-03-02T00:00:00+08:00" content="2015-03-02">
-              2015-03-02
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2015/03/02/2015s-first-post/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/03/02/2015s-first-post/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>好早就想写点什么了，然而犹犹豫豫一直没下笔。一月没有写，二月也没有写，转眼年也过了，三月来了，天气将要转暖，马上要找实习写论文找工作，还有许许多多漫天飞舞不知何去何从的残念。</p>
-<p>都快忘记怎么用jekyll的rake新建一个post，怎么使用markdown语法，也迟疑着不知该具体写些什么。</p>
-<p>之前的两月没有白过，想说的仅此吧。</p>
-<p>游了一个月不到的泳，就第三次把手砸在水线上血染泳池，半夜跑去北医三院打了针破伤风，再游泳就昨天了。</p>
-<blockquote>
-<p>怎样下水才能表现出经常下水的样子</p>
-</blockquote>
-<p>跑到深水区救生员小哥说你的装备呢，我才发现什么泳帽泳镜都没拿进去。。。。。。下水后整个人都快动不了了，虚得一塌糊涂。</p>
-<p>一个月过年就爬过一次山，算是活动了下。把小伙伴们带到没路的地方，然后强行开路。。。。。。</p>
-<p>不扯其它的了。</p>
-<p>又做了次LFS，终于明白是在干什么了。然而等所有东西都安装好却懒得去配置了。</p>
-<p>玩了下nodeschool系列。把javascripting、learnyounode、git-it、functional-javascript、shader-school、webgl都过了遍。现在还记得些什么呢。。。。。。有道笔记里应该还有些笔记。</p>
-<p>于是开始折腾glsl，把shader-school过遍发现难度好大。把中科大黄章进老师的高级计算机图形学的课件拿来看了看，最后也没看多少。</p>
-<p>把webgl-workshop过了遍，最后发现<a href="http://www.webglacademy.com/" target="_blank" rel="external">http://www.webglacademy.com/</a>不错却只画了个2D三角形，现在也几乎忘的干净。不过再上手应该就很快了。</p>
-<p>查webgl的知识看到<a href="http://html5gamedev.org/" target="_blank" rel="external">http://html5gamedev.org/</a>上webgl的一些效果，再加上一个在线的<a href="http://race.assassinscreedpirates.com/" target="_blank" rel="external">刺客信条游戏</a>便萌生了开发游戏的。。。。。。。呵呵。。。。</p>
-<p>然后看到某某的html5游戏引擎制作中设计精灵，竟然开始专注图像处理。。。。。。</p>
-<p>学习下基础的图像理论色彩理论等等等，</p>
-<p>把gimp和krita重新配置了下。桌面主题和图标折腾了下又回归原来的配色主题，因为好看的主题总会在某些地方让人看不清东西，毕竟好看是次要的。</p>
-<p>看到论坛上有人推荐<a href="http://pages.cs.wisc.edu/~remzi/OSTEP/" target="_blank" rel="external"> Operating Systems: Three Easy Pieces </a>，感觉很不错。又看有人推荐<a href="http://littleosbook.github.io/" target="_blank" rel="external">littleOsbook</a>，跟着写了点发现太不详细了，从分段开始我就不知道怎么把一切串到一起。后来看到<a href="http://wiki.osdev.org/Bare_Bones" target="_blank" rel="external">Osdev上的教程</a>，只大致看了看。</p>
-<p>发现<a href="http://www.68ps.com/jc/big_ps_tp.asp?id=19958" target="_blank" rel="external">68ps</a>的抠图教程不错，大年三十看着春晚抠图。。。。。。最后也没做好。</p>
-<p>照着上面网站另一篇鼠绘教程画了个<a href="http://www.68ps.com/jc/big_ps_sh.asp?id=3044" target="_blank" rel="external">水母</a>。感觉这没有数位板不行啊，于是翻出了尘封多年的绘图板。又把数位板翻出来连上，重新编译内核wacom模块(学会了失传已久的单独模块编译技术…)。</p>
-<p>所以，接下来：</p>
-<p>准备成立个工作室，做个游戏，发行两个唱片。</p>
-<p>先完成工作室logo设计，为此查了一天的anubis。</p>
-<p>还顺便在朋友的推荐下学习做做pixel art。在图书馆乱翻到一本什么bibi的photoshop插画私房菜什么的书，竟然也看到里头演示pixel art实例。</p>
-<p>把webgl过遍。</p>
-<font color="red">好好游泳，锻炼身体。</font>
-
-<p>呵呵呵，还有实验室、论文、实习、工作。。。。。。</p>
-<p>渣渣的第一个鼠绘：）</p>
-<p><img src="/images/jellyfish.png" alt="照着ps教程用gimp鼠绘的水母" title="照着ps教程用gimp鼠绘的水母"></p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2706,7 +2703,7 @@ Program received signal SIGSEGV, Segmentation fault.
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">171</span>
+              <span class="site-state-item-count">172</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2720,7 +2717,7 @@ Program received signal SIGSEGV, Segmentation fault.
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">59</span>
+              <span class="site-state-item-count">60</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

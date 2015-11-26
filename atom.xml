@@ -4,7 +4,7 @@
   <subtitle><![CDATA[开放、分享、自由与进步]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://reverland.org/"/>
-  <updated>2015-11-24T16:45:01.329Z</updated>
+  <updated>2015-11-26T07:12:53.200Z</updated>
   <id>http://reverland.org/</id>
   
   <author>
@@ -13,6 +13,129 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[评注功能测试]]></title>
+    <link href="http://reverland.org/web/2015/11/26/click-and-comment/"/>
+    <id>http://reverland.org/web/2015/11/26/click-and-comment/</id>
+    <published>2015-11-26T02:40:13.000Z</published>
+    <updated>2015-11-26T07:12:53.200Z</updated>
+    <content type="html"><![CDATA[<p>嗨，各位，来点好玩的。移动端什么表现就不知道了</p>
+<p>双击文章内容任意地方开启点评功能</p>
+<p>回车确定，只允许短评呦~虽然我没有做任何限制，just for fun。</p>
+<p>将鼠标移动到点评园钮上将显示评论内容。</p>
+<p>评论是实时的。你在一个页面上的评论，会立即同步到所有打开该页面的浏览器中。</p>
+<h2 id="这是四点零八分的北京">这是四点零八分的北京</h2><p>这是四点零八分的北京，<br>一片手的海洋翻动；<br>这是四点零八分的北京，<br>一声雄伟的汽笛长鸣。</p>
+<p>北京车站高大的建筑，<br>突然一阵剧烈的抖动。<br>我双眼吃惊地望着窗外，<br>不知发生了什么事情。</p>
+<p>我的心骤然一阵疼痛，一定是<br>妈妈缀扣子的针线穿透了心胸。<br>这时，我的心变成了一只风筝，<br>风筝的线绳就在妈妈手中。</p>
+<p>线绳绷得太紧了，就要扯断了，<br>我不得不把头探出车厢的窗棂。<br>直到这时，直到这时候，<br>我才明白发生了什么事情。</p>
+<p>——一阵阵告别的声浪，<br>就要卷走车站；<br>北京在我的脚下，<br>已经缓缓地移动。</p>
+<p>我再次向北京挥动手臂，<br>想一把抓住他的衣领，<br>然后对她大声地叫喊：<br>永远记着我，妈妈啊，北京！</p>
+<p>终于抓住了什么东西，<br>管他是谁的手，不能松，<br>因为这是我的北京，<br>这是我的最后的北京。</p>
+<script src="https://cdn.wilddog.com/js/client/current/wilddog.js"></script>
+<script type="text/javascript">
+//var text = "";
+var ref = new Wilddog("https://wilddog-yurz-0583.wilddogio.com/comments");
+var articlebody = document.querySelector('[itemprop="articleBody"]');
+document.body.style.postion = "relative";
+
+ref.on('child_added', function(datasnapshot) {
+  var key = datasnapshot.key();
+  console.log("key when child_added", key);
+  var comment = datasnapshot.val();
+    var dot = document.createElement('a');
+    dot.classList.toggle('dot');
+    dot.style.left = comment.x + "px";
+    dot.style.top = comment.y  + "px";
+    dot.style.position = "absolute";
+    dot.style.height = "20px";
+    dot.style.width = "20px";
+    dot.style.borderRadius = "10px";
+    dot.style.background = "rgba(52, 152, 233, 0.6)";
+    dot.setAttribute('title', comment.comment);
+    document.body.appendChild(dot);
+})
+
+articlebody.addEventListener('dblclick', function(e) {
+  if (e.target.tagName == "TEXTAREA") {
+    e.stopPropagation();
+    return;
+  }
+
+  // add a dot
+
+  var dot = document.createElement('a');
+  dot.classList.toggle("dot");
+  dot.style.left = e.pageX - 5 + "px";
+  dot.style.top = e.pageY - 5 + "px";
+  dot.style.position = "absolute";
+  dot.style.height = "20px";
+  dot.style.width = "20px";
+  dot.style.borderRadius = "10px";
+  dot.style.background = "rgba(52, 152, 233, 0.6)";
+  document.body.appendChild(dot);
+
+  // add a comment text
+  var comment = document.createElement('div');
+  comment.classList.toggle("comment");
+
+  var textarea = document.createElement('textarea');
+  textarea.style.position = "absolute";
+  textarea.style.left = "10px";
+  textarea.style.top = "10px";
+  textarea.style.height = "40px";
+  textarea.style.width = "280px";
+  textarea.setAttribute("placeholder", "输入评论");
+//  textarea.value = text;
+  textarea.addEventListener('keydown', function(e) {
+    if (e.which == 13) {
+      e.preventDefault();// 为啥没阻止换行，keyup不行
+      e.stopPropagation();
+      if (textarea.value == "") {
+        document.body.removeChild(dot);
+        return;
+      }
+      dot.setAttribute("title", textarea.value);
+      comment.removeChild(textarea);
+      ref.push({
+          x: parseInt(dot.style.left),
+          y: parseInt(dot.style.top),
+          comment: dot.getAttribute('title')
+      });
+      document.body.removeChild(dot);
+    }
+  })
+  textarea.addEventListener('blur', function(e) {
+    if(!textarea.value) {
+      document.body.removeChild(dot);
+    } else {
+      //text = textarea.value;
+      document.body.removeChild(dot);
+    }
+  })
+  comment.appendChild(textarea);
+  dot.appendChild(comment);
+  textarea.focus();
+});
+</script>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>嗨，各位，来点好玩的。移动端什么表现就不知道了</p>
+<p>双击文章内容任意地方开启点评功能</p>
+<p>回车确定，只允许短评呦~虽然我没有做任何限制，just for fun。</p>
+<p>将鼠标移动到点评园钮上将显示评论内容。</p>
+<p>评论是实时的。你在一个]]>
+    </summary>
+    
+      <category term="comment" scheme="http://reverland.org/tags/comment/"/>
+    
+      <category term="javascript" scheme="http://reverland.org/tags/javascript/"/>
+    
+      <category term="web" scheme="http://reverland.org/tags/web/"/>
+    
+      <category term="web" scheme="http://reverland.org/categories/web/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[百度云输入法Userscript——实践和思考]]></title>
@@ -1519,49 +1642,6 @@ Out[<span class="number">17</span>]: &lt;Response [<span class="number">200</spa
     <![CDATA[<h2 id="愿总有阳光照进回忆里：学生购电用电查询系统">愿总有阳光照进回忆里：学生购电用电查询系统</h2><p>感冒了，难得会被人挂念。谢谢，总有阳光照进回忆里，温暖的气息让人难以忘记。</p>
 <hr>
 <p>某天，一位大神师兄 @Zhaoking 神秘兮兮地给我看一个]]>
-    </summary>
-    
-      <category term="python" scheme="http://reverland.org/tags/python/"/>
-    
-      <category term="spider" scheme="http://reverland.org/tags/spider/"/>
-    
-      <category term="python" scheme="http://reverland.org/categories/python/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[Python Spider: 爬取百度音乐]]></title>
-    <link href="http://reverland.org/python/2015/04/02/baidu-music/"/>
-    <id>http://reverland.org/python/2015/04/02/baidu-music/</id>
-    <published>2015-04-01T16:00:00.000Z</published>
-    <updated>2015-11-15T06:01:31.551Z</updated>
-    <content type="html"><![CDATA[<h2 id="Take_a_sad_song,_and_make_it_better：爬取百度音乐">Take a sad song, and make it better：爬取百度音乐</h2><p>以下，个人的一个trial and error的过程，仅供参考。</p>
-<p>用到一些基本知识比如HTTP请求啊，html啊，json啊，ajax啊，当然，不懂也没关系……<br>使用了一些工具比如firefox啊，firebug啊，python啊……当然你们喜欢用chrome/chromium还是IE都一样……</p>
-<p>也许是我听的歌太小众了，经常会发现有些歌在线听的好好的，竟然没有下载链接</p>
-<p><img src="/images/spider/baidu_music.png" alt="" title="baidu音乐">]</p>
-<p>对此，很不理解，在线可以听到就说明浏览器已经把媒体文件下载下来并且播放出来了……为啥会告诉我没有下载链接？</p>
-<p>某天，听到Beatles的Hey Jude，我忽然觉得得动手找找音乐文件是哪里的。于是，打开firebug，选择network标签下的media标签，可是什么也没有。</p>
-<p><img src="/images/spider/baidumusic.png" alt=""></p>
-<p>唉？于是又确认了下，百度音乐在线播放器不是flash，满满的html5标签= =</p>
-<p>凭借直觉，应该和xmlhttprequest有关系，于是抱着试试看的心理打开firebug上的xhr标签</p>
-<p><img src="/images/spider/baidumusic1.png" alt=""></p>
-<p>哇，果然有好多请求，咦？songlink？凭借直觉似乎是音乐链接地址……</p>
-<p>打开返回的json看了看果然有个来自file.qianqian.com的疑似歌曲链接(有时候用firebug的搜索功能也不失为良策)……</p>
-<p><img src="/images/spider/baidumusic3.png" alt=""></p>
-<p>把引号中的链接复制粘帖到地址栏，哇，果然是歌曲mp3啊</p>
-<p><img src="/images/spider/baidumusic4.png" alt=""></p>
-<p>我们可以再认真看看返回的json，其中有lrc歌词链接，有封面图片链接、歌曲文件大小啊等等</p>
-<p>接下来的问题是，如果想下载其它歌曲怎么办。首先观察之前我们获取想要mp3链接的POST请求。</p>
-<p><img src="/images/spider/baidumusic2.png" alt=""></p>
-<p>请求参数中有一个songID？似乎很清晰的样子，我猜吧，每个歌曲在百度音乐库中都对应这么一个ID</p>
-<p>后来发现确实差不多。</p>
-<p>至此，可以开始写自己的爬虫了……</p>
-<p>关键部分大致这样</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">download_by_song_id_list</span><span class="params">(song_id_list)</span>:</span></span><br><span class="line">    song_data = <span class="string">'songIds='</span> + <span class="string">"%2C"</span>.join(song_id_list)</span><br><span class="line">    song_link_url = <span class="string">"http://play.baidu.com/data/music/songlink"</span></span><br><span class="line">    headers = &#123;<span class="string">"X-Requested-With"</span>: <span class="string">"XMLHttpRequest"</span>,</span><br><span class="line">               <span class="string">"Content-Type"</span>: <span class="string">"application/x-www-form-urlencoded;\</span><br><span class="line">               charset=UTF-8"</span>&#125;</span><br><span class="line">    r = requests.post(song_link_url, data=song_data, headers=headers)</span><br><span class="line">    data = json.loads(r.content)</span><br><span class="line">    <span class="keyword">for</span> it <span class="keyword">in</span> data[<span class="string">'data'</span>][<span class="string">'songList'</span>]:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'\n'</span> + it[<span class="string">'songName'</span>], <span class="string">': '</span>, it[<span class="string">'size'</span>], <span class="string">"bytes"</span></span><br><span class="line">        <span class="comment"># print it['songLink']</span></span><br><span class="line">        r_song = requests.get(it[<span class="string">'songLink'</span>], stream=<span class="keyword">True</span>)</span><br><span class="line">        <span class="keyword">with</span> open(it[<span class="string">'songName'</span>] + <span class="string">'.'</span> + it[<span class="string">'format'</span>], <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            dl = <span class="number">0</span></span><br><span class="line">            total_length = int(it[<span class="string">'size'</span>])</span><br><span class="line">            <span class="keyword">for</span> b <span class="keyword">in</span> r_song.iter_content():</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> b:</span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line">                dl += len(b)</span><br><span class="line">                f.write(b)</span><br><span class="line">                done = int(<span class="number">50</span> * dl / total_length)</span><br><span class="line">                sys.stdout.write(<span class="string">"\r[%s%s] %.2f%%"</span></span><br><span class="line">                                 % (<span class="string">'='</span> * done, <span class="string">' '</span></span><br><span class="line">                                    * (<span class="number">50</span> - done), <span class="number">100.0</span> * dl / total_length))</span><br><span class="line">                sys.stdout.flush()</span><br><span class="line">            <span class="keyword">print</span> <span class="string">'\n'</span> + it[<span class="string">'songName'</span>] + <span class="string">'.'</span> + it[<span class="string">'format'</span>], <span class="string">" finished"</span></span><br></pre></td></tr></table></figure>
-]]></content>
-    <summary type="html">
-    <![CDATA[<h2 id="Take_a_sad_song,_and_make_it_better：爬取百度音乐">Take a sad song, and make it better：爬取百度音乐</h2><p>以下，个人的一个trial and error的过程，仅供参考。</p>
-<]]>
     </summary>
     
       <category term="python" scheme="http://reverland.org/tags/python/"/>

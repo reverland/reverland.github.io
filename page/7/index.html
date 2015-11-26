@@ -201,6 +201,783 @@
 
     
     
+      
+      
+
+      
+    
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/network/2014/03/15/play-icmp/" itemprop="url">
+                  Playing and Learning ICMP in Action
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-03-15T00:00:00+08:00" content="2014-03-15">
+              2014-03-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/network/" itemprop="url" rel="index">
+                    <span itemprop="name">network</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/network/2014/03/15/play-icmp/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="network/2014/03/15/play-icmp/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>ICMP协议是IP协议的一部分，虽然它的包被封装在IP包内，好像是IP上层的协议，但它确实是IP协议不可分割的一部分。ICMP协议非常复杂，它用来提供有关网络的消息。</p>
+<p>ICMP通常被用来侦查网络。各种ICMP报文甚至可能绕过防火墙探查内网，探测访问控制列表等。</p>
+<p>ICMP有时也会被利用来做路由重定向和DDOS等其它用途。</p>
+<h2 id="ping和traceroute">ping和traceroute</h2><p>ping可以用来判断一个ip地址(当提供域名时一般会解析成ip)对应的机器是否在线。</p>
+<p>traceroute则为了探测一个包到目的地所经过的路由。</p>
+<p><code>ping</code>利用了<code>ICMP echo request</code>和<code>ICMP echo reply</code>。而<code>traceroute</code>则利用了<code>ICMP time-exceeded error message</code>。</p>
+<p>我们可以先<code>ping</code>和<code>traceroute</code>来实际看下，</p>
+<pre><code> ~ ⮀ ping -c <span class="number">1</span> baidu.com
+PING baidu.com (<span class="number">220.181</span><span class="number">.111</span><span class="number">.86</span>) <span class="number">56</span>(<span class="number">84</span>) <span class="keyword">bytes</span> <span class="operator">of</span> data.
+<span class="number">64</span> <span class="keyword">bytes</span> <span class="built_in">from</span> <span class="number">220.181</span><span class="number">.111</span><span class="number">.86</span>: icmp_seq=<span class="number">1</span> ttl=<span class="number">50</span> <span class="built_in">time</span>=<span class="number">2.07</span> ms
+
+<span class="comment">--- baidu.com ping statistics ---</span>
+<span class="number">1</span> packets transmitted, <span class="number">1</span> received, <span class="number">0</span>% packet loss, <span class="built_in">time</span> <span class="number">0</span>ms
+rtt <span class="built_in">min</span>/<span class="built_in">avg</span>/<span class="built_in">max</span>/mdev = <span class="number">2.070</span>/<span class="number">2.070</span>/<span class="number">2.070</span>/<span class="number">0.000</span> ms
+
+ ~ ⮀ sudo tcpdump -X <span class="string">"icmp"</span> 
+tcpdump: verbose output suppressed, use -v <span class="operator">or</span> -vv <span class="keyword">for</span> full protocol decode
+listening <span class="command"><span class="keyword">on</span> <span class="title">eth0</span>, <span class="title">link-type</span> <span class="title">EN10MB</span> (<span class="title">Ethernet</span>), <span class="title">capture</span> <span class="title">size</span> <span class="title">65535</span> <span class="title">bytes</span></span>
+<span class="number">18</span>:<span class="number">16</span>:<span class="number">47.917236</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">220.181</span><span class="number">.111</span><span class="number">.86</span>: ICMP echo request, id <span class="number">9095</span>, seq <span class="number">1</span>, <span class="built_in">length</span> <span class="number">64</span>
+<span class="number">18</span>:<span class="number">16</span>:<span class="number">47.919293</span> IP <span class="number">220.181</span><span class="number">.111</span><span class="number">.86</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>: ICMP echo reply, id <span class="number">9095</span>, seq <span class="number">1</span>, <span class="built_in">length</span> <span class="number">64</span>
+</code></pre><p>如果用<code>wireshark</code>就能看得更加清楚了，懒得截图。</p>
+<p>我们接着看看traceroute是什么样的。</p>
+<pre><code> ~ ⮀ <span class="tag">traceroute</span> <span class="tag">bbs</span><span class="class">.byr</span><span class="class">.cn</span>
+<span class="tag">traceroute</span> <span class="tag">to</span> <span class="tag">bbs</span><span class="class">.byr</span><span class="class">.cn</span> (10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span>), 30 <span class="tag">hops</span> <span class="tag">max</span>, 60 <span class="tag">byte</span> <span class="tag">packets</span>
+ 1  10<span class="class">.210</span><span class="class">.96</span><span class="class">.193</span> (10<span class="class">.210</span><span class="class">.96</span><span class="class">.193</span>)  3<span class="class">.360</span> <span class="tag">ms</span>  3<span class="class">.637</span> <span class="tag">ms</span>  3<span class="class">.919</span> <span class="tag">ms</span>
+ 2  10<span class="class">.2</span><span class="class">.100</span><span class="class">.1</span> (10<span class="class">.2</span><span class="class">.100</span><span class="class">.1</span>)  1<span class="class">.511</span> <span class="tag">ms</span>  1<span class="class">.657</span> <span class="tag">ms</span>  1<span class="class">.825</span> <span class="tag">ms</span>
+ 3  10<span class="class">.2</span><span class="class">.1</span><span class="class">.1</span> (10<span class="class">.2</span><span class="class">.1</span><span class="class">.1</span>)  1<span class="class">.834</span> <span class="tag">ms</span>  2<span class="class">.422</span> <span class="tag">ms</span>  2<span class="class">.809</span> <span class="tag">ms</span>
+ 4  10<span class="class">.0</span><span class="class">.10</span><span class="class">.1</span> (10<span class="class">.0</span><span class="class">.10</span><span class="class">.1</span>)  0<span class="class">.512</span> <span class="tag">ms</span>  0<span class="class">.524</span> <span class="tag">ms</span>  0<span class="class">.531</span> <span class="tag">ms</span>
+ 5  10<span class="class">.0</span><span class="class">.13</span><span class="class">.2</span> (10<span class="class">.0</span><span class="class">.13</span><span class="class">.2</span>)  1<span class="class">.719</span> <span class="tag">ms</span>  2<span class="class">.021</span> <span class="tag">ms</span>  2<span class="class">.139</span> <span class="tag">ms</span>
+ 6  10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> (10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span>)  0<span class="class">.946</span> <span class="tag">ms</span>  0<span class="class">.493</span> <span class="tag">ms</span>  0<span class="class">.483</span> <span class="tag">ms</span>
+
+ ~ ⮀ <span class="tag">sudo</span> <span class="tag">tcpdump</span> <span class="tag">-i</span> <span class="tag">eth0</span> "<span class="tag">not</span> <span class="tag">udp</span> <span class="tag">and</span> <span class="tag">not</span> <span class="tag">arp</span>"
+<span class="tag">tcpdump</span>: <span class="tag">verbose</span> <span class="tag">output</span> <span class="tag">suppressed</span>, <span class="tag">use</span> <span class="tag">-v</span> <span class="tag">or</span> <span class="tag">-vv</span> <span class="tag">for</span> <span class="tag">full</span> <span class="tag">protocol</span> <span class="tag">decode</span>
+<span class="tag">listening</span> <span class="tag">on</span> <span class="tag">eth0</span>, <span class="tag">link-type</span> <span class="tag">EN10MB</span> (<span class="tag">Ethernet</span>), <span class="tag">capture</span> <span class="tag">size</span> 65535 <span class="tag">bytes</span>
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.471441</span> <span class="tag">IP</span> 10<span class="class">.2</span><span class="class">.100</span><span class="class">.1</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 68
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.471566</span> <span class="tag">IP</span> 10<span class="class">.2</span><span class="class">.100</span><span class="class">.1</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 68
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.472026</span> <span class="tag">IP</span> 10<span class="class">.0</span><span class="class">.10</span><span class="class">.1</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 36
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.472089</span> <span class="tag">IP</span> 10<span class="class">.0</span><span class="class">.10</span><span class="class">.1</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 36
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.472106</span> <span class="tag">IP</span> 10<span class="class">.0</span><span class="class">.10</span><span class="class">.1</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 36
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.472113</span> <span class="tag">IP</span> 10<span class="class">.2</span><span class="class">.100</span><span class="class">.1</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 68
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.472120</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">udp</span> <span class="tag">port</span> 33449 <span class="tag">unreachable</span>, <span class="tag">length</span> 68
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.472207</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">udp</span> <span class="tag">port</span> 33450 <span class="tag">unreachable</span>, <span class="tag">length</span> 68
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.472218</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">udp</span> <span class="tag">port</span> 33451 <span class="tag">unreachable</span>, <span class="tag">length</span> 68
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.472227</span> <span class="tag">IP</span> 10<span class="class">.2</span><span class="class">.1</span><span class="class">.1</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 36
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.472536</span> <span class="tag">IP</span> 10<span class="class">.210</span><span class="class">.96</span><span class="class">.193</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 68
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.472756</span> <span class="tag">IP</span> 10<span class="class">.2</span><span class="class">.1</span><span class="class">.1</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 36
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.472765</span> <span class="tag">IP</span> 10<span class="class">.210</span><span class="class">.96</span><span class="class">.193</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 68
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.473175</span> <span class="tag">IP</span> 10<span class="class">.210</span><span class="class">.96</span><span class="class">.193</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 68
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.473192</span> <span class="tag">IP</span> 10<span class="class">.2</span><span class="class">.1</span><span class="class">.1</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 36
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.473196</span> <span class="tag">IP</span> 10<span class="class">.0</span><span class="class">.13</span><span class="class">.2</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 68
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.473442</span> <span class="tag">IP</span> 10<span class="class">.0</span><span class="class">.13</span><span class="class">.2</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 68
+23<span class="pseudo">:36</span><span class="pseudo">:21</span><span class="class">.473603</span> <span class="tag">IP</span> 10<span class="class">.0</span><span class="class">.13</span><span class="class">.2</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">time</span> <span class="tag">exceeded</span> <span class="tag">in-transit</span>, <span class="tag">length</span> 68
+</code></pre><p>可以用<code>wireshark</code>更详细的检查。</p>
+<p>我们接着看看其它东西。</p>
+<h2 id="ping扫射和广播ICMP">ping扫射和广播ICMP</h2><p>ping扫射会<code>ping</code> 一个网段内所有的主机，判断ip所对应的主机是否在线。速度非常快</p>
+<p>先试着一个ping sweep，在LAN下nmap如果不明确禁止，一定会使用arp来ping，所以要看看ICMP如何完成ping就禁用它, 然后抓包。</p>
+<pre><code> ~ ⮀ sudo nmap -sP <span class="comment">--disable-arp 10.210.96.0/27</span>
+
+Starting Nmap 6.25 ( http://nmap.org ) at 2014-03-21 19:29 CST
+Nmap scan report for 10.210.96.1
+Host is up (0.0014s latency).
+Nmap scan report for 10.210.96.13
+Host is up (0.0023s latency).
+Nmap done: 32 IP addresses (2 hosts up) scanned in 1.97 seconds
+
+ ~ ⮀ sudo tcpdump "icmp"
+ tcpdump: verbose output suppressed, <span class="operator"><span class="keyword">use</span> -v <span class="keyword">or</span> -vv <span class="keyword">for</span> <span class="keyword">full</span> protocol <span class="keyword">decode</span>
+ listening <span class="keyword">on</span> eth0, <span class="keyword">link</span>-<span class="keyword">type</span> EN10MB (Ethernet), capture <span class="keyword">size</span> <span class="number">65535</span> <span class="keyword">bytes</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.205871</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.1</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">15450</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.205895</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.2</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">39828</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.205901</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.3</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">26191</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.205907</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.4</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">27927</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.205911</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.5</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">40326</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.205917</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.6</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">20451</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.205923</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.7</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">54339</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.205930</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.8</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">662</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.205934</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.9</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">44505</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.205940</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.10</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">53250</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.207182</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.1</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>: ICMP echo reply, <span class="keyword">id</span> <span class="number">15450</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.207295</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.13</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">2073</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.207305</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.14</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">4397</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.209792</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.13</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>: ICMP echo reply, <span class="keyword">id</span> <span class="number">2073</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.209912</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.17</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">19920</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.209922</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.18</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">34999</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.306658</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.21</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">29270</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.306681</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.22</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">7671</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.306689</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.23</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">9104</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.306696</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.24</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">81</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.306704</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.25</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">32155</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.306712</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.26</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">63858</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.306720</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.27</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">26777</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.306727</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.28</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">13494</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.306733</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.29</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">44984</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.308869</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.0</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">17227</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.310989</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.11</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">34317</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.311005</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.12</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">61365</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.406811</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.16</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">55350</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.406822</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.19</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">35677</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.406828</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.20</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">65464</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.406835</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.30</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">15331</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.406840</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.31</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">29903</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">07.406864</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.15</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">9883</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.307498</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.2</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">62949</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.307516</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.3</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">12243</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.307524</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.4</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">31452</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.307532</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.5</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">31537</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.307540</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.6</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">54651</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.307549</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.7</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">50610</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.307559</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.8</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">62664</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.307569</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.9</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">13459</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.307578</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.10</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">62077</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.407677</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.14</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">55829</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.407686</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.17</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">53285</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.407691</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.18</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">21378</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.407696</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.21</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">23904</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.407701</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.22</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">64314</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.407707</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.23</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">27486</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.407712</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.24</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">20894</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.407717</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.25</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">32853</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.407722</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.26</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">45739</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.507898</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.13</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">11633</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.507952</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.0</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">11677</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.507991</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.15</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">42356</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.507996</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.16</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">49147</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.508006</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.20</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">57762</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.508014</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.27</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">10613</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.508768</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.13</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>: ICMP echo reply, <span class="keyword">id</span> <span class="number">11633</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.508823</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.11</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">61920</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.508830</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.12</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">46304</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.508835</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.19</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">49607</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.508840</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.28</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">1352</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.508844</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.29</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">46670</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.508860</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.30</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">53472</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.508863</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.31</span>: ICMP echo request, <span class="keyword">id</span> <span class="number">58278</span>, seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">8</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.508985</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.19</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">26454</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.511101</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.30</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">49439</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.511108</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.31</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">20408</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.511113</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.0</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">47435</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.511132</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.5</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">44739</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.511138</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.6</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">62544</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.511142</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.7</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">60818</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.511153</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.11</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">8734</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.511157</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.12</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">42535</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.608151</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.17</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">4191</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.608157</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.18</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">60313</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.608161</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.20</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">30447</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.608165</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.21</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">34293</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.608169</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.22</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">45789</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.608172</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.23</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">20615</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.608175</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.24</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">39416</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.608178</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.25</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">43274</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.610367</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.19</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">37423</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.610545</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.2</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">8441</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.610552</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.3</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">3578</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.610557</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.4</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">3637</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.610560</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.8</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">21670</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.610563</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.9</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">59923</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.610565</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.10</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">44321</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.612656</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.0</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">2542</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.612681</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.5</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">52004</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.612689</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.6</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">50499</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.612705</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.7</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">49428</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.612725</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.11</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">36</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.612732</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.12</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">44368</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.612745</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.30</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">34029</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.612750</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.31</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">8416</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.708321</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.17</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">22579</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.708327</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.18</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">44220</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.708331</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.20</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">9032</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.708343</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.21</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">35831</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.708347</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.22</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">2301</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.708350</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.23</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">38652</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.708353</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.24</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">48909</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.708356</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.25</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">56868</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.710492</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.26</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">11131</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.710505</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.27</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">21052</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.710515</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.28</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">51363</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.710518</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.29</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">64922</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.710521</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.14</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">38360</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.710527</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.16</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">40280</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.710531</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.15</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">22775</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.712621</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.2</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">14586</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.712632</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.3</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">52979</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.712639</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.4</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">55009</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.712646</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.8</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">48655</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.712652</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.9</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">12270</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.712657</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.10</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">52019</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.811539</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.14</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">38654</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.811554</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.15</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">36060</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.811559</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.16</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">54453</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.811564</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.26</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">58198</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.811569</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.27</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">58807</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.811574</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.28</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">25994</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span>
+ <span class="number">19</span>:<span class="number">29</span>:<span class="number">08.811578</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.29</span>: ICMP <span class="keyword">time</span> stamp <span class="keyword">query</span> <span class="keyword">id</span> <span class="number">43528</span> seq <span class="number">0</span>, <span class="keyword">length</span> <span class="number">20</span></span>
+</code></pre><p>看样子ping扫射时发了一个<code>ICMP echo request</code>不过瘾，又发了一次<code>ICMP time stamp query</code>。</p>
+<p>广播ping也可以试着找出局域网内的机器。但通常windows机器都不会响应，安卓也不会响应地址是广播地址的ICMP echo request。</p>
+<p>我们还可以看看广播地址的icmp echo request</p>
+<p>如果伪造发送者ip，ping广播地址可以是潜在的DDOS。</p>
+<pre><code> ~ ⮀ ping -b <span class="number">192.168</span><span class="number">.1</span><span class="number">.255</span>
+WARNING: pinging broadcast address
+PING <span class="number">192.168</span><span class="number">.1</span><span class="number">.255</span> (<span class="number">192.168</span><span class="number">.1</span><span class="number">.255</span>) <span class="number">56</span>(<span class="number">84</span>) bytes of data.
+<span class="number">64</span> bytes from <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span>: icmp_seq=<span class="number">1</span> ttl=<span class="number">64</span> time=<span class="number">83.8</span> ms
+<span class="number">64</span> bytes from <span class="number">192.168</span><span class="number">.1</span><span class="number">.107</span>: icmp_seq=<span class="number">1</span> ttl=<span class="number">64</span> time=<span class="number">87.6</span> ms (DUP!)
+</code></pre><p>额……发现两个iphone。。。</p>
+<pre><code> ~ ⮀ sudo nmap -sS <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span>
+
+Starting Nmap <span class="number">6.25</span> ( <span class="string">http:</span><span class="comment">//nmap.org ) at 2014-03-15 14:34 CST</span>
+Nmap scan report <span class="keyword">for</span> localhost (<span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span>)
+Host is up (<span class="number">0.0040</span>s latency).
+Not <span class="string">shown:</span> <span class="number">999</span> closed ports
+PORT      STATE SERVICE
+<span class="number">62078</span>/tcp open  iphone-sync
+MAC <span class="string">Address:</span> <span class="string">F1:</span><span class="string">DD:</span><span class="number">08</span>:<span class="string">AF:</span><span class="string">CB:</span>E9 (Unknown)
+
+Nmap <span class="string">done:</span> <span class="number">1</span> IP address (<span class="number">1</span> host up) scanned <span class="keyword">in</span> <span class="number">41.44</span> seconds
+
+ ~ ⮀ sudo nmap -sS <span class="number">192.168</span><span class="number">.1</span><span class="number">.107</span>
+
+Starting Nmap <span class="number">6.25</span> ( <span class="string">http:</span><span class="comment">//nmap.org ) at 2014-03-15 14:37 CST</span>
+Nmap scan report <span class="keyword">for</span> localhost (<span class="number">192.168</span><span class="number">.1</span><span class="number">.107</span>)
+Host is up (<span class="number">0.0053</span>s latency).
+Not <span class="string">shown:</span> <span class="number">999</span> closed ports
+PORT      STATE SERVICE
+<span class="number">62078</span>/tcp open  iphone-sync
+MAC <span class="string">Address:</span> <span class="number">83</span>:<span class="number">48</span>:<span class="number">4</span><span class="string">C:</span><span class="string">DD:</span><span class="number">5</span><span class="string">B:</span><span class="number">96</span> (Unknown)
+
+Nmap <span class="string">done:</span> <span class="number">1</span> IP address (<span class="number">1</span> host up) scanned <span class="keyword">in</span> <span class="number">42.11</span> seconds
+</code></pre><p>但安卓就不对广播ICMP request echo响应了。可以参考著名的<a href="http://althing.cs.dartmouth.edu/local/ICMP_Scanning_v3.0.pdf" target="_blank" rel="external">ICMP Usage in<br> Scanning</a>，很详细的文档，虽然年头早了些。</p>
+<h2 id="ICMP_Timestamp_query">ICMP Timestamp query</h2><p>接下来试试timestamp request</p>
+<pre><code> ~ ⮀ sudo nmap -sP -PP --disable-arp-ping bbs<span class="class">.byr</span><span class="class">.cn</span>
+
+Starting Nmap <span class="number">6.25</span> ( http:<span class="comment">//nmap.org ) at 2014-03-15 14:48 CST</span>
+Nmap scan report <span class="keyword">for</span> bbs<span class="class">.byr</span><span class="class">.cn</span> (<span class="number">123.127</span>.<span class="number">134.62</span>)
+Host is up (<span class="number">0.0044s</span> latency).
+Nmap done: <span class="number">1</span> IP <span class="tag">address</span> (<span class="number">1</span> host up) scanned <span class="keyword">in</span> <span class="number">0.23</span> seconds
+
+<span class="number">15</span>:<span class="number">02</span>:<span class="number">20.679449</span> IP <span class="number">10.109</span>.<span class="number">20.127</span> &gt; <span class="number">10.3</span>.<span class="number">18.66</span>: ICMP <span class="tag">time</span> stamp query id <span class="number">6291</span> seq <span class="number">0</span>, length <span class="number">20</span>
+<span class="number">15</span>:<span class="number">02</span>:<span class="number">20.682487</span> IP <span class="number">10.3</span>.<span class="number">18.66</span> &gt; <span class="number">10.109</span>.<span class="number">20.127</span>: ICMP <span class="tag">time</span> stamp reply id <span class="number">6291</span> seq <span class="number">0</span>: org <span class="number">00</span>:<span class="number">00</span>:<span class="number">00.000</span>, recv <span class="number">07</span>:<span class="number">09</span>:<span class="number">19.107</span>, xmit <span class="number">07</span>:<span class="number">09</span>:<span class="number">19.107</span>, length <span class="number">20</span>
+</code></pre><p>不是所有的机器都会响应。</p>
+<pre><code> ~ ⮀ sudo nmap -<span class="variable">sP</span> -PP <span class="comment">--disable-arp-ping 10.109.20.1</span>
+
+Starting Nmap <span class="number">6.25</span> ( <span class="keyword">http</span>://nmap.org ) <span class="keyword">at</span> <span class="number">2014</span>-<span class="number">03</span>-<span class="number">15</span> <span class="number">15</span>:<span class="number">00</span> CST
+Note: Host seems down. If <span class="keyword">it</span> is really up, but blocking our ping probes, <span class="keyword">try</span> -Pn
+Nmap done: <span class="number">1</span> IP address (<span class="number">0</span> hosts up) scanned <span class="operator">in</span> <span class="number">2.20</span> <span class="built_in">seconds</span>
+
+
+<span class="number">15</span>:<span class="number">00</span>:<span class="number">53.309360</span> IP <span class="number">10.109</span><span class="number">.20</span><span class="number">.127</span> &gt; <span class="number">10.109</span><span class="number">.20</span><span class="number">.1</span>: ICMP <span class="built_in">time</span> stamp query id <span class="number">48585</span> seq <span class="number">0</span>, <span class="built_in">length</span> <span class="number">20</span>
+<span class="number">15</span>:<span class="number">00</span>:<span class="number">54.310449</span> IP <span class="number">10.109</span><span class="number">.20</span><span class="number">.127</span> &gt; <span class="number">10.109</span><span class="number">.20</span><span class="number">.1</span>: ICMP <span class="built_in">time</span> stamp query id <span class="number">60795</span> seq <span class="number">0</span>, <span class="built_in">length</span> <span class="number">20</span>
+</code></pre><h2 id="ICMP_address_netmask_request">ICMP address netmask request</h2><p>这是个已经废弃的东西，现在推荐使用dhcp，不过看学校的一些路由器还是支持的</p>
+<pre><code> ~ ⮀ sudo nmap -sP -PM <span class="comment">--disable-arp-ping 10.109.20.1</span>
+
+Starting Nmap 6.25 ( http://nmap.org ) at 2014-03-15 14:59 CST
+Nmap scan report for 10.109.20.1
+Host is up (0.0025s latency).
+MAC Address: 00:00:E0:60:00:00 (Hangzhou H3C Technologies Co.)
+Nmap done: 1 IP address (1 host up) scanned in 0.16 seconds
+
+
+✘ ⮀ ~ ⮀ sudo tcpdump -i wlan0 "icmp"
+tcpdump: verbose output suppressed, <span class="operator"><span class="keyword">use</span> -v <span class="keyword">or</span> -vv <span class="keyword">for</span> <span class="keyword">full</span> protocol <span class="keyword">decode</span>
+listening <span class="keyword">on</span> wlan0, <span class="keyword">link</span>-<span class="keyword">type</span> EN10MB (Ethernet), capture <span class="keyword">size</span> <span class="number">65535</span> <span class="keyword">bytes</span>
+<span class="number">14</span>:<span class="number">59</span>:<span class="number">49.589370</span> IP <span class="number">10.109</span><span class="number">.20</span><span class="number">.127</span> &gt; <span class="number">10.109</span><span class="number">.20</span><span class="number">.1</span>: ICMP address <span class="keyword">mask</span> request, <span class="keyword">length</span> <span class="number">12</span>
+<span class="number">14</span>:<span class="number">59</span>:<span class="number">49.591828</span> IP <span class="number">10.109</span><span class="number">.20</span><span class="number">.1</span> &gt; <span class="number">10.109</span><span class="number">.20</span><span class="number">.127</span>: ICMP address <span class="keyword">mask</span> <span class="keyword">is</span> <span class="number">0xfffffc00</span>, <span class="keyword">length</span> <span class="number">12</span></span>
+</code></pre><p>谁会响应我们的非echo ICMP请求？</p>
+<ul>
+<li>监听状态的机器。</li>
+<li>实现这个标准的操作系统。</li>
+<li>配置为支持这个ICMP请求。</li>
+<li>没有被防火墙墙掉。</li>
+</ul>
+<p>大多数机器对折中非echo的ICMP请求是没响应的。</p>
+<pre><code>~ ⮀ sudo nmap -<span class="literal">sP</span> -PM/E/P --disable-arp-ping <span class="number">10</span>.<span class="number">109</span>.<span class="number">23</span>.<span class="number">255</span>
+
+<span class="label">Starting</span> Nmap <span class="number">6</span>.<span class="number">25</span> ( http://nmap.org ) at <span class="number">2014</span>-<span class="number">03</span>-<span class="number">15</span> <span class="number">15</span>:<span class="number">07</span> CST
+<span class="label">Note</span>: Host seems down. <span class="preprocessor">If</span> <span class="keyword">it </span>is really up, <span class="keyword">but </span><span class="keyword">blocking </span>our ping probes, try -Pn
+<span class="label">Nmap</span> done: <span class="number">1</span> <span class="literal">IP</span> <span class="keyword">address </span>(<span class="number">0</span> hosts up) scanned in <span class="number">2</span>.<span class="number">18</span> seconds
+</code></pre><h2 id="ICMP_Parameter_Problem_Error_messages">ICMP Parameter Problem Error messages</h2><p>让目标机器生成ICMP参数错误消息的方法有：</p>
+<ul>
+<li>搞乱IP头：<ul>
+<li>头长度域</li>
+<li>IP报文option部分</li>
+</ul>
+</li>
+<li>在IP头中使用无效的域值<ul>
+<li>在IP头中使用有效的域值</li>
+</ul>
+</li>
+<li>滥用分片</li>
+<li>UDP扫描主机探测方法。</li>
+</ul>
+<p>IP中伪造而不会被无声丢弃的域：</p>
+<ul>
+<li>ihl</li>
+<li>option</li>
+<li>proto尝试不使用的</li>
+</ul>
+<p>我们先试试改头长度域的：</p>
+<p>我们造个ihl有问题的包(<code>ihl</code>的值是32位即一个字的个数)：</p>
+<pre><code> ~ ⮀ sudo scapy
+<span class="constant">Welcome</span> to <span class="constant">Scapy</span> (<span class="number">2.2</span>.<span class="number">0</span>)
+<span class="prompt">&gt;&gt;</span>&gt; ip = <span class="constant">IP</span>()/<span class="constant">ICMP</span>()
+<span class="prompt">&gt;&gt;</span>&gt; ip.dst=<span class="string">'10.3.18.66'</span>
+<span class="prompt">&gt;&gt;</span>&gt; ip.ihl=<span class="number">6</span>L
+<span class="prompt">&gt;&gt;</span>&gt; ip.show()
+<span class="comment">###[ IP ]###</span>
+  version= <span class="number">4</span>
+  ihl= <span class="number">6</span>L
+  tos= <span class="number">0x0</span>
+  len= <span class="constant">None</span>
+  id= <span class="number">1</span>
+  flags= 
+  frag= <span class="number">0</span>
+  ttl= <span class="number">64</span>
+  proto= icmp
+  chksum= <span class="constant">None</span>
+  src= <span class="number">10.210</span>.<span class="number">96.200</span>
+  dst= <span class="number">10.3</span>.<span class="number">18.66</span>
+  \options\
+<span class="comment">###[ ICMP ]###</span>
+     type= echo-request
+     code= <span class="number">0</span>
+     chksum= <span class="constant">None</span>
+     id= <span class="number">0x0</span>
+     seq= <span class="number">0x0</span>
+<span class="prompt">&gt;&gt;</span>&gt; send(ip)
+.
+<span class="constant">Sent</span> <span class="number">1</span> packets.
+
+<span class="symbol">tcpdump:</span> verbose output suppressed, use -v <span class="keyword">or</span> -vv <span class="keyword">for</span> full protocol decode
+listening on eth<span class="number">0</span>, link-type <span class="constant">EN10MB</span> (<span class="constant">Ethernet</span>), capture size <span class="number">65535</span> bytes
+<span class="number">14</span><span class="symbol">:</span><span class="number">45</span><span class="symbol">:</span><span class="number">29.035948</span> <span class="constant">IP</span> <span class="number">10.210</span>.<span class="number">96.200</span> &gt; <span class="number">10.3</span>.<span class="number">18.66</span><span class="symbol">:</span> [|icmp]
+<span class="number">14</span><span class="symbol">:</span><span class="number">45</span><span class="symbol">:</span><span class="number">29.039536</span> <span class="constant">IP</span> <span class="number">10.210</span>.<span class="number">96.193</span> &gt; <span class="number">10.210</span>.<span class="number">96.200</span><span class="symbol">:</span> <span class="constant">ICMP</span> parameter problem - octet <span class="number">21</span>, length <span class="number">12</span>
+</code></pre><p>为啥会参数错误，因为解析包的程序会把ICMP报文部分当成options处理。</p>
+<p>同样，我们往options部分塞些奇奇怪怪的东西也可以完成同样效果。</p>
+<pre><code> ~ ⮀ sudo scapy
+<span class="constant">Welcome</span> to <span class="constant">Scapy</span> (<span class="number">2.2</span>.<span class="number">0</span>)
+<span class="prompt">&gt;&gt;</span>&gt; ip = <span class="constant">IP</span>()/<span class="constant">ICMP</span>()
+<span class="prompt">&gt;&gt;</span>&gt; ip.dst=<span class="string">'10.3.18.66'</span>
+<span class="prompt">&gt;&gt;</span>&gt; ip.show()
+<span class="comment">###[ IP ]###</span>
+  version= <span class="number">4</span>
+  ihl= <span class="constant">None</span>
+  tos= <span class="number">0x0</span>
+  len= <span class="constant">None</span>
+  id= <span class="number">1</span>
+  flags= 
+  frag= <span class="number">0</span>
+  ttl= <span class="number">64</span>
+  proto= icmp
+  chksum= <span class="constant">None</span>
+  src= <span class="number">10.210</span>.<span class="number">96.200</span>
+  dst= <span class="number">10.3</span>.<span class="number">18.66</span>
+  \options\
+   |<span class="comment">###[ IPOption ]###</span>
+   |  copy_flag= <span class="number">1</span>
+   |  optclass= control
+   |  option= extended_security
+   |  length= <span class="constant">None</span>
+   |  value= <span class="string">''</span>
+<span class="comment">###[ ICMP ]###</span>
+     type= echo-request
+     code= <span class="number">0</span>
+     chksum= <span class="constant">None</span>
+     id= <span class="number">0x0</span>
+     seq= <span class="number">0x0</span>
+<span class="prompt">&gt;&gt;</span>&gt; ip.options=<span class="constant">IPOption</span>(copy_flag=<span class="number">1</span>,optclass=<span class="number">0</span>,option=<span class="number">5</span>,value=<span class="string">''</span>)
+<span class="prompt">&gt;&gt;</span>&gt; send(ip)
+</code></pre><p>大快人心的是途中的路由返回的参数错误</p>
+<pre><code> ~ ⮀ <span class="tag">sudo</span> <span class="tag">tcpdump</span> <span class="tag">-i</span> <span class="tag">eth0</span> "<span class="tag">icmp</span>"
+ <span class="tag">tcpdump</span>: <span class="tag">verbose</span> <span class="tag">output</span> <span class="tag">suppressed</span>, <span class="tag">use</span> <span class="tag">-v</span> <span class="tag">or</span> <span class="tag">-vv</span> <span class="tag">for</span> <span class="tag">full</span> <span class="tag">protocol</span> <span class="tag">decode</span>
+ <span class="tag">listening</span> <span class="tag">on</span> <span class="tag">eth0</span>, <span class="tag">link-type</span> <span class="tag">EN10MB</span> (<span class="tag">Ethernet</span>), <span class="tag">capture</span> <span class="tag">size</span> 65535 <span class="tag">bytes</span>
+ 15<span class="pseudo">:13</span><span class="pseudo">:30</span><span class="class">.787605</span> <span class="tag">IP</span> 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span> &gt; 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span>: <span class="tag">ICMP</span> <span class="tag">echo</span> <span class="tag">request</span>, <span class="tag">id</span> 0, <span class="tag">seq</span> 0, <span class="tag">length</span> 8
+ 15<span class="pseudo">:13</span><span class="pseudo">:30</span><span class="class">.790656</span> <span class="tag">IP</span> 10<span class="class">.0</span><span class="class">.10</span><span class="class">.1</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> <span class="tag">parameter</span> <span class="tag">problem</span> <span class="tag">-</span> <span class="tag">octet</span> 20, <span class="tag">length</span> 40
+
+ ~ ⮀ <span class="tag">traceroute</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> 
+<span class="tag">traceroute</span> <span class="tag">to</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> (10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span>), 30 <span class="tag">hops</span> <span class="tag">max</span>, 60 <span class="tag">byte</span> <span class="tag">packets</span>
+ 1  10<span class="class">.210</span><span class="class">.96</span><span class="class">.193</span> (10<span class="class">.210</span><span class="class">.96</span><span class="class">.193</span>)  2<span class="class">.537</span> <span class="tag">ms</span>  2<span class="class">.798</span> <span class="tag">ms</span>  3<span class="class">.158</span> <span class="tag">ms</span>
+ 2  10<span class="class">.1</span><span class="class">.10</span><span class="class">.1</span> (10<span class="class">.2</span><span class="class">.100</span><span class="class">.1</span>)  1<span class="class">.260</span> <span class="tag">ms</span>  1<span class="class">.423</span> <span class="tag">ms</span>  1<span class="class">.425</span> <span class="tag">ms</span>
+ 3  10<span class="class">.1</span><span class="class">.2</span><span class="class">.1</span> (10<span class="class">.2</span><span class="class">.1</span><span class="class">.1</span>)  0<span class="class">.824</span> <span class="tag">ms</span>  1<span class="class">.197</span> <span class="tag">ms</span>  1<span class="class">.614</span> <span class="tag">ms</span>
+ 4  10<span class="class">.0</span><span class="class">.10</span><span class="class">.1</span> (10<span class="class">.0</span><span class="class">.10</span><span class="class">.1</span>)  0<span class="class">.504</span> <span class="tag">ms</span>  0<span class="class">.534</span> <span class="tag">ms</span>  0<span class="class">.542</span> <span class="tag">ms</span>
+ 5  10<span class="class">.0</span><span class="class">.13</span><span class="class">.2</span> (10<span class="class">.0</span><span class="class">.13</span><span class="class">.2</span>)  4<span class="class">.714</span> <span class="tag">ms</span>  4<span class="class">.895</span> <span class="tag">ms</span>  5<span class="class">.053</span> <span class="tag">ms</span>
+ 6  10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> (10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span>)  0<span class="class">.477</span> <span class="tag">ms</span>  0<span class="class">.428</span> <span class="tag">ms</span>  0<span class="class">.414</span> <span class="tag">ms</span>
+</code></pre><p>在wireshark中可以看的更清楚：</p>
+<pre><code>Extended Security (<span class="operator">with</span> option <span class="built_in">length</span> = <span class="number">2</span> <span class="keyword">bytes</span>; should be &gt;= <span class="number">3</span>)
+</code></pre><p>我们发了一个奇怪的包= =</p>
+<p><a href="http://althing.cs.dartmouth.edu/local/ICMP_Scanning_v3.0.pdf" target="_blank" rel="external">ICMP Usage in Scanning</a>中详述了使用这些技术探测ACL(访问控制列表)的神奇应用。</p>
+<p>接着我们试试奇葩的protocol字段：</p>
+<pre><code>&gt;&gt;&gt; ip.proto=<span class="number">155</span>
+&gt;&gt;&gt; ip.show()
+<span class="preprocessor">###[ IP ]###</span>
+  version= <span class="number">4</span>
+  ihl= None
+  tos= <span class="number">0x0</span>
+  len= None
+  id= <span class="number">1</span>
+  flags= 
+  frag= <span class="number">0</span>
+  ttl= <span class="number">64</span>
+  proto= <span class="number">155</span>
+  chksum= None
+  src= <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>
+  dst= <span class="number">10.3</span><span class="number">.18</span><span class="number">.231</span>
+  \options\
+<span class="preprocessor">###[ UDP ]###</span>
+     sport= domain
+     dport= domain
+     len= None
+     chksum= None
+&gt;&gt;&gt; send(ip)
+.
+Sent <span class="number">1</span> packets.
+</code></pre><p>产生了一个destination unreachable(protocol unreachable)的错误报文。</p>
+<pre><code> ~ ⮀ <span class="tag">sudo</span> <span class="tag">tcpdump</span> <span class="tag">-i</span> <span class="tag">eth0</span> "<span class="tag">icmp</span>"
+<span class="tag">tcpdump</span>: <span class="tag">verbose</span> <span class="tag">output</span> <span class="tag">suppressed</span>, <span class="tag">use</span> <span class="tag">-v</span> <span class="tag">or</span> <span class="tag">-vv</span> <span class="tag">for</span> <span class="tag">full</span> <span class="tag">protocol</span> <span class="tag">decode</span>
+<span class="tag">listening</span> <span class="tag">on</span> <span class="tag">eth0</span>, <span class="tag">link-type</span> <span class="tag">EN10MB</span> (<span class="tag">Ethernet</span>), <span class="tag">capture</span> <span class="tag">size</span> 65535 <span class="tag">bytes</span>
+15<span class="pseudo">:43</span><span class="pseudo">:14</span><span class="class">.737608</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.231</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.231</span> <span class="tag">protocol</span> 155 <span class="tag">unreachable</span>, <span class="tag">length</span> 36
+</code></pre><p>该技术可用于主机发现，用nmap也可以结合各种协议来进行ACL的探测。</p>
+<pre><code>sudo nmap -sO <span class="number">10.3</span><span class="number">.18</span><span class="number">.66</span>
+</code></pre><p>这是部分抓到的包：</p>
+<pre><code> ~ ⮀ <span class="tag">sudo</span> <span class="tag">tcpdump</span> "<span class="tag">icmp</span>"
+<span class="tag">tcpdump</span>: <span class="tag">verbose</span> <span class="tag">output</span> <span class="tag">suppressed</span>, <span class="tag">use</span> <span class="tag">-v</span> <span class="tag">or</span> <span class="tag">-vv</span> <span class="tag">for</span> <span class="tag">full</span> <span class="tag">protocol</span> <span class="tag">decode</span>
+<span class="tag">listening</span> <span class="tag">on</span> <span class="tag">eth0</span>, <span class="tag">link-type</span> <span class="tag">EN10MB</span> (<span class="tag">Ethernet</span>), <span class="tag">capture</span> <span class="tag">size</span> 65535 <span class="tag">bytes</span>
+15<span class="pseudo">:51</span><span class="pseudo">:15</span><span class="class">.618473</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 15 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:16</span><span class="class">.719654</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 241 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:17</span><span class="class">.820941</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 176 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:18</span><span class="class">.922155</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 126 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:19</span><span class="class">.427885</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 184 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:20</span><span class="class">.434376</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 45 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:21</span><span class="class">.455654</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 59 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:22</span><span class="class">.466907</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 37 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:23</span><span class="class">.478382</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 233 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:24</span><span class="class">.492506</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 162 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:25</span><span class="class">.531125</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 72 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:26</span><span class="class">.452325</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 255 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:27</span><span class="class">.473618</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 58 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:28</span><span class="class">.415352</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 25 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:29</span><span class="class">.435785</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 169 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:30</span><span class="class">.456992</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 206 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:31</span><span class="class">.478499</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.66</span> <span class="tag">protocol</span> 28 <span class="tag">unreachable</span>, <span class="tag">length</span> 28
+15<span class="pseudo">:51</span><span class="pseudo">:31</span><span class="class">.527789</span> <span class="tag">IP</span> 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span> &gt; 10<span class="class">.3</span><span class="class">.9</span><span class="class">.4</span>: <span class="tag">ICMP</span> 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span> <span class="tag">udp</span> <span class="tag">port</span> 48089 <span class="tag">unreachable</span>, <span class="tag">length</span> 72
+15<span class="pseudo">:51</span><span class="pseudo">:31</span><span class="class">.527806</span> <span class="tag">IP</span> 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span> &gt; 10<span class="class">.3</span><span class="class">.9</span><span class="class">.4</span>: <span class="tag">ICMP</span> 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span> <span class="tag">udp</span> <span class="tag">port</span> 55862 <span class="tag">unreachable</span>, <span class="tag">length</span> 72
+</code></pre><h2 id="ICMP_Ip_Reassembly_Time_Exceeded">ICMP Ip Reassembly Time Exceeded</h2><p>我们可以故意把发送不完整的IP分片。来探测主机，当对一个网络实行这个伎俩时，就可以探测整个网络拓扑。</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; ip = <span class="constant">IP</span>()/<span class="constant">TCP</span>()/<span class="string">"abcdefg"</span>
+<span class="prompt">&gt;&gt;</span>&gt; ip.flags=<span class="number">1</span>
+<span class="prompt">&gt;&gt;</span>&gt; ip.dst=<span class="string">'10.3.18.66'</span>
+<span class="prompt">&gt;&gt;</span>&gt; ip.show()
+<span class="comment">###[ IP ]###</span>
+  version= <span class="number">4</span>
+  ihl= <span class="constant">None</span>
+  tos= <span class="number">0x0</span>
+  len= <span class="constant">None</span>
+  id= <span class="number">1</span>
+  flags= <span class="constant">MF</span>
+  frag= <span class="number">0</span>
+  ttl= <span class="number">64</span>
+  proto= tcp
+  chksum= <span class="constant">None</span>
+  src= <span class="number">10.210</span>.<span class="number">96.200</span>
+  dst= <span class="number">10.3</span>.<span class="number">18.66</span>
+  \options\
+<span class="comment">###[ TCP ]###</span>
+     sport= ftp_data
+     dport= http
+     seq= <span class="number">0</span>
+     ack= <span class="number">0</span>
+     dataofs= <span class="constant">None</span>
+     reserved= <span class="number">0</span>
+     flags= <span class="constant">S</span>
+     window= <span class="number">8192</span>
+     chksum= <span class="constant">None</span>
+     urgptr= <span class="number">0</span>
+     options= {}
+<span class="comment">###[ Raw ]###</span>
+        load= <span class="string">'abcdefg'</span>
+<span class="prompt">&gt;&gt;</span>&gt; send(ip)
+.
+<span class="constant">Sent</span> <span class="number">1</span> packets.
+</code></pre><p>过了好久好久，返回一个重组分片超时IMCP错误</p>
+<pre><code>~ ⮀ sudo tcpdump -i eth0 "icmp"
+tcpdump: verbose output suppressed, <span class="operator"><span class="keyword">use</span> -v <span class="keyword">or</span> -vv <span class="keyword">for</span> <span class="keyword">full</span> protocol <span class="keyword">decode</span>
+listening <span class="keyword">on</span> eth0, <span class="keyword">link</span>-<span class="keyword">type</span> EN10MB (Ethernet), capture <span class="keyword">size</span> <span class="number">65535</span> <span class="keyword">bytes</span>
+<span class="number">16</span>:<span class="number">29</span>:<span class="number">22.186723</span> IP <span class="number">10.3</span><span class="number">.18</span><span class="number">.66</span> &gt; <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>: ICMP ip reassembly <span class="keyword">time</span> exceeded, <span class="keyword">length</span> <span class="number">52</span></span>
+</code></pre><p>不是所有主机都会对这个响应。我试了试局域网内有的设备就没反应= =。</p>
+<p>但这个端口不需要打开，试试81端口(确认此台机器没有打开81端口)也是直接返回ICMP超时错误。操作系统会直接处理报文并返回错误消息。</p>
+<p>我又试了试UDP：</p>
+<p>不管你是不是扫描打开的端口，都返回同样的超时错误：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; ip[<span class="number">1</span>]=<span class="constant">UDP</span>()
+<span class="prompt">&gt;&gt;</span>&gt; ip.show()
+<span class="comment">###[ IP ]###</span>
+  version= <span class="number">4</span>
+  ihl= <span class="constant">None</span>
+  tos= <span class="number">0x0</span>
+  len= <span class="constant">None</span>
+  id= <span class="number">1</span>
+  flags= <span class="constant">MF</span>
+  frag= <span class="number">0</span>
+  ttl= <span class="number">64</span>
+  proto= udp
+  chksum= <span class="constant">None</span>
+  src= <span class="number">10.210</span>.<span class="number">96.200</span>
+  dst= <span class="number">10.210</span>.<span class="number">96.195</span>
+  \options\
+<span class="comment">###[ UDP ]###</span>
+     sport= domain
+     dport= domain
+     len= <span class="constant">None</span>
+     chksum= <span class="constant">None</span>
+<span class="prompt">&gt;&gt;</span>&gt; ip[<span class="number">1</span>].dport=<span class="number">80</span>
+<span class="prompt">&gt;&gt;</span>&gt; ip.dst
+<span class="string">'10.210.96.195'</span>
+<span class="prompt">&gt;&gt;</span>&gt; ip.dst=<span class="string">'10.3.18.66'</span>
+<span class="prompt">&gt;&gt;</span>&gt; send(ip)
+.
+<span class="constant">Sent</span> <span class="number">1</span> packets.
+<span class="prompt">&gt;&gt;</span>&gt; ip[<span class="number">1</span>].dport=<span class="number">81</span>
+<span class="prompt">&gt;&gt;</span>&gt; send(ip)
+.
+<span class="constant">Sent</span> <span class="number">1</span> packets.
+
+ ~ ⮀ sudo tcpdump -i eth<span class="number">0</span> <span class="string">"host 10.3.18.66"</span>   
+<span class="symbol">tcpdump:</span> verbose output suppressed, use -v <span class="keyword">or</span> -vv <span class="keyword">for</span> full protocol decode
+listening on eth<span class="number">0</span>, link-type <span class="constant">EN10MB</span> (<span class="constant">Ethernet</span>), capture size <span class="number">65535</span> bytes
+<span class="number">16</span><span class="symbol">:</span><span class="number">46</span><span class="symbol">:</span><span class="number">46.455970</span> <span class="constant">IP</span> <span class="number">10.210</span>.<span class="number">96.200</span>.domain &gt; <span class="number">10.3</span>.<span class="number">18.66</span>.<span class="symbol">http:</span> [|domain]
+<span class="number">16</span><span class="symbol">:</span><span class="number">47</span><span class="symbol">:</span><span class="number">16.455677</span> <span class="constant">IP</span> <span class="number">10.3</span>.<span class="number">18.66</span> &gt; <span class="number">10.210</span>.<span class="number">96.200</span><span class="symbol">:</span> <span class="constant">ICMP</span> ip reassembly time exceeded, length <span class="number">36</span>
+<span class="number">16</span><span class="symbol">:</span><span class="number">47</span><span class="symbol">:</span><span class="number">29.237026</span> <span class="constant">IP</span> <span class="number">10.210</span>.<span class="number">96.200</span>.domain &gt; <span class="number">10.3</span>.<span class="number">18.66</span>.hosts2-<span class="symbol">ns:</span> [|domain]
+<span class="number">16</span><span class="symbol">:</span><span class="number">47</span><span class="symbol">:</span><span class="number">59.236648</span> <span class="constant">IP</span> <span class="number">10.3</span>.<span class="number">18.66</span> &gt; <span class="number">10.210</span>.<span class="number">96.200</span><span class="symbol">:</span> <span class="constant">ICMP</span> ip reassembly time exceeded, length <span class="number">36</span>
+</code></pre><p>这和前文提到的<a href="http://althing.cs.dartmouth.edu/local/ICMP_Scanning_v3.0.pdf" target="_blank" rel="external">ICMP Usage in Scanning</a>所说的不一样！！！！！</p>
+<p>我懒得再试其它机器和封装个ICMP包的例子了。</p>
+<p>好吧，还是试了试，一个没反应。一个对开放端口(22)和非开放端口(23)都返回同样值。</p>
+<pre><code>&gt;&gt;&gt; ip.dst=<span class="string">'10.210.96.210'</span>
+&gt;&gt;&gt; <span class="function"><span class="title">send</span><span class="params">(ip)</span></span>
+.
+Sent <span class="number">1</span> packets.
+&gt;&gt;&gt; ip.dst=<span class="string">'10.210.96.195'</span>
+&gt;&gt;&gt; ip[<span class="number">1</span>].dport=<span class="number">22</span>
+&gt;&gt;&gt; <span class="function"><span class="title">send</span><span class="params">(ip)</span></span>
+.
+Sent <span class="number">1</span> packets.
+&gt;&gt;&gt; ip[<span class="number">1</span>].dport=<span class="number">23</span>
+&gt;&gt;&gt; <span class="function"><span class="title">send</span><span class="params">(ip)</span></span>
+.
+Sent <span class="number">1</span> packets.
+
+<span class="number">16</span>:<span class="number">58</span>:<span class="number">25.736005</span> IP <span class="number">10.210</span>.<span class="number">96.200</span><span class="class">.ftp-data</span> &gt; <span class="number">10.210</span>.<span class="number">96.195</span><span class="class">.ssh</span>: Flags [S], seq <span class="number">0</span>, win <span class="number">8192</span>, length <span class="number">0</span>
+<span class="number">16</span>:<span class="number">58</span>:<span class="number">55.765861</span> IP <span class="number">10.210</span>.<span class="number">96.195</span> &gt; <span class="number">10.210</span>.<span class="number">96.200</span>: ICMP ip reassembly <span class="tag">time</span> exceeded, length <span class="number">44</span>
+<span class="number">16</span>:<span class="number">59</span>:<span class="number">15.097094</span> IP <span class="number">10.210</span>.<span class="number">96.200</span><span class="class">.ftp-data</span> &gt; <span class="number">10.210</span>.<span class="number">96.195</span><span class="class">.telnet</span>: Flags [S], seq <span class="number">0</span>, win <span class="number">8192</span>, length <span class="number">0</span>
+<span class="number">16</span>:<span class="number">59</span>:<span class="number">45.171689</span> IP <span class="number">10.210</span>.<span class="number">96.195</span> &gt; <span class="number">10.210</span>.<span class="number">96.200</span>: ICMP ip reassembly <span class="tag">time</span> exceeded, length <span class="number">44</span>
+</code></pre><p>和文档描述的不相同，但只要有ICMP报文返回，说明主机是打开的。(好像没什么用…)</p>
+<h2 id="UDP扫描">UDP扫描</h2><p>结合各种协议和端口，探测内网拓扑。</p>
+<p>比如，我们可以先用nmap ping 扫射下某网段，然后分别试着尝试协议端口。</p>
+<pre><code><span class="prompt">&gt;&gt;&gt; </span>ip[<span class="number">1</span>]=UDP()
+<span class="prompt">&gt;&gt;&gt; </span>ip.show()
+<span class="comment">###[ IP ]###</span>
+  version= <span class="number">4</span>
+  ihl= <span class="keyword">None</span>
+  tos= <span class="number">0x0</span>
+  len= <span class="keyword">None</span>
+  id= <span class="number">1</span>
+  flags= 
+  frag= <span class="number">0</span>
+  ttl= <span class="number">64</span>
+  proto= udp
+  chksum= <span class="keyword">None</span>
+  src= <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>
+  dst= <span class="number">10.3</span><span class="number">.18</span><span class="number">.66</span>
+  \options\
+<span class="comment">###[ UDP ]###</span>
+     sport= domain
+     dport= domain
+     len= <span class="keyword">None</span>
+     chksum= <span class="keyword">None</span>
+<span class="prompt">&gt;&gt;&gt; </span>send(ip)
+.
+Sent <span class="number">1</span> packets.
+
+ ~ ⮀ sudo nmap -sP <span class="number">10.3</span><span class="number">.18</span><span class="number">.66</span>/<span class="number">24</span> 
+Nmap scan report <span class="keyword">for</span> <span class="number">10.3</span><span class="number">.18</span><span class="number">.213</span>
+Host <span class="keyword">is</span> up (<span class="number">0.00052</span>s latency).
+Nmap scan report <span class="keyword">for</span> <span class="number">10.3</span><span class="number">.18</span><span class="number">.231</span>
+Host <span class="keyword">is</span> up (<span class="number">0.00052</span>s latency).
+Nmap scan report <span class="keyword">for</span> <span class="number">10.3</span><span class="number">.18</span><span class="number">.232</span>
+Host <span class="keyword">is</span> up (<span class="number">0.00038</span>s latency).
+
+<span class="prompt">&gt;&gt;&gt; </span>ip.dst=<span class="string">'10.3.18.230'</span>
+<span class="prompt">&gt;&gt;&gt; </span>send(ip)
+.
+Sent <span class="number">1</span> packets.
+<span class="prompt">&gt;&gt;&gt; </span>ip.dst=<span class="string">'10.3.18.231'</span>
+<span class="prompt">&gt;&gt;&gt; </span>send(ip)
+.
+Sent <span class="number">1</span> packets.
+</code></pre><p>只有<code>10.3.18.231</code>这个活着的机器有返回destination unreachable(Port unreachable)报文。</p>
+<pre><code> ~ ⮀ <span class="tag">sudo</span> <span class="tag">tcpdump</span> <span class="tag">-i</span> <span class="tag">eth0</span> "<span class="tag">icmp</span>"
+<span class="tag">tcpdump</span>: <span class="tag">verbose</span> <span class="tag">output</span> <span class="tag">suppressed</span>, <span class="tag">use</span> <span class="tag">-v</span> <span class="tag">or</span> <span class="tag">-vv</span> <span class="tag">for</span> <span class="tag">full</span> <span class="tag">protocol</span> <span class="tag">decode</span>
+<span class="tag">listening</span> <span class="tag">on</span> <span class="tag">eth0</span>, <span class="tag">link-type</span> <span class="tag">EN10MB</span> (<span class="tag">Ethernet</span>), <span class="tag">capture</span> <span class="tag">size</span> 65535 <span class="tag">bytes</span>
+15<span class="pseudo">:39</span><span class="pseudo">:12</span><span class="class">.697553</span> <span class="tag">IP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.231</span> &gt; 10<span class="class">.210</span><span class="class">.96</span><span class="class">.200</span>: <span class="tag">ICMP</span> 10<span class="class">.3</span><span class="class">.18</span><span class="class">.231</span> <span class="tag">udp</span> <span class="tag">port</span> <span class="tag">domain</span> <span class="tag">unreachable</span>, <span class="tag">length</span> 36
+</code></pre><h2 id="分片与MTU">分片与MTU</h2><p>我的意思是，恰巧目标网络的MTU比上一跳网络的MTU小，如果我们设置DF标志为1,同时让IP数据包的值介于两者之间，然后倒霉的内网路由器就会发回Fragmentation Needed ICMP报文。</p>
+<p>该死的我没找到比我更小的MTU网段了。现在无线网没人用了？</p>
+<h2 id="Inverse_Mapping">Inverse Mapping</h2><p>大多数防火墙不过滤ICMP reply。</p>
+<p>假设我们的ip是<code>10.210.96.200</code>，<code>10.210.97.195</code>是存在的。而<code>10.210.97.196</code>不在线。</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; icmp = <span class="constant">IP</span>()/<span class="constant">ICMP</span>()
+<span class="prompt">&gt;&gt;</span>&gt; icmp.dst=<span class="string">'10.210.97.195'</span>
+<span class="prompt">&gt;&gt;</span>&gt; icmp.show()
+<span class="comment">###[ IP ]###</span>
+  version= <span class="number">4</span>
+  ihl= <span class="constant">None</span>
+  tos= <span class="number">0x0</span>
+  len= <span class="constant">None</span>
+  id= <span class="number">1</span>
+  flags= 
+  frag= <span class="number">0</span>
+  ttl= <span class="number">64</span>
+  proto= icmp
+  chksum= <span class="constant">None</span>
+  src= <span class="number">10.210</span>.<span class="number">96.200</span>
+  dst= <span class="number">10.210</span>.<span class="number">97.195</span>
+  \options\
+<span class="comment">###[ ICMP ]###</span>
+     type= echo-reply
+     code= <span class="number">0</span>
+     chksum= <span class="constant">None</span>
+     id= <span class="number">0x0</span>
+     seq= <span class="number">0x0</span>
+<span class="prompt">&gt;&gt;</span>&gt; send(icmp)
+.
+<span class="constant">Sent</span> <span class="number">1</span> packets.
+
+ ~ ⮀ sudo tcpdump -i eth<span class="number">0</span> <span class="string">"host 10.210.97.195"</span>
+<span class="symbol">tcpdump:</span> verbose output suppressed, use -v <span class="keyword">or</span> -vv <span class="keyword">for</span> full protocol decode
+listening on eth<span class="number">0</span>, link-type <span class="constant">EN10MB</span> (<span class="constant">Ethernet</span>), capture size <span class="number">65535</span> bytes
+<span class="number">22</span><span class="symbol">:</span><span class="number">51</span><span class="symbol">:</span><span class="number">47.187719</span> <span class="constant">IP</span> <span class="number">10.210</span>.<span class="number">96.200</span> &gt; <span class="number">10.210</span>.<span class="number">97.195</span><span class="symbol">:</span> <span class="constant">ICMP</span> echo reply, id <span class="number">0</span>, seq <span class="number">0</span>, length <span class="number">8</span>
+<span class="number">22</span><span class="symbol">:</span><span class="number">51</span><span class="symbol">:</span><span class="number">47.188369</span> <span class="constant">IP</span> <span class="number">10.210</span>.<span class="number">97.195</span> &gt; <span class="number">10.210</span>.<span class="number">96.200</span><span class="symbol">:</span> <span class="constant">ICMP</span> <span class="number">10.210</span>.<span class="number">97.195</span> protocol <span class="number">1</span> unreachable, length <span class="number">36</span>
+</code></pre><p>发现<code>10.210.97.195</code>竟然尼码响应了！！！！！！协议不可到达！！</p>
+<p>不存在的ip地址则没有响应！这尼码完全和上文提到的<a href="http://althing.cs.dartmouth.edu/local/ICMP_Scanning_v3.0.pdf" target="_blank" rel="external">ICMP Usage in Scanning</a>说的相反好么！！！</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; icmp.dst=<span class="string">'10.210.97.196'</span>
+<span class="prompt">&gt;&gt;</span>&gt; send(icmp)
+.
+<span class="constant">Sent</span> <span class="number">1</span> packets.
+
+~ ⮀ sudo tcpdump -i eth<span class="number">0</span> <span class="string">"host 10.210.97.196"</span>
+<span class="symbol">tcpdump:</span> verbose output suppressed, use -v <span class="keyword">or</span> -vv <span class="keyword">for</span> full protocol decode
+listening on eth<span class="number">0</span>, link-type <span class="constant">EN10MB</span> (<span class="constant">Ethernet</span>), capture size <span class="number">65535</span> bytes
+<span class="number">22</span><span class="symbol">:</span><span class="number">56</span><span class="symbol">:</span><span class="number">15.725836</span> <span class="constant">IP</span> <span class="number">10.210</span>.<span class="number">96.200</span> &gt; <span class="number">10.210</span>.<span class="number">97.196</span><span class="symbol">:</span> <span class="constant">ICMP</span> echo reply, id <span class="number">0</span>, seq <span class="number">0</span>, length <span class="number">8</span>
+</code></pre><p>不过后来找到个在线的<code>10.210.97.200</code>也不响应。</p>
+<pre><code>&gt;&gt;&gt; icmp.dst=<span class="string">'10.210.97.200'</span>
+&gt;&gt;&gt; <span class="built_in">send</span>(icmp)
+.
+Sent <span class="number">1</span> packets.
+
+ ~ ⮀ sudo tcpdump -i eth0 <span class="string">"host 10.210.97.200"</span>
+tcpdump: verbose output suppressed, use -v <span class="operator">or</span> -vv <span class="keyword">for</span> full protocol decode
+listening <span class="command"><span class="keyword">on</span> <span class="title">eth0</span>, <span class="title">link-type</span> <span class="title">EN10MB</span> (<span class="title">Ethernet</span>), <span class="title">capture</span> <span class="title">size</span> <span class="title">65535</span> <span class="title">bytes</span></span>
+<span class="number">22</span>:<span class="number">59</span>:<span class="number">10.235963</span> IP <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> &gt; <span class="number">10.210</span><span class="number">.97</span><span class="number">.200</span>: ICMP echo reply, id <span class="number">0</span>, seq <span class="number">0</span>, <span class="built_in">length</span> <span class="number">8</span>
+
+ ~ ⮀ ping <span class="number">10.210</span><span class="number">.97</span><span class="number">.200</span>
+PING <span class="number">10.210</span><span class="number">.97</span><span class="number">.200</span> (<span class="number">10.210</span><span class="number">.97</span><span class="number">.200</span>) <span class="number">56</span>(<span class="number">84</span>) <span class="keyword">bytes</span> <span class="operator">of</span> data.
+<span class="number">64</span> <span class="keyword">bytes</span> <span class="built_in">from</span> <span class="number">10.210</span><span class="number">.97</span><span class="number">.200</span>: icmp_seq=<span class="number">1</span> ttl=<span class="number">63</span> <span class="built_in">time</span>=<span class="number">0.520</span> ms
+<span class="number">64</span> <span class="keyword">bytes</span> <span class="built_in">from</span> <span class="number">10.210</span><span class="number">.97</span><span class="number">.200</span>: icmp_seq=<span class="number">2</span> ttl=<span class="number">63</span> <span class="built_in">time</span>=<span class="number">0.559</span> ms
+</code></pre><p>丧心病狂，说明路由存在ip就转发了，不存在就默默丢弃了。至于<code>10.210.97.195</code>是什么毛病会给我个协议不可达(它可能是个路由器)……<code>Who can tell me...</code></p>
+<h2 id="ICMP与操作系统探测">ICMP与操作系统探测</h2><p><a href="http://althing.cs.dartmouth.edu/local/ICMP_Scanning_v3.0.pdf" target="_blank" rel="external">ICMP Usage in Scanning</a>的作者也是xprobe的作者，我不打算继续玩ICMP这项深坑了：</p>
+<pre><code><span class="preprocessor"># eix xprobe</span>
+* net-analyzer/xprobe
+     Available versions:  ~<span class="number">0.3</span>
+     Homepage:            http:<span class="comment">//sys-security.com/blog/xprobe2</span>
+     Description:         Active OS fingerprinting tool - <span class="keyword">this</span> is Xprobe2
+</code></pre><h2 id="ICMP_source_quench">ICMP source quench</h2><p>应该被废弃的(2012年的RFC6633)协议，流量控制应该交给TCP来做。如果要伪造需要猜测TCP序号，端口号等(前八字节)。</p>
+<p>我试着发了发包……看样子路由比我的网卡强大太多了。</p>
+<h2 id="ICMP_重定向">ICMP 重定向</h2><p>扔一个参考资料，用hping的<a href="http://www.bcitr.com/files/icmp-redir.pdf" target="_blank" rel="external">How To – Poison Route Cache Using ICMP Redirect</a></p>
+<p>待我哪天土豪了再说吧……最起码现在我的安卓功能受限，总之我没模拟出来啥效果。反正我在一个网段试了试完全没动静。其实我觉得应该现在操作系统都会检查ICMP报文中的IP报头和IP报文数据前八字节吧。那又得猜TCP端口号和序列号了不是？</p>
+<p>FIXME:<a href="http://en.wikipedia.org/wiki/ICMP_tunnel" target="_blank" rel="external">ICMP Tunnel</a>，有空试试。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -2748,156 +3525,6 @@ fail:
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2013/12/21/" itemprop="url">
-                  不忘初心，方得始终
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2013-12-21T00:00:00+08:00" content="2013-12-21">
-              2013-12-21
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2013/12/21/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2013/12/21//" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <blockquote>
-<p>Hacking is part of life, not the opposite.</p>
-</blockquote>
-<p>题目来自于华严经，是R语言课老师课件上展示给我们的。</p>
-<p>好久没写技术类文章了，一是没空，二是没心情，三是不想折腾，四是想回到生活中去。</p>
-<p>胡乱记下，不想忘。</p>
-<p>12月4号到6号，铁夹子玩得丧心病狂，晚上搞到一点热情难抑地用夹子做了个铁塔。</p>
-<p>12月5号助管，给助管老师拿上千块钱的东西，也算老师的信任吧，周六还打电话帮拿了个快递。。。</p>
-<p>8号早上aqi440多，一片大雾，这种天气党支部活动竟然去科技馆了，走马观花的围观了很多有意思的东西。真是科普，而且都是玩的。。。<br>等到中午回到学校都两点了，下午的SUSE 13.1 Release<br>Party也就没去了。不过12月3号论坛上发帖说送DVD的DVD竟然拿到了，回来正好室友不小心把系统搞挂了，干脆给了他一个SUSE装上，虽然后来他还是回归debian了。</p>
-<p>等到晚上aqi降到60，帝都这空气质量大转变。</p>
-<p>11号，好象是办公室搬家第二天，刚换了个地方没有网，想把以前办公室的网线拉过去。<br>于是和斌哥第一次上了楼顶，广阔的视野美的摄人心魄，简直被迷住了。</p>
-<p>12号，又是助管日，第二次去金五星，去一家玩具店换玩偶，拿发票。天气和骄阳都好到不行。<br>下午第一次在游泳馆游泳，阳光穿过窗口，晒在水面上有种梦幻的感觉。</p>
-<p>本来说晚上开会没开，项目由于boss要视察都发展到快一天一会了。各种电话会。结果游泳后竟然第一次吃回转火锅。</p>
-<p>十三号，几乎是故意错过了一次电话会议。。。不算故意。。。但是错过了。。。</p>
-<p>十四号，Pycon 2013<br>Beijing，和室友去了中科院自动化所打酱油，去的晚坐得远，大部分讲web，openstackblabla然后我这近视状况就跪了。<br>也不是毫无收获但没碰上感兴趣的。提问时怂了，一迟疑就不再有机会混本书。不过主办方送了个很漂亮的帽子，室友拿到个人生苦短我用python的T-shirt<br>另外，在看博文视点展示书籍时看到一本社工的书，作者竟然是the real<br>hustle(我喜欢死这个节目了！！！)的设计者之一！然后听到旁边的妹子在推广speedycloud，顺手搭了个话很厚颜无耻地拿了个小本(我当时真是以为是纸片！！就是想拿来用微信扫以下！！！)，后来这个小本用来被我学习近世代数了= =。</p>
-<p>对了，还有一顿自动化所食堂不错的午餐。</p>
-<p>下午提前回来，因为——我的wacom ctl 471到了，我迫不及待地想看看怎么样。</p>
-<p>发现gentoo识别不来，打开虚拟机用xp试了试还行，便有了第一个作品。</p>
-<p>后来几天折腾啊，把xf86-input-wacom和libwacom都更新到最新，还是不行，最后把内核升级到3.12终于可以用了。</p>
-<p>然后就没空画画了T T</p>
-<p>十五号，GDG组织的轻松学安卓第二课，在友盟。和gc社长一起去的。环境相当好，意料之外送了个漂亮的数据线还有一堆零食。<br>工程师讲得很用心但快到我们所有三十来人全没跟上，但最后竟然在旁边gc社长和一漂亮的首师妹子的帮助下运行出来了。<br>然后由于pycon怂掉的刺激提问环节完全不知答案胡乱就举手回答也算答得差不多，再加上东西运行出来了，又混了个安卓小人和google<br>map的徽章。。。我这。。。真不是纯粹是为了混小礼品。。。话说最后旁边的妹子终于也运行出来了。。。就是安卓小人发完了。。。</p>
-<p>十六号和师兄在老食堂吃饭为这几天都说要开会激动不已竟然忘了拿笔记本，我都以为找不到了竟然在经理办公室登记领回去了，真心谢谢老食堂二楼的工作人员。算是表达感谢发了个贴，竟然论坛十大了。。。<br>不过晚上取消开会了。</p>
-<p>之后的日子迷迷糊糊，似乎在排练准备实验室年会节目、项目、学习R和近世代数中浑浑噩噩度过。大概这样，记不清。</p>
-<p>19日的助管平淡无奇，除了帮老师让参会老师签到和分发材料就是录入文件。</p>
-<p>下午mapleray来学校，闲逛北邮北师竟然花了一个下午，最后还没留下吃个饭。。。</p>
-<p>20日，两个节目排练,又是中心年会场务开会，泳版的版聚又失之交臂。</p>
-<p>21日，下午和公司的同事和师兄去ktv排练，然后。。。就不只是排练了。。。冬至晚上在金谷园蒙斌哥请客吃饺子(后来发现被安卓手机日历坑了，22号才是冬至)。回来又赶上Foxsay的排练，排练就是各种欢乐。</p>
-<p>还有些其它：</p>
-<ul>
-<li>在室友的指点下，可以弹唱第一首歌了——A调送别</li>
-<li>clamav signature文档翻译，我觉得得根据协议发布，而不能算商业机密。</li>
-<li>研究谷歌safe browsing api，跪到不行。</li>
-<li>emerge world了</li>
-<li>依然保持着一周三游的态势。除了这周不行。</li>
-<li>才知道手机应该用带话筒的耳机。。。</li>
-</ul>
-<p>检视硬盘上，忽然发现有这么一个截图，不知道哪里截取的了：</p>
-<blockquote>
-<p>你会发现一个有趣的现象，你会惊奇地发现看似不相关的主题却有着出奇相似的道理。</p>
-</blockquote>
-<p>时光飞逝，已然28号。继续补上没写完的</p>
-<p>22号，中心年会，早上起的晚，饭没来得及吃，直接十点被班长带着打车去了京民大厦。会场工作人员没想到去的这么早，各种没准备。然后打开灯光，准备音乐，试话筒调音量，又是一轮接一轮的彩排。到中午又累又饿，<br>当以为会陷入无人管饭的悲催境地时意外地被告知还有工作餐，工作餐还真不错，不知是饿了还是什么吃得很high，也不管是谁在哪买的了。年会结束，散场吃饭。正以为陷入无位置可坐的悲凉境地时，碰上了实验室的人，然后，嗯就有位置了。</p>
-<p>23号上课、看近世代数、排练。游泳真是越来越困难了，晚上不是开会就是排练。xwyam竟然来帝都了，也没个空一起吃顿饭。</p>
-<p>24号，说是开会没开，竟然游泳去了，开心到不行。晚上意外收到研会的苹果和祝福纸条，意外的惊喜。</p>
-<p>25号，圣诞节好像没啥气氛。。。大致是旷了一天课去上班的地方打了个酱油。晚上干嘛了，大概先是公司排练然后在做R语言的演示ppt？</p>
-<p>26号，助管倒没什么事，倒是各种排练定动作。晚上又是赶上两边排练。</p>
-<p>27号，一早赶到公司定动作排练。下午实验室年会，中午十二点半就被导演喊去布置会场，去了牡丹园花园酒店结果中午的场还没结束。又等了会又排练了阵，本来让我管下ppt，最后也没管= =。等到万事俱结束一群人开始喝酒的时候，和师兄悄悄溜掉压马路回学校了。</p>
-<p>28号，上午大概是一群同实验室的人都喝跪了。。。一早被揪起来帮忙还衣服。中午去民大那边，下午回来。回来一觉睡到五点。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2944,7 +3571,7 @@ fail:
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">171</span>
+              <span class="site-state-item-count">172</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2958,7 +3585,7 @@ fail:
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">59</span>
+              <span class="site-state-item-count">60</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
