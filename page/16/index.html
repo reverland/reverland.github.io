@@ -229,6 +229,129 @@
             
               
                 
+                <a class="post-title-link" href="/linux/2012/05/28/archlinuxpdf/" itemprop="url">
+                  Archlinux下合并pdf
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-05-28T00:00:00+08:00" content="2012-05-28">
+              2012-05-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/linux/2012/05/28/archlinuxpdf/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2012/05/28/archlinuxpdf/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>##linux下合并pdf</p>
+<p>写激光原理论文，老师给了个封面。需要将封面和内容弄到一个文件中。</p>
+<p>以前用过pdfmod什么的，结果发现我用XeLaTeX编译出来的是乱码。</p>
+<p>后来试过源里的pdfeditor，这个……kde下太难看了，功能倒挺强，看上去好复杂，点几下鼠标没弄懂，于是也放弃了。</p>
+<p>再后来听说了pdfjam，pdfsam，pdftk……</p>
+<p>多多少少有些洁癖好么，不喜欢一堆一堆的软件，有这么些时候命令很得心应手，像用ffmpeg转转视频格式啊，用sox转转音频格式啊。</p>
+<p>linux下总是有好工具的，有两种方法：</p>
+<ul>
+<li>新建一个TeX文件，使用pdfpages宏包，这种方法可以指定页码。参见<a href="http://latex.yo2.cn/articles/tex-merg-pdf.html" target="_blank" rel="external">用TeX合并pdf</a>。一定要用pdflatex编译。</li>
+<li><p>使用ghostscript工具,一般这个都被pdf阅读器依赖的。参见<a href="http://latex.yo2.cn/articles/gs-pdfwrite.html" target="_blank" rel="external">合并 ps/pdf 文件</a>。</p>
+<pre><code><span class="comment"><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gs -q <span class="operator">-d</span>NOPAUSE <span class="operator">-d</span>BATCH <span class="operator">-s</span>DEVICE=pdfwrite <span class="operator">-s</span>OutputFile=bar.pdf <span class="operator">-f</span> foo1.pdf foo2.pdf</span><br></pre></td></tr></table></figure></span>
+</code></pre></li>
+</ul>
+<p>##之外的废话</p>
+<p>这几天一直忙着复习，几天时间把一学期老师讲的东西预习一遍，然后就要吊儿郎当的开卷考试了。又有那激光原理期末大作业，我是当然要用LaTeX来写了，虽然不准备再研究这个，但用word总是让我有些无法忍受。</p>
+<p>上手才发现，东西基本都忘了。好久没用过基本的命令都忘的一干二净。还好有以前的自己做的模板，打开chinatex数学排版问题集边查边写，在开着vim-latex插件的手册随时查阅，实在不行还有google大神，总算最后凑合着写完了。</p>
+<p>自从见识到mathjax项目后，又在人大那群搞R的人的博客上听说用html做幻灯片的项目，我便日觉LaTeX将没什么前途了。上网还查到现在还有把自己简历写成html的，html前途光明的印象便越发深刻。虽然mathjax还有些问题，但不管是学术和非学术界，本地化的文档正在走向灭绝估计已成定论。</p>
+<p>因为这个网站的问题，看了点介绍html5的书，书中激情澎湃的介绍了html5的各种强大应用，栩栩如生的描绘出了一个属于网络的未来世界。看完之后，对LaTeX更没有热情了。</p>
+<p>但作业还是要写的，老师很体贴的只收pdf，不像上学期一样还肯收word文档了，也不像cpp老师一样只收word文档了。所以又复习了下LaTeX，还不忘最后加上proudly powered by LaTeX，虽然没什么意思。</p>
+<p>前几天一个学数学的同学找我帮他调教LaTeX，因为他们要发论文。模板多老我就不说了，中文断字都没做好，更纠结的是他们的文章，都是在word03和mathtype中写的，然后转成TeX……</p>
+<p>时光滚滚向前，我本以为世界进步地很快，然而它的惯性出乎意料的大。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/life/2012/05/26/" itemprop="url">
                   失望
                 </a>
@@ -1350,161 +1473,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/lisp/2012/05/03/the-orc-battle-game/" itemprop="url">
-                  The Orc Battle Game
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-05-03T00:00:00+08:00" content="2012-05-03">
-              2012-05-03
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/lisp/" itemprop="url" rel="index">
-                    <span itemprop="name">lisp</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/lisp/2012/05/03/the-orc-battle-game/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/05/03/the-orc-battle-game/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="Lisp中的特殊数据结构">Lisp中的特殊数据结构</h2><p>引用原文中的话来形容Lisp,</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Think of the Babel fish <span class="keyword">in</span> the Hitchhiker’s Guide to the Galaxy trilogy—something </span><br><span class="line">so impossibly useful that it really has no business existing <span class="keyword">in</span> the first place.</span><br></pre></td></tr></table></figure>
-<p>现在知道land of lisp的作者为什么把common lisp比作狼狗，为什么说cl强大了。支持list也就算了，支持个array、hash table、OOp、范型(generic)什么乱七八糟一堆其它语言中各种强大的东西，这么逆天的东西根本就不该存在！不过作为代价，丧失了一种纯粹的美。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;lisp is symmetry,while common lisp is powerful.</span><br></pre></td></tr></table></figure>
-<h3 id="Arrays">Arrays</h3><p>一些有用的命令</p>
-<ul>
-<li>make-array</li>
-<li>aref</li>
-<li>setf</li>
-</ul>
-<p>array有比列表更高的效率</p>
-<h3 id="Hash_Table">Hash Table</h3><p>这玩意强到逆天：</p>
-<ul>
-<li>make-hash-table</li>
-<li>gethash</li>
-</ul>
-<h4 id="返回多值">返回多值</h4><ul>
-<li>round</li>
-<li>values</li>
-<li>multiple-value-bind</li>
-</ul>
-<p>hash表性能总体还是很高的..比如说我们上回写的wumpus游戏，我们可以分别对hash表和alists运行效率做如下对比。先看alists：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(load &#34;/home/lyy/Documents/lisp/wumpus.lisp&#34;)&#10;(setf *edge-num* 1000)&#10;(setf *node-num* 1000)&#10;(time (dotimes (i 100) (get-connected 1 (make-edge-list))))</span><br></pre></td></tr></table></figure>
-<p>好吧，我花的时间：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(time (dotimes (i 100) (get-connected 1 (make-edge-list))))&#10;Real time: 64.1503 sec.&#10;Run time: 64.025826 sec.&#10;Space: 75275184 Bytes&#10;GC: 65, GC time: 0.43664 sec.&#10;NIL</span><br></pre></td></tr></table></figure>
-<p>下面我们更改之前的wumpus游戏。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;&#29983;&#25104;hash&#34920;&#30340;&#36793;&#29256;&#26412;&#10;(defun hash-edges (edge-list)&#10;  (let ((tab (make-hash-table)))&#10;    (mapc (lambda (x);mapc&#36820;&#22238;&#21103;&#20316;&#29992;&#10;            (let ((node (car x)))&#10;              (push (cdr x) (gethash node tab))));&#25512;&#20837;&#26032;&#20540;&#10;          edge-list)&#10;    tab))&#10;;;&#29983;&#25104;hash&#34920;&#12290;&#22914;&#26524;&#19982;node&#30456;&#36830;&#65292;&#21017;hash&#34920;&#20013;&#20540;&#20026;t&#10;(defun get-connected-hash (node edge-tab)&#10;  (let ((visited (make-hash-table)))&#10;    (labels ((traverse (node)&#10;               (unless (gethash node visited);&#38750;&#21017;&#25191;&#34892;&#10;                 (setf (gethash node visited) t)&#10;                 (mapc (lambda (edge)&#10;                         (traverse edge))&#10;                       (gethash node edge-tab)))))&#10;      (traverse node))&#10;    visited))&#10;;;&#21487;&#20197;&#30475;&#30475;&#20160;&#20040;&#26679;&#30340;&#10;;;&#30475;&#30475;&#36816;&#34892;&#26102;&#38388;&#10;(time (dotimes (i 100)&#10;        (get-connected-hash 1 (hash-edges (make-edge-list)))))</span><br></pre></td></tr></table></figure>
-<p>很显然，效率高多了：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(time (dotimes (i 100)&#10;        (get-connected-hash 1 (hash-edges (make-edge-list)))))&#10;Real time: 1.530112 sec.&#10;Run time: 1.526567 sec.&#10;Space: 64337496 Bytes&#10;GC: 56, GC time: 0.366641 sec.&#10;NIL</span><br></pre></td></tr></table></figure>
-<h3 id="Structures">Structures</h3><p>构建structure可以直接用defstruct：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defstruct person&#10;  name&#10;  age&#10;  waist-size&#10;  favorite-color)&#10;;;&#28982;&#21518;&#36827;&#34892;&#36319;&#25913;&#10;(defparameter *bob* (make-person :name &#34;Bob&#34;;make-person&#20989;&#25968;&#33258;&#21160;&#29983;&#25104;&#10;                                 :age 35&#10;                                 :waist-size 32&#10;                                 :favorite-color &#34;blue&#34;))&#10;*bob* ;&#26597;&#30475;&#10;;#S(person :name &#34;rob&#34; :age 35 :waist-size 32 :favorite-color &#34;blue&#34;)&#10;(person-age *bob*);&#33258;&#21160;&#29983;&#25104;person-age&#20989;&#25968;&#10;(setf (person-age *bob*) 36);generical programming</span><br></pre></td></tr></table></figure>
-<p>也可以直接这样：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defparameter *that-guy* #S(person :name &#34;rob&#34; :age 35 :waist-size 32&#10;                                   :favorite-color &#34;blue&#34;))&#10;(print *that-guy*)</span><br></pre></td></tr></table></figure>
-<h3 id="Generical_Programming">Generical Programming</h3><p>有些范函可以接受多种类型参数,典型的sequence函数有：</p>
-<ul>
-<li>length</li>
-<li>sequence</li>
-<li>find-if</li>
-<li>count</li>
-<li>position</li>
-<li>some</li>
-<li>every</li>
-<li>reduce</li>
-<li>subseq</li>
-<li>sort</li>
-</ul>
-<p>通过类型检验创建generic function是可行的但不太好。有种叫作type dispatching的东西可以让用户自己通过defmethod来定义generic function。</p>
-<hr>
-<h2 id="The_Orc_Battle_Game">The Orc Battle Game</h2><p>好了，之前全是扯淡。开始进入正题，写我们的新游戏：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;;player&#30340;&#19977;&#23646;&#24615;&#10;(defparameter *player-health* nil)&#10;(defparameter *player-agility* nil)&#10;(defparameter *player-strength* nil)&#10;;;;monsters&#10;(defparameter *monsters* nil)&#10;(defparameter *monster-builders* nil);&#21508;&#31181;&#24618;&#29289;&#10;(defparameter *monster-num* 12)&#10;(princ *monster-builders*) &#10;;;;main function&#10;(defun orc-battle ()&#10;  (init-monsters)&#10;  (init-player)&#10;  (game-loop)&#10;  (when (player-dead)&#10;    (princ &#34;You have been killed. Game Over.&#34;))&#10;  (when (monsters-dead)&#10;    (princ &#34;Congratulations! You have vanquished all of your foes.&#34;)))&#10;;;;define game loop&#10;(defun game-loop ()&#10;  (unless (or (player-dead) (monsters-dead))&#10;    (show-player)&#10;  ;;&#20381;&#25454;&#25935;&#25463;&#35745;&#31639;&#25915;&#20987;&#27425;&#25968;&#10;    (dotimes (k (1+ (truncate (/ (max 0 *player-agility*) 15))))&#10;      (unless (monsters-dead)&#10;        (show-monsters)&#10;        (player-attack)))&#10;    (fresh-line)&#10;    (map &#39;list&#10;         (lambda(m)&#10;           (or (monster-dead m) (monster-attack m)))&#10;         *monsters*)&#10;    (game-loop)))&#10;;;;manage players function&#10;(defun init-player ()&#10;  (setf *player-health* 30)&#10;  (setf *player-agility* 30)&#10;  (setf *player-strength* 30))&#10;(defun player-dead ()&#10;  (&#60;= *player-health* 0))&#10;(defun show-player ()&#10;  (fresh-line)&#10;  (princ &#34;You are a valiant knight with a health of &#34;)&#10;  (princ *player-health*)&#10;  (princ &#34;, an agility of &#34;)&#10;  (princ *player-agility*)&#10;  (princ &#34;, and a strength of &#34;)&#10;  (princ *player-strength*))&#10;(defun player-attack ()&#10;  (fresh-line)&#10;  (princ &#34;Attack style: [s]tab [d]ouble swing [r]oundhouse:&#34;)&#10;  (case (read);case&#20989;&#25968;&#10;    (s (monster-hit (pick-monster);monster-hit&#34920;monster&#34987;&#25915;&#20987;&#10;                    (+ 2 (randval (ash *player-strength* -1)))))&#10;    (d (let ((x (randval (truncate (/ *player-strength* 6)))))&#10;         (princ &#34;Your double swing has a strength of &#34;)&#10;         (princ x)&#10;         (fresh-line)&#10;         (monster-hit (pick-monster) x)&#10;         (unless (monsters-dead);&#38500;&#38750;&#31532;&#19968;&#27425;&#25915;&#20987;&#23601;&#28040;&#28781;&#25152;&#26377;&#24618;&#29289;&#10;           (monster-hit (pick-monster) x))))&#10;    (otherwise (dotimes (x (1+ (randval (truncate (/ *player-strength* 3)))))&#10;;&#21542;&#21017;&#19968;&#38453;&#20081;&#25171;&#10;                 (unless (monsters-dead);&#33509;&#20043;&#20013;&#26377;&#19968;&#27425;&#24050;&#32463;&#28040;&#28781;&#25152;&#26377;&#24618;&#29289;&#10;                   (monster-hit (random-monster) 1))))))&#10;;;;&#20135;&#29983;&#19981;&#23567;&#20110;1&#30340;1&#21040;n&#30340;&#38543;&#26426;&#25968;&#10;(defun randval (n)&#10;  (1+ (random (max 1 n))));&#20197;&#38450;n&#60;1&#10;;;;Player Attacks&#30340;&#36741;&#21161;&#20989;&#25968;&#10;;;&#38543;&#26426;&#27963;&#30528;&#30340;&#24618;&#29289;&#32534;&#21495;&#10;(defun random-monster ()&#10;  (let ((m (aref *monsters* (random (length *monsters*)))))&#10;    (if (monster-dead m)&#10;      (random-monster)&#10;      m)))&#10;&#10;;;&#36873;&#25321;&#29305;&#23450;monster&#10;(defun pick-monster ()&#10;  (fresh-line)&#10;  (princ &#34;Monster #:&#34;)&#10;  (let ((x (read)))&#10;    (if (not (and (integerp x) (&#62;= x 1) (&#60;= x *monster-num*)))&#10;      (progn (princ &#34;That is not a valid monster number.&#34;)&#10;             (pick-monster))&#10;      (let ((m (aref *monsters* (1- x))))&#10;        (if (monster-dead m)&#10;          (progn (princ &#34;That monster is alread dead.&#34;)&#10;                 (pick-monster))&#10;          m)))))&#10;;;Monster Management Functions&#10;(defun init-monsters ()&#10;  (setf *monsters*&#10;        (map &#39;vector&#10;             (lambda (x);I make no sense of it&#10;               (funcall (nth (random (length *monster-builders*))&#10;                             *monster-builders*)))&#10;             (make-array *monster-num*))))&#10;(defun monster-dead (m)&#10;  (&#60;= (monster-health m) 0))&#10;(defun monsters-dead ()&#10;  (every #&#39;monster-dead *monsters*))&#10;&#10;(defun show-monsters ()&#10;  (fresh-line)&#10;  (princ &#34;Your foes:&#34;)&#10;  (let ((x 0))&#10;    (map &#39;list&#10;         (lambda (m)&#10;           (fresh-line)&#10;           (princ &#34;     &#34;)&#10;           (princ (incf x))&#10;           (princ &#34;. &#34;)&#10;           (if (monster-dead m)&#10;             (princ &#34;**dead**&#34;)&#10;             (progn (princ &#34;(Health=&#34;)&#10;                    (princ (monster-health m))&#10;                    (princ &#34;) &#34;)&#10;                    (monster-show m))));&#24618;&#29289;&#25551;&#36848;&#10;                  *monsters*)))&#10;;;&#23450;&#20041;monster&#30340;structure&#10;(defstruct monster (health (randval 10)))&#10;;;monster&#34987;&#25915;&#20987;&#10;(defmethod monster-hit (m x)&#10;  (decf (monster-health m) x)&#10;  (if (monster-dead m)&#10;    (progn (princ &#34;You killed the &#34;)&#10;           (princ (type-of m))&#10;           (princ &#34;! &#34;))&#10;    (progn (princ &#34;You hit the &#34;)&#10;           (princ (type-of m))&#10;           (princ &#34;, knocking off &#34;)&#10;           (princ x)&#10;           (princ &#34; health points! &#34;))))&#10;;;(type-of (make-monster))&#10;;;;;MONSTER&#10;;;;&#24635;&#20307;&#23450;&#20041;&#19979;&#10;(defmethod monster-show (m)&#10;  (princ &#34;A fierce &#34;)&#10;  (princ (type-of m)))&#10;;;&#21344;&#20301;&#10;(defmethod monster-attack (m))&#10;;;;orc&#10;;;;defstruct&#36824;&#21487;&#20197;&#36825;&#26679;&#23450;&#20041;&#10;(defstruct (orc (:include monster)) (club-level (randval 8)))&#10;(push #&#39;make-orc *monster-builders*)&#10;(defmethod monster-show ((m orc));something like &#34;defmethod function ((a number) (b string))&#34;&#10;  (princ &#34;A wicked orc with a level &#34;)&#10;  (princ (orc-club-level m))&#10;  (princ &#34; club&#34;))&#10;(defmethod monster-attack ((m orc))&#10;  (let ((x (randval (orc-club-level m))))&#10;    (princ &#34;An orc swings his club at you and knocks off &#34;)&#10;    (princ x)&#10;    (princ &#34; of your health points. &#34;)&#10;    (decf *player-health* x)))&#10;;;;hydra,&#22810;&#22836;&#40479;&#10;(defstruct (hydra (:include monster)))&#10;(push #&#39;make-hydra *monster-builders*)&#10;(defmethod monster-show ((m hydra))&#10;  (princ &#34;A malicious hydra with &#34;)&#10;  (princ (monster-health m))&#10;  (princ &#34; heads.&#34;))&#10;(defmethod monster-hit ((m hydra) x);x&#20195;&#34920;&#22836;&#25968;&#10;  (decf (monster-health m) x)&#10;  (if (monster-dead m)&#10;    (princ &#34;The corpse of the fully decapitated and decapacitated hydra&#10;           falls to the floor!&#34;)&#10;    (progn (princ &#34;You lop off &#34;)&#10;           (princ x)&#10;           (princ &#34; of the hydra&#39;s heads! &#34;))))&#10;(defmethod monster-attack ((m hydra))&#10;  (let ((x (randval (ash (monster-health m) -1))))&#10;    (princ &#34;A hydra attacks you with &#34;)&#10;    (princ x)&#10;    (princ &#34; of its heads! It also grows back one more head! &#34;)&#10;    (incf (monster-health m))&#10;    (decf *player-health* x)))&#10;;;;slime&#10;(defstruct (slime-mold (:include monster)) (sliminess (randval 5)))&#10;(push #&#39;make-slime-mold *monster-builders*)&#10;(defmethod monster-show ((m slime-mold))&#10;  (princ &#34;A slime mold with a sliminess of &#34;)&#10;  (princ (slime-mold-sliminess m)))&#10;(defmethod monster-attack ((m slime-mold))&#10;  (let ((x (randval (slime-mold-sliminess m))))&#10;    (princ &#34;A slime mold wraps around your legs and decreases your agility&#10;           by &#34;)&#10;    (princ x)&#10;    (princ &#34;! &#34;)&#10;    (decf *player-agility* x)&#10;    ;;&#20026;&#20102;&#38450;&#27490;&#36827;&#20837;&#27704;&#26080;&#27490;&#22659;&#30340;&#20725;&#25345;,&#20351;slime&#26377;&#20960;&#29575;&#25915;&#20987;&#10;    (when (zerop (random 2))&#10;      (princ &#34;It also squirts in your face, taking away a health point! &#34;)&#10;      (decf *player-health*))))&#10;;The Cunning Brigand&#10;(defstruct (brigand (:include monster)))&#10;(push #&#39;make-brigand *monster-builders*)&#10;(defmethod monster-attack ((m brigand))&#10;  (let ((x (max *player-health* *player-agility* *player-strength*)))&#10;    (cond ((= x *player-health*)&#10;           (princ &#34;A brigand hits you with his slingshot, taking off 2 health&#10;                  points! &#34;)&#10;                  (decf *player-health* 2))&#10;          ((= x *player-agility*)&#10;           (princ &#34;A brigand catches your leg with his whip, taking off 2&#10;                  agility points! &#34;)&#10;           (decf *player-agility* 2))&#10;          ((= x *player-strength*)&#10;           (princ &#34;A brigand cuts your arm with his whip, taking off 2&#10;                  strength points! &#34;)&#10;           (decf *player-strength* 2)))))</span><br></pre></td></tr></table></figure>
-<p>然后这样开始游戏</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(orc-battle)</span><br></pre></td></tr></table></figure>
-<p>不过游戏参数貌似设置的不太好，我基本是出来被秒的！！</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1551,7 +1519,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">172</span>
+              <span class="site-state-item-count">173</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

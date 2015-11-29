@@ -201,6 +201,15 @@
 
     
     
+      
+      
+        
+        
+        
+      
+
+      
+    
 
     
       
@@ -765,6 +774,150 @@ shuru               |&lt;---输入提示(已经输入的内容)
 <p>我要写论文了，have fun</p>
 <h2 id="提交时的补记">提交时的补记</h2><p>今天在科技论文在线提交时，发现科技论文在线的标题关键字基金等提取有bug。如果标题或关键字等后面有注释比如<code>% some comments</code>，就不能提取出tex文件中对应内容。</p>
 <p>如果发现提交不上去tex源文件，可以检查下是不是有多余的注释。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/linux/2015/11/23/using-buptgraduatethesis-on-ubuntu/" itemprop="url">
+                  在Ubuntu Linux下使用北邮毕业论文LaTeX模板
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-11-23T22:50:01+08:00" content="2015-11-23">
+              2015-11-23
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/linux/2015/11/23/using-buptgraduatethesis-on-ubuntu/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2015/11/23/using-buptgraduatethesis-on-ubuntu/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="Using_BUPTGraduateThesis_on_Ubuntu_14-10">Using BUPTGraduateThesis on Ubuntu 14.10</h1><p><strong>警告： 这是非官方模板，一切可能的格式问题都可能导致学位论文不被接受。欢迎选择HARD模式，and enjoy it!</strong></p>
+<h2 id="序言">序言</h2><p>作为一个对office不熟练而tex较为熟悉的人，排版和公式在word下实在不会玩。得益于<a href="https://github.com/rioxwang/BUPTGraduateThesis" target="_blank" rel="external">BUPTGraduateThesis项目</a>，希望终能离开<a href="https://onedrive.live.com" target="_blank" rel="external">Word Online</a>码论文的苦海。其实更像，我最终选择了HARD模式和未知。</p>
+<p>感谢张煜博士（Dazzle Zhang）、王贤凌博士（rioxwang）和之前所有为清华、北邮毕业论文模板做过奉献的先驱们，感谢XeCJK和CTEX的开发人员。在此致敬。</p>
+<h2 id="On_Ubuntu_14-10">On Ubuntu 14.10</h2><h3 id="下载和查看帮助">下载和查看帮助</h3><p>克隆项目(如你所见，需要git)：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">28</span>:<span class="number">43</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;&gt; git <span class="built_in">clone</span> https://gitcafe.com/rioxwang/BUPTGraduateThesis.git</span><br><span class="line">Cloning into <span class="string">'BUPTGraduateThesis'</span>...</span><br><span class="line">remote: Counting objects: <span class="number">164</span>, done.</span><br><span class="line">remote: Total <span class="number">164</span> (delta <span class="number">0</span>), reused <span class="number">0</span> (delta <span class="number">0</span>)</span><br><span class="line">Receiving objects: <span class="number">100</span>% (<span class="number">164</span>/<span class="number">164</span>), <span class="number">6.54</span> MiB | <span class="number">1.00</span> MiB/s, done.</span><br><span class="line">Resolving deltas: <span class="number">100</span>% (<span class="number">67</span>/<span class="number">67</span>), done.</span><br><span class="line">Checking connectivity... done.</span><br></pre></td></tr></table></figure>
+<p>进入目录查看下有哪些文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">29</span>:<span class="number">25</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;&gt; <span class="built_in">cd</span> BUPTGraduateThesis</span><br><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">29</span>:<span class="number">48</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08) &gt; ls</span><br><span class="line">buptgraduatethesis.pdf  logo        makethesis.bat  release.zip</span><br><span class="line">install                 makethesis  README.md</span><br></pre></td></tr></table></figure>
+<p> <strong>切记第一件事</strong> ，查看<code>README.md</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">11</span>:<span class="number">04</span>:<span class="number">44</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; cat README.md</span><br><span class="line">Version</span><br><span class="line">==================</span><br><span class="line">当前版本v6.<span class="number">2</span>，同时托管于GitHub与GitCafe，支持Windows、Linux和OSX平台。该版本可以在项目主页直接下载ZIP压缩包获得，也可以通过如下任意一条git命令选择一个网速较快的服务器获得：</span><br><span class="line"></span><br><span class="line">    git <span class="built_in">clone</span> https://gitcafe.com/rioxwang/BUPTGraduateThesis.git</span><br><span class="line">    git <span class="built_in">clone</span> https://github.com/rioxwang/BUPTGraduateThesis.git</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">About</span><br><span class="line">==================</span><br><span class="line">BUPTGraduateThesis提供北京邮电大学研究生学位论文LaTeX文档类，其符合北邮研究生院<span class="number">2014</span>年<span class="number">11</span>月发布的《关于研究生学位论文格式的统一要求》。目前已经可以生成除了封面之外的所有论文内容，封面由于书脊的存在，需要进一步细调。我们建议利用BUPTGraduateThesis生成除了封面之外的所有PDF内容，再使用WORD生成封面。（注：扉页可以正常输出，而封面是打印时需要打印在指定彩纸上的内容，与扉页相比多了书脊这部分内容，需要根据论文薄厚做细调。校内的打印店均可以帮忙依据PDF的扉页生成封面。）</span><br><span class="line"></span><br><span class="line">该项目源于张煜博士（Dazzle Zhang）发起并维护的BUPTThesis项目，并由王贤凌博士（rioxwang）在其基础上增添了更加稳健的中文处理方案，于<span class="number">2013</span>年<span class="number">7</span>月<span class="number">5</span>日发布。该项目借助XeTeX引擎，利用xeCJK宏包取代BUPTThesis中的CJK宏包作为中文解决方案。同时，BUPTGraduateThesis根据研究生院发布的最新要求，对学位论文格式进行微调，并且提供更为详细的用户帮助文档buptgraduatethesis.pdf。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Quick Help</span><br><span class="line">==================</span><br><span class="line">快速安装说明</span><br><span class="line"></span><br><span class="line">更具体的安装说明与帮助文档请参见buptgraduatethesis.pdf。</span><br><span class="line"></span><br><span class="line">为了方便新手入门，BUPTGraduateThesis提供了基于Docstrip的安装方式和免安装压缩包release.zip，用户可以依照自己的习惯选择，两者方式差别不大。使用免安装压缩包的用户，只需要将release.zip解压，并将所有文件拷贝到主目录下即可正常使用（注意备份已有工作！）。</span><br><span class="line"></span><br><span class="line">为了生成用户帮助文档buptgraduatethesis.pdf，安装前请保证Adobe系列中文字体已经安装。</span><br><span class="line"></span><br><span class="line">Adobe系列字体用于提供免费的常用中文字体：</span><br><span class="line"></span><br><span class="line">*  AdobeFangsongStd-Regular.otf</span><br><span class="line">*  AdobeHeitiStd-Regular.otf</span><br><span class="line">*  AdobeKaitiStd-Regular.otf</span><br><span class="line">*  AdobeSongStd-Light.otf</span><br><span class="line"></span><br><span class="line">Windows用户请打开CMD，输入如下命令进行安装：</span><br><span class="line"></span><br><span class="line">    makethesis.bat install</span><br><span class="line"></span><br><span class="line">Linux/OSX用户请打开SHELL输入如下命令进行安装：</span><br><span class="line"></span><br><span class="line">    chmod a+x makethesis</span><br><span class="line">    ./makethesis install</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Change Logs</span><br><span class="line">==================</span><br><span class="line"></span><br><span class="line">*  v6.<span class="number">2</span>：<span class="number">2015</span>/<span class="number">04</span>/<span class="number">23</span>，修正参考文献列表序号不对齐的BUG（v6.<span class="number">1</span>用户升级请在cls文件中搜索multibib宏包，删除其resetlabels选项的调用，在各个ch_xxx.tex和pubs.tex调用参考文献数据库之前使用\setcounter&#123;NAT@ctr&#125;&#123;<span class="number">0</span>&#125;</span><br><span class="line">重置参考文献计数器）</span><br><span class="line">*  v6.<span class="number">1</span>：<span class="number">2015</span>/<span class="number">01</span>/<span class="number">16</span>，修正发表论文列表中序号不对齐的BUG</span><br><span class="line">*  v6.<span class="number">0</span>：<span class="number">2014</span>/<span class="number">01</span>/<span class="number">02</span>，重新整理buptgraduatethesis.bst；在bare_thesis.bib中给出各类参考文献模板；更新帮助文档；迁移到GitCafe</span><br><span class="line">*  v5.<span class="number">4</span>：<span class="number">2014</span>/<span class="number">11</span>/<span class="number">29</span>，根据新版论文格式要求修正学位论文类参考文献的格式</span><br><span class="line">*  v5.<span class="number">3</span>：<span class="number">2014</span>/<span class="number">11</span>/<span class="number">22</span>，修正buptgraduatethesis.bst中学位论文类参考文献格式的BUG</span><br><span class="line">*  v5.<span class="number">2</span>：<span class="number">2014</span>/<span class="number">07</span>/<span class="number">17</span>，根据新版论文格式对文档类进行精简；修正封面的BUG；修正最新版xeCJK带来的问题；更新帮助文档</span><br><span class="line">*  v5.<span class="number">1</span>：<span class="number">2014</span>/<span class="number">05</span>/<span class="number">31</span>，修正makethesis中分章参考文献编译的BUG，此BUG会影响Linux和Unix用户的分章参考文献输出</span><br><span class="line">*  v5.<span class="number">0</span>：<span class="number">2014</span>/<span class="number">04</span>/<span class="number">14</span>，增添数学字体选项，可以使用Computer Modern字体；盲审版本将隐去致谢和独创性等声明页；根据新版硕、博士论文格式要求更新模板和封面；修改参考文献中英文姓名出现Jr时的排版，并添加说明；修改帮助文档的字体，不用再依赖TeX Gyre Pagella字体；修正图名和表名的字体；改进一系列参考文献排版规则；增加免安装版，解压即可用；去除makethesis中安装时的输出重定向，方便排错</span><br><span class="line">*  v4.<span class="number">0</span>：<span class="number">2013</span>/<span class="number">12</span>/<span class="number">26</span>，根据xeCJK宏包的更新修改宏包加载项；修复由于伪粗体带来的复制粘贴的BUG</span><br><span class="line">*  v3.<span class="number">0</span>：<span class="number">2013</span>/<span class="number">12</span>/<span class="number">23</span>，根据新版论文格式要求更新模板</span><br><span class="line">*  v2.<span class="number">3</span>：<span class="number">2013</span>/<span class="number">11</span>/<span class="number">29</span>，修改bibtex生成的参考文献中URL的字体</span><br><span class="line">*  v2.<span class="number">2</span>：<span class="number">2013</span>/<span class="number">11</span>/<span class="number">29</span>，修正缩略语在第一次引用时无法出现中文释义的 BUG</span><br><span class="line">*  v2.<span class="number">1</span>：<span class="number">2013</span>/<span class="number">11</span>/<span class="number">21</span>，修改article类型参考文献显示样式</span><br><span class="line">*  v2.<span class="number">0</span>：<span class="number">2013</span>/<span class="number">11</span>/<span class="number">20</span>，增加部分参考文献自定义配置的功能；更新帮助文档</span><br><span class="line">*  v1.<span class="number">3</span>：<span class="number">2013</span>/<span class="number">11</span>/<span class="number">15</span>，修正makethesis.bat的BUG；将Unicode指令替换为char指令用于引入Unicode字符；使用xeCJKsetcharclass命令修正xetex引擎下的带圈数字脚注</span><br><span class="line">*  v1.<span class="number">2</span>：<span class="number">2013</span>/<span class="number">11</span>/<span class="number">14</span>，修正makethesis.bat的BUG</span><br><span class="line">*  v1.<span class="number">1</span>：<span class="number">2013</span>/<span class="number">07</span>/<span class="number">30</span>，更新makethesis的换行模式</span><br><span class="line">*  v1.<span class="number">0</span>：<span class="number">2013</span>/<span class="number">07</span>/<span class="number">08</span>，初始版本</span><br><span class="line"></span><br><span class="line">To Do List</span><br><span class="line">==================</span><br><span class="line"></span><br><span class="line">*  整理文档类的代码，增添注释，便于更多人一起学习LaTeX</span><br><span class="line">*  在书签中输出章节编号</span><br><span class="line">*  改进文档参考文献输入规范与IEEE参考文献输入规范的兼容性%</span><br></pre></td></tr></table></figure>
+<p>README写得非常清晰，请 <strong>一定</strong> 认真参照<code>README</code>和<code>buptgraduatethesis.pdf</code>中的指示。我只简要记录下ubuntu下需要注意哪些问题，Linux用户可以参照我的记录。</p>
+<h3 id="安装依赖包和字体">安装依赖包和字体</h3><p>先列出模板必要的依赖，首先是texlive中ubuntu哪些包。当然，如果也可以直接安装<code>texlive-full</code>，省心但这将耗费1.4G的空间。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">29</span>:<span class="number">49</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08) &gt; dpkg --get-selections |grep texlive</span><br><span class="line">texlive-base					install</span><br><span class="line">texlive-bibtex-extra				install</span><br><span class="line">texlive-binaries				install</span><br><span class="line">texlive-extra-utils				install</span><br><span class="line">texlive-font-utils				install</span><br><span class="line">texlive-fonts-recommended			install</span><br><span class="line">texlive-fonts-recommended-doc			install</span><br><span class="line">texlive-generic-recommended			install</span><br><span class="line">texlive-lang-cjk				install</span><br><span class="line">texlive-lang-other				install</span><br><span class="line">texlive-latex-base				install</span><br><span class="line">texlive-latex-base-doc				install</span><br><span class="line">texlive-latex-extra				install</span><br><span class="line">texlive-latex-extra-doc				install</span><br><span class="line">texlive-latex-recommended			install</span><br><span class="line">texlive-latex-recommended-doc			install</span><br><span class="line">texlive-luatex					install</span><br><span class="line">texlive-pictures				install</span><br><span class="line">texlive-pictures-doc				install</span><br><span class="line">texlive-pstricks				install</span><br><span class="line">texlive-pstricks-doc				install</span><br><span class="line">texlive-science					install</span><br><span class="line">texlive-science-doc				install</span><br><span class="line">texlive-xetex					install</span><br></pre></td></tr></table></figure>
+<p>必要的字体，由于版权原因需要从网络上下载（Adobe系列字体）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">31</span>:<span class="number">55</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; <span class="built_in">fc</span>-list|grep Adobe</span><br><span class="line">/home/reverland/.fonts/a/AdobeKaitiStd-Regular.otf: Adobe Kaiti Std,Adobe 楷体 Std,Adobe Kaiti Std R,Adobe 楷体 Std R:style=R,Regular</span><br><span class="line">/home/reverland/.fonts/a/AdobeHeitiStd_Regular_(v5.<span class="number">010</span>).otf: Adobe Heiti Std,Adobe 黑体 Std,Adobe Heiti Std R,Adobe 黑体 Std R:style=R,Regular</span><br><span class="line">/home/reverland/.fonts/a/AdobeFangsongStd-Regular.otf: Adobe Fangsong Std,Adobe 仿宋 Std,Adobe Fangsong Std R,Adobe 仿宋 Std R:style=R,Regular</span><br><span class="line">/home/reverland/.fonts/a/AdobeSongStd-Light.otf: Adobe Song Std,Adobe 宋体 Std,Adobe Song Std L,Adobe 宋体 Std L:style=L,Regular</span><br></pre></td></tr></table></figure>
+<p>微软Windows操作系统提供的中易字体：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">└─[<span class="number">0</span>] &lt;&gt; <span class="built_in">fc</span>-list|grep sim</span><br><span class="line">/home/reverland/.fonts/s/simsun.ttc: SimSun,宋体:style=Regular</span><br><span class="line">/home/reverland/.fonts/s/simfang.ttf: FangSong_GB2312,仿宋_GB2312:style=Regular</span><br><span class="line">/home/reverland/.fonts/s/simkai.ttf: KaiTi_GB2312,楷体_GB2312:style=Regular</span><br><span class="line">/home/reverland/.fonts/s/simhei.ttf: SimHei,黑体:style=Regular</span><br></pre></td></tr></table></figure>
+<p>ubuntu软件仓库提供的微软核心英文字体，包括<code>Times New</code>系列。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">53</span>:<span class="number">40</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; dpkg --get-selections |grep mscore</span><br><span class="line">ttf-mscorefonts-installer			install</span><br></pre></td></tr></table></figure>
+<p>新安装字体后别忘了更新系统字体缓存：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">33</span>:<span class="number">10</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; <span class="built_in">fc</span>-cache -fv</span><br></pre></td></tr></table></figure>
+<h3 id="生成示例文件">生成示例文件</h3><p>使用如下命令生成示例文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">30</span>:<span class="number">47</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; ./makethesis install</span><br><span class="line">mkdir: cannot create directory ‘example’: File exists</span><br><span class="line">Extracting and installing files...</span><br><span class="line">This is XeTeX, Version <span class="number">3.1415926</span>-<span class="number">2.5</span>-<span class="number">0.9999</span>.<span class="number">3</span> (TeX Live <span class="number">2013</span>/Debian)</span><br><span class="line"> restricted \write18 enabled.</span><br><span class="line">entering extended mode</span><br><span class="line">(./install/buptgraduatethesis.ins</span><br><span class="line">(/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3docstrip.tex</span><br><span class="line">(/usr/share/texlive/texmf-dist/tex/latex/base/docstrip.tex</span><br><span class="line">Utility: `docstrip<span class="string">' 2.5d &lt;2005/07/29&gt;</span><br><span class="line">English documentation    &lt;1999/03/31&gt;</span><br><span class="line">...</span><br><span class="line">Underfull \hbox (badness 10000) detected at line 765</span><br><span class="line">[]\EU1/lmtt/m/n/10 \fs []</span><br><span class="line">[9] [10]</span><br><span class="line"></span><br><span class="line">LaTeX Warning: `!h'</span> <span class="built_in">float</span> specifier changed to `!ht<span class="string">'.</span><br><span class="line"></span><br><span class="line">[11] [12]) [13] (./buptgraduatethesis.gls) [14] (./buptgraduatethesis.aux)</span><br><span class="line"></span><br><span class="line">LaTeX Font Warning: Some font shapes were not available, defaults substituted.</span><br><span class="line"></span><br><span class="line"> )</span><br><span class="line">(see the transcript file for additional information)</span><br><span class="line">Output written on buptgraduatethesis.pdf (14 pages).</span><br><span class="line">Transcript written on buptgraduatethesis.log.</span><br><span class="line">Clearing TMP files...</span><br><span class="line">===========================================</span><br><span class="line">= Mission Done!</span><br><span class="line">= BUPTGraduateThesis is successfully installed!</span><br><span class="line">===========================================</span></span><br></pre></td></tr></table></figure>
+<p>会在当前目录生成 <code>buptgraduatethesis.cls</code> 、 <code>buptgraduatethesis.cfg</code>、<code>buptgraduatethe-
+sis.bst</code> 以及 <code>example</code> 文件夹。</p>
+<p><strong>注意</strong>: 你看到<code>Mission Done</code>并不一定真的成功生成文件了，可能中途发生些找不到字体的错误并只生成了部分文件，请仔细检查生成文件是否正常</p>
+<p>检查<code>example</code>文件夹。该文件夹包含了一个示例，可以用来检查安装是否正常。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; ls example</span><br><span class="line">ackgmt.tex         bare_thesis.bib  ch_intro.tex   pubs.bib</span><br><span class="line">acronyms.tex       bare_thesis.tex  metadata.tex   pubs.tex</span><br><span class="line">app_lhospital.tex  ch_concln.tex    notations.tex</span><br></pre></td></tr></table></figure>
+<p>按<code>buptgraduatethesis.pdf</code>建议将<code>example</code>中文件拷贝到当前目录，并检查确认。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">34</span>:<span class="number">11</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; cp example/* .</span><br><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">35</span>:<span class="number">50</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; ls</span><br><span class="line">ackgmt.tex              buptgraduatethesis.cfg  example         notations.tex</span><br><span class="line">acronyms.tex            buptgraduatethesis.cls  install         pubs.bib</span><br><span class="line">app_lhospital.tex       buptgraduatethesis.log  logo            pubs.tex</span><br><span class="line">bare_thesis.bib         buptgraduatethesis.pdf  makethesis      README.md</span><br><span class="line">bare_thesis.tex         ch_concln.tex           makethesis.bat  release.zip</span><br><span class="line">buptgraduatethesis.bst  ch_intro.tex            metadata.tex    xeCJK-fonts.def</span><br></pre></td></tr></table></figure>
+<p>确认无误后测试生成论文。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">36</span>:<span class="number">37</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; ./makethesis thesis</span><br><span class="line">===========================================</span><br><span class="line">=</span><br><span class="line">= TARGET=bare_thesis</span><br><span class="line">= MAINMATTERS=ch_intro ch_concln</span><br><span class="line">= DRIVER=xetex</span><br><span class="line">= BIBTYPE=chapbib</span><br><span class="line">=</span><br><span class="line">===========================================</span><br><span class="line">Double check above configurations! Press anykey to <span class="built_in">continue</span>, CTRL+C to stop!</span><br></pre></td></tr></table></figure>
+<p>按任意键继续</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">(/usr/share/texlive/texmf-dist/tex/xelatex/xecjk/config/xeCJK.cfg))</span><br><span class="line">(/usr/share/texmf/tex/latex/CJK/CJKnumb.sty) (./xeCJK-fonts.def</span><br><span class="line">kpathsea: Running mktextfm KaiTi/ICU</span><br><span class="line">/usr/share/texlive/texmf-dist/web2c/mktexnam: Could not map <span class="built_in">source</span> abbreviation I <span class="keyword">for</span> ICU.</span><br><span class="line">/usr/share/texlive/texmf-dist/web2c/mktexnam: Need to update /usr/share/texlive/texmf-dist/fonts/map/fontname/special.map?</span><br><span class="line">mktextfm: Running mf-nowin -progname=mf \mode:=ljfour; mag:=<span class="number">1</span>; nonstopmode; input ICU</span><br><span class="line">This is METAFONT, Version <span class="number">2.718281</span> (TeX Live <span class="number">2013</span>/Debian)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">kpathsea: Running mktexmf ICU</span><br><span class="line">! I can<span class="string">'t find file `ICU'</span>.</span><br><span class="line">&lt;*&gt; \mode:=ljfour; mag:=<span class="number">1</span>; nonstopmode; input ICU</span><br><span class="line"></span><br><span class="line">Please <span class="built_in">type</span> another input file name</span><br><span class="line">! Emergency stop.</span><br><span class="line">&lt;*&gt; \mode:=ljfour; mag:=<span class="number">1</span>; nonstopmode; input ICU</span><br><span class="line"></span><br><span class="line">Transcript written on mfput.log.</span><br><span class="line">grep: ICU.log: No such file or directory</span><br><span class="line">mktextfm: `mf-nowin -progname=mf \mode:=ljfour; mag:=<span class="number">1</span>; nonstopmode; input ICU<span class="string">' failed to make ICU.tfm.</span><br><span class="line">kpathsea: Appending font creation commands to missfont.log.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span><br><span class="line">!</span><br><span class="line">! fontspec error: "font-not-found"</span><br><span class="line">!</span><br><span class="line">! The font "KaiTi" cannot be found.</span><br><span class="line">!</span><br><span class="line">! See the fontspec documentation for further information.</span><br><span class="line">!</span><br><span class="line">! For immediate help type H &lt;return&gt;.</span><br><span class="line">!...............................................</span><br><span class="line"></span><br><span class="line">l.14 ...Font=&#123;SimHei&#125;, ItalicFont=&#123;KaiTi&#125;]&#123;SimSun&#125;</span><br><span class="line"></span><br><span class="line">?</span></span><br></pre></td></tr></table></figure>
+<p>喜大普奔，找不到字体。根据提示，检查系统安装的字体名字。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">57</span>:<span class="number">01</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;&gt; <span class="built_in">fc</span>-list|grep KaiTi</span><br><span class="line">/home/reverland/.fonts/s/simkai.ttf: KaiTi_GB2312,楷体_GB2312:style=Regular</span><br></pre></td></tr></table></figure>
+<p>根据<code>buptgraduatethesis.pdf</code>说明更改字体设定。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">10</span>:<span class="number">59</span>:<span class="number">35</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; sed -i <span class="string">'s/KaiTi/KaiTi_GB2312/g'</span> xeCJK-fonts.def</span><br><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">11</span>:<span class="number">09</span>:<span class="number">50</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; ./makethesis thesis</span><br><span class="line">===========================================</span><br><span class="line">=</span><br><span class="line">= TARGET=bare_thesis</span><br><span class="line">= MAINMATTERS=ch_intro ch_concln</span><br><span class="line">= DRIVER=xetex</span><br><span class="line">= BIBTYPE=chapbib</span><br><span class="line">=</span><br><span class="line">===========================================</span><br><span class="line">Double check above configurations! Press anykey to <span class="built_in">continue</span>, CTRL+C to stop!</span><br><span class="line"></span><br><span class="line">Checking Existence of Essential Files...</span><br><span class="line">Document class installed! Generating Thesis PDF...</span><br><span class="line">Building thesis PDF...</span><br><span class="line">This is XeTeX, Version <span class="number">3.1415926</span>-<span class="number">2.5</span>-<span class="number">0.9999</span>.<span class="number">3</span> (TeX Live <span class="number">2013</span>/Debian)</span><br><span class="line"> restricted \write18 enabled.</span><br><span class="line">entering extended mode</span><br><span class="line">(./bare_thesis.tex</span><br><span class="line">LaTeX2e &lt;<span class="number">2011</span>/<span class="number">06</span>/<span class="number">27</span>&gt;</span><br><span class="line">Babel &lt;<span class="number">3.9</span>h&gt; and hyphenation patterns <span class="keyword">for</span> <span class="number">11</span> languages loaded.</span><br><span class="line">(./buptgraduatethesis.cls</span><br><span class="line"></span><br><span class="line">LaTeX Warning: You have requested document class `buptgraduatethesis<span class="string">',</span><br><span class="line">               but the document class provides `buptgraduatethesis.cls'</span>.</span><br><span class="line"></span><br><span class="line">Document Class: buptgraduatethesis.cls <span class="number">2015</span>/<span class="number">04</span>/<span class="number">23</span> v6.<span class="number">2</span> BUPT graduate thesis LaT</span><br><span class="line">eX2e class</span><br><span class="line">...</span><br><span class="line">Package natbib Warning: There were undefined citations.</span><br><span class="line"></span><br><span class="line">(./bare_thesis.aux (./ch_intro.aux) (./ch_concln.aux))</span><br><span class="line"></span><br><span class="line">LaTeX Warning: There were undefined references.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.</span><br><span class="line"></span><br><span class="line"> )</span><br><span class="line">(see the transcript file <span class="keyword">for</span> additional information)</span><br><span class="line">Output written on bare_thesis.pdf (<span class="number">23</span> pages).</span><br><span class="line">Transcript written on bare_thesis.log.</span><br><span class="line">Processing BIB files...</span><br><span class="line">Processing index files...</span><br><span class="line">This is makeindex, version <span class="number">2.15</span> [TeX Live <span class="number">2013</span>] (kpathsea + Thai support).</span><br><span class="line">Scanning style file ./bare_thesis.ist.............................done (<span class="number">29</span> attributes redefined, <span class="number">0</span> ignored).</span><br><span class="line">Scanning input file bare_thesis.acn....done (<span class="number">4</span> entries accepted, <span class="number">0</span> rejected).</span><br><span class="line">Sorting entries....done (<span class="number">10</span> comparisons).</span><br><span class="line">Generating output file bare_thesis.acr....done (<span class="number">11</span> lines written, <span class="number">0</span> warnings).</span><br><span class="line">Output written <span class="keyword">in</span> bare_thesis.acr.</span><br><span class="line">Transcript written <span class="keyword">in</span> bare_thesis.alg.</span><br><span class="line">Rebuilding to generate cross-reference...</span><br><span class="line"></span><br><span class="line">** WARNING ** Unparsed material at end of special ignored.</span><br><span class="line"></span><br><span class="line">** WARNING ** Unparsed material at end of special ignored.</span><br><span class="line">===========================================</span><br><span class="line">= Mission Done!</span><br><span class="line">= Thesis PDF is successfully generated!</span><br><span class="line">===========================================</span><br><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">11</span>:<span class="number">30</span>:<span class="number">54</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt;</span><br></pre></td></tr></table></figure>
+<p>似乎成功了，检查生成的pdf文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">11</span>:<span class="number">01</span>:<span class="number">44</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; evince bare_thesis.pdf</span><br><span class="line">┌─[reverland@reverland-R478-R429] - [~/Downloads/BUPTGraduateThesis] - [<span class="number">2015</span>-<span class="number">11</span>-<span class="number">29</span> <span class="number">11</span>:<span class="number">04</span>:<span class="number">32</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;git:(master cfb5f08✱✈) &gt; ./makethesis clean</span><br><span class="line">Clearing TMP files...</span><br><span class="line">Clearing TMP files <span class="keyword">in</span> installation...</span><br><span class="line">Clearing TMP files <span class="keyword">in</span> thesis generation...</span><br><span class="line">===========================================</span><br><span class="line">= Mission Done!</span><br><span class="line">= ALL TMP files are cleared!</span><br><span class="line">===========================================</span><br></pre></td></tr></table></figure>
+<p>看了看，似乎没什么问题。接下来可能有空会记录下使用。</p>
+<p>Have Fun!</p>
+<p>正如史上最神奇的游戏所展示的，Lost if fun。</p>
 
             
           </span>
@@ -1836,188 +1989,6 @@ shuru               |&lt;---输入提示(已经输入的内容)
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2015/06/27/" itemprop="url">
-                  好像毕业的是我似的
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-06-27T00:00:00+08:00" content="2015-06-27">
-              2015-06-27
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2015/06/27/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/06/27//" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>小松林对面大屏幕里不停放着西土城路十号的日子，好像毕业的是我似的。</p>
-<p>学十一下面，学八下面接连好几场露天毕业歌会，好像毕业的是我似的。</p>
-<p>校园里到处是穿着学士服拍照的男男女女，黑色点缀着黄色银色和粉色，好像毕业的是我似的。</p>
-<p>去年九月份，我在回家的火车上。怎么就说到多喜欢这里了，对北邮言必黑，谈必骂，然而我知道我走的时候一定会哭得一塌糊涂。</p>
-<p>哭得一塌糊涂。</p>
-<p>还没有毕业就已经哭了。</p>
-<p>好像毕业的是我似的。</p>
-<h2 id="从两年前开始毕业">从两年前开始毕业</h2><blockquote>
-<p>再见再见再见再见一万遍，如果明天就不再见。</p>
-</blockquote>
-<p>两年前的四月，第一次踏进这片土地，小松林的大屏幕映放着新闻联播，映着白惨惨的光。历历在目。</p>
-<p>九月份来完成分组，被分到某组，和实验室的师兄和青阳一起去教三和主楼搬东西，新雨过后，树木翠绿蓊郁，一边气不饱的三轮车、一个脚坏的来自中心的板车，还有康神说青阳的人生梦想就是坐在三轮车上唱着歌，往事像风一样被吹散了。</p>
-<p>两年后又一次和师弟师妹推着板车搬去教三，顺路和青阳下主楼地下室，我的心都快碎了，所有的人都吹散了。</p>
-<p>两年间搬了三次地方，换了五个项目组，穿插着帮忙n次，见识了那些可爱的人们，我不想忘记。</p>
-<p>两年前翔哥毕业时，我以为一切还远，毕业比想像中来的突然。</p>
-<p>三个月前送康神去邮局邮寄行李，已然历历在目，看着他在邮局穿针引线，看着他在包裹上书写家里的地址，看着邮局鱼缸中无忧无虑游来游去的鱼，我看他的侧影是这么伟大，却觉得送走的时候觉得这么凄凉。似乎穿越时光在送别一年后离开的自己，他年葬侬知是谁。</p>
-<p>最早时一起去银河的师兄。。。我写不下去这条线了，到此为止。</p>
-<p>终于也离开实验室了，恨不得给每个人告别，一个一个抱住亲吻。</p>
-<h2 id="碧水情深">碧水情深</h2><p>几天前游泳队拍毕业照，我说把我叫上啊。</p>
-<p>转眼就毕业了，两年前紫强才大三，我还很羡慕他们的青春岁月还很长很长。</p>
-<p>见着他争取保研，做了阵销售，干了阵产品，开始准备出国然后就毕业了。</p>
-<p>好像所有人都被不可名状的巨大力量推着前进，身不由己。很多熟悉的面孔都渐渐从身边消失了。</p>
-<p>扯旗毕业了，其实毕业前就慢慢不再见得到。</p>
-<p>彬哥早毕业了。</p>
-<p>涂涂也见得少，也忙着为出国做准备</p>
-<p>丹丹也很少见到，应该忙着学业和健身吧</p>
-<p>丁总倒是最近常见到去游个澡，7月2号就远赴异国他乡了</p>
-<p>黄老师，听说上班忙成，嗯</p>
-<p>范老师，倒经常有见到。</p>
-<p>金帽女神反正我去的晚从来没见到过。。。</p>
-<p>小忧自从成为女博士之后好像就没见到过了</p>
-<p>前几天忽然碰到杨宇，一说都有一个月没游了</p>
-<p>前几天还碰到某庄子睿，怎么也准备弃研去香港，月余不游泳了。</p>
-<p>翔哥毕业前还常去，现在偶尔会回来陪师姐游下。</p>
-<p>刘可昂男神估计，随着我们即将毕业也会去得越来越少。</p>
-<p>高鸣男神倒是，好羡慕他还有两年。</p>
-<p>师姐也好久没游了。</p>
-<p>救生员换了一波，晚上说我去晚了，李涛去了，我着实吃了一惊。</p>
-<p>哎呦我去，还有毕业的师姐和之前碰到还经常打招呼然而并不知道叫什么的师姐同学</p>
-<p>一起打腿，休学回家不知现在如何的谢浩师兄。</p>
-<p>毕业那阵紫强说他三观混乱，现在混乱的终于轮到我了。</p>
-<p>碧水中纷乱的梦，</p>
-<p>东门内那片地方是我在北邮最爱的地方</p>
-<p>碰到的朋友是北邮最宝贵的收获，相形而言，毕业文凭一文不值。</p>
-<p>好像毕业的是我似的，让我的泪水拥抱亲吻那片碧水，留下那颗依依不舍的心。</p>
-<h2 id="GC">GC</h2><p>心好乱，纷呈的往事倾泻而出，无处放置。</p>
-<p>北邮和社团扯上关系，一个是研会实践部，只是偶尔帮帮忙的酱油般存在，另一个就是GC了。</p>
-<p>在小松林两年落魄的招新，凭借着aus忽悠了一大堆妹子然后听说第一次见面会就被aus放光了T T。</p>
-<p>去蹭GDG各种活动和午饭</p>
-<p>时光广场的游园会。</p>
-<p>一次随性而至在学活下火锅煮排骨汤。。。</p>
-<p>有兴趣看看这里吧<a href="http://reverland.org/life/2014/10/11/gcjust-for-fun/">追忆GC：Just For Fun</a></p>
-<p>今天和aus拍了毕业照，aus还在盘算着让我们去他的新居桌游啊跑团啊blabla啊，我希望这不是有生之年，人生轨迹的最后一次交错。</p>
-<p>aus竟然还把当年我们坐在马路沿子上落魄招新时让旁边一妹子拍下来的照片洗出来了。。。</p>
-<p>这就毕业了？</p>
-<p>感觉好像毕业的是我似的。</p>
-<h2 id="大学同学们">大学同学们</h2><p>纷纷都安定下来或马上要安定下来了吧。</p>
-<p>端午的时候涛涛忽然来找我，一起来帝都上学，然而他已然答辩完毕业。去北理再也没有可以随意蹭饭的人了吧。在学校的主干道上，我觉得吹过的风是时光的呜咽，洒落的阳光是细碎的记忆。</p>
-<p>好像毕业的是我似的，</p>
-<p>不记得说了些什么。</p>
-<p>只记得路上碰到师妹问我去哪。</p>
-<p>我只说出了随便转转几个字。</p>
-<h2 id="毕业的是我吧">毕业的是我吧</h2><p>两年前，我不知道我想些什么</p>
-<p>不知道我期待些什么</p>
-<p>我写代码</p>
-<p>游泳锻炼身体</p>
-<p>做觉得有意思的事情</p>
-<p>四处骚扰同学朋友</p>
-<p>乖乖的毕业</p>
-<p>顺利的找到高薪有户口的工作</p>
-<p>捉一只妹子相伴余生</p>
-<p>两年后所有都依然很远，</p>
-<p>却知道自己多幸福</p>
-<p>千里之外的亲人，睡了两年的室友们，在北邮随便走走都能碰到打招呼的朋友，在一个实验室的老师同学，在北京还多有联系的大学高中同学。</p>
-<p>取自红楼梦一句话，总结和自勉：</p>
-<blockquote>
-<p>美中不足，好事多魔。</p>
-</blockquote>
-<p>就当我们昨天刚毕业吧。</p>
-<p>好伤心。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2064,7 +2035,7 @@ shuru               |&lt;---输入提示(已经输入的内容)
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">172</span>
+              <span class="site-state-item-count">173</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

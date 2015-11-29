@@ -229,6 +229,207 @@
             
               
                 
+                <a class="post-title-link" href="/reviews/2013/06/09/hacking-the-art-of-exploitation/" itemprop="url">
+                  Hacking: the Art of Exploitation
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2013-06-09T00:00:00+08:00" content="2013-06-09">
+              2013-06-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/reviews/" itemprop="url" rel="index">
+                    <span itemprop="name">reviews</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/reviews/2013/06/09/hacking-the-art-of-exploitation/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="reviews/2013/06/09/hacking-the-art-of-exploitation/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>This book’s C part is very fascinating. Along with the author, you can actually achieve a set of note take and search tools for multiuser, and an interesting game. What’s more, some linux/unix knowledge will be learned.</p>
+<p>So I tried it.</p>
+<p>To try these interesting things written in five years ago is not easy on my x86_64 gentoo linux. There are tons of difference and I’m always confused by what I don’t know. However, I was so happy with such interesting things after so much pains.</p>
+<p>This book makes C fascinating to me! I’m so desired to be a C hacker!</p>
+<p>Thanks to the author–Jon Erickson! Even too simple and fundamental, the book open the door to a interesting world for me.</p>
+<hr>
+<p><strong>TOC</strong></p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<hr>
+<h2 id="Experiment_Notes_on_A_64-bit_Machine">Experiment Notes on A 64-bit Machine</h2><h3 id="Format_for_Pointer">Format for Pointer</h3><p>pointer/address to be <code>%p</code> not <code>0x%08x</code>.</p>
+<h3 id="Compile_32-bit_Programs_on_a_x86_64_Machine">Compile 32-bit Programs on a x86_64 Machine</h3><p>By default, gentoo linux amd64 will set <code>multilib</code> USE flag. You’ll have a multilib glibc and gcc. Then to compile and link a program with gcc, just add <code>-m32</code> parameter to gcc.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -m32 test.c</span><br></pre></td></tr></table></figure>
+<h3 id="Built-in_Functions_in_Gcc">Built-in Functions in Gcc</h3><p>gcc actually have some functions built into it. It will use its built in version for some functions like <code>printf</code>. Even if you forget include header files, it will be compiled but give out a warning.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">~/Work/project/hack ⮀ gcc -g -m32 -o firstprog firstprog.c</span><br><span class="line">firstprog.c: In <span class="keyword">function</span> ‘main’:</span><br><span class="line">firstprog.c:<span class="number">7</span>:<span class="number">5</span>: warning: incompatible implicit declaration of built-in <span class="keyword">function</span> ‘<span class="built_in">printf</span>’ [enabled by default]</span><br></pre></td></tr></table></figure>
+<h3 id="Disable_SSP">Disable SSP</h3><p>To test hacking skills like stack overflow and so on on a modern x86_64 machine. You have to cheat.To disable the stack smashing prevention(SSP) by gcc, you can simply specify a parameter <code>-fno-stack-protector</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -fno-stack-protector test.c</span><br></pre></td></tr></table></figure>
+<h3 id="Disable_Executable_Space_Protection">Disable Executable Space Protection</h3><p>To let the stack be executable, you have two choices:</p>
+<ol>
+<li>add <code>-z execstack</code> parameter to gcc when compiling.</li>
+<li>Using <code>execstack</code> to set executable stack flag of ELF binaries and shared libraries</li>
+</ol>
+<p>Both will work, It depend on you which to choose.</p>
+<h3 id="Disable_ASLR">Disable ASLR</h3><p>If you check the book carefully later, you’ll find some technics to prevent exploitation. One of them is ASLR.</p>
+<p>To disable (Address space layout randomization)ASLR globally:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo <span class="number">0</span> &gt; /proc/sys/kernel/randomize_va_space</span><br></pre></td></tr></table></figure>
+<p>Or just run the binary file using <code>setarch</code>.</p>
+<p>Please refer to the References and <code>man setarch</code>.</p>
+<h3 id="The_virtual_Memory">The virtual Memory</h3><p>One of my observation is that if you run a 32-bit program on 64-bit system, the address in the memory will differ a lot from just 32-bit system.</p>
+<p>According to my experience, the memory address ranges from about <code>0x804a014</code> to <code>0xffffdff8</code>, <code>.data</code> and <code>.bss</code> will locate at around <code>0x804axxx</code>. But the stack bottom will be at around <code>0xff7fcxxx</code>. What’s important is that environment variables will be at the bottom of memory until <code>0xffffdff8</code>. <code>0xffffdff8</code> will be the <code>filename</code> of the execute file.</p>
+<p>There are some other differences from the book. One of these is the length of file change 1, the address of environment variable for shellcode will change 1 byte.</p>
+<p>I don’t know why things like this, I’ll try to find more about it and ask it at StackOverflow. But that’s what I get after several tests, your machine may differ.</p>
+<h3 id="About_dtors_section">About dtors section</h3><p>I find I can’t success on the exploitation about dtors. The destruction function address will be in <code>.fini_array</code> section. Note: objdump will show addresses in little endian. So address <code>0x08048473</code> will looks like that:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Contents of section .fini_array:</span><br><span class="line"> <span class="number">8049</span>ef8 <span class="number">73840408</span>                             s...</span><br></pre></td></tr></table></figure>
+<p>Furthermore, because of cpu’s NX feature, when you try to modify <code>.dtors</code> or <code>fini_array</code> section, you’ll just get a segfault.</p>
+<h3 id="libnet-1-0_on_amd64">libnet-1.0 on amd64</h3><p>Last thing I have to mentioned is that libnet-1.0 use too much <code>u_long</code>. <code>u_long</code> will take 8 bytes on a 64-bit machine but 4 bytes on a 32-bit one.</p>
+<p>You have to care about that because it will build tcp header with incorrect length of source address and destination address.</p>
+<p>I don’t know how nemesis(which depends on libnet-1.0) works well on amd64 machines…</p>
+<p>To compile and link with libnet-1.0 on gentoo amd64 architecture, try something like this:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc `libnet-<span class="number">1.0</span>-config --defines` -o rst_hijack rst_hijack.c -lnet-<span class="number">1.0</span> -lpcap</span><br></pre></td></tr></table></figure>
+<h3 id="Enable_IP_Forward">Enable IP Forward</h3><p>When you want to try arp sproofing or arp poisoning, enable the ip forward for the kernel:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="number">1</span> &gt; /proc/sys/net/ipv4/ip_forward</span><br></pre></td></tr></table></figure>
+<h3 id="drop_previledge">drop previledge</h3><p>bash version 2 will drop previlege when run with setuid. So lots of root shell will falls to normal user without <code>setresuid</code>.</p>
+<h3 id="Some_other_things">Some other things</h3><p>Examine by <code>man</code> before you try the program in this book. </p>
+<p>For example, in <code>update_info</code>, add <code>(void *)</code> in to avoid warning. In <code>connectback_shell.s</code> the <code>connect</code> syscall won’t save file descriptor in eax. Lots of <code>include</code> was lost in this book…</p>
+<h2 id="Some_Other_Thoughts_on_This_Book">Some Other Thoughts on This Book</h2><p>Amazing！！When You first get a root shell in an exploitation, you can’t stop jumping out of the chair! The book is simple and introductory, but both interesting and insight. I really like it.</p>
+<h2 id="Hacker’s_Tools">Hacker’s Tools</h2><blockquote>
+<p>Man is most important, Google is the second.</p>
+<p>Prof. Li Yinong</p>
+</blockquote>
+<p>Consult to <code>man</code> if you are stuck, then search in google(NOT BAIDU).</p>
+<ul>
+<li>gcc to compile</li>
+<li>gdb to debug/attach, use as calculation and so on.</li>
+<li>objdump to be used as a disassembler to view executable in assembly form</li>
+<li>nm to list symbols in many kinds of files</li>
+<li>perl for one line exploitation</li>
+<li>python for one line exploitation</li>
+<li>hexdump to dump binary files into hex</li>
+<li>shell to facilitate with exploitation.</li>
+<li>many unix tools like od/sed/awk/bc and so on may be useful.</li>
+</ul>
+<p>About net hack, You may like to use:</p>
+<ul>
+<li>libnet to inject packets</li>
+<li>libpcap to capture packets</li>
+<li>tcpdump to capture and show packets</li>
+<li>dsniff to sniff the net and arp poison</li>
+<li>netcat, wow, swiss knife</li>
+<li>telnet, a good client to use</li>
+<li>ettercap/nessus/metasploit and so on.</li>
+</ul>
+<h2 id="Some_References">Some References</h2><p>About exploitation:</p>
+<ul>
+<li><a href="https://crypto.stanford.edu/~blynn/rop/" target="_blank" rel="external">Return-oriented programming on 64-bit Linux</a></li>
+<li><a href="http://www.exploit-db.com/papers/24085/" target="_blank" rel="external">Stack Smashing On A Modern Linux System</a></li>
+<li><a href="http://www.tenouk.com/Bufferoverflowc/" target="_blank" rel="external">The Stack-based Buffer Overflow Hands-on Tutorials</a></li>
+<li><a href="http://duartes.org/gustavo/blog/post/anatomy-of-a-program-in-memory" target="_blank" rel="external">Anatomy of a Program in Memory</a></li>
+<li><a href="http://www.tenouk.com/ModuleW.html" target="_blank" rel="external">COMPILER, ASSEMBLER, LINKER AND LOADER: A BRIEF STORY</a></li>
+<li><a href="http://security.stackexchange.com/questions/20497/stack-overflows-defeating-canaries-aslr-dep-nx" target="_blank" rel="external">Discuss on stack exchange</a></li>
+<li><a href="https://www.cs.umd.edu/class/fall2012/cmsc498L/materials/vuln-lab.shtml" target="_blank" rel="external">Shellcode/buffer overflow lab</a></li>
+<li><a href="http://www.csee.umbc.edu/~chang/cs313.s02/stack.shtml" target="_blank" rel="external">C Function Call Conventions and the Stack</a></li>
+<li><a href="https://www.ibm.com/developerworks/cn/linux/l-overflow/" target="_blank" rel="external">Linux下缓冲区溢出攻击的原理及对策(中文)</a></li>
+</ul>
+<p>About packet capture and injection:</p>
+<ul>
+<li><a href="http://networksecurity.org.ua/0596007949/toc.html" target="_blank" rel="external">Network Security Tools(chapter 10 and 11 are about libnet/libpcap)</a></li>
+<li><a href="http://www.tcpdump.org/pcap.html" target="_blank" rel="external">Programming with pcap</a></li>
+<li><a href="http://yuba.stanford.edu/~casado/pcap/section1.html" target="_blank" rel="external">The Sniffer’s Guide to Raw Traffic</a></li>
+</ul>
+<p>About arpspoofing:</p>
+<ul>
+<li><a href="http://www.irongeek.com/i.php?page=security/arpspoof" target="_blank" rel="external">The Basics of Arpspoofing/Arppoisoning</a></li>
+</ul>
+<p>About shellcode</p>
+<ul>
+<li><a href="http://www.vividmachines.com/shellcode/shellcode.html" target="_blank" rel="external">Shellcoding for Linux and Windows Tutorial</a></li>
+</ul>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/life/2013/06/01/recent-summary/" itemprop="url">
                   Recent Summary
                 </a>
@@ -1950,305 +2151,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/linux/2013/03/11/quickstart-ebuild-guide/" itemprop="url">
-                  Quickstart Ebuild Guide
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2013-03-11T00:00:00+08:00" content="2013-03-11">
-              2013-03-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/linux/2013/03/11/quickstart-ebuild-guide/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2013/03/11/quickstart-ebuild-guide/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="快速ebuild向导">快速ebuild向导</h1><p>这页是个非常简洁的ebuild写作指南。它不包含许多开发者面临的细节和问题，而是给出足够用来理解ebuild如何工作的微小的例子。</p>
-<p>为了正确的涵盖所有来龙去脉，参见<a href="http://devmanual.gentoo.org/ebuild-writing/index.html" target="_blank" rel="external">Ebuild Writing</a>。<a href="http://devmanual.gentoo.org/general-concepts/index.html" target="_blank" rel="external">General Concepts</a>章节也很有用。</p>
-<p>注意这里的例子，虽然基于真实的ebuilds树，但有些部分大刀阔斧的修剪、更改和简化了。</p>
-<h2 id="第一个Ebuild">第一个Ebuild</h2><p>我们从Exuberant Ctags工具开始，一个代码索引工具。这时一个简化的<code>dev-util/ctags/ctags-5.5.4.ebuild</code>(你能在主目录下找到真实的ebuild)</p>
-<pre><code><span class="comment"># Copyright 1999-2012 Gentoo Foundation</span>
-<span class="comment"># Distributed under the terms of the GNU General Public License v2</span>
-<span class="comment"># $Header: $</span>
-
-<span class="variable">EAPI=</span><span class="number">4</span>
-
-<span class="variable">DESCRIPTION=</span><span class="string">"Exuberant ctags generates tags files for quick source navigation"</span>
-<span class="variable">HOMEPAGE=</span><span class="string">"http://ctags.sourceforge.net"</span>
-<span class="variable">SRC_URI=</span><span class="string">"mirror://sourceforge/ctags/<span class="subst">${P}</span>.tar.gz"</span>
-
-<span class="variable">LICENSE=</span><span class="string">"GPL-2"</span>
-<span class="variable">SLOT=</span><span class="string">"0"</span>
-<span class="variable">KEYWORDS=</span><span class="string">"~mips ~sparc ~x86"</span>
-
-src_configure() {
-    econf --<span class="keyword">with</span>-posix-regex
-}
-
-src_install() {
-    emake <span class="variable">DESTDIR=</span><span class="string">"<span class="subst">${D}</span>"</span> install
-
-    dodoc FAQ NEWS README
-    dohtml EXTENDING.html ctags.html
-}
-</code></pre><h3 id="基本格式">基本格式</h3><p>如你所见，ebuilds仅仅是在特殊环境中执行的<code>bash</code>脚本。</p>
-<p>在ebuild的顶部是头块(header block)，出现在所有ebuild中。</p>
-<p>Ebuild使用tabs缩进，每个tab代表四格空格。参见<a href="http://devmanual.gentoo.org/ebuild-writing/file-format/index.html" target="_blank" rel="external">Ebuild File Format</a>.</p>
-<h3 id="信息变量">信息变量</h3><p>接着，有一系列变量将告诉Portage有关包和ebuild的各种东西。</p>
-<p>ebuild的<code>EAPI</code>，参见<a href="http://devmanual.gentoo.org/ebuild-writing/eapi/index.html" target="_blank" rel="external">EAPI Usage and Description</a></p>
-<p><code>DESCRIPTION</code>变量是包及包的作用的简短描述。</p>
-<p><code>HOMEPAGE</code>是链接到包的主页的链接。(切记包含<code>http://</code>部分)。</p>
-<p><code>SRC_URI</code>告诉Portage用来下载源码包的地址。这里，<code>mirror://sourceforge/</code>是意为“任何Sourceforge镜像”的特殊标记。<code>${P}</code>是由Portage设置的只读变量，即包名和版本——示例中是<code>ctags-5.5.4</code>。</p>
-<p><code>LICENSE</code>是协议<code>GPL-2</code>(GNU General Public License version 2)。</p>
-<p><code>SLOT</code>告诉Portage这个包安装到哪个slot。</p>
-<p><code>KEYWORDS</code>变量设置ebuild测试的架构。我们使用<code>～</code>keyword给我们新写的ebuild，包不允许被直接推送到稳定版，即使他们似乎工作。参见<a href="http://devmanual.gentoo.org/keywording/index.html" target="_blank" rel="external">Keywording</a>查看细节。</p>
-<h3 id="构建函数">构建函数</h3><p>接着一个叫<code>src_configure</code>的函数，Portage将在配置(<em>configure</em>)包时调用它。<code>econf</code>是执行<code>./configure</code>的一个封装。如果由于某些原因在<code>econf</code>时出错，Portage将停止而非继续安装。</p>
-<p>当Portage准备安装包时会调用<code>src_install</code>函数。这里有点微妙——并非直接安装到文件系统，我们必须安装到一个Portage通过<code>${D}</code>变量给出的特殊位置(Portage设置这个——参见<a href="http://devmanual.gentoo.org/general-concepts/install-destinations/index.html" target="_blank" rel="external">Install Destinations</a>和<a href="http://devmanual.gentoo.org/general-concepts/sandbox/index.html" target="_blank" rel="external">Sandbox</a>)</p>
-<p><strong>注意：常规安装方法是<code>emake DESTDIR=&quot;${D}&quot; install</code>，这适合所有符合标准的<code>Makefile</code>。如果给出sandbox错误，尝试用<code>einstall</code>代替。如果仍然失败，参看<a href="http://devmanual.gentoo.org/ebuild-writing/functions/src_install/index.html" target="_blank" rel="external">src_install</a>如何手工安装。</strong></p>
-<p><code>dodoc</code>和<code>dohtml</code>部分是安装文件到相应的<code>/usr/share/doc</code>部分的辅助函数。</p>
-<p>ebuild可以定义其它函数(参见<a href="http://devmanual.gentoo.org/ebuild-writing/functions/index.html" target="_blank" rel="external">Ebuild Functions</a>)。在大多情况下，Portage提供合理的默认实现，通常做正确的事情，不需要定义<code>src_unpack</code>和<code>src_compile</code>函数。例如，<code>src_unpack</code>函数被用来解包或给源码打补丁，但是这个例子中默认实现做了我们所需要的所有事情。同样默认的<code>src_compile</code>函数将调用<code>emake</code>——一个<code>make</code>的封装。</p>
-<p><strong>注意：先前<code>|| die</code>结构不得不添加到每个命令后去检查错误。这在EAPI 4中不在必要——如果什么出错的话Portage提供的函数将自己die。</strong></p>
-<h2 id="含依赖的ebuild">含依赖的ebuild</h2><p>在ctags的例子中，我们没告诉Portage有关任何依赖。当情况是这样时，没关系，因为ctags仅仅需要一个基本的工具链来编译和运行(参见<a href="http://devmanual.gentoo.org/general-concepts/dependencies/index.html#implicit-system-dependency" target="_blank" rel="external">Implicit System Dependency</a>理解为何我们不需要显式依赖)。然而事情很少这么简单。</p>
-<p>这是<code>app-misc/detox/detox-1.1.1.ebuild</code>：</p>
-<pre><code><span class="comment"># Copyright 1999-2012 Gentoo Foundation</span>
-<span class="comment"># Distributed under the terms of the GNU General Public License v2</span>
-<span class="comment"># $Header: $</span>
-
-<span class="variable">EAPI=</span><span class="number">4</span>
-
-<span class="variable">DESCRIPTION=</span><span class="string">"detox safely removes spaces and strange characters from filenames"</span>
-<span class="variable">HOMEPAGE=</span><span class="string">"http://detox.sourceforge.net/"</span>
-<span class="variable">SRC_URI=</span><span class="string">"mirror://sourceforge/<span class="subst">${PN}</span>/<span class="subst">${P}</span>.tar.bz2"</span>
-
-<span class="variable">LICENSE=</span><span class="string">"BSD"</span>
-<span class="variable">SLOT=</span><span class="string">"0"</span>
-<span class="variable">KEYWORDS=</span><span class="string">"~hppa ~mips sparc x86"</span>
-
-<span class="variable">RDEPEND=</span><span class="string">"dev-libs/popt"</span>
-<span class="variable">DEPEND=</span><span class="string">"<span class="subst">${RDEPEND}</span>
-    sys-devel/flex
-    sys-devel/bison"</span>
-
-src_configure() {
-    econf --<span class="keyword">with</span>-popt
-}
-
-src_install() {
-    emake <span class="variable">DESTDIR=</span><span class="string">"<span class="subst">${D}</span>"</span> install
-    dodoc README CHANGES
-}
-</code></pre><p>你再次看到ebuild头和不通的信息变量。在<code>SRC_URI</code>中，<code>${PN}</code>用来获取不含尾部版本的包名(还有更多的这种变量——参见<a href="http://devmanual.gentoo.org/ebuild-writing/variables/index.html#predefined-read-only-variables" target="_blank" rel="external">Predefined Read-Only Variables</a>)。</p>
-<p>我们再次定义了<code>src_configure</code>和<code>src_install</code>函数。</p>
-<p>Portage依靠<code>DEPEND</code>和<code>RDEPEND</code>变量决定构建和运行包需要哪些变量。<code>DEPEND</code>变量列出编译时依赖，<code>RDEPEND</code>变量列出运行时依赖。参见<a href="http://devmanual.gentoo.org/general-concepts/dependencies/index.html" target="_blank" rel="external">Dependencies</a>获取更复杂的例子。</p>
-<h2 id="带补丁的ebuild">带补丁的ebuild</h2><p>我们经常要打补丁。这通过<code>epatch</code>辅助函数在<code>src_prepare</code>函数中完成。为了使用<code>epatch</code>，必须告诉Portage需要的<code>eutils</code>eclass(eclass就像库一样)——这通过在ebuild顶部的<code>inherit eutils</code>完成。这是<code>app-misc/detoxdetox-1.1.0.ebuild</code>：</p>
-<pre><code><span class="comment"># Copyright 1999-2012 Gentoo Foundation</span>
-<span class="comment"># Distributed under the terms of the GNU General Public License v2</span>
-<span class="comment"># $Header: $</span>
-
-EAPI=<span class="number">4</span>
-
-inherit eutils
-
-DESCRIPTION=<span class="string">"detox safely removes spaces and strange characters from filenames"</span>
-HOMEPAGE=<span class="string">"http://detox.sourceforge.net/"</span>
-SRC_URI=<span class="string">"mirror://sourceforge/<span class="variable">${PN}</span>/<span class="variable">${P}</span>.tar.bz2"</span>
-
-LICENSE=<span class="string">"BSD"</span>
-SLOT=<span class="string">"0"</span>
-KEYWORDS=<span class="string">"~hppa ~mips ~sparc ~x86"</span>
-
-RDEPEND=<span class="string">"dev-libs/popt"</span>
-DEPEND=<span class="string">"<span class="variable">${RDEPEND}</span>
-    sys-devel/flex
-    sys-devel/bison"</span>
-
-<span class="function"><span class="title">src_prepare</span></span>() {
-    epatch <span class="string">"<span class="variable">${FILESDIR}</span>"</span>/<span class="variable">${P}</span>-destdir.patch \
-        <span class="string">"<span class="variable">${FILESDIR}</span>"</span>/<span class="variable">${P}</span>-parallel_build.patch
-}
-
-<span class="function"><span class="title">src_configure</span></span>() {
-    econf --with-popt
-}
-
-<span class="function"><span class="title">src_install</span></span>() {
-    emake DESTDIR=<span class="string">"<span class="variable">${D}</span>"</span> install
-    dodoc README CHANGES
-}
-</code></pre><p>注意<code>${FILESDIR}/${P}-destdir.patch</code>指向<code>detox-1.1.0-destdir.patch</code>，这个文件在Portage树的<code>files/</code>子文件夹中。更大的补丁文件必须在你的开发者空间<code>dev.gentoo.org</code>而不是<code>files/</code>或镜像中——参见<a href="http://devmanual.gentoo.org/general-concepts/mirrors/index.html#gentoo-mirrors" target="_blank" rel="external">Gentoo Mirrors</a>和<a href="http://devmanual.gentoo.org/ebuild-writing/functions/src_prepare/epatch/index.html" target="_blank" rel="external">Patching with epatch</a>。</p>
-<h2 id="带USE标记的ebuild">带USE标记的ebuild</h2><p>对<code>USE</code>标记，这里有个例子<code>dev-libs/libiconv/libiconv-1.9.2.ebuild</code>，一个<code>libc</code>实现的iconv替代。</p>
-<pre><code># Copyright <span class="number">1999</span>-<span class="number">2012</span> Gentoo Foundation
-# Distributed under the terms of the GNU General Public License v2
-# $Header: $
-<span class="constant">
-EAPI</span>=<span class="number">4</span>
-<span class="constant">
-DESCRIPTION</span>=<span class="string">"GNU charset conversion library for libc which doesn't implement it"</span>
-<span class="constant">HOMEPAGE</span>=<span class="string">"http://www.gnu.org/software/libiconv/"</span>
-<span class="constant">SRC_URI</span>=<span class="string">"ftp://ftp.gnu.org/pub/gnu/libiconv/${P}.tar.gz"</span>
-<span class="constant">
-LICENSE</span>=<span class="string">"LGPL-2.1"</span>
-<span class="constant">SLOT</span>=<span class="string">"0"</span>
-<span class="constant">KEYWORDS</span>=<span class="string">"~amd64 ~ppc ~sparc ~x86"</span>
-<span class="constant">IUSE</span>=<span class="string">"nls"</span>
-<span class="constant">
-DEPEND</span>=<span class="string">"!sys-libs/glibc"</span>
-
-src_configure() {
-    econf $(use_enable nls)
-}
-
-src_install() {
-    emake DESTDIR=<span class="string">"${D}"</span> install
-}
-</code></pre><p>注意<code>IUSE</code>变量。这列出了所有(非特殊)ebuild使用的use标记。除其它事项外，它还将被用作<code>emerge -pv</code>时输出。</p>
-<p>这个包的<code>./configure</code>脚本使用了常规的<code>--enable-nls</code>或<code>--disable-nls</code>参数。我们用<code>use_enable</code>工具函数依赖用户<code>USE</code>标记自动生成这个(参见<a href="http://devmanual.gentoo.org/function-reference/query-functions/index.html" target="_blank" rel="external">Query Function Reference</a>)。</p>
-<p>另一个复杂的例子是<code>mail-client/sylpheed/sylpheed-1.0.4.ebuild</code>：</p>
-<pre><code><span class="comment"># Copyright 1999-2012 Gentoo Foundation</span>
-<span class="comment"># Distributed under the terms of the GNU General Public License v2</span>
-<span class="comment"># $Header: $</span>
-
-EAPI=<span class="number">4</span>
-
-inherit eutils
-
-DESCRIPTION=<span class="string">"A lightweight email client and newsreader"</span>
-HOMEPAGE=<span class="string">"http://sylpheed.good-day.net/"</span>
-SRC_URI=<span class="string">"mirror://sourceforge/<span class="variable">${PN}</span>/<span class="variable">${P}</span>.tar.bz2"</span>
-
-LICENSE=<span class="string">"GPL-2"</span>
-SLOT=<span class="string">"0"</span>
-KEYWORDS=<span class="string">"alpha amd64 hppa ia64 ppc ppc64 sparc x86"</span>
-IUSE=<span class="string">"crypt imlib ipv6 ldap nls pda ssl xface"</span>
-
-RDEPEND=<span class="string">"=x11-libs/gtk+-2*
-    crypt? ( &gt;=app-crypt/gpgme-0.4.5 )
-    imlib? ( media-libs/imlib2 )
-    ldap? ( &gt;=net-nds/openldap-2.0.11 )
-    pda? ( app-pda/jpilot )
-    ssl? ( dev-libs/openssl )
-    xface? ( &gt;=media-libs/compface-1.4 )
-    app-misc/mime-types
-    x11-misc/shared-mime-info"</span>
-DEPEND=<span class="string">"<span class="variable">${RDEPEND}</span>
-    dev-util/pkgconfig
-    nls? ( &gt;=sys-devel/gettext-0.12.1 )"</span>
-
-<span class="function"><span class="title">src_prepare</span></span>() {
-    epatch <span class="string">"<span class="variable">${FILESDIR}</span>"</span>/<span class="variable">${PN}</span>-namespace.diff \
-        <span class="string">"<span class="variable">${FILESDIR}</span>"</span>/<span class="variable">${PN}</span>-procmime.diff
-}
-
-<span class="function"><span class="title">src_configure</span></span>() {
-    econf \
-        $(use_<span class="built_in">enable</span> nls) \
-        $(use_<span class="built_in">enable</span> ssl) \
-        $(use_<span class="built_in">enable</span> crypt gpgme) \
-        $(use_<span class="built_in">enable</span> pda jpilot) \
-        $(use_<span class="built_in">enable</span> ldap) \
-        $(use_<span class="built_in">enable</span> ipv6) \
-        $(use_<span class="built_in">enable</span> imlib) \
-        $(use_<span class="built_in">enable</span> xface compface)
-}
-
-<span class="function"><span class="title">src_install</span></span>() {
-    emake DESTDIR=<span class="string">"<span class="variable">${D}</span>"</span> install
-
-    doicon sylpheed.png
-    domenu sylpheed.desktop
-
-    dodoc [A-Z][A-Z]* ChangeLog*
-}
-</code></pre><p>注意可选依赖。有些<code>use_enable</code>行使用两个参数的版本——这在USE标记名不完全匹配<code>./configure</code>参数时非常有用。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2295,7 +2197,7 @@ DEPEND=<span class="string">"<span class="variable">${RDEPEND}</span>
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">172</span>
+              <span class="site-state-item-count">173</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

@@ -229,6 +229,253 @@
             
               
                 
+                <a class="post-title-link" href="/python/2012/09/12/" itemprop="url">
+                  科学计算工具和工作流
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-09-12T00:00:00+08:00" content="2012-09-12">
+              2012-09-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2012/09/12/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/09/12//" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="Scientific_computing_with_tools_and_workflow">Scientific computing with tools and workflow</h1><hr>
+<p><strong>好长的标题……</strong></p>
+<p>从<a href="http://scipy-lectures.github.com/intro/intro.html" target="_blank" rel="external">scipy lecture notes</a>引言翻译。这是篇python 做科学计算的水文……</p>
+<p>作者:Fernando Perez, Emmanuelle Gouillart, Gaël Varoquaux。感谢他们贡献了如此棒的教材。</p>
+<hr>
+<p><strong>目录</strong></p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<h2 id="为什么Python？">为什么Python？</h2><h3 id="科学家的需求">科学家的需求</h3><ul>
+<li>获取数据(模拟，试验操控)</li>
+<li>操作和处理数据</li>
+<li>可视化结果……让我们理解我们在做什么！</li>
+<li>交流结果：产生用来做报告或出版的图像，写演示文稿。</li>
+</ul>
+<h3 id="要求">要求</h3><ul>
+<li>对相应经典数值方法和基本作用已经存在丰富的程序块：我们不想再次为绘制曲线、傅利叶变换或者拟合算法重新编程。不要重复发明轮子。</li>
+<li>简单易学：计算机科学不是我们的课程也不是工作。我们想要在几分钟内绘制曲线、平滑信号和做傅利叶变换。</li>
+<li>易于和合作者、学生、顾客交流，让代码在试验室或公司内部都生动起来：代码应该像本书一样易读。因此，语言应该包含尽量少的语法符号或不必要的规范，使数学家和科学家读者能够理解代码。</li>
+<li>有效率地编码和快速执行……但是不必说如果我们花太多时间来编写它，非常快的代码也变得无用。所以，我们需要同样短的开发时间和短的执行时间。</li>
+<li>一个单独的环境/语言解决所有事情。如果可能，避免为每个新问题学习新的软件。</li>
+</ul>
+<h3 id="已经存在的解决方案">已经存在的解决方案</h3><p>科学家们用什么工作？</p>
+<p><em>编译语言：C,C++,Fortran等等</em></p>
+<ul>
+<li>优点：<ul>
+<li>非常快。高度优化的编译器。对大量计算，很难超越这些语言。</li>
+<li>为这些语言已经写了一些高度优化的科学库。例如：BLAS(向量/矩阵运算库)</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>难用：在开发时没有交互，命令式的编译步骤，累赘的语法(<code>&amp;, ::, }}, ;</code>等等)，人工内存管理(C中很棘手)。这些对非计算机科学家是<em>难懂的语言</em>。</li>
+</ul>
+</li>
+</ul>
+<p><em>脚本语言：Matlab</em></p>
+<ul>
+<li>优点：<ul>
+<li>在许多领域有丰富的数值算法库。因为这些库经常用编译语言写成而有快的执行速度。</li>
+<li>友好的开发环境：全面而且组织良好的帮助，集成的编辑器等。</li>
+<li>商业支持</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>基本语言太弱了，高级用户将很受限。</li>
+<li>不免费</li>
+</ul>
+</li>
+</ul>
+<p><em>其它脚本语言：Scilab, Octave, Igor, R, IDL等等</em></p>
+<ul>
+<li>优点：<ul>
+<li>开源、免费,或者至少比Matlab便宜。</li>
+<li>有些功能非常高级(R中的统计，Igor中的绘图等等)</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>比Matlab中可用算法少，语言不高级。</li>
+<li>有些软件专注于一个领域。例如:Gnuplot或xmgrace绘制曲线。这些程序非常强大，但是它们被限制在一种类型的使用上，例如绘图。</li>
+</ul>
+</li>
+</ul>
+<p><em>Python怎么样</em></p>
+<ul>
+<li>优点：<ul>
+<li>非常丰富的科学计算库(尽管稍微比Matlab少那么一点点)</li>
+<li>很好的思考语言，允许写出非常易读和组织很好的代码：“所码即所想” 。</li>
+<li>相当之多科学计算任务之外的库(网络服务器管理、串口访问等等。)</li>
+<li>自由免费和开源，使用广泛，活跃的社区。</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>不怎么友好的开发环境和某些软件相比，比如Matlab。(更加geek向一些)。</li>
+<li>并非所有的算法可以在专业软件和工具箱中找到。</li>
+</ul>
+</li>
+</ul>
+<h2 id="python科学工具">python科学工具</h2><p>不像Matlab，Scilab和R，Python并不预先绑定一套科学计算模块。以下是用来搭建科学计算环境的基本构建模块：</p>
+<ul>
+<li><p><em>Python</em>，一个通用和现代的计算语言</p>
+<ul>
+<li>Python语言：数据结构(字符串、整型)，控制流，数据集合(列表、字典)，模式等等。</li>
+<li>标准库的模块</li>
+<li>大量用Python写成特殊用途的模块或应用：网络协议，网络框架等等，还有科学计算。</li>
+<li>开发工具(自动测试，文档生成)</li>
+</ul>
+</li>
+<li><p><em>IPython</em>，一个高级<em>Python shell</em> <a href="http://ipython.scipy.org/moin/" target="_blank" rel="external">http://ipython.scipy.org/moin/</a></p>
+</li>
+<li><p><em>Numpy</em>，提供强大的数值数组对象和操作它们的程序。<a href="http://www.numpy.org/" target="_blank" rel="external">http://www.numpy.org/</a></p>
+</li>
+<li><p><em>Scipy</em>：高水准的数据处理程序。优化、回归、插值等等。<a href="http://www.scipy.org/" target="_blank" rel="external">http://www.scipy.org/</a></p>
+</li>
+<li><p><em>Matplotlib</em>：二维可视化，“出版水准”的绘图。<a href="http://matplotlib.sourceforge.net/" target="_blank" rel="external">http://matplotlib.sourceforge.net/</a></p>
+</li>
+<li><p><em>Mayavi</em>：三维可视化。<a href="http://code.enthought.com/projects/mayavi/" target="_blank" rel="external">http://code.enthought.com/projects/mayavi/</a></p>
+</li>
+</ul>
+<h2 id="交互工作流:IPython和文本编辑器">交互工作流:IPython和文本编辑器</h2><p><strong>交互工作来测试和理解算法</strong>：在这一部分，我们描述一个使用<a href="http://ipython.org/" target="_blank" rel="external">IPython</a>交互工作流，这很方便探索和理解算法。</p>
+<p>Python是一种通用语言。因此，没有一个得天独厚的工作环境,使用它的方式不只一种。尽管这让初学者很难找到自己的路，但让Python可能被用来在服务器上或嵌入设备上写程序。</p>
+<blockquote>
+<p><strong>注解</strong>：这部分的参考文档：</p>
+<p><strong>IPython用户手册</strong>：<a href="http://ipython.org/ipython-doc/dev/index.html" target="_blank" rel="external">http://ipython.org/ipython-doc/dev/index.html</a></p>
+</blockquote>
+<h3 id="命令行交互">命令行交互</h3><p>启动<em>ipython</em>：</p>
+<pre><code>In [<span class="number">1</span>]: <span class="function"><span class="title">print</span><span class="params">(<span class="string">'Hello world'</span>)</span></span>
+Hello world
+</code></pre><p>获得帮助<a href="在python2.7以后不会这样显示了。">^1</a>：</p>
+<pre><code>In [<span class="number">2</span>]: print?
+Type:               builtin_function_or_method
+Base Class:         &lt;type <span class="string">'builtin_function_or_method'</span>&gt;
+String Form:        &lt;built-<span class="operator">in</span> <span class="function"><span class="keyword">function</span> <span class="title">print</span>&gt;</span>
+Namespace:          Python builtin
+Docstring:
+    print(<span class="built_in">value</span>, ..., sep=<span class="string">' '</span>, <span class="keyword">end</span>=<span class="string">'\n'</span>, <span class="built_in">file</span>=sys.<span class="keyword">stdout</span>)
+
+    Prints <span class="operator">the</span> values <span class="built_in">to</span> <span class="operator">a</span> stream, <span class="operator">or</span> <span class="built_in">to</span> sys.<span class="keyword">stdout</span> <span class="keyword">by</span> default.
+    Optional keyword arguments:
+    <span class="built_in">file</span>: <span class="operator">a</span> <span class="built_in">file</span>-like object (stream); defaults <span class="built_in">to</span> <span class="operator">the</span> current sys.<span class="keyword">stdout</span>.
+    sep:  <span class="keyword">string</span> inserted between values, default <span class="operator">a</span> <span class="constant">space</span>.
+    <span class="keyword">end</span>:  <span class="keyword">string</span> appended <span class="keyword">after</span> <span class="operator">the</span> <span class="keyword">last</span> <span class="built_in">value</span>, default <span class="operator">a</span> newline.
+</code></pre><h3 id="在编辑器中拟定算法">在编辑器中拟定算法</h3><p>在文本编辑器中创建一个文件<code>my_file.py</code>。在EPD(Enthought Python Distribution)<a href="Enthought公司配置好的一套环境，教育网邮箱可以免费申请使用。">^2</a>中，你可以使用从开始菜单使用<em>Scite</em>。在Python(x,y)中<a href="另一个配置好的环境。">^3</a>，你可以使用Spyder。在Ubuntu下，如果你还没有喜欢的编辑器，我们建议安装<em>Stani’s Python editor</em>。在这个文件中，添加以下行：</p>
+<pre><code>s = <span class="string">'Hello world'</span>
+<span class="function"><span class="title">print</span><span class="params">(s)</span></span>
+</code></pre><p>现在，你可以在IPython中运行和探索结果变量：</p>
+<pre><code><span class="keyword">In</span> [3]: %<span class="keyword">run</span> my_file.py
+Hello <span class="literal">word</span>
+
+<span class="keyword">In</span> [4]: <span class="literal">s</span>
+<span class="keyword">Out</span>[4]: 'Hello word'
+
+<span class="keyword">In</span> [5]: %whos
+Variable   <span class="keyword">Type</span>    Data/Info
+
+----------------------------
+s          str     Hello <span class="literal">word</span>
+</code></pre><blockquote>
+<p><strong>从脚本到函数</strong></p>
+<p> 虽然只用一个接一个指令的脚本工作很诱惑，但请逐渐将脚本改进成一套函数：</p>
+<ul>
+<li>一个脚本不可复用，但函数可以。</li>
+<li>以函数式思考益于将问题分解。</li>
+</ul>
+</blockquote>
+<hr>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/python/2012/09/07/matplotlib-tutorial/" itemprop="url">
                   Matplotlib Tutorial(译)
                 </a>
@@ -3453,140 +3700,6 @@ pylab.show()
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/test/2012/07/11/" itemprop="url">
-                  这两天的二逼日子
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-07-11T00:00:00+08:00" content="2012-07-11">
-              2012-07-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/test/" itemprop="url" rel="index">
-                    <span itemprop="name">test</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/test/2012/07/11/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="test/2012/07/11//" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="这几天我都干啥了">这几天我都干啥了</h1><p>这几天我都干些啥了呢，在这个幻灯片中，我将做个小结</p>
-<p><img src="http://fmn.rrimg.com/fmn063/20120708/1320/p_large_lamv_658f000005f61261.jpg" alt="dt的tweak"></p>
-<hr>
-<h2 id="为啥我要宅两天">为啥我要宅两天</h2><p>前几天的考研复习那个不亦乐乎，高数终于看了三章不到，概率论终于看了不到三章。我想想怎么着回家前的这几天也得好好学习一阵，可你妹的 <em>我感冒了</em></p>
-<hr>
-<h2 id="那卧病寝室这几天在干吗？">那卧病寝室这几天在干吗？</h2><ul>
-<li>普通说法叫折腾</li>
-<li>文艺说法叫hack</li>
-<li>说得二逼一点我其实就是蛋疼</li>
-</ul>
-<hr>
-<h2 id="水人人水贴吧水论坛">水人人水贴吧水论坛</h2><ul>
-<li>好吧，你之前看到的那个win7 图吧，其实就是我闲的蛋疼用archlinux+kde伪装的，然后到baidu的win8 吧发截图玩</li>
-<li>貌似人人也没少水</li>
-<li>貌似论坛也没少去，什么byr啊，jnrain啊，u 坛啊</li>
-</ul>
-<hr>
-<h2 id="学习python">学习python</h2><h3 id="Why_python">Why python</h3><p>本来是学习sage的，因为看到ustc有个<a href="http://home.ustc.edu.cn/~wyfyw/iSL/" target="_blank" rel="external">创新项目</a>就是推广这个的。最后发现很多python的东西，于是学python去了。</p>
-<h3 id="折腾大略">折腾大略</h3><ul>
-<li>首先配置vim找到了<a href="https://github.com/klen/python-mode" target="_blank" rel="external">python-mode</a>,看视频demo很棒，于是折腾了一天，终于能比较方便的使用了，结果是把supertab插件废掉，系统默认python改成2了，x输入法在vim中用不了了，暂时也许永久地用起了神奇的vimim.</li>
-<li>见byr坛上有连两个帖子热议python,结果是先选了python2</li>
-<li>看看<a href="http://woodpecker.org.cn/abyteofpython_cn/chinese/" target="_blank" rel="external">python 简明教程</a>感觉看着很平滑，没有这么挫败感。一口气看到第九章</li>
-</ul>
-<hr>
-<h2 id="搜集OS娘">搜集OS娘</h2><p>是的，我好好学习了OS娘的相关知识，并搜集了<a href="http://photo.renren.com/photo/306127150/album-647659933?curPage=1" target="_blank" rel="external">一大堆OS娘的图片</a></p>
-<p><img src="http://fmn.rrimg.com/fmn065/20120710/1325/p_large_8tXz_2508000054681263.jpg" alt="OS girl"></p>
-<hr>
-<h2 id="总结一下吧">总结一下吧</h2><p>这两天过得及其惨不忍睹，为什么每天跑一个小时步说感冒就感冒？我在电脑前时间太长了吧……所以<em>回家不带电脑</em>，最好明天也别碰</p>
-<p>这两天过得及其二逼，一早起床坐到电脑前，到晚上念念不舍上床，偶尔吃饭出去下，喝水活动下，上厕所闲逛下……目测旁边忙着dota的和我一样……</p>
-<p>身子更弱了……</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#这段代码测试高亮</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"珍爱生命，远离折腾"</span></span><br></pre></td></tr></table></figure>
-<p>靠，我该洗洗睡了……</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -3633,7 +3746,7 @@ pylab.show()
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">172</span>
+              <span class="site-state-item-count">173</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

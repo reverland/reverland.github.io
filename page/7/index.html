@@ -229,6 +229,172 @@
             
               
                 
+                <a class="post-title-link" href="/network/2014/04/03/gns3-on-gentoo-linux/" itemprop="url">
+                  GNS3 on Gentoo Linux
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-04-03T00:00:00+08:00" content="2014-04-03">
+              2014-04-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/network/" itemprop="url" rel="index">
+                    <span itemprop="name">network</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/network/2014/04/03/gns3-on-gentoo-linux/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="network/2014/04/03/gns3-on-gentoo-linux/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="Install_and_Configure_GNS3">Install and Configure GNS3</h2><p>First, You should install gns3:</p>
+<pre><code>sudo emerge <span class="comment">--autounmask-write gns3</span>
+sudo <span class="built_in">dispatch</span>-conf
+sudo emerge gns3
+</code></pre><p>Then you need to prepare for ios images, You can download them from:</p>
+<pre><code><span class="string">ftp:</span><span class="comment">//ftp.unikon-ua.net/pub/Cisco/IOS/</span>
+<span class="string">http:</span><span class="comment">//115.com/file/clsclmjb</span>
+</code></pre><p>Then you should configure them:</p>
+<pre><code>Edit&gt;IOS Images <span class="keyword">and</span> Hypervisors
+</code></pre><p>And calculate ‘Idle PC’。</p>
+<p>You may want to get rid of warning of <code>baseconfig.txt</code>, refer to:</p>
+<pre><code><span class="string">http:</span><span class="comment">//forum.gns3.net/post12717.html</span>
+</code></pre><p>If you are using KDE, you may use konsole’s preconfigured terminal commands.</p>
+<pre><code>Edit&gt;Preferences&gt;<span class="keyword">General</span>&gt;Terminal Settings
+</code></pre><p>You need to install and configure virtualbox at <code>Edit&gt;Preferences&gt;VirtualBox</code>:</p>
+<ul>
+<li><p>modify <code>Path to vboxwrapper</code> to:</p>
+<pre><code><span class="regexp">/usr/</span>libexec<span class="regexp">/gns3/</span>vboxwrapper.py
+</code></pre></li>
+<li><p>emerge virtualbox with sdk and python USE flags</p>
+</li>
+<li><p>install vboxapi:</p>
+<pre><code>cd /usr/<span class="class"><span class="keyword">lib</span>/<span class="title">virtualbox</span>/<span class="title">sdk</span>/<span class="title">installer</span>/</span>
+export <span class="constant">VBOX_INSTALL_PATH</span>=<span class="regexp">/usr/lib</span><span class="regexp">/virtualbox/</span>
+python vboxapisetup.py install
+</code></pre></li>
+<li><p>install xdotool(It’s quite an interesting tool!)</p>
+<pre><code><span class="title">sudo</span> emerge xdotool
+</code></pre></li>
+<li>add virtual system:<pre><code><span class="keyword">Edit</span>&gt;Preferences&gt;VirtualBox&gt;VirtualBox Guest
+</code></pre></li>
+</ul>
+<p>You need to install qemu at <code>Edit&gt;Preferences&gt;Qemu</code>:</p>
+<ul>
+<li><p>modify <code>Path to qemu</code>:</p>
+<pre><code>qemu-<span class="keyword">system</span>-x86_64
+</code></pre></li>
+<li><p>modify path to qemuwrapper to:</p>
+<pre><code><span class="regexp">/usr/</span>libexec<span class="regexp">/gns3/</span>qemuwrapper.py
+</code></pre></li>
+<li><p>kernel should support kvm-intel:</p>
+<pre><code> ⮀ ~ ⮀ lsmod|grep kvm
+kvm_intel             <span class="number">117933</span>  <span class="number">0</span> 
+kvm                   <span class="number">225670</span>  <span class="number">1</span> kvm_intel
+</code></pre></li>
+<li><p>and add you user to:</p>
+<p>  gpasswd -a username kvm</p>
+</li>
+<li><p>add virtual system, which can be <code>vdi</code></p>
+</li>
+<li><p>If you want to use PIX firewall, download pemu from <a href="http://sourceforge.net/projects/gns-3/files/Pemu/2008-03-03/pemu_2008-03-03_bin.tar.bz2/download" target="_blank" rel="external">Sourceforge</a> and cp them to the directory which has <code>qemuwrapper.py</code>. You can reffer to: <a href="http://www.gns3.net/documentation/gns3/pix-firewall-emulation/" target="_blank" rel="external">http://www.gns3.net/documentation/gns3/pix-firewall-emulation/</a></p>
+</li>
+<li><p>if you re-compile kernel, don’t forget to re-compile kernel modules for virtualbox and modprobe them</p>
+</li>
+</ul>
+<h2 id="More_configuration">More configuration</h2><p>More configuration and downloads(I tried and failed, do not know what is actually is and how to use it):</p>
+<ul>
+<li><a href="http://xinchq2011.blog.51cto.com/2086938/1256837" target="_blank" rel="external">分享–实现用GNS3模拟 PC，PIX，Juniper，ASA，IPS的应用 (中文)</a></li>
+</ul>
+<h2 id="A_Simple_Test">A Simple Test</h2><ul>
+<li>Calc idle PC, very important!!</li>
+</ul>
+<p>configure the router with the help of <a href="http://www.linkwan.com/gb/routertech/routerbase/ciscomanual/015.htm" target="_blank" rel="external">OSPF configure(中文)</a></p>
+<p>A better choice to learn without these configuration, try <a href="http://sourceforge.net/projects/gns3workbench/files/v5.8/" target="_blank" rel="external">GNS3 WorkBench</a></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/network/2014/03/15/play-icmp/" itemprop="url">
                   Playing and Learning ICMP in Action
                 </a>
@@ -2872,659 +3038,6 @@ context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/linux/2013/12/24/writing-drivers-in-linuxa-brief-tutorial/" itemprop="url">
-                  Writing Drivers in Linux:A Brief Tutorial
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2013-12-24T00:00:00+08:00" content="2013-12-24">
-              2013-12-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/linux/2013/12/24/writing-drivers-in-linuxa-brief-tutorial/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2013/12/24/writing-drivers-in-linuxa-brief-tutorial/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>未完成，因为选的一门课的大作业而翻译，这个简单例子作为一个完整的内核驱动写法展示还行。大概某天会把后面的坑填上。</p>
-<p>翻译自<a href="http://www.freesoftwaremagazine.com/articles/drivers_linux" target="_blank" rel="external">http://www.freesoftwaremagazine.com/articles/drivers_linux</a></p>
-<blockquote>
-<p>你是否渴望有minix 1.1相伴的美好日子？那时男人只是男人，并为自己的设备写驱动程序。</p>
-<p>—-Linus Torvalds</p>
-</blockquote>
-<h2 id="先决条件">先决条件</h2><p>为了开发Linux设备驱动，需要理解以下知识<a href="译者：如果你写过shellcode,这全不是问题哇">^1</a>：</p>
-<ul>
-<li>C程序。稍微深入理解C编程，比如指针的使用，位操作函数等等。</li>
-<li>微处理器编程。需要理解微处理器内部如何工作：内存地址，终端等等。所有这些概念对一个汇编程序员都应该很熟悉。</li>
-</ul>
-<p>在Linux中有多种设备。为了简洁，这篇教程仅仅涉及以模块加载的<code>char</code>(字符)设备，2.6.x内核将被使用(准确地说是Debian<br>Sarge下的2.6.8内核[^2], 当前的Debian Stable)</p>
-<h2 id="用户空间和内核空间">用户空间和内核空间</h2><p>当你写设备驱动时，区分“用户空间”和“内核空间”非常重要：</p>
-<ul>
-<li>内核空间：Linux(一个内核)以一种简单有效的方式管理机器的硬件，为用户提供一个简单一致的程序接口。同样内核特别是它的设备驱动，组成了一个终端用户/程序员和硬件之间沟通的桥梁。组成内核(例如模块和设备驱动)一部分的任何子程序或函数都被认为是内核空间的一部分。</li>
-<li>用户空间：终端用户程序，像UNIX<br><code>shell</code>或其它基于GUI的应用(比如<code>kpresenter</code><a href="请自行google">^3</a>)都是用户空间的一部分。显然，这些应用需要和系统硬件交互。然而，它们不直接交互，而是通过内核支持的函数。<br>一切如图一所示。</li>
-</ul>
-<p><img src="http://www.freesoftwaremagazine.com/files/nodes/1238/spaces.jpg" alt="图一"></p>
-<h2 id="用户空间和内核空间接口函数">用户空间和内核空间接口函数</h2><p>内核在用户空间提供一些子程序和函数，允许最终用户应用程序员和硬件交互。通常，在UNIX或Linux系统中，这个对话通过子程序或函数按顺序读写文件实现。这样做的原因是Unix设备从用户角度来看作为文件可见。</p>
-<p>另一方面，在内核空间，Linux也提供了一些函数和子程序执行和硬件直接交互的低级操作，并且允许从内核空间向用户空间传递信息。</p>
-<p>通常，对用户空间(允许使用设备或文件)的每个函数，存在一个内核空间(允许从内核想用户空间传递信息，反之亦然)的等价。这在表一中显示了，当前是空表。它将在不同设备驱动概念介绍时填满。</p>
-<table>
-<thead>
-<tr>
-<th>事件</th>
-<th style="text-align:center">用户空间函数</th>
-<th style="text-align:right">内核空间函数</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>加载模块</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>打开设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>读取设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>写入设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>关闭设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>移除模块</td>
-<td style="text-align:center"></td>
-</tr>
-</tbody>
-</table>
-<p>表一：设备驱动事件和它们对应在内核和用户空间的接口函数</p>
-<h2 id="内核空间和硬件设备之间的接口函数">内核空间和硬件设备之间的接口函数</h2><p>在内核空间中也有控制设备或者在内核和硬件之间交换信息的函数。表二展示了这些概念。这个表也在相关概念引入时填满。</p>
-<table>
-<thead>
-<tr>
-<th>事件</th>
-<th style="text-align:right">内核空间函数</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>读取数据</td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>写入数据</td>
-</tr>
-</tbody>
-</table>
-<p>表二：设备驱动事件和它们在内核空间与硬件之间交互的函数</p>
-<h2 id="第一个驱动：在用户空间加载和卸载驱动">第一个驱动：在用户空间加载和卸载驱动</h2><p>我将向你展示如何开发第一个设备驱动，这个驱动将作为一个模块引入。</p>
-<p>我们在<code>nothing.c</code>文件中写入以下程序。</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span>
-
-MODULE_LICENSE(<span class="string">"Dual BSD/GPL"</span>)<span class="comment">;</span>
-</code></pre><p>自从kernel2.6.x版本以来，编译模块变得有点复杂。首先，你必须有一个完整的编译内核源码树。如果你有个Debian<br>Sarge系统<a href="如果你有一个gentoo系统，请看附录B">^4</a>，你可以参照附录B(在文末)，本文中我假设你们使用3.12.5版内核。</p>
-<p>接着，你需要生成一个makefile文件，这个makefile文件命名为<code>Makefile</code>:</p>
-<pre><code><span class="attribute">obj-m :</span>=<span class="string"> nothing.o</span>
-</code></pre><p>与早先版本内核不同，现在必须使用你想要加载和使用模块的同一内核编译模块。为了编译它，键入：</p>
-<pre><code>$ make -C /usr/src/linux M=<span class="escape">`p</span>wd<span class="escape">` </span>modules
-</code></pre><p>这个极简单的模块属于内核空间，一旦加载就是内核空间的一部分。</p>
-<p>在用户空间，你可以作为root用户键入以下命令加载模块：</p>
-<pre><code><span class="preprocessor"># insmod nothing.ko</span>
-</code></pre><p><code>insmod</code>命令允许内核中模块的安装，然而，这个特别的模块没啥用。</p>
-<p>可以通过查看所有安装的模块来检查模块有没有正确安装：</p>
-<pre><code><span class="preprocessor"># lsmod | grep nothing</span>
-</code></pre><p>最后，可以从内核空间中移除内核：</p>
-<pre><code><span class="preprocessor"># rmmod nothing</span>
-</code></pre><p>通过<code>lsmod</code>命令，你可以确认模块不在内核中了。</p>
-<p>所有这些在表三中总结：</p>
-<table>
-<thead>
-<tr>
-<th>事件</th>
-<th style="text-align:center">用户空间函数</th>
-<th style="text-align:right">内核空间函数</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>加载模块</td>
-<td style="text-align:center">insmod</td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>打开设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>读取设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>写入设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>关闭设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>移除模块</td>
-<td style="text-align:center"></td>
-</tr>
-</tbody>
-</table>
-<p>表三：设备驱动事件和它们对应在内核和用户空间的接口函数</p>
-<h2 id="“Hello_world”驱动：加载和移除内核空间的驱动">“Hello world”驱动：加载和移除内核空间的驱动</h2><p>当一个模块载入内核时，通常一些初始任务比如执行如重置设备、准备RAM，准备中断，准备输入/输出端口等等将被执行。</p>
-<p>这些任务在内核空间执行，通过必须出现的两个函数(并且显示声明):<code>module_init</code>和<code>module_exit</code>;它们应答用户空间内当加载和移除模块时使用的<code>insmod</code>和<code>rmmod</code>命令。总之，用户命令<code>insmod</code>和<code>rmmod</code>使用内核空间函数<code>module_init</code>和<code>module_exit</code>。</p>
-<p>让我们看看经典程序<code>Hello world</code>的实际例子(<code>hello.c</code>)：</p>
-<pre><code><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/init.h&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/kernel.h&gt;</span></span>
-
-MODULE_LICENSE(<span class="string">"Dual BSD/GPL"</span>);
-
-<span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">hello_init</span><span class="params">(<span class="keyword">void</span>)</span> </span>{
-  printk(<span class="string">"&lt;1&gt; Hello world!\n"</span>);
-  <span class="keyword">return</span> <span class="number">0</span>;
-}
-
-<span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">hello_exit</span><span class="params">(<span class="keyword">void</span>)</span> </span>{
-  printk(<span class="string">"&lt;1&gt; Bye, cruel world\n"</span>);
-}
-
-module_init(hello_init);
-module_exit(hello_exit);
-</code></pre><p>事实上函数<code>hello_init</code>和<code>hello_exit</code>可以是任何想要的名字。然而，为了把它们作为相应的加载卸载函数，它们必须被作为<code>module_init</code>和<code>module_exit</code>的参数。</p>
-<p><code>printk</code>函数已经介绍过。非常接近著名的<code>printf</code>除了它在内核中起作用。<code>&lt;1&gt;</code>表示消息的高优先级(低数字)。通过这样，除了在内核系统日志文件中得到消息，也能在系统控制台上收到消息。</p>
-<p>这个模块可以用之前同样的命令编译，把它的名字加入Makefile。</p>
-<pre><code>obj-m := nothing<span class="class">.o</span> hello.o
-</code></pre><p>剩下的文章中，我们将Makefile文件作为读者的联系。完整的包含编译内核模块的Makefile文件在附录A中</p>
-<p>当模块加载或卸载时，消息将通过<code>printk</code>命令呈现在系统控制台上。如果这些消息不再出现在控制台中，你可以通过dmesg命令查看，或者通过<code>cat /var/log/syslog</code><a href="我这里没这个文件">^5</a>查看系统日志文件</p>
-<p>表四展示了两个新函数。</p>
-<table>
-<thead>
-<tr>
-<th>事件</th>
-<th style="text-align:center">用户空间函数</th>
-<th style="text-align:right">内核空间函数</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>加载模块</td>
-<td style="text-align:center">insmod</td>
-<td style="text-align:right">module_init</td>
-</tr>
-<tr>
-<td>打开设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>读取设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>写入设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>关闭设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>移除模块</td>
-<td style="text-align:center">rmmod</td>
-<td style="text-align:right">module_exit</td>
-</tr>
-</tbody>
-</table>
-<p>表四：设备驱动事件和它们对应在内核和用户空间的接口函数</p>
-<h2 id="完整的memory驱动：驱动的初始部分">完整的memory驱动：驱动的初始部分</h2><p>我现在展示如何构建一个完整的设备驱动：<code>memory.c</code>。这个设备讲允许字符从设备读取读取或写入设备。这个设备，尽管没啥用，却提供了一个展示的示例，因为这是一个完整的驱动。<br>它也非常容易实现，因为它不和一个真正的硬件设备交互(除了计算机自身)。</p>
-<p>为了开发这个驱动，一些新的<code>#include</code>语句将被添加添加，这些语句频繁出现在设备驱动中。</p>
-<p>memory initial=</p>
-<pre><code><span class="comment">/* 设备驱动必要的includes块 */</span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/init.h&gt;</span></span>
-<span class="comment">// #include &lt;linux/config.h&gt;  // 2.6.19之后不再有</span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/kernel.h&gt;</span> /* printk() */</span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/slab.h&gt;</span> /* kmalloc() */</span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/fs.h&gt;</span> /* everything... */</span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/errno.h&gt;</span> /* error codes */</span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/types.h&gt;</span> /* size_t */</span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/proc_fs.h&gt;</span></span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;linux/fcntl.h&gt;</span> /* O_ACCMODE */</span>
-<span class="comment">// #include &lt;asm/system.h&gt; /* cli(), *_flags */ // 不再需要</span>
-<span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;asm/uaccess.h&gt;</span> /* copy_from/to_user */</span>
-
-MODULE_LICENSE(<span class="string">"Dual BSD/GPL"</span>);
-
-<span class="comment">/* memory.c 中函数声明 */</span>
-<span class="function"><span class="keyword">int</span> <span class="title">memory_open</span><span class="params">(<span class="keyword">struct</span> inode *inode, <span class="keyword">struct</span> file *filp)</span></span>;
-<span class="function"><span class="keyword">int</span> <span class="title">memory_release</span><span class="params">(<span class="keyword">struct</span> inode *inode, <span class="keyword">struct</span> file *filp)</span></span>;
-<span class="keyword">ssize_t</span> memory_read(<span class="keyword">struct</span> file *filp, <span class="keyword">char</span> *buf, <span class="keyword">size_t</span> count, <span class="keyword">loff_t</span> *f_pos);
-<span class="keyword">ssize_t</span> memory_write(<span class="keyword">struct</span> file *filp, <span class="keyword">char</span> *buf, <span class="keyword">size_t</span> count, <span class="keyword">loff_t</span> *f_pos);
-<span class="function"><span class="keyword">void</span> <span class="title">memory_exit</span><span class="params">(<span class="keyword">void</span>)</span></span>;
-<span class="function"><span class="keyword">int</span> <span class="title">memory_init</span><span class="params">(<span class="keyword">void</span>)</span></span>;
-
-<span class="comment">/* 声明常用文件的结构体 */</span>
-<span class="comment">/* 结构体file_operations在头文件
-linux/fs.h中定义，用来存储驱动内核模块提供的对
-设备进行各种操作的函数的指针。该结构体的每个域都对应着驱动内核模块用来处理某个被请求的
-事务的函数的地址。*/</span>
-<span class="comment">/* 存取函数 */</span>
-<span class="keyword">struct</span> file_operations memory_fops = {
-  read: memory_read,
-  write: memory_write,
-  open: memory_open,
-  release: memory_release
-};
-
-<span class="comment">/* 声明初始和退出函数 */</span>
-module_init(memory_init);
-module_exit(memory_exit);
-
-<span class="comment">/* 驱动全局变量声明 */</span>
-<span class="comment">/* Major number */</span>
-<span class="keyword">int</span> memory_major = <span class="number">60</span>;
-<span class="comment">/* 存储数据的缓冲区 */</span>
-<span class="keyword">char</span> *memory_buffer;
-</code></pre><p>在<code>#include</code>文件之后，先声明之后要定义的函数。操作文件的通用函数一般在<code>file_operations</code>结构体中定义中声明。这些将在下文详细解释。</p>
-<p>接着，初始化和退出函数——当加载和卸载模块时使用的函数——像内核声明。</p>
-<p>最后，声明驱动的全局变量：一条是驱动的<code>major
-number</code>，另一条是指向内存一段区域的指针<code>memory_buffer</code>，这个用来存储驱动数据。</p>
-<h2 id="memory驱动：连接设备和它的文件">memory驱动：连接设备和它的文件</h2><p>在UNIX和Linux中，用户空间设备的存取和文件存取完全一样。这些设备文件通常是目录<code>/dev</code>下的子目录。</p>
-<p>为了连接正常文件到内核模块需要两个数：<code>major number</code>和<code>minor number</code>。<code>major
-number</code>是内核用来链接文件和它的驱动的。<code>minor
-number</code>是设备内部使用的，简单起见，本文不讨论它。</p>
-<p>为了实现这个，必须创建一个文件(将用来存取设备驱动)，通过在root权限下键入：</p>
-<pre><code><span class="preprocessor"># mknod /dev/memory c <span class="number">60</span> <span class="number">0</span></span>
-</code></pre><p>其中<code>c</code>代表创建<code>char</code>设备，<code>60</code>是<code>major number</code>，<code>0</code>是<code>minor number</code>。</p>
-<p>在驱动内，为了在内核空间中链接它相应的<code>/dev</code>文件，使用<code>register_chrdev</code>函数。传递给它三个参数：<code>major number</code>，一个显示模块名的字符串和一个<code>file_operations</code>结构体。这个结构体将把它定义的文件函数链接到调用。<br>当安装模块时以这种方式调用。</p>
-<p><code>memory init module</code>：</p>
-<pre><code><span class="type">int</span> memory_init(<span class="type">void</span>) {
-    <span class="type">int</span> <span class="literal">result</span>;
-
-    /* <span class="type">Registering</span> device */
-    <span class="literal">result</span> = register_chrdev(memory_major, <span class="string">"memory"</span>, &amp;memory_fops);
-    <span class="keyword">if</span> (<span class="literal">result</span> &lt; <span class="number">0</span>) {
-        printk(
-                <span class="string">"&lt;1&gt;memory: cannot obtain major number %d\n"</span>, memory_major);
-        <span class="keyword">return</span> <span class="literal">result</span>;
-    }
-
-    /* <span class="type">Allocating</span> memory <span class="keyword">for</span> the buffer */
-    memory_buffer = kmalloc(<span class="number">1</span>, <span class="type">GFP_KERNEL</span>);
-    <span class="keyword">if</span> (!memory_buffer) {
-        <span class="literal">result</span> = -<span class="type">ENOMEM</span>;  // 内存耗尽
-        goto fail;
-    }
-    memset(memory_buffer, <span class="number">0</span>, <span class="number">1</span>);
-
-    printk(<span class="string">"&lt;1&gt;Inserting memory module\n"</span>);
-    <span class="keyword">return</span> <span class="number">0</span>;
-
-fail:
-    memory_exit();
-    <span class="keyword">return</span> <span class="literal">result</span>;
-}
-</code></pre><p>注意<code>kmalloc</code>函数，这个函数用来在内核空间中的设备驱动分配缓冲区内存。它的用法非常类似知名的<code>malloc</code>函数。<br>最后，如果注册<code>major number</code>或者分配内存失败，模块做出相应反应。</p>
-<h2 id="memory驱动：移除驱动">memory驱动：移除驱动</h2><p>为了在<code>memory_exit</code>函数中移除模块，函数<code>unregister_chrdev</code>需要出现，来为内核释放<code>major number</code>。</p>
-<p><code>&lt;memory exit module&gt;=</code></p>
-<pre><code><span class="function"><span class="keyword">void</span> <span class="title">memory_exit</span><span class="params">(<span class="keyword">void</span>)</span> </span>{
-    <span class="comment">/* Freeing the major number */</span>
-    unregister_chrdev(memory_major, <span class="string">"memory"</span>);
-
-    <span class="comment">/* Freeing buffer memory */</span>
-    <span class="keyword">if</span> (memory_buffer) {
-        kfree(memory_buffer);
-    }
-    printk(<span class="string">"&lt;1&gt;Removing memory module\n"</span>);
-}
-</code></pre><p>为了当移除设备驱动时留下一个干净的内核。在这个函数中同时释放了缓冲区内存。</p>
-<h2 id="memory驱动：把设备作为文件打开">memory驱动：把设备作为文件打开</h2><p>内核空间函数，对应于在用户空间打开文件的<code>fopen</code>，是<code>register_chrdev</code>调用的<code>file_operations</code>中<code>open:</code>的一个成员，这个例子中是<code>memory_open</code>函数。它以<code>inode</code>结构体做参数，这个参数参照<code>major number</code>和<code>minor number</code>向内核传递信息;<br>一个带各种能执行到文件上的各种不同操作相关信息的<code>file</code>结构体。任意这些函数都不会在本文中深入讲解。</p>
-<p>当文件打开时，通常必须初始化驱动变量或者重置设备，在这个简单的例子中，尽管如此，不会执行这些操作。</p>
-<p><code>memory_open</code>函数如下所示：</p>
-<p><code>&lt;memory open&gt;=</code></p>
-<pre><code><span class="function"><span class="keyword">int</span> <span class="title">memory_open</span><span class="params">(<span class="keyword">struct</span> inode *inode, <span class="keyword">struct</span> file *filp)</span> </span>{
-
-  <span class="comment">/* Success */</span>
-  <span class="keyword">return</span> <span class="number">0</span>;
-}
-</code></pre><p>这些新的函数现在展示在表五中。</p>
-<table>
-<thead>
-<tr>
-<th>事件</th>
-<th style="text-align:center">用户空间函数</th>
-<th style="text-align:right">内核空间函数</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>加载模块</td>
-<td style="text-align:center">insmod</td>
-<td style="text-align:right">module_init</td>
-</tr>
-<tr>
-<td>打开设备</td>
-<td style="text-align:center">fopen</td>
-<td style="text-align:right">file_operations：open</td>
-</tr>
-<tr>
-<td>读取设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>写入设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>关闭设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>移除模块</td>
-<td style="text-align:center">rmmod</td>
-<td style="text-align:right">module_exit</td>
-</tr>
-</tbody>
-</table>
-<p>表五：设备驱动事件和它们对应在内核和用户空间的接口函数</p>
-<h2 id="memory驱动：把设备作为文件关闭">memory驱动：把设备作为文件关闭</h2><p>与用户空间内(<code>fclose</code>)对应的关闭文件函数是<code>register_chrdev</code>调用的<code>file_operations</code>结构体的<code>release:</code>成员。<br>针对本例，是<code>memory_release</code>函数，这个函数有一个<code>inode</code>结构体参数和一个<code>file</code>结构体参数，就像先前一样。</p>
-<p>当一个文件被关闭时，通常必须释放使用的内存和任何有关打开设备的变量。但是，再次，为了简单起见，这些操作不执行。</p>
-<p><code>memory_release</code>函数如下所示：</p>
-<p><code>&lt;memory release&gt;=</code></p>
-<pre><code><span class="function"><span class="keyword">int</span> <span class="title">memory_release</span><span class="params">(<span class="keyword">struct</span> inode *inode, <span class="keyword">struct</span> file *filp)</span> </span>{
-
-    <span class="comment">/* Success */</span>
-    <span class="keyword">return</span> <span class="number">0</span>;
-}
-</code></pre><p>新的函数在表六中展示。</p>
-<table>
-<thead>
-<tr>
-<th>事件</th>
-<th style="text-align:center">用户空间函数</th>
-<th style="text-align:right">内核空间函数</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>加载模块</td>
-<td style="text-align:center">insmod</td>
-<td style="text-align:right">module_init</td>
-</tr>
-<tr>
-<td>打开设备</td>
-<td style="text-align:center">fopen</td>
-<td style="text-align:right">file_operations:open</td>
-</tr>
-<tr>
-<td>读取设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>写入设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>关闭设备</td>
-<td style="text-align:center">fclose</td>
-<td style="text-align:right">file_operations:release</td>
-</tr>
-<tr>
-<td>移除模块</td>
-<td style="text-align:center">rmmod</td>
-<td style="text-align:right">module_exit</td>
-</tr>
-</tbody>
-</table>
-<p>表六：设备驱动事件和它们对应在内核和用户空间的接口函数</p>
-<h2 id="memory驱动：读设备">memory驱动：读设备</h2><p>类似使用用户函数<code>fread</code>读设备，内核空间是<code>register_chrdev</code>函数调用的<code>file_operations</code>结构体的<code>read:</code>成员。这次是函数<code>memory_read</code>。它的参数是file结构、一个用户空间函数(<code>fread</code>)用来读的缓冲区(<code>buf</code>)、一个记着要传输多少字节，和用户空间函数(<code>fread</code>)中计数器有相同值的的计数器(<code>count</code>)、最后，开始读文件的位置(<code>f_pos</code>)。</p>
-<p>在这个简单的例子中，<code>memory_read</code>函数通过函数<code>copy_to_user</code>从驱动缓冲区(<code>memory_buffer</code>)传输单个字节给用户空间：</p>
-<p><code>&lt;memory read&gt;=</code></p>
-<pre><code><span class="keyword">ssize_t</span> memory_read(<span class="keyword">struct</span> file *filp, <span class="keyword">char</span> *buf,
-        <span class="keyword">size_t</span> count, <span class="keyword">loff_t</span> *f_pos) {
-
-    <span class="comment">/* Transfering data to user space */</span>
-    copy_to_user(buf,memory_buffer,<span class="number">1</span>);
-
-    <span class="comment">/* Changing reading position as best suits */</span>
-    <span class="keyword">if</span> (*f_pos == <span class="number">0</span>) {
-        *f_pos+=<span class="number">1</span>;
-        <span class="keyword">return</span> <span class="number">1</span>;
-    } <span class="keyword">else</span> {
-        <span class="keyword">return</span> <span class="number">0</span>;
-    }
-}
-</code></pre><p>表七展示了这些新函数。</p>
-<table>
-<thead>
-<tr>
-<th>事件</th>
-<th style="text-align:center">用户空间函数</th>
-<th style="text-align:right">内核空间函数</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>加载模块</td>
-<td style="text-align:center">insmod</td>
-<td style="text-align:right">module_init</td>
-</tr>
-<tr>
-<td>打开设备</td>
-<td style="text-align:center">fopen</td>
-<td style="text-align:right">file_operations:open</td>
-</tr>
-<tr>
-<td>读取设备</td>
-<td style="text-align:center">fread</td>
-<td style="text-align:right">file_operations:read</td>
-</tr>
-<tr>
-<td>写入设备</td>
-<td style="text-align:center"></td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td>关闭设备</td>
-<td style="text-align:center">fclose</td>
-<td style="text-align:right">file_operations:release</td>
-</tr>
-<tr>
-<td>移除模块</td>
-<td style="text-align:center">rmmod</td>
-<td style="text-align:right">module_exit</td>
-</tr>
-</tbody>
-</table>
-<p>表七：设备驱动事件和它们对应在内核和用户空间的接口函数</p>
-<h2 id="memory驱动：写入设备">memory驱动：写入设备</h2><p>类似在用户空间函数<code>fwrite</code>写入设备，内核空间中使用<code>register_chrdev</code>函数调用的<code>file_operations</code>结构体中<code>write:</code>成员。<br>这个例子中是<code>memory_write</code>，拥有以下参数：一个file结构，一个用户空间函数<code>fwrite</code>用来写入的缓冲区(<code>buf</code>)、一个就像用户空间函数(<code>fwrite</code>)中计数器相同的值的计算传输字节数的计数器(<code>count</code>)、最后，是一个从文件何处开始的位置参数<code>f_pos</code>。</p>
-<p><code>&lt;memory write&gt;=</code></p>
-<pre><code><span class="keyword">ssize_t</span> memory_write( <span class="keyword">struct</span> file *filp, <span class="keyword">char</span> *buf,
-        <span class="keyword">size_t</span> count, <span class="keyword">loff_t</span> *f_pos) {
-
-    <span class="keyword">char</span> *tmp;
-
-    tmp=buf+count-<span class="number">1</span>;
-    copy_from_user(memory_buffer,tmp,<span class="number">1</span>);
-    <span class="keyword">return</span> <span class="number">1</span>;
-}
-</code></pre><p>在本例中，函数<code>copy_from_user</code>从用户空间向内核空间传输数据。</p>
-<p>表八显示了这个新函数</p>
-<table>
-<thead>
-<tr>
-<th>事件</th>
-<th style="text-align:center">用户空间函数</th>
-<th style="text-align:right">内核空间函数</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>加载模块</td>
-<td style="text-align:center">insmod</td>
-<td style="text-align:right">module_init</td>
-</tr>
-<tr>
-<td>打开设备</td>
-<td style="text-align:center">fopen</td>
-<td style="text-align:right">file_operations:open</td>
-</tr>
-<tr>
-<td>读取设备</td>
-<td style="text-align:center">fread</td>
-<td style="text-align:right">file_operations:read</td>
-</tr>
-<tr>
-<td>写入设备</td>
-<td style="text-align:center">fwrite</td>
-<td style="text-align:right">file_operations:write</td>
-</tr>
-<tr>
-<td>关闭设备</td>
-<td style="text-align:center">fclose</td>
-<td style="text-align:right">file_operations:release</td>
-</tr>
-<tr>
-<td>移除模块</td>
-<td style="text-align:center">rmmod</td>
-<td style="text-align:right">module_exit</td>
-</tr>
-</tbody>
-</table>
-<p>表八：设备驱动事件和它们对应在内核和用户空间的接口函数</p>
-<h2 id="完整的memory驱动">完整的memory驱动</h2><p>把先前展示的代码结合起来，就是完整的代码：</p>
-<p><code>&lt;memory.c&gt;=</code></p>
-<pre><code>&lt;<span class="keyword">memory</span> initial&gt;
-&lt;<span class="keyword">memory</span> init module&gt;
-&lt;<span class="keyword">memory</span> <span class="keyword">exit</span> module&gt;
-&lt;<span class="keyword">memory</span> <span class="keyword">open</span>&gt;
-&lt;<span class="keyword">memory</span> release&gt;
-&lt;<span class="keyword">memory</span> <span class="keyword">read</span>&gt;
-&lt;<span class="keyword">memory</span> write&gt;
-</code></pre><p>在设备能使用之前，你必须像上文所述一样编译模块，然后装载：</p>
-<pre><code><span class="preprocessor"># insmod memory.ko</span>
-</code></pre><p>更改设备权限：</p>
-<pre><code><span class="preprocessor"># chmod <span class="number">666</span> /dev/memory</span>
-</code></pre><p>如果一切安好，你将有一个<code>/dev/memory</code>的设备，你可以写入字符串并且它将存储最后一个。你可以执行像这样的操作：</p>
-<pre><code><span class="variable">$ </span>echo -n abcdef &gt;<span class="regexp">/dev/memory</span>
-</code></pre><p>使用<code>cat</code>检查设备中的内容：</p>
-<p>$ cat /dev/memory</p>
-<p>存储的值不会变化，直到它被覆盖或者模块被移除。</p>
-<h2 id="Footnotes">Footnotes</h2><p>[^2]:我是gentoo linux下的3.12.5-ck，现在debian stable已经7 wheezy了</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -3571,7 +3084,7 @@ fail:
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">172</span>
+              <span class="site-state-item-count">173</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

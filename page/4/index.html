@@ -229,6 +229,175 @@
             
               
                 
+                <a class="post-title-link" href="/art/2015/03/09/" itemprop="url">
+                  谈谈色彩空间和混合模式
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-03-09T00:00:00+08:00" content="2015-03-09">
+              2015-03-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/art/" itemprop="url" rel="index">
+                    <span itemprop="name">art</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/art/2015/03/09/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="art/2015/03/09//" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>图层模式和色彩空间理论，在寒假的时候就很好奇，找来gimp的文档看了看图层模式还是有些糊里糊涂。关于色彩理论，看到图像处理新闻组(好像很古老的东西了)上推荐这篇文章<a href="http://www.poynton.com/ColorFAQ.html" target="_blank" rel="external">Color FAQ</a>，看上去似乎很不错的样子，但好像不适合入门。</p>
+<p>后来看到一本1996年关于gimp的书<a href="http://gimp-savvy.com/BOOK/index.html?node52.html" target="_blank" rel="external">Grokking the GIMP</a>，虽然似乎有些古老的样子，但一目了然，很多东西，十年都未曾变化。</p>
+<h2 id="色彩基础">色彩基础</h2><h3 id="RGB空间">RGB空间</h3><p>即通过Red、Green、Blue来表示其它颜色的方法。每种颜色都取0-255之间的值。这样整个色彩空间可以表示在R、G、B为轴的立方体内。</p>
+<p>一般看来，越往对角线方向色彩感觉越亮。</p>
+<h3 id="HSV空间">HSV空间</h3><p>这里有几个定义：</p>
+<p>lightness：L = (MAX(R, G, B) + MIN(R, G, B))/2<br>value: V = MAX(R, G, B)<br>luminance: Y = 0.30R + 0.69G + 0.11B<br>brightness: (R + G + B)/3</p>
+<p>luminance更符合人的主观亮度感受。brightness和人的感受差别较大，一般不用而用luminance。</p>
+<p>那HSV模型在RGB空间是什么样的呢。</p>
+<h3 id="HSV和RGB关系">HSV和RGB关系</h3><p>在RGB空间所在的立方体中，主对角线被成为Neutral line。这条线从原点到(255,255,255)逐渐从黑色过度到灰色到更浅的灰色到白色。</p>
+<p>HSV中固定H，则获得过这条线的一面。固定S，则获得以此为轴原点为顶点的圆锥面。固定V，则获得关于此线垂直的面。</p>
+<h3 id="CMYK减法模型">CMYK减法模型</h3><p>这是印刷中常用的，RGB用在发光模型中，CMY(K)用在反光模型中。k应该不超过MAX(C, M, Y)</p>
+<h3 id="转换为灰度图像">转换为灰度图像</h3><p>有三种方法：</p>
+<ol>
+<li>Grayscale: 通过计算luminance，这个符合人眼对亮度的感觉</li>
+<li>Desaturate: 计算lightness。实际上保留了RGB分量</li>
+<li>Decompose HSV:抽取HSV中的V</li>
+</ol>
+<p>V &gt; L或Y，所以显然V最亮，但人眼会感觉Grayscale效果最好。所以后两种方法常用在分离图像上。</p>
+<h2 id="图层模式">图层模式</h2><p>这是关于两个或多个图层的故事，上面的记为F，下面的记为B</p>
+<h3 id="Normal,_Dissolve,_Behind模式">Normal, Dissolve, Behind模式</h3><p>Normal没啥特别的，溶解和F图层的透明度有关，透明度越大，B透过的越多。</p>
+<p>behind是个特殊的画笔才能用的模式，就像在玻璃背面画图一样</p>
+<h3 id="Addition，Substract，_Difference模式">Addition，Substract， Difference模式</h3><p>运算符号表示各个分量独立运算。W为白色</p>
+<p>加法：<br>    R = min(F + B, W)</p>
+<p>减法：<br>    R = max(B - F, 0)</p>
+<p>差分：<br>    R = |F - B|</p>
+<p>前两种方法可能会造车个部分额区域变得全白或全黑，丢失部分信息。</p>
+<h3 id="multiply(burn),_Divide(Dodge),_Screen,_Overlay模式">multiply(burn), Divide(Dodge), Screen, Overlay模式</h3><p>发现变化也不少，现在又是hard light又是啥的，burn也不是multiply，Divide也不是Dodge了。不过也差不多，burn和dodge只是把相应multiply和divide的F反色了(255-F)</p>
+<p>正片叠底：<br>    R = (F x B)/255</p>
+<p>得到的结果比F和B都暗</p>
+<p>除法：<br>    R = MIN(W, B x 256 / (F + 1))</p>
+<p>结果比B亮，有可能变白丢失信息</p>
+<p>滤色：<br>    R = 255 - 1/255 x (255- F) x (255 - B)</p>
+<p>滤色原理和乘法类似，只是是从W开始向原点计算。结果是图像所有地方都变亮，但并不会出现某些区域全变白色丢失信息。</p>
+<p>叠加(不过gimp中的叠加好像就是柔光, <a href="https://bugzilla.gnome.org/show_bug.cgi?id=162395" target="_blank" rel="external">这里看起来让人困惑</a>)：<br>    multiply和screen的结合：<br>    R = 1/255 x (B x R_S + (255 - B) X R_m)</p>
+<p>如果先面的图层B很深，就以multiply为主，相反如果B很亮，则以screen为主。结果就是暗的地方更暗，亮的地方更亮。</p>
+<h3 id="Darken_Only_和_Lighten_Only模式">Darken Only 和 Lighten Only模式</h3><p>变暗：<br>    R = MIN(F, B)</p>
+<p>变亮：<br>    R = MAX(F, B)</p>
+<h3 id="Hue,_Saturation,_Value,_Color模式">Hue, Saturation, Value, Color模式</h3><p>色调：<br>    R = [h(F), s(B), v(B)]</p>
+<p>取前景的色调</p>
+<p>Value和Saturation类似。</p>
+<p>Color：<br>    R = [h(F), s(F), l(B)]</p>
+<p>使用背景的lightness，一般lightness都比value小些</p>
+<p>最后，这里头什么乱七八糟的历史问题，还是这比较清楚：<a href="http://www.pegtop.net/delphi/articles/blendmodes/" target="_blank" rel="external">图层混合模式详解</a></p>
+<h2 id="其它">其它</h2><p>最后，完全被北邮求职氛围吓尿拉！！！！！！！！！！！</p>
+<p>惶恐万分，心情只能用下面的图形容</p>
+<p><img src="/images/ancious.jpg" alt="惶恐万分图" title="希望手绘反映内心"></p>
+<p>还有时间这样没事画棵树么？</p>
+<p><img src="/images/work-gimp3.jpg" alt="树" title="我的第一个上色唉"></p>
+<p>不管怎样，毕业之前有几件特别想做的事：</p>
+<ol>
+<li>以工作室的名义发布一款自任美工、编剧、程序员等balblabla使用phaser.js制作的“网页游戏”</li>
+<li>画给某些人的画</li>
+<li>去游泳馆洗三百次澡= =。。。。。。</li>
+</ol>
+<p>as酱上回来找我玩错过了好遗憾，as酱T T，下次你有空不知啥时候了。</p>
+<p>最后奉上工作室logo：</p>
+<p><img src="/images/work-gimp5.jpg" alt="半条狗工作室" title="半条狗logo"></p>
+<p>欢迎各位一起来玩耍。一起来做ARPG啊！</p>
+<p>最后丧心病狂大量图片哈哈哈哈</p>
+<p>在aus的推荐下迷上了像素画</p>
+<p><img src="/images/work-gimp4.jpg" alt="像素狗，半条狗" title="一条大狗">]</p>
+<p><img src="/images/work-gimp2.jpg" alt="anubis" title="anubis"></p>
+<p>在<a href="http://www.gimpusers.com" target="_blank" rel="external">gimpusers</a>上看到了很多很棒的教程！</p>
+<p><img src="/images/work-gimp.jpg" alt="chrome环" title="chrome">]</p>
+<p><img src="/images/work-gimp1.jpg" alt="火焰效果" title="fire"></p>
+<p><img src="/images/work-gimp6.jpg" alt="flashy car" title="flashy car"></p>
+<p><img src="/images/animated-radar.gif" alt="animated radar" title="动画雷达"></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/life/2015/03/02/2015s-first-post/" itemprop="url">
                   2015's First Post
                 </a>
@@ -1856,234 +2025,6 @@ If
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/linux/2014/10/13/on-disk-encryption/" itemprop="url">
-                  On Disk Encryption
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-10-13T00:00:00+08:00" content="2014-10-13">
-              2014-10-13
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/linux/2014/10/13/on-disk-encryption/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2014/10/13/on-disk-encryption/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>胡乱翻译自<a href="http://people.redhat.com/~bowe/summit/2011/tot/on_disk_encryption/" target="_blank" rel="external">On Disk Encryption with Red Hat Enterprise Linux</a>，个人笔记，随便看看。</p>
-<h2 id="硬盘加密">硬盘加密</h2><h3 id="目标">目标</h3><p>我们的愿景是：在数据不在使用时保密硬盘数据。</p>
-<h3 id="情景">情景</h3><ul>
-<li>电脑丢失</li>
-<li>U盘丢失</li>
-<li>一个月才用一次的个人金融信息</li>
-<li>敏感隐私数据存储</li>
-</ul>
-<h3 id="不保护">不保护</h3><ul>
-<li>应用不断读取和写入的数据(依靠权限控制、SElinux等)</li>
-<li>在互联网上传输的数据(TLS)</li>
-<li>键盘输入嗅探</li>
-</ul>
-<h3 id="两种基本方式">两种基本方式</h3><ul>
-<li><code>dm-crypt</code>: 块层级的加密。<ul>
-<li>加密整个卷</li>
-<li>通过设备映射实现</li>
-<li>把加密后的块设备以虚拟明文块设备呈现</li>
-</ul>
-</li>
-<li><code>eCryptfs</code>: 文件系统加密<ul>
-<li>加密单个文件</li>
-<li>作为文件系统层实现</li>
-<li>呈现明文文件</li>
-</ul>
-</li>
-</ul>
-<h2 id="dm-crypt和LUKS块设备加密">dm-crypt和LUKS块设备加密</h2><h3 id="dm-crypt和LUKS块设备加密-1">dm-crypt和LUKS块设备加密</h3><ul>
-<li><code>dm-crypt</code>提供块加密能力</li>
-<li><code>LUKS</code>：Linux Unified Key Setup。一种硬盘加密标准。定义密钥管理和在硬盘上的格式。</li>
-</ul>
-<h3 id="应用场景1：保护用户文件">应用场景1：保护用户文件</h3><ul>
-<li>加密<code>/home</code>分区(比如’/dev/sda3’)</li>
-<li>让所安装的OS不加密</li>
-</ul>
-<h4 id="演示">演示</h4><font style="color: red">警告：不要试，这个例子就看看。会摧毁/home下数据你可以试试下个例子</font>
-
-<p>首先别忘了加载必要的内核模块</p>
-<pre><code><span class="title">modprobe</span> aes 
-modprobe dm_crypt
-</code></pre><ol>
-<li><p>初始化随机数据</p>
-<pre><code>dd <span class="keyword">if</span>=<span class="regexp">/dev/urandom</span> <span class="keyword">of</span>=<span class="regexp">/dev/sda</span>3
-</code></pre></li>
-<li><p>格式化LUKS加密层：</p>
-<pre><code>cryptsetup luksFormat <span class="regexp">/dev/</span>sda3
-</code></pre></li>
-<li><p>打开LUKS加密层：</p>
-<pre><code>cryptsetup luksOpen <span class="regexp">/dev/</span>sda3 home_plaintext
-</code></pre></li>
-<li><p>格式化文件系统：</p>
-<pre><code>mkfs<span class="class">.ext4</span> /dev/mapper/home_plaintext
-</code></pre></li>
-<li><p>挂载准备好的文件系统，写入<code>/etc/fstab</code>：</p>
-<pre><code>/dev/mapper/home_plaintext  /home       ext4    defaults        <span class="number">0</span>   <span class="number">0</span>
-</code></pre></li>
-<li><p>在加密硬盘上注册，写入<code>/etc/crypttab</code></p>
-<pre><code>home_plaintext      <span class="regexp">/dev/</span>sda3
-</code></pre></li>
-</ol>
-<h3 id="应用场景2：一个文件加密容器">应用场景2：一个文件加密容器</h3><p>仅仅加密文件。</p>
-<h4 id="演示：">演示：</h4><ol>
-<li><p>创建一个100M的文件：</p>
-<pre><code><span class="tag">dd</span> <span class="keyword">if</span>=/dev/urandom of=crypt<span class="class">.img</span> bs=<span class="number">1</span>M count=<span class="number">100</span>
-</code></pre></li>
-<li><p>把文件和设备连接起来：</p>
-<pre><code>losetup <span class="regexp">/dev/</span>loop0 crypt.img
-</code></pre></li>
-<li><p>格式化LUKS加密层：</p>
-<pre><code>cryptsetup luksFormat <span class="regexp">/dev/</span>loop0
-</code></pre></li>
-<li><p>打开LUKS加密层：</p>
-<pre><code>cryptsetup luksOpen /dev/loop0 <span class="keyword">container</span>
-</code></pre></li>
-<li><p>格式化文件系统(可以先用<code>dm-table</code>或者<code>ls /dev/mapper</code>来检查)。</p>
-<pre><code>mkfs<span class="class">.ext4</span> /dev/mapper/container
-</code></pre></li>
-<li><p>挂载文件系统</p>
-<pre><code>mount <span class="regexp">/dev/m</span>apper<span class="regexp">/container /m</span>nt
-</code></pre></li>
-<li><p>这时就可以向<code>/mnt</code>下写入想加密的文件了。</p>
-</li>
-<li><p>使用完毕后，卸载分区</p>
-<pre><code><span class="title">umount</span> /mnt
-</code></pre></li>
-<li><p>关闭luks磁盘：</p>
-<pre><code>cryptsetup luksClose <span class="keyword">container</span>
-</code></pre></li>
-<li><p>设备文件脱钩：</p>
-<pre><code>losetup <span class="operator">-d</span> /dev/loop0
-</code></pre></li>
-</ol>
-<p>这时你的文件就加密保存在<code>container</code>中。</p>
-<h2 id="ecrypt-fs">ecrypt-fs</h2><h3 id="eCryptfs文件系统">eCryptfs文件系统</h3><h3 id="场景：创建一个隐私文件夹">场景：创建一个隐私文件夹</h3><ul>
-<li>创建一个<code>~/Private</code>内的文件是加密的。</li>
-<li><code>~/Private</code>外的文件都是明文的</li>
-</ul>
-<h4 id="展示">展示</h4><p>首先别忘了加载内核模块，如果没有默认加载的话：</p>
-<pre><code><span class="title">modprobe</span> ecryptfs
-</code></pre><ol>
-<li><p>创建一个表文件夹’~/Private’和里文件夹’~/.Private’</p>
-<pre><code><span class="keyword">mkdir</span> -<span class="keyword">m</span> 700 ~/.Private
-<span class="keyword">mkdir</span> -<span class="keyword">m</span> 500 ~/Private
-</code></pre></li>
-<li><p>将里文件夹挂载到表文件夹上：</p>
-<pre><code>mount -t ecryptfs .<span class="keyword">Private</span> <span class="keyword">Private</span>
-</code></pre></li>
-<li><p>对表文件夹操作写入等等</p>
-</li>
-<li><p>卸载表文件夹，只剩下加密后的里文件夹</p>
-<pre><code>umount ~/<span class="keyword">Private</span>
-</code></pre></li>
-</ol>
-<h3 id="为最终用户创建私密文件夹">为最终用户创建私密文件夹</h3><p>ecryptfs-util提供了方便的脚本：</p>
-<ul>
-<li><code>ecryptfs-setup-private</code></li>
-<li><code>ecryptfs-mount-private</code></li>
-<li><code>ecryptfs-umount-private</code></li>
-</ul>
-<p>提供了几个便利：</p>
-<ul>
-<li>提升挂载和卸载权限</li>
-<li>需要是组<code>ecryptfs</code>中的成员</li>
-<li>用登录密码封装FEKEK(文件加密密钥密钥)</li>
-</ul>
-<p>暂不讨论，我这里出错了。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2130,7 +2071,7 @@ modprobe dm_crypt
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">172</span>
+              <span class="site-state-item-count">173</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
