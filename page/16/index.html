@@ -224,6 +224,127 @@
             
               
                 
+                <a class="post-title-link" href="/lisp/2012/05/31/tail-call-optimization/" itemprop="url">
+                  Tail Call Optimization
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-05-31T00:00:00+08:00" content="2012-05-31">
+              2012-05-31
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/lisp/2012/05/31/tail-call-optimization/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/05/31/tail-call-optimization/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="什么是尾递归">什么是尾递归</h2><p>尾递归作为一种函数式编程优化方法。为了理解这个奇怪的名字，看下面这个计算列表长度函数的例子:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun my-length (lst)&#10;  (if lst&#10;      (1+ (my-length (cdr lst)))&#10;      0))</span><br></pre></td></tr></table></figure>
+<p>首先，它会检查列表是否是空的，如果不是，它递归地调用自身计算剩下列表的长度并加上1,如果是空的则返回0.</p>
+<p>结果是这个函数相当没有效率…………我们可以试试一个“大列表”：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defparameter *biglist* (loop for i below 100000 collect &#39;x))</span><br></pre></td></tr></table></figure>
+<p>在clisp中试试……</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(my-length *biglist*)&#10;&#10;*** - Program stack overflow. RESET</span><br></pre></td></tr></table></figure>
+<p>stack overflow！！问题出现在<code>+1</code>函数上，它告诉lisp解释器：“首先计算列表的长度，然后对结果调用<code>+1</code>。”<br>问题是每次我们递归调用<code>my-length</code>时，lisp必须记住我们之后要向结果添加1。由于列表有100000项长，lisp在它能<code>+1</code>之前要记住99999次！！clisp的做法是在堆栈中放个提示符，这导致最后堆栈溢出。</p>
+<p>我们如何避免这个问题呢？我们重新定义我们的<code>my-length</code>函数</p>
+<figure class="highlight"><figcaption><span>linenos</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun my-length (lst)&#10;  (labels ((f (lst acc)&#10;              (if lst&#10;                 (f (cdr lst) (1+ acc))&#10;                 acc)))&#10;     (f lst 0)))</span><br></pre></td></tr></table></figure>
+<p>我们定义了一个局部函数<code>f</code>作为list-eater,但同时多了个acc累加器。这个累加器累加遇到的列表数目，最开始调用f时acc置0.</p>
+<p>通过使用累加器，递归调用f不再需要向结果<code>+1</code>。当我们到达列表尾部（lst is nil），acc即为列表项数目，所以我们返回它。</p>
+<p><code>f</code>最后做的是，当列表没到结尾时不断,调用自己。这种函数调用自身或其它函数的行为叫做<em>尾递归</em>,lisp解释器足够哦聪明去认出这种尾递归，它知道可以直接调用自身而不用等着把当前程序推入堆栈。</p>
+<p>有点像Basic中的goto和c++中的longjmp，但lisp中尾递归十分安全。</p>
+<h2 id="clisp中的尾递归优化">clisp中的尾递归优化</h2><p>并非所有的lisp解释器并不会进行尾递归优化，因为尾递归这种减少使用堆栈的方式不适合调试。</p>
+<p>为了在clisp中使用尾递归，我们可以这样</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(compile &#39;my-length)&#10;(my-length *biglist*)</span><br></pre></td></tr></table></figure>
+<p>有没有感觉速度超快？</p>
+<h2 id="Variable_Shadowing">Variable Shadowing</h2><p>注意<code>my-length</code>函数中参数lst和f中的lst，在每次递归调用中后者将取代前者，这种处理方式叫做Variable Shadowing.</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/linux/2012/05/28/archlinuxpdf/" itemprop="url">
                   Archlinux下合并pdf
                 </a>
@@ -1347,127 +1468,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/lisp/2012/05/06/using-loop-to-evolve/" itemprop="url">
-                  Using Loop To Evolve
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-05-06T00:00:00+08:00" content="2012-05-06">
-              2012-05-06
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/lisp/" itemprop="url" rel="index">
-                    <span itemprop="name">lisp</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/lisp/2012/05/06/using-loop-to-evolve/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/05/06/using-loop-to-evolve/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="满目的loop">满目的loop</h2><p>loop是lisp中饱受争议的命令，因为它看起来不这么lispy，但它真得很强大。以下列举下基本用法：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(loop for i&#10;      below 5&#10;      sum i) &#10;;counting from a starting point to an ending point&#10;(loop for i&#10;      from 5&#10;      to 10&#10;      sum i)&#10;;iterating through values in a list&#10;(loop for i&#10;      in &#39;(100 20 3)&#10;      sum i)&#10;;doing stuff in a loop&#10;(loop for i&#10;      below 5&#10;      do (print i))&#10;;dong stuff under certain conditions&#10;(loop for i&#10;      below 10&#10;      when (oddp i)&#10;      sum i)&#10;;breaking out of a loop early&#10;(loop for i&#10;      from 0&#10;      do (print i)&#10;      when (= i 5)&#10;      return &#39;falafel)&#10;;collecting a list of values&#10;(loop for i&#10;      in &#39;(2 3 4 5 6)&#10;      collect (* i i))&#10;;using multiple for clauses&#10;;loop 10 times&#10;(loop for x below 10&#10;      for y below 10&#10;      collect (+ x y))&#10;;nested loops for 10x10 times&#10;(loop for x below 10&#10;      collect (loop for y below 10&#10;                    collect (+ x y)))&#10;;track the index number of items in a list&#10;(loop for i&#10;      from 0&#10;      for day&#10;      in &#39;(monday tuesday wednesday thursday friday saturday sunday)&#10;      collect (cons i day))</span><br></pre></td></tr></table></figure>
-<p>当然还有很多，这个命令异常灵活，以致于作者做了个<a href="http://landoflisp.com/" target="_blank" rel="external">loop周期表</a>。</p>
-<h2 id="Using_Loop_to_Evolve">Using Loop to Evolve</h2><p>这个游戏看上去还挺轻松的，很有意思的“生命游戏”。不多说了，上码</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;;The extent of the world&#10;(defparameter *width* 100)&#10;(defparameter *height* 30)&#10;(defparameter *jungle* &#39;(45 10 10 10))&#10;(defparameter *plant-energy* 80)&#10;;;;Growing plants in our world&#10;;;cons cells should be compared with equal&#10;(defparameter *plants* (make-hash-table :test #&#39;equal))&#10;;;Grow new plants&#10;(defun random-plant (left top width height)&#10;  (let ((pos (cons (+ left (random width)) (+ top (random height)))))&#10;    (setf (gethash pos *plants*) t)))&#10;(defun add-plants ()&#10;  (apply #&#39;random-plant *jungle*)&#10;  (random-plant 0 0 *width* *height*))&#10;;;;Creating animals&#10;(defstruct animal x y energy dir genes)&#10;;;x,y stand for the position&#10;;;energy represent its energy,when the energy exhausted,it will die&#10;;;dir is the direction it faced&#10;;;genes decide the direction it will choose&#10;;;Creating an animal in the center of the map&#10;(defparameter *animals*&#10;  (list (make-animal :x;we only use list to traverse animal,&#10;                     ;its efficient enough.&#10;                     (ash *width* -1)&#10;                     :y&#10;                     (ash *height* -1)&#10;                     :energy&#10;                     1000&#10;                     :dir&#10;                     0&#10;                     :genes&#10;                     (loop repeat 8&#10;                           ;collect is OK??&#10;                           collecting (1+ (random 10))))))&#10;;;;Handling animal motion&#10;(defun move (animal)&#10;  (let ((dir (animal-dir animal))&#10;        (x (animal-x animal))&#10;        (y (animal-y animal)))&#10;    ;&#22914;&#26524;&#36798;&#21040;*width*,&#32622;0&#10;    (setf (animal-x animal) (mod (+ x&#10;                                    (cond ((and (&#62;= dir 2) (&#60; dir 5)) 1)&#10;                                          ((or (= dir 1) (= dir 5)) 0)&#10;                                          (t -1))&#10;                                    *width*)&#10;                                 *width*))&#10;    (setf (animal-y animal) (mod (+ y&#10;                                    (cond ((and (&#62;= dir 0) (&#60; dir 3)) -1)&#10;                                          ((and (&#62;= dir 4) (&#60; dir 7)) 1)&#10;                                          (t 0))&#10;                                    *height*)&#10;                                 *height*))&#10;    (decf (animal-energy animal))))&#10;;;;Handling animal turning&#10;(defun turn (animal)&#10;  (let ((x (random (apply #&#39;+ (animal-genes animal)))))&#10;    ;;this was not easy to understand it,&#10;    ;;&#24403;&#38543;&#26426;&#25968;&#33853;&#22312;&#21738;&#20010;&#21306;&#38388;&#23601;&#21738;&#20010;&#26041;&#21521;&#30340;&#36882;&#24402;&#25551;&#36848;&#10;    (labels ((angle (genes x)&#10;               (let ((xnu (- x (car genes))))&#10;                 (if (&#60; xnu 0)&#10;                   0&#10;                   (1+ (angle (cdr genes) xnu))))))&#10;      (setf (animal-dir animal)&#10;            (mod (+ (animal-dir animal) (angle (animal-genes animal) x))&#10;              8)))))&#10;;;;Handling animal eating&#10;(defun eat (animal)&#10;  (let ((pos (cons (animal-x animal) (animal-y animal))))&#10;    (when (gethash pos *plants*)&#10;      (incf (animal-energy animal) *plant-energy*)&#10;      (remhash pos *plants*))))&#10;;;;Handling animal reproduction&#10;;;&#23450;&#20041;&#32321;&#27542;&#26102;&#38656;&#35201;&#33021;&#37327;&#10;(defparameter *reproduction-energy* 200)&#10;(defun reproduce (animal)&#10;  (let ((e (animal-energy animal)))&#10;    (when (&#62;= e *reproduction-energy*)&#10;      (setf (animal-energy animal) (ash e -1))&#10;      (let ((animal-nu (copy-structure animal));&#27973;&#22797;&#21046;&#21629;&#20196;&#10;            (genes (copy-list (animal-genes animal)))&#10;            (mutation (random 8)))&#10;        (setf (nth mutation genes) &#10;              (max 1 (+ (nth mutation genes) (random 3) -1)))&#10;;This means the gene value will change plus or minus one, or&#10;;stay the same.&#10;        (setf (animal-genes animal-nu) genes)&#10;        (push animal-nu *animals*)))))&#10;;;;Simulating a day in our world&#10;(defun update-world ()&#10;  (setf *animals* (remove-if (lambda (animal)&#10;                               (&#60;= (animal-energy animal) 0))&#10;                             *animals*))&#10;  (mapc (lambda (animal)&#10;          (turn animal)&#10;          (move animal)&#10;          (eat animal)&#10;          (reproduce animal))&#10;        *animals*)&#10;  (add-plants))&#10;;;;Drawing our world&#10;;;;This has low performance but will not matters&#10;(defun draw-world ()&#10;  (loop for y&#10;        below *height*&#10;        do (progn &#10;             (fresh-line);outputs a newline only if the output-stream&#10;             ;is not already at the start of a line&#10;             (princ &#34;|&#34;)&#10;             (loop for x&#10;                   below *width*&#10;                   do (princ (cond ((some (lambda (animal)&#10;                                     ;&#21487;&#33021;&#19981;&#27490;&#19968;&#20010;&#21160;&#29289;&#10;                                            (and (= (animal-x animal) x)&#10;                                                 (= (animal-y animal) y)))&#10;                                          *animals*)&#10;                                    #\M)&#10;                                   ((gethash (cons x y) *plants*) #\*)&#10;                                   (t #\space))))&#10;             (princ &#34;|&#34;))))&#10;;;;Creating a user interface&#10;(defun evolution ()&#10;  (draw-world)&#10;  (fresh-line)&#10;  (let ((str (read-line)))&#10;    (cond ((equal str &#34;quit&#34;) ())&#10;;Recall Conrad&#8217;s Rule of Thumb for Comparing Stuff&#10;;use eq for symbols&#10;;use equal for everything else&#10;          (t (let ((x (parse-integer str :junk-allowed t)))&#10;               (if x&#10;                 (loop for i&#10;                       below x&#10;                       do (update-world)&#10;                       if (zerop (mod i 1000))&#10;                       do (princ #\.))&#10;                 (update-world))&#10;               (evolution))))))</span><br></pre></td></tr></table></figure>
-<p>这样开始模拟</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(evolution)</span><br></pre></td></tr></table></figure>
-<p>回车看看，100次看看，5000000次看看，据作者说5million次sbcl几分钟就可以搞定。我相信我的计算机比作者那时候好，可是….</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Evaluation took:&#10;  789.430 seconds of real time&#10;  459.846682 seconds of total run time (456.986869 user, 2.859813 system)&#10;  [ Run times consist of 18.864 seconds GC time, and 440.983 seconds non-GC time. ]&#10;  58.25% CPU&#10;  1,785,005,533,676 processor cycles&#10;  125,872,778,768 bytes consed</span><br></pre></td></tr></table></figure>
-<p>什么叫手抖竟然开始打成了5billion.这时候科学计数法就发挥作用了，感谢自由建客。</p>
-<hr>
-<p>Looks good however，</p>
-<p>M代表某无性生殖动物，<code>*</code>代表某随机生长植物</p>
-<p><img src="http://lhtlyybox.googlecode.com/files/%E6%8A%93%E5%9B%BE75.png" hight="200" width="400" alt="虚拟进化"></p>
-<hr>
-<h2 id="写在最后">写在最后</h2><p>资源丰富区自然选择留下了那些逡巡不前的，资源短缺区留下了富于冒险的。</p>
-<p>之后有上网查查其它进化游戏，发现资源丰富时资源消耗小的被淘汰，资源缺乏时资源消耗大的被淘汰</p>
-<p>启发性的游戏啊</p>
-<p>最后看了个有关进化选择的视频，是某研究人员们通过进化设计人工大脑的，感觉很震惊。特别是看到最后对之失控，看到人工大脑进化出意想不到的特性时。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1514,7 +1514,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">173</span>
+              <span class="site-state-item-count">174</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

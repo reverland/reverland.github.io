@@ -224,6 +224,137 @@
             
               
                 
+                <a class="post-title-link" href="/uncategorized/2014/08/08/better-and-beautiful-console/" itemprop="url">
+                  Better and Beautiful Console
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-08-08T00:00:00+08:00" content="2014-08-08">
+              2014-08-08
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/uncategorized/2014/08/08/better-and-beautiful-console/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="uncategorized/2014/08/08/better-and-beautiful-console/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>一般的linux控制台（这还是gentoo配置过的默认bash呢）是这样的</p>
+<p><img src="/images/plainconsole.png" alt="普通控制台"></p>
+<p>而经过一番简单的配置之后，你的控制台是这样的</p>
+<p><img src="/images/fbterm.png" alt="fbterm"></p>
+<hr>
+<h2 id="如何美化Linux下控制台（Better_Framebuffer）">如何美化Linux下控制台（Better Framebuffer）</h2><p>如果你运气足够好，碰上个有良心的发行版会帮你稍微配置下bash，增加些显示当前目录啊、彩色输出啊的功能。如果你足够悲剧，选择了一个以KISS为目标的发行版或者碰到一个无良发行版，你的bash就是个勉强能用的悲剧。</p>
+<p>为了让终端在即使没有X也能漂亮起来，为了更加愉快的在没有X的Server下工作，为了不装X胜似装X。让我们开始配置一个漂亮的Linux控制台吧。</p>
+<p>我是在gentoo linux完成配置的，首先安装必要的程序：</p>
+<pre><code>emerge fbterm fcitx-fbterm fbv fbdump zsh oh-<span class="keyword">my</span>-zsh gpm
+</code></pre><h2 id="zsh">zsh</h2><p>1.把zsh改成默认shell</p>
+<pre><code>chsh <span class="operator">-s</span> zsh
+</code></pre><p>2.修改zsh主题</p>
+<pre><code><span class="setting">ZSH_THEME=<span class="value"><span class="string">"agnoster"</span></span></span>
+</code></pre><p>至此，zsh配置完成。</p>
+<h2 id="fbterm背景图片">fbterm背景图片</h2><p>3.为了让fbterm显示背景图像，建立一个比如说<code>.background_fbterm</code>作为fbterm启动的封装</p>
+<pre><code> ~ ⮀ cat .background_fbterm
+<span class="shebang">#!/bin/bash</span>
+<span class="comment"># fbterm-bi: a wrapper script to enable background image with fbterm</span>
+<span class="comment"># usage: fbterm-bi /path/to/image fbterm-options</span>
+<span class="built_in">echo</span> <span class="operator">-ne</span> <span class="string">"\e[?25l"</span> <span class="comment"># hide cursor</span>
+fbv -ciuker <span class="string">"<span class="variable">$1</span>"</span> &lt;&lt; EOF
+</code></pre><p>q<br>    EOF<br>    shift<br>    export FBTERM_BACKGROUND_IMAGE=1<br>    exec fbterm “$@”</p>
+<ol>
+<li><p>在<code>.zshrc</code>中添加一个别名，指定背景图片。</p>
+<h1 id="fbterm">fbterm</h1><p> alias fbterm=”sh ~/.background_fbterm ~/Pictures/wallpaper/girl.png”</p>
+</li>
+</ol>
+<h2 id="中文输入法">中文输入法</h2><ol>
+<li><p>在<code>.fbtermrc</code>中写入以下行，提供framebuffer下的中文输入法。</p>
+<h1 id="specify_the_favorite_input_method_program_to_run">specify the favorite input method program to run</h1><p> input-method=fcitx-fbterm</p>
+<h2 id="鼠标支持">鼠标支持</h2></li>
+</ol>
+<p>你会迷恋上中键粘帖的。</p>
+<hr>
+<p>看到没有，简单5步，即使没有X，一个漂亮、高效、支持中文显示和输入的控制台就诞生了。</p>
+<p>ps:关于终端截图。<code>fbgrab</code>获取的图像错位，</p>
+<p>即使多次尝试w和h：</p>
+<pre><code>cat /dev/fb0 &gt; fb<span class="class">.raw</span>
+fbgrab -<span class="tag">i</span> -w <span class="number">1056</span> -h <span class="number">1024</span> -<span class="tag">b</span> <span class="number">32</span> -f framebuffer<span class="class">.raw</span> fb.png
+</code></pre><p>获取的也是错位的图像。</p>
+<p>后来编译个<code>fbdump</code>挺好用的。</p>
+<pre><code><span class="tag">fbdump</span> &gt; <span class="tag">fb</span><span class="class">.ppm</span>
+</code></pre><p>然后用gimp啊等转成其它格式就随意了</p>
+<pre><code><span class="tag">gimp</span> <span class="tag">fb</span><span class="class">.ppm</span>
+</code></pre>
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/exploit/2014/08/07/radare2-shellcode/" itemprop="url">
                   Radare2小试: 简单shellcode分析(意译)
                 </a>
@@ -2722,306 +2853,6 @@ Nmap done: <span class="number">1</span> IP <span class="tag">address</span> (<s
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/network/2014/04/18/" itemprop="url">
-                  且谈扫描器
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-04-18T00:00:00+08:00" content="2014-04-18">
-              2014-04-18
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/network/" itemprop="url" rel="index">
-                    <span itemprop="name">network</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/network/2014/04/18/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="network/2014/04/18//" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="缘起">缘起</h2><p>大概是因为论坛一个毕业去阿里的师兄就这么扫到了一个某品牌摄像头web管理界面。接着，对于我，YD的几周便开始了。各种扫描内网啊，No zuo no die啊= =，然后找到了一大堆开放到内网的摄像头、弱口令ssh、匿名ftp、嵌入式板甚至还有ip电话……独留我风中凌乱。</p>
-<p>我准备把常见的东西都研究一圈= =</p>
-<p>总之，用到了几种扫描器和自己写的扫描器……</p>
-<h2 id="nmap">nmap</h2><p>nmap是一个专业的网络探索和安全审计开源工具。尽管它可以针对主机，却被设计来快速扫描大规模网络。nmap使用IP报文来决定网络上的主机是否可达，主机上哪些服务开放(应用程序名和版本)，它们运行着什么样的操作系统，包过滤器和防火墙的情况和许多其它特征。尽管nmap广泛用于安全审计。许多系统和网络管理员在实行日常工作比如网络发现、管理服务升级安排，监控主机或服务启动时间<br>时都很好用。</p>
-<p>nmap的输出是一列被扫描的目标，和有关参数指定的补充信息。常见的比如说端口信息表：</p>
-<p> ~ ⮀ sudo nmap 10.210.96.193</p>
-<pre><code>Starting Nmap <span class="number">6.25</span> ( <span class="string">http:</span><span class="comment">//nmap.org ) at 2014-04-18 21:44 CST</span>
-Nmap scan report <span class="keyword">for</span> <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
-Host is up (<span class="number">0.054</span>s latency).
-Not <span class="string">shown:</span> <span class="number">996</span> closed ports
-PORT      STATE    SERVICE
-<span class="number">21</span>/tcp    ssh      closed
-<span class="number">23</span>/tcp    open     telnet
-<span class="number">50389</span>/tcp filtered unknown
-MAC <span class="string">Address:</span> <span class="number">3</span><span class="string">C:</span><span class="string">E5:</span><span class="string">A6:</span><span class="string">D2:</span><span class="number">39</span>:AD (Hangzhou H3C Technologies Co.)
-</code></pre><ul>
-<li><code>open</code>意味着服务在启动并监听着。比如TCP的三次握手成功建立。</li>
-<li><code>closed</code>表示该端口上服务关闭。比如收到了目标主机返回的RST.</li>
-<li><code>filtered</code>意味着有防火墙，过滤器等其它障碍阻塞了端口，以致于nmap不知道端口是<code>open</code>还是<code>closed</code>。出现这种情况是发出去的探测包没了响应。</li>
-</ul>
-<p>如果nmap不能确定到底是哪个状态，这些状态可以写成折中形式<code>closed|filtered</code>,表示关闭或者是过滤。</p>
-<p>当使用版本探测参数(<code>-sV</code>)时，端口信息表也可以包含具体的服务版本信息。</p>
-<pre><code> ~ ⮀ sudo nmap -sV <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
-
-Starting Nmap <span class="number">6.25</span> ( <span class="string">http:</span><span class="comment">//nmap.org ) at 2014-04-18 22:03 CST</span>
-Nmap scan report <span class="keyword">for</span> <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
-Host is up (<span class="number">0.045</span>s latency).
-Not <span class="string">shown:</span> <span class="number">996</span> closed ports
-PORT      STATE    SERVICE VERSION
-<span class="number">23</span>/tcp    open     telnet  H3C <span class="keyword">switch</span> telnetd
-MAC <span class="string">Address:</span> <span class="number">3</span><span class="string">C:</span><span class="string">E5:</span><span class="string">A6:</span><span class="string">D2:</span><span class="number">39</span>:AD (Hangzhou H3C Technologies Co.)
-Service <span class="string">Info:</span> <span class="string">Device:</span> <span class="keyword">switch</span>
-
-Service detection performed. Please report any incorrect results at <span class="string">http:</span><span class="comment">//nmap.org/submit/ .</span>
-Nmap <span class="string">done:</span> <span class="number">1</span> IP address (<span class="number">1</span> host up) scanned <span class="keyword">in</span> <span class="number">2.88</span> seconds
-</code></pre><p>当使用IP协议扫描(<code>-sO</code>)时，nmap则提供IP支持的协议而不是端口：</p>
-<pre><code> ~ ⮀ sudo nmap -sO <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
-
-Starting Nmap <span class="number">6.25</span> ( <span class="string">http:</span><span class="comment">//nmap.org ) at 2014-04-18 22:02 CST</span>
-Nmap scan report <span class="keyword">for</span> <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
-Host is up (<span class="number">0.010</span>s latency).
-Not <span class="string">shown:</span> <span class="number">252</span> open|filtered protocols
-PROTOCOL STATE  SERVICE
-<span class="number">1</span>        open   icmp
-<span class="number">6</span>        open   tcp
-<span class="number">17</span>       open   udp
-<span class="number">132</span>      closed sctp
-MAC <span class="string">Address:</span> <span class="number">3</span><span class="string">C:</span><span class="string">E5:</span><span class="string">A6:</span><span class="string">D2:</span><span class="number">39</span>:AD (Hangzhou H3C Technologies Co.)
-</code></pre><p>除了端口信息表，nmap提供目标的更多信息，包括反向DNS域名，操作系统猜测，设备类型和MAC地址。</p>
-<p>更多参照<a href="http://nmap.org/book/" target="_blank" rel="external">Nmap Guide</a></p>
-<pre><code><span class="bullet"> ~ </span>⮀ nmap --help
-Nmap 6.25 ( http://nmap.org )
-Usage: nmap [Scan Type(s)] [Options] {target specification}
-TARGET SPECIFICATION:
-  Can pass hostnames, IP addresses, networks, etc.
-  Ex: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254
-  -<span class="ruby">iL &lt;inputfilename&gt;<span class="symbol">:</span> <span class="constant">Input</span> from list of hosts/networks
-</span>  -<span class="ruby">iR &lt;num hosts&gt;<span class="symbol">:</span> <span class="constant">Choose</span> random targets
-</span>  -<span class="ruby">-exclude &lt;host1[,host2][,host3],...&gt;<span class="symbol">:</span> <span class="constant">Exclude</span> hosts/networks
-</span>  -<span class="ruby">-excludefile &lt;exclude_file&gt;<span class="symbol">:</span> <span class="constant">Exclude</span> list from file
-</span>HOST DISCOVERY:
-  -<span class="ruby"><span class="symbol">sL:</span> <span class="constant">List</span> <span class="constant">Scan</span> - simply list targets to scan
-</span>  -<span class="ruby"><span class="symbol">sn:</span> <span class="constant">Ping</span> <span class="constant">Scan</span> - disable port scan
-</span>  -<span class="ruby"><span class="constant">Pn</span><span class="symbol">:</span> <span class="constant">Treat</span> all hosts as online -- skip host discovery
-</span>  -<span class="ruby"><span class="constant">PS</span>/<span class="constant">PA</span>/<span class="constant">PU</span>/<span class="constant">PY</span>[portlist]<span class="symbol">:</span> <span class="constant">TCP</span> <span class="constant">SYN</span>/<span class="constant">ACK</span>, <span class="constant">UDP</span> <span class="keyword">or</span> <span class="constant">SCTP</span> discovery to given ports
-</span>  -<span class="ruby"><span class="constant">PE</span>/<span class="constant">PP</span>/<span class="constant">PM</span><span class="symbol">:</span> <span class="constant">ICMP</span> echo, timestamp, <span class="keyword">and</span> netmask request discovery probes
-</span>  -<span class="ruby"><span class="constant">PO</span>[protocol list]<span class="symbol">:</span> <span class="constant">IP</span> <span class="constant">Protocol</span> <span class="constant">Ping</span>
-</span>  -<span class="ruby">n/-<span class="constant">R</span><span class="symbol">:</span> <span class="constant">Never</span> <span class="keyword">do</span> <span class="constant">DNS</span> resolution/<span class="constant">Always</span> resolve [<span class="symbol">default:</span> sometimes]
-</span>  -<span class="ruby">-dns-servers &lt;serv1[,serv2],...&gt;<span class="symbol">:</span> <span class="constant">Specify</span> custom <span class="constant">DNS</span> servers
-</span>  -<span class="ruby">-system-<span class="symbol">dns:</span> <span class="constant">Use</span> <span class="constant">OS</span><span class="string">'s DNS resolver
-</span></span>  -<span class="ruby"><span class="string">-traceroute: Trace hop path to each host
-</span></span>SCAN TECHNIQUES:
-  -<span class="ruby"><span class="string">sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
-</span></span>  -<span class="ruby"><span class="string">sU: UDP Scan
-</span></span>  -<span class="ruby"><span class="string">sN/sF/sX: TCP Null, FIN, and Xmas scans
-</span></span>  -<span class="ruby"><span class="string">-scanflags &lt;flags&gt;: Customize TCP scan flags
-</span></span>  -<span class="ruby"><span class="string">sI &lt;zombie host[:probeport]&gt;: Idle scan
-</span></span>  -<span class="ruby"><span class="string">sY/sZ: SCTP INIT/COOKIE-ECHO scans
-</span></span>  -<span class="ruby"><span class="string">sO: IP protocol scan
-</span></span>  -<span class="ruby"><span class="string">b &lt;FTP relay host&gt;: FTP bounce scan
-</span></span>PORT SPECIFICATION AND SCAN ORDER:
-  -<span class="ruby"><span class="string">p &lt;port ranges&gt;: Only scan specified ports
-</span></span>    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080,S:9
-  -<span class="ruby"><span class="string">F: Fast mode - Scan fewer ports than the default scan
-</span></span>  -<span class="ruby"><span class="string">r: Scan ports consecutively - don'</span>t randomize
-</span>  -<span class="ruby">-top-ports &lt;number&gt;<span class="symbol">:</span> <span class="constant">Scan</span> &lt;number&gt; most common ports
-</span>  -<span class="ruby">-port-ratio &lt;ratio&gt;<span class="symbol">:</span> <span class="constant">Scan</span> ports more common than &lt;ratio&gt;
-</span>SERVICE/VERSION DETECTION:
-  -<span class="ruby"><span class="symbol">sV:</span> <span class="constant">Probe</span> open ports to determine service/version info
-</span>  -<span class="ruby">-version-intensity &lt;level&gt;<span class="symbol">:</span> <span class="constant">Set</span> from <span class="number">0</span> (light) to <span class="number">9</span> (try all probes)
-</span>  -<span class="ruby">-version-<span class="symbol">light:</span> <span class="constant">Limit</span> to most likely probes (intensity <span class="number">2</span>)
-</span>  -<span class="ruby">-version-<span class="symbol">all:</span> <span class="constant">Try</span> every single probe (intensity <span class="number">9</span>)
-</span>  -<span class="ruby">-version-<span class="symbol">trace:</span> <span class="constant">Show</span> detailed version scan activity (<span class="keyword">for</span> debugging)
-</span>SCRIPT SCAN:
-  -<span class="ruby"><span class="symbol">sC:</span> equivalent to --script=default
-</span>  -<span class="ruby">-script=&lt;<span class="constant">Lua</span> scripts&gt;<span class="symbol">:</span> &lt;<span class="constant">Lua</span> scripts&gt; is a comma separated list of 
-</span>           directories, script-files or script-categories
-  -<span class="ruby">-script-args=&lt;n1=v1,[n2=v2,...]&gt;<span class="symbol">:</span> provide arguments to scripts
-</span>  -<span class="ruby">-script-args-file=<span class="symbol">filename:</span> provide <span class="constant">NSE</span> script args <span class="keyword">in</span> a file
-</span>  -<span class="ruby">-script-<span class="symbol">trace:</span> <span class="constant">Show</span> all data sent <span class="keyword">and</span> received
-</span>  -<span class="ruby">-script-<span class="symbol">updatedb:</span> <span class="constant">Update</span> the script database.
-</span>  -<span class="ruby">-script-help=&lt;<span class="constant">Lua</span> scripts&gt;<span class="symbol">:</span> <span class="constant">Show</span> help about scripts.
-</span>           &lt;Lua scripts&gt; is a comma separted list of script-files or
-           script-categories.
-OS DETECTION:
-  -<span class="ruby"><span class="constant">O</span><span class="symbol">:</span> <span class="constant">Enable</span> <span class="constant">OS</span> detection
-</span>  -<span class="ruby">-osscan-<span class="symbol">limit:</span> <span class="constant">Limit</span> <span class="constant">OS</span> detection to promising targets
-</span>  -<span class="ruby">-osscan-<span class="symbol">guess:</span> <span class="constant">Guess</span> <span class="constant">OS</span> more aggressively
-</span>TIMING AND PERFORMANCE:
-  Options which take &lt;time&gt; are in seconds, or append 'ms' (milliseconds),
-  's' (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).
-  -<span class="ruby"><span class="constant">T</span>&lt;<span class="number">0</span>-<span class="number">5</span>&gt;<span class="symbol">:</span> <span class="constant">Set</span> timing template (higher is faster)
-</span>  -<span class="ruby">-min-hostgroup/max-hostgroup &lt;size&gt;<span class="symbol">:</span> <span class="constant">Parallel</span> host scan group sizes
-</span>  -<span class="ruby">-min-parallelism/max-parallelism &lt;numprobes&gt;<span class="symbol">:</span> <span class="constant">Probe</span> parallelization
-</span>  -<span class="ruby">-min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;time&gt;<span class="symbol">:</span> <span class="constant">Specifies</span>
-</span>      probe round trip time.
-  -<span class="ruby">-max-retries &lt;tries&gt;<span class="symbol">:</span> <span class="constant">Caps</span> number of port scan probe retransmissions.
-</span>  -<span class="ruby">-host-timeout &lt;time&gt;<span class="symbol">:</span> <span class="constant">Give</span> up on target after this long
-</span>  -<span class="ruby">-scan-delay/--max-scan-delay &lt;time&gt;<span class="symbol">:</span> <span class="constant">Adjust</span> delay between probes
-</span>  -<span class="ruby">-min-rate &lt;number&gt;<span class="symbol">:</span> <span class="constant">Send</span> packets no slower than &lt;number&gt; per second
-</span>  -<span class="ruby">-max-rate &lt;number&gt;<span class="symbol">:</span> <span class="constant">Send</span> packets no faster than &lt;number&gt; per second
-</span>FIREWALL/IDS EVASION AND SPOOFING:
-  -<span class="ruby">f; --mtu &lt;val&gt;<span class="symbol">:</span> fragment packets (optionally w/given <span class="constant">MTU</span>)
-</span>  -<span class="ruby"><span class="constant">D</span> &lt;decoy1,decoy2[,<span class="constant">ME</span>],...&gt;<span class="symbol">:</span> <span class="constant">Cloak</span> a scan with decoys
-</span>  -<span class="ruby"><span class="constant">S</span> &lt;<span class="constant">IP_Address</span>&gt;<span class="symbol">:</span> <span class="constant">Spoof</span> source address
-</span>  -<span class="ruby">e &lt;iface&gt;<span class="symbol">:</span> <span class="constant">Use</span> specified interface
-</span>  -<span class="ruby">g/--source-port &lt;portnum&gt;<span class="symbol">:</span> <span class="constant">Use</span> given port number
-</span>  -<span class="ruby">-data-length &lt;num&gt;<span class="symbol">:</span> <span class="constant">Append</span> random data to sent packets
-</span>  -<span class="ruby">-ip-options &lt;options&gt;<span class="symbol">:</span> <span class="constant">Send</span> packets with specified ip options
-</span>  -<span class="ruby">-ttl &lt;val&gt;<span class="symbol">:</span> <span class="constant">Set</span> <span class="constant">IP</span> time-to-live field
-</span>  -<span class="ruby">-spoof-mac &lt;mac address/prefix/vendor name&gt;<span class="symbol">:</span> <span class="constant">Spoof</span> your <span class="constant">MAC</span> address
-</span>  -<span class="ruby">-<span class="symbol">badsum:</span> <span class="constant">Send</span> packets with a bogus <span class="constant">TCP</span>/<span class="constant">UDP</span>/<span class="constant">SCTP</span> checksum
-</span>OUTPUT:
-  -<span class="ruby">oN/-oX/-oS/-oG &lt;file&gt;<span class="symbol">:</span> <span class="constant">Output</span> scan <span class="keyword">in</span> normal, <span class="constant">XML</span>, s|&lt;rIpt kIddi3,
-</span>     and Grepable format, respectively, to the given filename.
-  -<span class="ruby">oA &lt;basename&gt;<span class="symbol">:</span> <span class="constant">Output</span> <span class="keyword">in</span> the three major formats at once
-</span>  -<span class="ruby"><span class="symbol">v:</span> <span class="constant">Increase</span> verbosity level (use -vv <span class="keyword">or</span> more <span class="keyword">for</span> greater effect)
-</span>  -<span class="ruby"><span class="symbol">d:</span> <span class="constant">Increase</span> debugging level (use -dd <span class="keyword">or</span> more <span class="keyword">for</span> greater effect)
-</span>  -<span class="ruby">-<span class="symbol">reason:</span> <span class="constant">Display</span> the reason a port is <span class="keyword">in</span> a particular state
-</span>  -<span class="ruby">-<span class="symbol">open:</span> <span class="constant">Only</span> show open (<span class="keyword">or</span> possibly open) ports
-</span>  -<span class="ruby">-packet-<span class="symbol">trace:</span> <span class="constant">Show</span> all packets sent <span class="keyword">and</span> received
-</span>  -<span class="ruby">-<span class="symbol">iflist:</span> <span class="constant">Print</span> host interfaces <span class="keyword">and</span> routes (<span class="keyword">for</span> debugging)
-</span>  -<span class="ruby">-log-<span class="symbol">errors:</span> <span class="constant">Log</span> errors/warnings to the normal-format output file
-</span>  -<span class="ruby">-append-<span class="symbol">output:</span> <span class="constant">Append</span> to rather than clobber specified output files
-</span>  -<span class="ruby">-resume &lt;filename&gt;<span class="symbol">:</span> <span class="constant">Resume</span> an aborted scan
-</span>  -<span class="ruby">-stylesheet &lt;path/<span class="constant">URL</span>&gt;<span class="symbol">:</span> <span class="constant">XSL</span> stylesheet to transform <span class="constant">XML</span> output to <span class="constant">HTML</span>
-</span>  -<span class="ruby">-<span class="symbol">webxml:</span> <span class="constant">Reference</span> stylesheet from <span class="constant">Nmap</span>.<span class="constant">Org</span> <span class="keyword">for</span> more portable <span class="constant">XML</span>
-</span>  -<span class="ruby">-no-<span class="symbol">stylesheet:</span> <span class="constant">Prevent</span> associating of <span class="constant">XSL</span> stylesheet w/<span class="constant">XML</span> output
-</span>MISC:
-  -<span class="ruby"><span class="number">6</span><span class="symbol">:</span> <span class="constant">Enable</span> <span class="constant">IPv6</span> scanning
-</span>  -<span class="ruby"><span class="constant">A</span><span class="symbol">:</span> <span class="constant">Enable</span> <span class="constant">OS</span> detection, version detection, script scanning, <span class="keyword">and</span> traceroute
-</span>  -<span class="ruby">-datadir &lt;dirname&gt;<span class="symbol">:</span> <span class="constant">Specify</span> custom <span class="constant">Nmap</span> data file location
-</span>  -<span class="ruby">-send-eth/--send-<span class="symbol">ip:</span> <span class="constant">Send</span> using raw ethernet frames <span class="keyword">or</span> <span class="constant">IP</span> packets
-</span>  -<span class="ruby">-<span class="symbol">privileged:</span> <span class="constant">Assume</span> that the user is fully privileged
-</span>  -<span class="ruby">-<span class="symbol">unprivileged:</span> <span class="constant">Assume</span> the user lacks raw socket privileges
-</span>  -<span class="ruby"><span class="constant">V</span><span class="symbol">:</span> <span class="constant">Print</span> version number
-</span>  -<span class="ruby"><span class="symbol">h:</span> <span class="constant">Print</span> this help summary page.
-</span>EXAMPLES:
-  nmap -v -A scanme.nmap.org
-  nmap -v -sn 192.168.0.0/16 10.0.0.0/8
-  nmap -v -iR 10000 -Pn -p 80
-SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
-</code></pre><h2 id="zmap">zmap</h2><p>Zmap是一个开源网络扫描器，旨在帮助研究人员轻松扫描互联网。通过单个机器和可观的上行量，zmap可以在45分钟内扫描整个IPv4地址段，达到以太网的理论上限。</p>
-<p>zmap可以研究随时间变化协议的采用情况。检测互联网上可用的服务，让我们更好的理解分布在互联网上的大系统。</p>
-<p>详细用法见：<a href="https://zmap.io/documentation.html" target="_blank" rel="external">Zmap Documentation</a></p>
-<p>Zmap是强有力的工具，但请尊重他人和当地法律。</p>
-<h2 id="masscan">masscan</h2><p>号称最快的互联网端口扫描器，它能够在6分钟内扫遍整个互联网，每秒发送十个百万数据包。</p>
-<p>它生成类似<code>nmap</code>的结果，但内部机理是类似<code>scanrand</code>、<code>unicornscan</code>和<code>zmap</code>异步传输。主要的区别是比它们都快(笑)。另外，它更灵活，允许任意的地址段和端口段。</p>
-<p>自由软件。</p>
-<pre><code>~/ ⮀ masscan <span class="comment">--help</span>
-MASSCAN is a fast port scanner. The primary input parameters are the
-IP addresses/ranges you want to scan, and the port numbers. An example
-is the following, which scans the 10.x.x.x network for web servers:
- masscan 10.0.0.0/8 -p80
-The program auto-detects network interface/adapter settings. If this
-fails, you'll have to <span class="operator"><span class="keyword">set</span> these manually. The <span class="keyword">following</span> <span class="keyword">is</span> an
-example <span class="keyword">of</span> all the <span class="keyword">parameters</span> that <span class="keyword">are</span> needed:
- <span class="comment">--adapter-ip 192.168.10.123</span>
- <span class="comment">--adapter-mac 00-11-22-33-44-55</span>
- <span class="comment">--router-mac 66-55-44-33-22-11</span>
-<span class="keyword">Parameters</span> can be <span class="keyword">set</span> either via the command-line <span class="keyword">or</span> config-<span class="keyword">file</span>. The
-<span class="keyword">names</span> <span class="keyword">are</span> the same <span class="keyword">for</span> <span class="keyword">both</span>. Thus, the above adapter <span class="keyword">settings</span> would
-appear <span class="keyword">as</span> <span class="keyword">follows</span> <span class="keyword">in</span> a configuration <span class="keyword">file</span>:
- adapter-ip = <span class="number">192.168</span><span class="number">.10</span><span class="number">.123</span>
- adapter-mac = <span class="number">00</span>-<span class="number">11</span>-<span class="number">22</span>-<span class="number">33</span>-<span class="number">44</span>-<span class="number">55</span>
- router-mac = <span class="number">66</span>-<span class="number">55</span>-<span class="number">44</span>-<span class="number">33</span>-<span class="number">22</span>-<span class="number">11</span>
-All single-dash <span class="keyword">parameters</span> have a spelled <span class="keyword">out</span> <span class="keyword">double</span>-dash equivalent,
-so <span class="string">'-p80'</span> <span class="keyword">is</span> the same <span class="keyword">as</span> <span class="string">'--ports 80'</span> (<span class="keyword">or</span> <span class="string">'ports = 80'</span> <span class="keyword">in</span> config <span class="keyword">file</span>).
-<span class="keyword">To</span> <span class="keyword">use</span> the config <span class="keyword">file</span>, <span class="keyword">type</span>:
- masscan -<span class="keyword">c</span> &lt;filename&gt;
-<span class="keyword">To</span> generate a config-<span class="keyword">file</span> <span class="keyword">from</span> the <span class="keyword">current</span> <span class="keyword">settings</span>, <span class="keyword">use</span> the <span class="comment">--echo</span>
-<span class="keyword">option</span>. This stops the program <span class="keyword">from</span> actually running, <span class="keyword">and</span> just echoes
-the <span class="keyword">current</span> configuration instead. This <span class="keyword">is</span> a useful way <span class="keyword">to</span> generate
-your <span class="keyword">first</span> config <span class="keyword">file</span>, <span class="keyword">or</span> see a <span class="keyword">list</span> <span class="keyword">of</span> <span class="keyword">parameters</span> you didn<span class="string">'t know
-about. I suggest you try it now:
- masscan -p1234 --echo</span></span>
-</code></pre><p><a href="https://github.com/robertdavidgraham/masscan" target="_blank" rel="external">Masscan github页面</a><br><a href="http://blog.erratasec.com/2013/09/masscan-entire-internet-in-3-minutes.html" target="_blank" rel="external">Masscan: the entire Internet in 3 minutes </a></p>
-<h2 id="自制扫描器">自制扫描器</h2><p>没啥好说的，拿这gevent写啊……暂时不开源。通常我先用zmap扫端口，然后送给自己的扫描器去扫。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -3068,7 +2899,7 @@ about. I suggest you try it now:
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">173</span>
+              <span class="site-state-item-count">174</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

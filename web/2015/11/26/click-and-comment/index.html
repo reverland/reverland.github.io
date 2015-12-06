@@ -73,7 +73,7 @@
 评论是实时的。你在一个页面上的评论，会立即同步到所有打开该页面的浏览器中。
 这是四点零八分的北京这是四点零八分的北京，一片手的海洋翻动；这是四点零八分的北京，一声雄伟的汽笛长鸣。
 北京车站高大的建筑，突然">
-<meta property="og:updated_time" content="2015-11-26T07:12:53.200Z">
+<meta property="og:updated_time" content="2015-12-06T09:28:00.642Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="评注功能测试">
 <meta name="twitter:description" content="嗨，各位，来点好玩的。移动端什么表现就不知道了
@@ -303,89 +303,91 @@
 <p>终于抓住了什么东西，<br>管他是谁的手，不能松，<br>因为这是我的北京，<br>这是我的最后的北京。</p>
 <script src="https://cdn.wilddog.com/js/client/current/wilddog.js"></script>
 <script type="text/javascript">
-//var text = "";
-var ref = new Wilddog("https://wilddog-yurz-0583.wilddogio.com/comments");
-var articlebody = document.querySelector('[itemprop="articleBody"]');
-document.body.style.postion = "relative";
+if (window.location.pathname == "/web/2015/11/26/click-and-comment/") {
+  //var text = "";
+  var ref = new Wilddog("https://wilddog-yurz-0583.wilddogio.com/comments");
+  var articlebody = document.querySelector('[itemprop="articleBody"]');
+  document.body.style.postion = "relative";
 
-ref.on('child_added', function(datasnapshot) {
-  var key = datasnapshot.key();
-  console.log("key when child_added", key);
-  var comment = datasnapshot.val();
+  ref.on('child_added', function(datasnapshot) {
+    var key = datasnapshot.key();
+    console.log("key when child_added", key);
+    var comment = datasnapshot.val();
+      var dot = document.createElement('a');
+      dot.classList.toggle('dot');
+      dot.style.left = comment.x + "px";
+      dot.style.top = comment.y  + "px";
+      dot.style.position = "absolute";
+      dot.style.height = "20px";
+      dot.style.width = "20px";
+      dot.style.borderRadius = "10px";
+      dot.style.background = "rgba(52, 152, 233, 0.6)";
+      dot.setAttribute('title', comment.comment);
+      document.body.appendChild(dot);
+  })
+
+  articlebody.addEventListener('dblclick', function(e) {
+    if (e.target.tagName == "TEXTAREA") {
+      e.stopPropagation();
+      return;
+    }
+
+    // add a dot
+
     var dot = document.createElement('a');
-    dot.classList.toggle('dot');
-    dot.style.left = comment.x + "px";
-    dot.style.top = comment.y  + "px";
+    dot.classList.toggle("dot");
+    dot.style.left = e.pageX - 5 + "px";
+    dot.style.top = e.pageY - 5 + "px";
     dot.style.position = "absolute";
     dot.style.height = "20px";
     dot.style.width = "20px";
     dot.style.borderRadius = "10px";
     dot.style.background = "rgba(52, 152, 233, 0.6)";
-    dot.setAttribute('title', comment.comment);
     document.body.appendChild(dot);
-})
 
-articlebody.addEventListener('dblclick', function(e) {
-  if (e.target.tagName == "TEXTAREA") {
-    e.stopPropagation();
-    return;
-  }
+    // add a comment text
+    var comment = document.createElement('div');
+    comment.classList.toggle("comment");
 
-  // add a dot
-
-  var dot = document.createElement('a');
-  dot.classList.toggle("dot");
-  dot.style.left = e.pageX - 5 + "px";
-  dot.style.top = e.pageY - 5 + "px";
-  dot.style.position = "absolute";
-  dot.style.height = "20px";
-  dot.style.width = "20px";
-  dot.style.borderRadius = "10px";
-  dot.style.background = "rgba(52, 152, 233, 0.6)";
-  document.body.appendChild(dot);
-
-  // add a comment text
-  var comment = document.createElement('div');
-  comment.classList.toggle("comment");
-
-  var textarea = document.createElement('textarea');
-  textarea.style.position = "absolute";
-  textarea.style.left = "10px";
-  textarea.style.top = "10px";
-  textarea.style.height = "40px";
-  textarea.style.width = "280px";
-  textarea.setAttribute("placeholder", "输入评论");
-//  textarea.value = text;
-  textarea.addEventListener('keydown', function(e) {
-    if (e.which == 13) {
-      e.preventDefault();// 为啥没阻止换行，keyup不行
-      e.stopPropagation();
-      if (textarea.value == "") {
+    var textarea = document.createElement('textarea');
+    textarea.style.position = "absolute";
+    textarea.style.left = "10px";
+    textarea.style.top = "10px";
+    textarea.style.height = "40px";
+    textarea.style.width = "280px";
+    textarea.setAttribute("placeholder", "输入评论");
+  //  textarea.value = text;
+    textarea.addEventListener('keydown', function(e) {
+      if (e.which == 13) {
+        e.preventDefault();// 为啥没阻止换行，keyup不行
+        e.stopPropagation();
+        if (textarea.value == "") {
+          document.body.removeChild(dot);
+          return;
+        }
+        dot.setAttribute("title", textarea.value);
+        comment.removeChild(textarea);
+        ref.push({
+            x: parseInt(dot.style.left),
+            y: parseInt(dot.style.top),
+            comment: dot.getAttribute('title')
+        });
         document.body.removeChild(dot);
-        return;
       }
-      dot.setAttribute("title", textarea.value);
-      comment.removeChild(textarea);
-      ref.push({
-          x: parseInt(dot.style.left),
-          y: parseInt(dot.style.top),
-          comment: dot.getAttribute('title')
-      });
-      document.body.removeChild(dot);
-    }
-  })
-  textarea.addEventListener('blur', function(e) {
-    if(!textarea.value) {
-      document.body.removeChild(dot);
-    } else {
-      //text = textarea.value;
-      document.body.removeChild(dot);
-    }
-  })
-  comment.appendChild(textarea);
-  dot.appendChild(comment);
-  textarea.focus();
-});
+    })
+    textarea.addEventListener('blur', function(e) {
+      if(!textarea.value) {
+        document.body.removeChild(dot);
+      } else {
+        //text = textarea.value;
+        document.body.removeChild(dot);
+      }
+    })
+    comment.appendChild(textarea);
+    dot.appendChild(comment);
+    textarea.focus();
+  });
+}
 </script>
 </span>
       
@@ -490,7 +492,7 @@ articlebody.addEventListener('dblclick', function(e) {
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">173</span>
+              <span class="site-state-item-count">174</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

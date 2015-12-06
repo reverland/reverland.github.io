@@ -224,6 +224,124 @@
             
               
                 
+                <a class="post-title-link" href="/linux/2012/03/11/vrdp/" itemprop="url">
+                  vrdp初体验
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-03-11T00:00:00+08:00" content="2012-03-11">
+              2012-03-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/linux/2012/03/11/vrdp/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2012/03/11/vrdp/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="安装vrdp功能">安装vrdp功能</h2><p>先确定vbox版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vboxmanage -v</span><br></pre></td></tr></table></figure>
+<p>先到官网下载对应的extpack，然后运行(以4.0.8为例)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vboxmanage extpack install Oracle_VM_VirtualBox_Extension_Pack-<span class="number">4.0</span>.<span class="number">8</span>-<span class="number">71778</span>.vbox-extpack</span><br></pre></td></tr></table></figure>
+<h2 id="使用vrdp功能">使用vrdp功能</h2><p>后台运行虚拟机系统（如xp）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vboxheadless <span class="operator">-s</span> xp</span><br></pre></td></tr></table></figure>
+<p>最后返回一行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VRDE server is listening on port <span class="number">3389</span>.</span><br></pre></td></tr></table></figure>
+<p>打开rdp软件比如说krdc连接宿主机ip+3389(默认)</p>
+<p>如果在本机桥接vbox仿问虚拟机可以桥接，需要加载相应模块。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">modprobe vboxnetflt</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="参考文献">参考文献</h2><ol>
+<li><a href="http://forum.ubuntu.org.cn/viewtopic.php?f#65&amp;p#2355313#p2355313" target="_blank" rel="external">ubuntu中文论坛</a></li>
+<li><a href="https://wiki.archlinux.org/index.php/VirtualBox_Extras" target="_blank" rel="external">VirtualBox Extras</a></li>
+</ol>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/linux/2012/03/06/vbox/" itemprop="url">
                   vbox安装增强工具提示无权限
                 </a>
@@ -624,7 +742,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">173</span>
+              <span class="site-state-item-count">174</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

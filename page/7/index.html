@@ -224,6 +224,306 @@
             
               
                 
+                <a class="post-title-link" href="/network/2014/04/18/" itemprop="url">
+                  且谈扫描器
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-04-18T00:00:00+08:00" content="2014-04-18">
+              2014-04-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/network/" itemprop="url" rel="index">
+                    <span itemprop="name">network</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/network/2014/04/18/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="network/2014/04/18//" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="缘起">缘起</h2><p>大概是因为论坛一个毕业去阿里的师兄就这么扫到了一个某品牌摄像头web管理界面。接着，对于我，YD的几周便开始了。各种扫描内网啊，No zuo no die啊= =，然后找到了一大堆开放到内网的摄像头、弱口令ssh、匿名ftp、嵌入式板甚至还有ip电话……独留我风中凌乱。</p>
+<p>我准备把常见的东西都研究一圈= =</p>
+<p>总之，用到了几种扫描器和自己写的扫描器……</p>
+<h2 id="nmap">nmap</h2><p>nmap是一个专业的网络探索和安全审计开源工具。尽管它可以针对主机，却被设计来快速扫描大规模网络。nmap使用IP报文来决定网络上的主机是否可达，主机上哪些服务开放(应用程序名和版本)，它们运行着什么样的操作系统，包过滤器和防火墙的情况和许多其它特征。尽管nmap广泛用于安全审计。许多系统和网络管理员在实行日常工作比如网络发现、管理服务升级安排，监控主机或服务启动时间<br>时都很好用。</p>
+<p>nmap的输出是一列被扫描的目标，和有关参数指定的补充信息。常见的比如说端口信息表：</p>
+<p> ~ ⮀ sudo nmap 10.210.96.193</p>
+<pre><code>Starting Nmap <span class="number">6.25</span> ( <span class="string">http:</span><span class="comment">//nmap.org ) at 2014-04-18 21:44 CST</span>
+Nmap scan report <span class="keyword">for</span> <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
+Host is up (<span class="number">0.054</span>s latency).
+Not <span class="string">shown:</span> <span class="number">996</span> closed ports
+PORT      STATE    SERVICE
+<span class="number">21</span>/tcp    ssh      closed
+<span class="number">23</span>/tcp    open     telnet
+<span class="number">50389</span>/tcp filtered unknown
+MAC <span class="string">Address:</span> <span class="number">3</span><span class="string">C:</span><span class="string">E5:</span><span class="string">A6:</span><span class="string">D2:</span><span class="number">39</span>:AD (Hangzhou H3C Technologies Co.)
+</code></pre><ul>
+<li><code>open</code>意味着服务在启动并监听着。比如TCP的三次握手成功建立。</li>
+<li><code>closed</code>表示该端口上服务关闭。比如收到了目标主机返回的RST.</li>
+<li><code>filtered</code>意味着有防火墙，过滤器等其它障碍阻塞了端口，以致于nmap不知道端口是<code>open</code>还是<code>closed</code>。出现这种情况是发出去的探测包没了响应。</li>
+</ul>
+<p>如果nmap不能确定到底是哪个状态，这些状态可以写成折中形式<code>closed|filtered</code>,表示关闭或者是过滤。</p>
+<p>当使用版本探测参数(<code>-sV</code>)时，端口信息表也可以包含具体的服务版本信息。</p>
+<pre><code> ~ ⮀ sudo nmap -sV <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
+
+Starting Nmap <span class="number">6.25</span> ( <span class="string">http:</span><span class="comment">//nmap.org ) at 2014-04-18 22:03 CST</span>
+Nmap scan report <span class="keyword">for</span> <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
+Host is up (<span class="number">0.045</span>s latency).
+Not <span class="string">shown:</span> <span class="number">996</span> closed ports
+PORT      STATE    SERVICE VERSION
+<span class="number">23</span>/tcp    open     telnet  H3C <span class="keyword">switch</span> telnetd
+MAC <span class="string">Address:</span> <span class="number">3</span><span class="string">C:</span><span class="string">E5:</span><span class="string">A6:</span><span class="string">D2:</span><span class="number">39</span>:AD (Hangzhou H3C Technologies Co.)
+Service <span class="string">Info:</span> <span class="string">Device:</span> <span class="keyword">switch</span>
+
+Service detection performed. Please report any incorrect results at <span class="string">http:</span><span class="comment">//nmap.org/submit/ .</span>
+Nmap <span class="string">done:</span> <span class="number">1</span> IP address (<span class="number">1</span> host up) scanned <span class="keyword">in</span> <span class="number">2.88</span> seconds
+</code></pre><p>当使用IP协议扫描(<code>-sO</code>)时，nmap则提供IP支持的协议而不是端口：</p>
+<pre><code> ~ ⮀ sudo nmap -sO <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
+
+Starting Nmap <span class="number">6.25</span> ( <span class="string">http:</span><span class="comment">//nmap.org ) at 2014-04-18 22:02 CST</span>
+Nmap scan report <span class="keyword">for</span> <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
+Host is up (<span class="number">0.010</span>s latency).
+Not <span class="string">shown:</span> <span class="number">252</span> open|filtered protocols
+PROTOCOL STATE  SERVICE
+<span class="number">1</span>        open   icmp
+<span class="number">6</span>        open   tcp
+<span class="number">17</span>       open   udp
+<span class="number">132</span>      closed sctp
+MAC <span class="string">Address:</span> <span class="number">3</span><span class="string">C:</span><span class="string">E5:</span><span class="string">A6:</span><span class="string">D2:</span><span class="number">39</span>:AD (Hangzhou H3C Technologies Co.)
+</code></pre><p>除了端口信息表，nmap提供目标的更多信息，包括反向DNS域名，操作系统猜测，设备类型和MAC地址。</p>
+<p>更多参照<a href="http://nmap.org/book/" target="_blank" rel="external">Nmap Guide</a></p>
+<pre><code><span class="bullet"> ~ </span>⮀ nmap --help
+Nmap 6.25 ( http://nmap.org )
+Usage: nmap [Scan Type(s)] [Options] {target specification}
+TARGET SPECIFICATION:
+  Can pass hostnames, IP addresses, networks, etc.
+  Ex: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254
+  -<span class="ruby">iL &lt;inputfilename&gt;<span class="symbol">:</span> <span class="constant">Input</span> from list of hosts/networks
+</span>  -<span class="ruby">iR &lt;num hosts&gt;<span class="symbol">:</span> <span class="constant">Choose</span> random targets
+</span>  -<span class="ruby">-exclude &lt;host1[,host2][,host3],...&gt;<span class="symbol">:</span> <span class="constant">Exclude</span> hosts/networks
+</span>  -<span class="ruby">-excludefile &lt;exclude_file&gt;<span class="symbol">:</span> <span class="constant">Exclude</span> list from file
+</span>HOST DISCOVERY:
+  -<span class="ruby"><span class="symbol">sL:</span> <span class="constant">List</span> <span class="constant">Scan</span> - simply list targets to scan
+</span>  -<span class="ruby"><span class="symbol">sn:</span> <span class="constant">Ping</span> <span class="constant">Scan</span> - disable port scan
+</span>  -<span class="ruby"><span class="constant">Pn</span><span class="symbol">:</span> <span class="constant">Treat</span> all hosts as online -- skip host discovery
+</span>  -<span class="ruby"><span class="constant">PS</span>/<span class="constant">PA</span>/<span class="constant">PU</span>/<span class="constant">PY</span>[portlist]<span class="symbol">:</span> <span class="constant">TCP</span> <span class="constant">SYN</span>/<span class="constant">ACK</span>, <span class="constant">UDP</span> <span class="keyword">or</span> <span class="constant">SCTP</span> discovery to given ports
+</span>  -<span class="ruby"><span class="constant">PE</span>/<span class="constant">PP</span>/<span class="constant">PM</span><span class="symbol">:</span> <span class="constant">ICMP</span> echo, timestamp, <span class="keyword">and</span> netmask request discovery probes
+</span>  -<span class="ruby"><span class="constant">PO</span>[protocol list]<span class="symbol">:</span> <span class="constant">IP</span> <span class="constant">Protocol</span> <span class="constant">Ping</span>
+</span>  -<span class="ruby">n/-<span class="constant">R</span><span class="symbol">:</span> <span class="constant">Never</span> <span class="keyword">do</span> <span class="constant">DNS</span> resolution/<span class="constant">Always</span> resolve [<span class="symbol">default:</span> sometimes]
+</span>  -<span class="ruby">-dns-servers &lt;serv1[,serv2],...&gt;<span class="symbol">:</span> <span class="constant">Specify</span> custom <span class="constant">DNS</span> servers
+</span>  -<span class="ruby">-system-<span class="symbol">dns:</span> <span class="constant">Use</span> <span class="constant">OS</span><span class="string">'s DNS resolver
+</span></span>  -<span class="ruby"><span class="string">-traceroute: Trace hop path to each host
+</span></span>SCAN TECHNIQUES:
+  -<span class="ruby"><span class="string">sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
+</span></span>  -<span class="ruby"><span class="string">sU: UDP Scan
+</span></span>  -<span class="ruby"><span class="string">sN/sF/sX: TCP Null, FIN, and Xmas scans
+</span></span>  -<span class="ruby"><span class="string">-scanflags &lt;flags&gt;: Customize TCP scan flags
+</span></span>  -<span class="ruby"><span class="string">sI &lt;zombie host[:probeport]&gt;: Idle scan
+</span></span>  -<span class="ruby"><span class="string">sY/sZ: SCTP INIT/COOKIE-ECHO scans
+</span></span>  -<span class="ruby"><span class="string">sO: IP protocol scan
+</span></span>  -<span class="ruby"><span class="string">b &lt;FTP relay host&gt;: FTP bounce scan
+</span></span>PORT SPECIFICATION AND SCAN ORDER:
+  -<span class="ruby"><span class="string">p &lt;port ranges&gt;: Only scan specified ports
+</span></span>    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080,S:9
+  -<span class="ruby"><span class="string">F: Fast mode - Scan fewer ports than the default scan
+</span></span>  -<span class="ruby"><span class="string">r: Scan ports consecutively - don'</span>t randomize
+</span>  -<span class="ruby">-top-ports &lt;number&gt;<span class="symbol">:</span> <span class="constant">Scan</span> &lt;number&gt; most common ports
+</span>  -<span class="ruby">-port-ratio &lt;ratio&gt;<span class="symbol">:</span> <span class="constant">Scan</span> ports more common than &lt;ratio&gt;
+</span>SERVICE/VERSION DETECTION:
+  -<span class="ruby"><span class="symbol">sV:</span> <span class="constant">Probe</span> open ports to determine service/version info
+</span>  -<span class="ruby">-version-intensity &lt;level&gt;<span class="symbol">:</span> <span class="constant">Set</span> from <span class="number">0</span> (light) to <span class="number">9</span> (try all probes)
+</span>  -<span class="ruby">-version-<span class="symbol">light:</span> <span class="constant">Limit</span> to most likely probes (intensity <span class="number">2</span>)
+</span>  -<span class="ruby">-version-<span class="symbol">all:</span> <span class="constant">Try</span> every single probe (intensity <span class="number">9</span>)
+</span>  -<span class="ruby">-version-<span class="symbol">trace:</span> <span class="constant">Show</span> detailed version scan activity (<span class="keyword">for</span> debugging)
+</span>SCRIPT SCAN:
+  -<span class="ruby"><span class="symbol">sC:</span> equivalent to --script=default
+</span>  -<span class="ruby">-script=&lt;<span class="constant">Lua</span> scripts&gt;<span class="symbol">:</span> &lt;<span class="constant">Lua</span> scripts&gt; is a comma separated list of 
+</span>           directories, script-files or script-categories
+  -<span class="ruby">-script-args=&lt;n1=v1,[n2=v2,...]&gt;<span class="symbol">:</span> provide arguments to scripts
+</span>  -<span class="ruby">-script-args-file=<span class="symbol">filename:</span> provide <span class="constant">NSE</span> script args <span class="keyword">in</span> a file
+</span>  -<span class="ruby">-script-<span class="symbol">trace:</span> <span class="constant">Show</span> all data sent <span class="keyword">and</span> received
+</span>  -<span class="ruby">-script-<span class="symbol">updatedb:</span> <span class="constant">Update</span> the script database.
+</span>  -<span class="ruby">-script-help=&lt;<span class="constant">Lua</span> scripts&gt;<span class="symbol">:</span> <span class="constant">Show</span> help about scripts.
+</span>           &lt;Lua scripts&gt; is a comma separted list of script-files or
+           script-categories.
+OS DETECTION:
+  -<span class="ruby"><span class="constant">O</span><span class="symbol">:</span> <span class="constant">Enable</span> <span class="constant">OS</span> detection
+</span>  -<span class="ruby">-osscan-<span class="symbol">limit:</span> <span class="constant">Limit</span> <span class="constant">OS</span> detection to promising targets
+</span>  -<span class="ruby">-osscan-<span class="symbol">guess:</span> <span class="constant">Guess</span> <span class="constant">OS</span> more aggressively
+</span>TIMING AND PERFORMANCE:
+  Options which take &lt;time&gt; are in seconds, or append 'ms' (milliseconds),
+  's' (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).
+  -<span class="ruby"><span class="constant">T</span>&lt;<span class="number">0</span>-<span class="number">5</span>&gt;<span class="symbol">:</span> <span class="constant">Set</span> timing template (higher is faster)
+</span>  -<span class="ruby">-min-hostgroup/max-hostgroup &lt;size&gt;<span class="symbol">:</span> <span class="constant">Parallel</span> host scan group sizes
+</span>  -<span class="ruby">-min-parallelism/max-parallelism &lt;numprobes&gt;<span class="symbol">:</span> <span class="constant">Probe</span> parallelization
+</span>  -<span class="ruby">-min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;time&gt;<span class="symbol">:</span> <span class="constant">Specifies</span>
+</span>      probe round trip time.
+  -<span class="ruby">-max-retries &lt;tries&gt;<span class="symbol">:</span> <span class="constant">Caps</span> number of port scan probe retransmissions.
+</span>  -<span class="ruby">-host-timeout &lt;time&gt;<span class="symbol">:</span> <span class="constant">Give</span> up on target after this long
+</span>  -<span class="ruby">-scan-delay/--max-scan-delay &lt;time&gt;<span class="symbol">:</span> <span class="constant">Adjust</span> delay between probes
+</span>  -<span class="ruby">-min-rate &lt;number&gt;<span class="symbol">:</span> <span class="constant">Send</span> packets no slower than &lt;number&gt; per second
+</span>  -<span class="ruby">-max-rate &lt;number&gt;<span class="symbol">:</span> <span class="constant">Send</span> packets no faster than &lt;number&gt; per second
+</span>FIREWALL/IDS EVASION AND SPOOFING:
+  -<span class="ruby">f; --mtu &lt;val&gt;<span class="symbol">:</span> fragment packets (optionally w/given <span class="constant">MTU</span>)
+</span>  -<span class="ruby"><span class="constant">D</span> &lt;decoy1,decoy2[,<span class="constant">ME</span>],...&gt;<span class="symbol">:</span> <span class="constant">Cloak</span> a scan with decoys
+</span>  -<span class="ruby"><span class="constant">S</span> &lt;<span class="constant">IP_Address</span>&gt;<span class="symbol">:</span> <span class="constant">Spoof</span> source address
+</span>  -<span class="ruby">e &lt;iface&gt;<span class="symbol">:</span> <span class="constant">Use</span> specified interface
+</span>  -<span class="ruby">g/--source-port &lt;portnum&gt;<span class="symbol">:</span> <span class="constant">Use</span> given port number
+</span>  -<span class="ruby">-data-length &lt;num&gt;<span class="symbol">:</span> <span class="constant">Append</span> random data to sent packets
+</span>  -<span class="ruby">-ip-options &lt;options&gt;<span class="symbol">:</span> <span class="constant">Send</span> packets with specified ip options
+</span>  -<span class="ruby">-ttl &lt;val&gt;<span class="symbol">:</span> <span class="constant">Set</span> <span class="constant">IP</span> time-to-live field
+</span>  -<span class="ruby">-spoof-mac &lt;mac address/prefix/vendor name&gt;<span class="symbol">:</span> <span class="constant">Spoof</span> your <span class="constant">MAC</span> address
+</span>  -<span class="ruby">-<span class="symbol">badsum:</span> <span class="constant">Send</span> packets with a bogus <span class="constant">TCP</span>/<span class="constant">UDP</span>/<span class="constant">SCTP</span> checksum
+</span>OUTPUT:
+  -<span class="ruby">oN/-oX/-oS/-oG &lt;file&gt;<span class="symbol">:</span> <span class="constant">Output</span> scan <span class="keyword">in</span> normal, <span class="constant">XML</span>, s|&lt;rIpt kIddi3,
+</span>     and Grepable format, respectively, to the given filename.
+  -<span class="ruby">oA &lt;basename&gt;<span class="symbol">:</span> <span class="constant">Output</span> <span class="keyword">in</span> the three major formats at once
+</span>  -<span class="ruby"><span class="symbol">v:</span> <span class="constant">Increase</span> verbosity level (use -vv <span class="keyword">or</span> more <span class="keyword">for</span> greater effect)
+</span>  -<span class="ruby"><span class="symbol">d:</span> <span class="constant">Increase</span> debugging level (use -dd <span class="keyword">or</span> more <span class="keyword">for</span> greater effect)
+</span>  -<span class="ruby">-<span class="symbol">reason:</span> <span class="constant">Display</span> the reason a port is <span class="keyword">in</span> a particular state
+</span>  -<span class="ruby">-<span class="symbol">open:</span> <span class="constant">Only</span> show open (<span class="keyword">or</span> possibly open) ports
+</span>  -<span class="ruby">-packet-<span class="symbol">trace:</span> <span class="constant">Show</span> all packets sent <span class="keyword">and</span> received
+</span>  -<span class="ruby">-<span class="symbol">iflist:</span> <span class="constant">Print</span> host interfaces <span class="keyword">and</span> routes (<span class="keyword">for</span> debugging)
+</span>  -<span class="ruby">-log-<span class="symbol">errors:</span> <span class="constant">Log</span> errors/warnings to the normal-format output file
+</span>  -<span class="ruby">-append-<span class="symbol">output:</span> <span class="constant">Append</span> to rather than clobber specified output files
+</span>  -<span class="ruby">-resume &lt;filename&gt;<span class="symbol">:</span> <span class="constant">Resume</span> an aborted scan
+</span>  -<span class="ruby">-stylesheet &lt;path/<span class="constant">URL</span>&gt;<span class="symbol">:</span> <span class="constant">XSL</span> stylesheet to transform <span class="constant">XML</span> output to <span class="constant">HTML</span>
+</span>  -<span class="ruby">-<span class="symbol">webxml:</span> <span class="constant">Reference</span> stylesheet from <span class="constant">Nmap</span>.<span class="constant">Org</span> <span class="keyword">for</span> more portable <span class="constant">XML</span>
+</span>  -<span class="ruby">-no-<span class="symbol">stylesheet:</span> <span class="constant">Prevent</span> associating of <span class="constant">XSL</span> stylesheet w/<span class="constant">XML</span> output
+</span>MISC:
+  -<span class="ruby"><span class="number">6</span><span class="symbol">:</span> <span class="constant">Enable</span> <span class="constant">IPv6</span> scanning
+</span>  -<span class="ruby"><span class="constant">A</span><span class="symbol">:</span> <span class="constant">Enable</span> <span class="constant">OS</span> detection, version detection, script scanning, <span class="keyword">and</span> traceroute
+</span>  -<span class="ruby">-datadir &lt;dirname&gt;<span class="symbol">:</span> <span class="constant">Specify</span> custom <span class="constant">Nmap</span> data file location
+</span>  -<span class="ruby">-send-eth/--send-<span class="symbol">ip:</span> <span class="constant">Send</span> using raw ethernet frames <span class="keyword">or</span> <span class="constant">IP</span> packets
+</span>  -<span class="ruby">-<span class="symbol">privileged:</span> <span class="constant">Assume</span> that the user is fully privileged
+</span>  -<span class="ruby">-<span class="symbol">unprivileged:</span> <span class="constant">Assume</span> the user lacks raw socket privileges
+</span>  -<span class="ruby"><span class="constant">V</span><span class="symbol">:</span> <span class="constant">Print</span> version number
+</span>  -<span class="ruby"><span class="symbol">h:</span> <span class="constant">Print</span> this help summary page.
+</span>EXAMPLES:
+  nmap -v -A scanme.nmap.org
+  nmap -v -sn 192.168.0.0/16 10.0.0.0/8
+  nmap -v -iR 10000 -Pn -p 80
+SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
+</code></pre><h2 id="zmap">zmap</h2><p>Zmap是一个开源网络扫描器，旨在帮助研究人员轻松扫描互联网。通过单个机器和可观的上行量，zmap可以在45分钟内扫描整个IPv4地址段，达到以太网的理论上限。</p>
+<p>zmap可以研究随时间变化协议的采用情况。检测互联网上可用的服务，让我们更好的理解分布在互联网上的大系统。</p>
+<p>详细用法见：<a href="https://zmap.io/documentation.html" target="_blank" rel="external">Zmap Documentation</a></p>
+<p>Zmap是强有力的工具，但请尊重他人和当地法律。</p>
+<h2 id="masscan">masscan</h2><p>号称最快的互联网端口扫描器，它能够在6分钟内扫遍整个互联网，每秒发送十个百万数据包。</p>
+<p>它生成类似<code>nmap</code>的结果，但内部机理是类似<code>scanrand</code>、<code>unicornscan</code>和<code>zmap</code>异步传输。主要的区别是比它们都快(笑)。另外，它更灵活，允许任意的地址段和端口段。</p>
+<p>自由软件。</p>
+<pre><code>~/ ⮀ masscan <span class="comment">--help</span>
+MASSCAN is a fast port scanner. The primary input parameters are the
+IP addresses/ranges you want to scan, and the port numbers. An example
+is the following, which scans the 10.x.x.x network for web servers:
+ masscan 10.0.0.0/8 -p80
+The program auto-detects network interface/adapter settings. If this
+fails, you'll have to <span class="operator"><span class="keyword">set</span> these manually. The <span class="keyword">following</span> <span class="keyword">is</span> an
+example <span class="keyword">of</span> all the <span class="keyword">parameters</span> that <span class="keyword">are</span> needed:
+ <span class="comment">--adapter-ip 192.168.10.123</span>
+ <span class="comment">--adapter-mac 00-11-22-33-44-55</span>
+ <span class="comment">--router-mac 66-55-44-33-22-11</span>
+<span class="keyword">Parameters</span> can be <span class="keyword">set</span> either via the command-line <span class="keyword">or</span> config-<span class="keyword">file</span>. The
+<span class="keyword">names</span> <span class="keyword">are</span> the same <span class="keyword">for</span> <span class="keyword">both</span>. Thus, the above adapter <span class="keyword">settings</span> would
+appear <span class="keyword">as</span> <span class="keyword">follows</span> <span class="keyword">in</span> a configuration <span class="keyword">file</span>:
+ adapter-ip = <span class="number">192.168</span><span class="number">.10</span><span class="number">.123</span>
+ adapter-mac = <span class="number">00</span>-<span class="number">11</span>-<span class="number">22</span>-<span class="number">33</span>-<span class="number">44</span>-<span class="number">55</span>
+ router-mac = <span class="number">66</span>-<span class="number">55</span>-<span class="number">44</span>-<span class="number">33</span>-<span class="number">22</span>-<span class="number">11</span>
+All single-dash <span class="keyword">parameters</span> have a spelled <span class="keyword">out</span> <span class="keyword">double</span>-dash equivalent,
+so <span class="string">'-p80'</span> <span class="keyword">is</span> the same <span class="keyword">as</span> <span class="string">'--ports 80'</span> (<span class="keyword">or</span> <span class="string">'ports = 80'</span> <span class="keyword">in</span> config <span class="keyword">file</span>).
+<span class="keyword">To</span> <span class="keyword">use</span> the config <span class="keyword">file</span>, <span class="keyword">type</span>:
+ masscan -<span class="keyword">c</span> &lt;filename&gt;
+<span class="keyword">To</span> generate a config-<span class="keyword">file</span> <span class="keyword">from</span> the <span class="keyword">current</span> <span class="keyword">settings</span>, <span class="keyword">use</span> the <span class="comment">--echo</span>
+<span class="keyword">option</span>. This stops the program <span class="keyword">from</span> actually running, <span class="keyword">and</span> just echoes
+the <span class="keyword">current</span> configuration instead. This <span class="keyword">is</span> a useful way <span class="keyword">to</span> generate
+your <span class="keyword">first</span> config <span class="keyword">file</span>, <span class="keyword">or</span> see a <span class="keyword">list</span> <span class="keyword">of</span> <span class="keyword">parameters</span> you didn<span class="string">'t know
+about. I suggest you try it now:
+ masscan -p1234 --echo</span></span>
+</code></pre><p><a href="https://github.com/robertdavidgraham/masscan" target="_blank" rel="external">Masscan github页面</a><br><a href="http://blog.erratasec.com/2013/09/masscan-entire-internet-in-3-minutes.html" target="_blank" rel="external">Masscan: the entire Internet in 3 minutes </a></p>
+<h2 id="自制扫描器">自制扫描器</h2><p>没啥好说的，拿这gevent写啊……暂时不开源。通常我先用zmap扫端口，然后送给自己的扫描器去扫。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/network/2014/04/03/gns3-on-gentoo-linux/" itemprop="url">
                   GNS3 on Gentoo Linux
                 </a>
@@ -2896,143 +3196,6 @@ context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2013/12/31/" itemprop="url">
-                  一念之间
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2013-12-31T00:00:00+08:00" content="2013-12-31">
-              2013-12-31
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2013/12/31/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2013/12/31//" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>中午忽然想起一些事，大概是这篇文章一定要写出来的契机，然而这也就是一念之间就决<br>定的。</p>
-<p>在2013年的最后一天，忽然想起一些问题，这疑问渐行渐远，追溯回遥远而模糊的过去，<br>投射到飘忽不定的未来，然而却不知道如何形容、表达它。还有，今天好累，明天再写。</p>
-<h2 id="一念之间">一念之间</h2><p>人生在无数个这样的一念之间到了今天这个地步，好像一步步从雪地走来，不知道走到空<br>旷的旷野中的哪个地方，漫天漫地都是白茫茫的什么也分不清。自己一步步走到今天，一<br>转眼2013就结束，却难以想起林林总总忽如其来随兴而至却改变人生方向的念头，就像踏<br>雪飞鸿，渺无踪迹。</p>
-<p>这大概是年终总结吧，又是一年。</p>
-<h2 id="念头2013">念头2013</h2><p>去年这个时候，大概完全没有注意到一年过去了。也许正像和同学说的，满心欢喜着考研<br>要结束了，也许完全是另一回事，我不记得当时究竟有了些怎样的念头。只记得在黑夜中<br>跑去看图书馆前空地上张贴的考研座位，拿着手机帮别人照，碰到一个也考研的同学但在<br>黑夜中看不清她的容颜。完全不记得自己当时都想了些什么。</p>
-<p>然而考完第一场从考场回去时那感觉却历历在目，穿过斑斑点点未化的白雪，走过网球场<br>时，一个强烈的念头涌上心头，考研太看运气了，我以前还想今年随便考考，明年再来，<br>然而现在却决心明年再也不会去考研。我不记得这念头是压抑已久还是从天而降，但就是<br>这样一个念头。</p>
-<p>考完最后一场的念头却是如此清晰，兴奋、高兴，不管怎样，终于结束了，明年我才不要<br>继续做这个呢。似乎当时面对手舞足蹈的样子，在二十堂</p>
-<p>然而之后到成绩出来之前的那些日子，我换gentoo了，那念头真是奇怪，不知道什么时候<br>主宰了我也不知为什么，甚至在漫长的考研复习过程中一度忘记。在考试刚一结束时却忽<br>然就毫无预兆的想起，曾经有个更换gentoo的念头。然后第二天就立马执行了。</p>
-<p>寒假也没有闲着，毕业设计的题目定下来了。之前某个很奇怪的想用python做科学计算的<br>念头就这么开始付诸实践，这个奇怪的念头也是不知道什么时候埋在心里，后来接触<br>ipython，翻译scipy lecture notes，还有python科学计算一书，各种信息的灌溉下，最<br>终决定了，嗯，用python做毕设。</p>
-<p>这个念头的结果是在淘宝上打了第一本英文书，竟然还看完了。然后用python开始改写。<br>用ipython做记录和绘图。虽然最后毕业答辩时没怎么被看好，老师来了句你这没做什么<br>东西啊的评价和一个中等的成绩。不过不挂在毕业对我来说就够了，这么多心血也必然<br>不是白费。</p>
-<p>寒假时就是在家里陪家人，什么也不做，没有任何社交活动。在家中打扫下卫生做做饭，<br>陪陪老人帮帮忙。新年就这么过去了。</p>
-<p>不知何时有了考研成绩出来不去学校的念头，最后发展到复试前都没打算去学校。成绩下<br>来时吓到我了，这么高复试肯定没问题。一念之间，就在家呆到了四月多。</p>
-<p>然后去北京的复试，在人人上一念之间作出了去四处骚扰蹭饭的决定，便有了之后令人倍<br>感温暖的复试旅程和这一生永远不会忘记的美好记忆。这些阴差阳错的经历又让人产生了<br>新的念头，以致于改变了思想的轨迹。</p>
-<p>复试完直接回到了学校，之前由于论坛上某人偶然的一句一念之差报到信息安全，在图书<br>馆偶然碰到一本就hacking the art of exploitation的书，一念之差，便开始试着建立<br>渗透测试环境，写shellcode，痴迷起社工。</p>
-<p>于是毕业前被一种很奇怪但很high的状态填满了，当大家都忙着打麻将讨论着旅游什么时，<br>我却处于不断折腾学习的亢奋状态，好奇怪啊。直到曲终人散，才终于反过神来一种悲凉<br>的情绪从心中默默升起，逐渐不可抑制。那时产生一个念头，我应该更加珍惜现世的人和<br>羁绊。</p>
-<p>大概也是这段时间，慢慢见到一些技术人员的感慨，也慢慢感觉痴心对身体的损害。也慢<br>慢在他们带着伤心的故事中形成一个念头：骇客是生活的一部分，但生活不是骇客的一部<br>分。一念之间，今后所有的人生方向天翻地覆，再也没有像以前折腾这么厉害这么忘乎所<br>以沉醉其中。可以说，开始想尝试接触很多其它东西。一念之间，确定了今后半年的人生<br>基调，从一种单纯的技术和设计氛围中逃离。</p>
-<p>后来来到帝都上学，恍惚间只想折腾，莫名奇妙地被拉进学生会，跟课上分的小组莫名奇<br>妙变成出游，频繁地上qq和之前的同学朋友联系，频繁地蹭饭折腾，频繁而积极的参加社<br>团和活动。除了上班时就是不肯坐下折腾技术，技术在我这里有什么用？换不来钱，换不<br>来妹子，换不来与人同乐和成就感，毁身体。唯一的好处是我自己也能玩得很开心吧。一<br>念之间，人生已变。</p>
-<p>然而没变得这么彻底，过去打下了深深的印记。有时念头忽至，竟能花上好久去研究。研<br>究xss是这样，做R语言大作业时研究分类算法时是这样，忘记时间和世界，整个世界都是<br>醉心技术时的迷醉。</p>
-<p>不知道什么时候产生个念头，这万千念头都是执念，大概是佛教的影响吧，觉得这些执念<br>都应该去除，是一切悲剧的根源，去除执念，方能炼就金刚之心。所以每当沉迷什么时，<br>都努力把自己拉回来别走火入魔。虽然不走火入魔就干不出什么事，但岁月静好，一个平<br>平淡淡是真的念头却静悄悄地在心中发芽壮大，一念之间，已非当年血气方刚的我，已非<br>当年慷慨激昂的我，已非当初我所畏惧的我，已非当初自以为是的我。</p>
-<p>寝室有室友擅长吉他。然后一念之间，就开始学吉他，每天就那么一个小时，但一直几乎<br>坚持着，拿着室友的吉他，对着书，渐渐大概也能弹唱了吧。两三年前数学建模的那个暑<br>假第一次有了弹吉他的念头，却因为忙着学数学写程序折腾计算机雪藏了两年，两年后在<br>他乡却意外地生根，好奇怪啊。</p>
-<p>为了锻炼身体，游泳一直是心目中最好的运动，这个念头不知道什么时候出现，在北邮游<br>泳倒还真方便便宜，于是游泳也成了每周的日常，不去反而不舒服，每次晚上开会耽误游<br>泳就愤愤不平。某天忽然有了游一千的念头，然后竟然没几天就实现了。</p>
-<p>大概是因为某些人的博客，因为pg的黑客与画家，因为krita令人惊叹的gallery。一直潜<br>藏着画画的念头，双十二的一念之间，入手了自己第一个数位板。以后，希望不会浪费这<br>个由来已久的念头。</p>
-<h2 id="念头2014">念头2014</h2><p>追忆都是追忆，还有那风中凋零再不曾拾起的念头。可能再也不会付诸一眼，便在时间的<br>长河中腐烂遗忘。然而一念之差，一些念头萌生，却见有些念头已经成真，有些还在迷雾<br>中不知生死的前行。愿有义无反顾的勇气和信心，一路前行。</p>
-<ul>
-<li>游泳。在新的一年，学习自由泳，完成自由泳千米，蛙泳万米。</li>
-<li>绘画。开始学习，做到能用绘画自由表达，能准确传达透视、人体结构、光影</li>
-<li>吉他。她来听我的演唱会，如果可以，加州旅馆</li>
-<li>机器学习与数据挖掘，算法与应用，某些念头绕一圈又回来了。看上去Stack Exchange<br>的Cross Validate不错。</li>
-<li>前端。理论与实践。争取成为mdn常客。</li>
-<li>锻炼文笔和口才</li>
-<li>锻炼应用金钱的能力</li>
-<li>各种搭配与设计理论与实践，在生活细微处着手，致力于提高自己和他人生活情调。</li>
-<li>找妹子……</li>
-<li>xss/sql web安全</li>
-</ul>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -3079,7 +3242,7 @@ context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">173</span>
+              <span class="site-state-item-count">174</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

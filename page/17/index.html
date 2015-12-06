@@ -224,6 +224,127 @@
             
               
                 
+                <a class="post-title-link" href="/lisp/2012/05/06/using-loop-to-evolve/" itemprop="url">
+                  Using Loop To Evolve
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-05-06T00:00:00+08:00" content="2012-05-06">
+              2012-05-06
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/lisp/2012/05/06/using-loop-to-evolve/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/05/06/using-loop-to-evolve/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="满目的loop">满目的loop</h2><p>loop是lisp中饱受争议的命令，因为它看起来不这么lispy，但它真得很强大。以下列举下基本用法：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(loop for i&#10;      below 5&#10;      sum i) &#10;;counting from a starting point to an ending point&#10;(loop for i&#10;      from 5&#10;      to 10&#10;      sum i)&#10;;iterating through values in a list&#10;(loop for i&#10;      in &#39;(100 20 3)&#10;      sum i)&#10;;doing stuff in a loop&#10;(loop for i&#10;      below 5&#10;      do (print i))&#10;;dong stuff under certain conditions&#10;(loop for i&#10;      below 10&#10;      when (oddp i)&#10;      sum i)&#10;;breaking out of a loop early&#10;(loop for i&#10;      from 0&#10;      do (print i)&#10;      when (= i 5)&#10;      return &#39;falafel)&#10;;collecting a list of values&#10;(loop for i&#10;      in &#39;(2 3 4 5 6)&#10;      collect (* i i))&#10;;using multiple for clauses&#10;;loop 10 times&#10;(loop for x below 10&#10;      for y below 10&#10;      collect (+ x y))&#10;;nested loops for 10x10 times&#10;(loop for x below 10&#10;      collect (loop for y below 10&#10;                    collect (+ x y)))&#10;;track the index number of items in a list&#10;(loop for i&#10;      from 0&#10;      for day&#10;      in &#39;(monday tuesday wednesday thursday friday saturday sunday)&#10;      collect (cons i day))</span><br></pre></td></tr></table></figure>
+<p>当然还有很多，这个命令异常灵活，以致于作者做了个<a href="http://landoflisp.com/" target="_blank" rel="external">loop周期表</a>。</p>
+<h2 id="Using_Loop_to_Evolve">Using Loop to Evolve</h2><p>这个游戏看上去还挺轻松的，很有意思的“生命游戏”。不多说了，上码</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;;The extent of the world&#10;(defparameter *width* 100)&#10;(defparameter *height* 30)&#10;(defparameter *jungle* &#39;(45 10 10 10))&#10;(defparameter *plant-energy* 80)&#10;;;;Growing plants in our world&#10;;;cons cells should be compared with equal&#10;(defparameter *plants* (make-hash-table :test #&#39;equal))&#10;;;Grow new plants&#10;(defun random-plant (left top width height)&#10;  (let ((pos (cons (+ left (random width)) (+ top (random height)))))&#10;    (setf (gethash pos *plants*) t)))&#10;(defun add-plants ()&#10;  (apply #&#39;random-plant *jungle*)&#10;  (random-plant 0 0 *width* *height*))&#10;;;;Creating animals&#10;(defstruct animal x y energy dir genes)&#10;;;x,y stand for the position&#10;;;energy represent its energy,when the energy exhausted,it will die&#10;;;dir is the direction it faced&#10;;;genes decide the direction it will choose&#10;;;Creating an animal in the center of the map&#10;(defparameter *animals*&#10;  (list (make-animal :x;we only use list to traverse animal,&#10;                     ;its efficient enough.&#10;                     (ash *width* -1)&#10;                     :y&#10;                     (ash *height* -1)&#10;                     :energy&#10;                     1000&#10;                     :dir&#10;                     0&#10;                     :genes&#10;                     (loop repeat 8&#10;                           ;collect is OK??&#10;                           collecting (1+ (random 10))))))&#10;;;;Handling animal motion&#10;(defun move (animal)&#10;  (let ((dir (animal-dir animal))&#10;        (x (animal-x animal))&#10;        (y (animal-y animal)))&#10;    ;&#22914;&#26524;&#36798;&#21040;*width*,&#32622;0&#10;    (setf (animal-x animal) (mod (+ x&#10;                                    (cond ((and (&#62;= dir 2) (&#60; dir 5)) 1)&#10;                                          ((or (= dir 1) (= dir 5)) 0)&#10;                                          (t -1))&#10;                                    *width*)&#10;                                 *width*))&#10;    (setf (animal-y animal) (mod (+ y&#10;                                    (cond ((and (&#62;= dir 0) (&#60; dir 3)) -1)&#10;                                          ((and (&#62;= dir 4) (&#60; dir 7)) 1)&#10;                                          (t 0))&#10;                                    *height*)&#10;                                 *height*))&#10;    (decf (animal-energy animal))))&#10;;;;Handling animal turning&#10;(defun turn (animal)&#10;  (let ((x (random (apply #&#39;+ (animal-genes animal)))))&#10;    ;;this was not easy to understand it,&#10;    ;;&#24403;&#38543;&#26426;&#25968;&#33853;&#22312;&#21738;&#20010;&#21306;&#38388;&#23601;&#21738;&#20010;&#26041;&#21521;&#30340;&#36882;&#24402;&#25551;&#36848;&#10;    (labels ((angle (genes x)&#10;               (let ((xnu (- x (car genes))))&#10;                 (if (&#60; xnu 0)&#10;                   0&#10;                   (1+ (angle (cdr genes) xnu))))))&#10;      (setf (animal-dir animal)&#10;            (mod (+ (animal-dir animal) (angle (animal-genes animal) x))&#10;              8)))))&#10;;;;Handling animal eating&#10;(defun eat (animal)&#10;  (let ((pos (cons (animal-x animal) (animal-y animal))))&#10;    (when (gethash pos *plants*)&#10;      (incf (animal-energy animal) *plant-energy*)&#10;      (remhash pos *plants*))))&#10;;;;Handling animal reproduction&#10;;;&#23450;&#20041;&#32321;&#27542;&#26102;&#38656;&#35201;&#33021;&#37327;&#10;(defparameter *reproduction-energy* 200)&#10;(defun reproduce (animal)&#10;  (let ((e (animal-energy animal)))&#10;    (when (&#62;= e *reproduction-energy*)&#10;      (setf (animal-energy animal) (ash e -1))&#10;      (let ((animal-nu (copy-structure animal));&#27973;&#22797;&#21046;&#21629;&#20196;&#10;            (genes (copy-list (animal-genes animal)))&#10;            (mutation (random 8)))&#10;        (setf (nth mutation genes) &#10;              (max 1 (+ (nth mutation genes) (random 3) -1)))&#10;;This means the gene value will change plus or minus one, or&#10;;stay the same.&#10;        (setf (animal-genes animal-nu) genes)&#10;        (push animal-nu *animals*)))))&#10;;;;Simulating a day in our world&#10;(defun update-world ()&#10;  (setf *animals* (remove-if (lambda (animal)&#10;                               (&#60;= (animal-energy animal) 0))&#10;                             *animals*))&#10;  (mapc (lambda (animal)&#10;          (turn animal)&#10;          (move animal)&#10;          (eat animal)&#10;          (reproduce animal))&#10;        *animals*)&#10;  (add-plants))&#10;;;;Drawing our world&#10;;;;This has low performance but will not matters&#10;(defun draw-world ()&#10;  (loop for y&#10;        below *height*&#10;        do (progn &#10;             (fresh-line);outputs a newline only if the output-stream&#10;             ;is not already at the start of a line&#10;             (princ &#34;|&#34;)&#10;             (loop for x&#10;                   below *width*&#10;                   do (princ (cond ((some (lambda (animal)&#10;                                     ;&#21487;&#33021;&#19981;&#27490;&#19968;&#20010;&#21160;&#29289;&#10;                                            (and (= (animal-x animal) x)&#10;                                                 (= (animal-y animal) y)))&#10;                                          *animals*)&#10;                                    #\M)&#10;                                   ((gethash (cons x y) *plants*) #\*)&#10;                                   (t #\space))))&#10;             (princ &#34;|&#34;))))&#10;;;;Creating a user interface&#10;(defun evolution ()&#10;  (draw-world)&#10;  (fresh-line)&#10;  (let ((str (read-line)))&#10;    (cond ((equal str &#34;quit&#34;) ())&#10;;Recall Conrad&#8217;s Rule of Thumb for Comparing Stuff&#10;;use eq for symbols&#10;;use equal for everything else&#10;          (t (let ((x (parse-integer str :junk-allowed t)))&#10;               (if x&#10;                 (loop for i&#10;                       below x&#10;                       do (update-world)&#10;                       if (zerop (mod i 1000))&#10;                       do (princ #\.))&#10;                 (update-world))&#10;               (evolution))))))</span><br></pre></td></tr></table></figure>
+<p>这样开始模拟</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(evolution)</span><br></pre></td></tr></table></figure>
+<p>回车看看，100次看看，5000000次看看，据作者说5million次sbcl几分钟就可以搞定。我相信我的计算机比作者那时候好，可是….</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Evaluation took:&#10;  789.430 seconds of real time&#10;  459.846682 seconds of total run time (456.986869 user, 2.859813 system)&#10;  [ Run times consist of 18.864 seconds GC time, and 440.983 seconds non-GC time. ]&#10;  58.25% CPU&#10;  1,785,005,533,676 processor cycles&#10;  125,872,778,768 bytes consed</span><br></pre></td></tr></table></figure>
+<p>什么叫手抖竟然开始打成了5billion.这时候科学计数法就发挥作用了，感谢自由建客。</p>
+<hr>
+<p>Looks good however，</p>
+<p>M代表某无性生殖动物，<code>*</code>代表某随机生长植物</p>
+<p><img src="http://lhtlyybox.googlecode.com/files/%E6%8A%93%E5%9B%BE75.png" hight="200" width="400" alt="虚拟进化"></p>
+<hr>
+<h2 id="写在最后">写在最后</h2><p>资源丰富区自然选择留下了那些逡巡不前的，资源短缺区留下了富于冒险的。</p>
+<p>之后有上网查查其它进化游戏，发现资源丰富时资源消耗小的被淘汰，资源缺乏时资源消耗大的被淘汰</p>
+<p>启发性的游戏啊</p>
+<p>最后看了个有关进化选择的视频，是某研究人员们通过进化设计人工大脑的，感觉很震惊。特别是看到最后对之失控，看到人工大脑进化出意想不到的特性时。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/lisp/2012/05/03/the-orc-battle-game/" itemprop="url">
                   The Orc Battle Game
                 </a>
@@ -1495,124 +1616,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/linux/2012/03/11/vrdp/" itemprop="url">
-                  vrdp初体验
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-03-11T00:00:00+08:00" content="2012-03-11">
-              2012-03-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/linux/2012/03/11/vrdp/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2012/03/11/vrdp/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="安装vrdp功能">安装vrdp功能</h2><p>先确定vbox版本</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vboxmanage -v</span><br></pre></td></tr></table></figure>
-<p>先到官网下载对应的extpack，然后运行(以4.0.8为例)</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vboxmanage extpack install Oracle_VM_VirtualBox_Extension_Pack-<span class="number">4.0</span>.<span class="number">8</span>-<span class="number">71778</span>.vbox-extpack</span><br></pre></td></tr></table></figure>
-<h2 id="使用vrdp功能">使用vrdp功能</h2><p>后台运行虚拟机系统（如xp）</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vboxheadless <span class="operator">-s</span> xp</span><br></pre></td></tr></table></figure>
-<p>最后返回一行</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VRDE server is listening on port <span class="number">3389</span>.</span><br></pre></td></tr></table></figure>
-<p>打开rdp软件比如说krdc连接宿主机ip+3389(默认)</p>
-<p>如果在本机桥接vbox仿问虚拟机可以桥接，需要加载相应模块。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">modprobe vboxnetflt</span><br></pre></td></tr></table></figure>
-<hr>
-<h2 id="参考文献">参考文献</h2><ol>
-<li><a href="http://forum.ubuntu.org.cn/viewtopic.php?f#65&amp;p#2355313#p2355313" target="_blank" rel="external">ubuntu中文论坛</a></li>
-<li><a href="https://wiki.archlinux.org/index.php/VirtualBox_Extras" target="_blank" rel="external">VirtualBox Extras</a></li>
-</ol>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1659,7 +1662,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">173</span>
+              <span class="site-state-item-count">174</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
