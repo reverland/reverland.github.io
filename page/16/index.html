@@ -224,6 +224,128 @@
             
               
                 
+                <a class="post-title-link" href="/lisp/2012/06/02/memoization-in-functional-style/" itemprop="url">
+                  Memoization in Functional Style
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-06-02T00:00:00+08:00" content="2012-06-02">
+              2012-06-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/lisp/2012/06/02/memoization-in-functional-style/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/06/02/memoization-in-functional-style/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="函数式的记忆优化">函数式的记忆优化</h2><p>记忆利用闭包。这种优化只对函数式有用。函数的行为只受输入参数约束，函数所做的仅仅是计算并将结果返回给调用者。</p>
+<p>优化的地方在于：记住每次传递的参数和计算的结果。</p>
+<p>我们的<a href="/lisp/2012/05/23/dice-of-doom/">Dice of Doom</a>游戏可以做如下优化：</p>
+<h3 id="记忆neighbors_Function">记忆neighbors Function</h3><p>正如你所记得的，neighbors函数重复检查board的所有边。然而board的形状比赛中从来不变化，这个函数的结果不会变化！</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(let ((old-neighbors (symbol-function &#39;neighbors))&#10;      (previous (make-hash-table)))&#10;  (defun neighbors (pos)&#10;    (or (gethash pos previous)&#10;        (setf (gethash pos previous) (funcall old-neighbors pos)))))</span><br></pre></td></tr></table></figure>
+<p>首先我们把老的neighbors函数保存在局部变量old-neighbors中。symbol-function命令仅仅取得绑在这个符号上的函数。</p>
+<p>接下来，我们定义一个局部变量previous，用来存放所有先前的参数和结果。</p>
+<p>然后我们把先前的neighbors覆盖掉，然后？很显然，每调用一次后检查是否previous已有，若没有则调用老函数并保存参数和结果。</p>
+<p>注意……这种函数处理行为可能搞的很乱……</p>
+<h3 id="记忆Game_Tree">记忆Game Tree</h3><p>game tree的生成是整个程序最大的开销，可以这样优化。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(let ((old-game-tree (symbol-function &#39;game-tree))&#10;      (previous (make-hash-table :test #&#39;equalp)))&#10;  (defun game-tree (&#38;rest rest)&#10;    (or (gethash rest previous)&#10;       (setf (gethash rest previous) (apply old-game-tree rest)))))</span><br></pre></td></tr></table></figure>
+<p>因为哈希表中的对象是array，所以我们用<code>equalp</code>代替<code>eql</code>。<code>&amp;rest</code>接受任意数量参数。</p>
+<p>###记忆rate-position函数</p>
+<p>这是用lisp实现人工智能中minmax算法中的一个函数，我好像还没纪录人工智能那部分。<br>如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(let ((old-rate-position (symbol-function &#39;rate-position))&#10;      (previous (make-hash-table)))&#10;  (defun rate-position (tree player)&#10;    (let ((tab (gethash player previous)))&#10;      (unless tab&#10;        (setf tab (setf (gethash player previous) (make-hash-table))))&#10;      (or (gethash tree tab)&#10;          (setf (gethash tree tab)&#10;                (funcall old-rate-position tree player))))))</span><br></pre></td></tr></table></figure>
+<p>我们需要做些特殊的东西，因为传递进rate-position中的参数。游戏树将非常之大，所以我们必定不要用equal或相似的这种比较大列表相当慢的函数来比较一个游戏树，取而代之，我们用eql，因此我们分开处理函数的两个参数，通过内嵌哈希表实现。</p>
+<p>首先创建一个用eql比较的外部哈希表，然后定义一个tab变量在外部哈希表中查找我们的其中一个参数player，获取内部hash表。如果外部没查找到，我们建一个空的内建哈希表，用同样的键保存在外部哈希表中，剩下的例子和先前一样，除了我们使用内嵌哈希表，把tree这个参数作为键值。</p>
+<h2 id="注意">注意</h2><p>记忆化可以优化函数式程序，然而记忆化本身一点也不函数式。所以说函数式必然效率低么？其实这种优化我倒希望编译器能自动完成。</p>
+<h2 id="补记">补记</h2><p>这些日子忙着准备考试，然而考试当天剩一小时写完果断交卷。对大学考试已经没任何想法了，浪费我时间而已。</p>
+<p>land of lisp根本这几天就没看，试了试<a href="http://racket-lang.org/" target="_blank" rel="external">racket</a>，相当有意思，库也挺强大。我还是喜欢只有47页规范的scheme啊，所以看完land of lisp想先看看<a href="http://htdp.org" target="_blank" rel="external">How to Design Programms</a>,common lisp上前页的规范真不是newbie friendly。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/lisp/2012/05/31/tail-call-optimization/" itemprop="url">
                   Tail Call Optimization
                 </a>
@@ -1357,117 +1479,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/lisp/2012/05/09/attack-of-the-robots/" itemprop="url">
-                  Attack of the Robots
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-05-09T00:00:00+08:00" content="2012-05-09">
-              2012-05-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/lisp/" itemprop="url" rel="index">
-                    <span itemprop="name">lisp</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/lisp/2012/05/09/attack-of-the-robots/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/05/09/attack-of-the-robots/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="Powerful_format">Powerful format</h2><p>format又是一个在common lisp中灵活“过头”，争议超多的一个宏。它十分强大。</p>
-<p>基本用法如下</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(princ (reverse (format nil &#34;Add onion rings for only ~$ dollars more!&#34; 1.5))) &#10;;;;Control sequences for printing lisp values&#10;;;(prin1 &#34;foo&#34;)&#10;(format t &#34;I am printing ~s in the middle of this sentence&#34; &#34;foo&#34;)&#10;;;(princ &#34;foo&#34;)&#10;(format t &#34;I am printing ~a in the middle of this sentence&#34; &#34;foo&#34;)&#10;;;&#31532;&#19968;&#20010;&#21442;&#25968;,&#21491;&#36793;&#34917;&#30333;&#10;(format t &#34;I am printing ~10a within ten spaces of room.&#34; &#34;foo&#34;)&#10;;;&#31532;&#20108;&#20010;&#21442;&#25968;&#65292;&#20998;&#25104;3&#37096;&#20998;&#65292;&#34917;&#30333;9&#26684;&#10;(format t &#34;I am printing ~10,3a within ten (or more) spaces of room.&#34; &#34;foo&#34;)&#10;;;&#31532;&#19977;&#20010;&#21442;&#25968;&#65292;&#21491;&#36793;&#34917;&#30333;4&#26684;&#10;(format t &#34;I am printing ~,,4a in the middle of this sentence.&#34; &#34;foo&#34;)&#10;;;&#31532;&#22235;&#20010;&#21442;&#25968;&#65292;&#34917;&#20805;&#31526;&#21495;&#10;(format t &#34;The world ~,,4,&#39;!a feels very important.&#34; &#34;foo&#34;)&#10;(format t &#34;The world ~,,4,&#39;!@a feels very important.&#34; &#34;foo&#34;)&#10;;;;Control Sequences for formatting numbers&#10;;;Integers&#10;(format t &#34;The number 1000 in hexadrcimal is ~x&#34; 1000)&#10;(format t &#34;The number 1000 in hexadrcimal is ~b&#34; 1000)&#10;(format t &#34;The number 1000 in hexadrcimal is ~d&#34; 1000)&#10;;digit group separators&#10;(format t &#34;Numbers with commas in them are ~:d times better.&#34; 1000000)&#10;(format t &#34;I am printing ~10d within ten spaces of room.&#34; 1000000)&#10;(format t &#34;I am printing ~10,&#39;xd within ten spaces of room.&#34; 1000000)&#10;;;;Control Sequences for formatting Floating-point numbers&#10;;;default&#10;(format t &#34;PI can be estimated as ~4f&#34; 3.141593)&#10;;;&#23567;&#25968;&#28857;&#21518;&#25968;&#20301;&#10;(format t &#34;PI can be estimated as ~,4f&#34; pi)&#10;;;Percentage&#10;(format t &#34;Percentages are ~,,2f percent better than fractions&#34; 0.77)&#10;;;Format currency&#10;(format t &#34;I wish I had ~$ dollars in my bank account.&#34; 1000000.2)&#10;;;;Print multiple lines of output&#10;;;terpri&#10;(progn (princ 22)&#10;       (terpri)&#10;       (princ 33))&#10;;;fresh-line&#10;(progn (princ 22)&#10;       (fresh-line)&#10;       (fresh-line)&#10;       (princ 33))&#10;;;~% like terpri&#10;;;~&#38; like fresh-line&#10;(progn (format t &#34;This is on one line ~%&#34;)&#10;       (format t &#34;~%This is on another line&#34;)) &#10;(progn (format t &#34;This is on one line ~&#38;&#34;)&#10;       (format t &#34;~&#38;This is on another line&#34;))&#10;;;there can be a number in front of them&#10;(format t &#34;this will print ~5%on two lines spread far apart&#34;)&#10;(format t &#34;this will print ~5&#38;on two lines spread far apart&#34;)&#10;;;;Justifying output&#10;;;for example a function&#10;(defun random-animal ()&#10;  (nth (random 5) &#39;(&#34;dog&#34; &#34;tick&#34; &#34;tiger&#34; &#34;walrus&#34; &#34;kangaroo&#34;)))&#10;;;equally width&#10;(loop repeat 10&#10;      do (format t &#34;~5t~a ~15t~a ~25t~a~%&#34;&#10;                 (random-animal)&#10;                 (random-animal)&#10;                 (random-animal)))&#10;;;equally apart&#10;(loop repeat 10&#10;      do (format t &#34;~30&#60;~a~;~a~;~a~&#62;~%&#34;&#10;                 (random-animal)&#10;                 (random-animal)&#10;                 (random-animal)))&#10;;;center&#10;(loop repeat 10&#10;      do (format t &#34;~30:@&#60;~a~&#62;~%&#34; (random-animal)))&#10;(loop repeat 10&#10;      do (format t &#34;~30:@&#60;~a~;~a~;~a~&#62;~%&#34;&#10;                 (random-animal)&#10;                 (random-animal)&#10;                 (random-animal)))&#10;;;still wavy?to make it like this&#10;(loop repeat 10&#10;      do (format t &#34;~10:@&#60;~a~&#62;~10:@&#60;~a~&#62;~10:@&#60;~a~&#62;~%&#34;&#10;                 (random-animal)&#10;                 (random-animal)&#10;                 (random-animal)))&#10;;;;Iterating Through Lists Using Control Sequences&#10;;;Lets create a list of animals&#10;(defparameter *animals* (loop repeat 10 collect (random-animal)))&#10;;;loop through sequenses&#10;(format t &#34;~&#123;I see a ~a! ~%~&#125;&#34; *animals*) &#10;;;not only one item&#10;(format t &#34;~&#123;I see a ~a... or was it a ~a?~%~&#125;&#34; *animals*)&#10;;;;A crazy formatting trick for creating pretty tables of data&#10;(format t &#34;|~&#123;~&#60;|~%|~,33:;~2d ~&#62;~&#125;|&#34;&#10;        (loop for x below 100 collect x))</span><br></pre></td></tr></table></figure>
-<p>可以看到，format的参数多的……而且像perl一样有很多“奇怪”的符号。</p>
-<h2 id="Attack_by_robots">Attack by robots</h2><p>让我们接下来看看一个被作者称作可怕的游戏，It’s really drive me crazy!!</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;;&#25972;&#20010;&#30028;&#38754;&#22823;&#23567;&#20026;16x64&#65292;&#20135;&#29983;&#20010;1024&#38271;&#24230;&#24207;&#21015;&#10;(defun robots ()&#10;  (loop named main;&#20415;&#20110;&#36339;&#20986;&#10;     ;;&#26041;&#21521;&#10;     with directions = &#39;((q . -65) (w . -64) (e . -63) (a . -1)&#10;                         (d .   1) (z .  63) (x .  64) (c . 65))&#10;     ;;&#21021;&#22987;&#20301;&#32622;&#10;     for pos = 544&#10;     then (progn (format t &#34;~%qwe/asd/zxc to move, (t)eleport, (l)eave:&#34;)&#10;                 (force-output);clean any output not waiting return&#10;                 (let* ((c (read))&#10;                        (d (assoc c directions)))&#10;                   (cond (d (+ pos (cdr d)))&#10;                         ((eq &#39;t c) (random 1024))&#10;                         ((eq &#39;l c) (return-from main &#39;bye))&#10;                         (t pos))))&#10;     ;;&#33719;&#24471;monster&#30340;&#20301;&#32622;&#10;     for monsters = (loop repeat 10&#10;                          collect (random 1024))&#10;     then (loop for mpos in monsters&#10;                collect (if (&#62; (count mpos monsters) 1)&#10;                          mpos&#10;                          ;;&#37117;&#36208;&#20102;&#19968;&#36941;&#12290;&#10;                          (cdar (sort (loop for (k . d) in directions&#10;                                            for new-mpos = (+ mpos d)&#10;                                            ;&#34892;&#19982;&#21015;&#36317;&#31163;&#21644;&#19982;&#26032;&#20301;&#32622;cons                                &#10;                                            collect (cons (+ (abs (- (mod new-mpos 64) &#10;                                                                     (mod pos 64)))&#10;                                                             (abs (- (ash new-mpos -6)&#10;                                                                     (ash pos -6))))&#10;                                                          new-mpos))&#10;                                      &#39;&#60;&#10;                                      :key #&#39;car))))&#10;     when (loop for mpos in monsters&#10;                always (&#62; (count mpos monsters) 1))&#10;     return &#39;player-wins&#10;     do (format t&#10;                &#34;~%|~&#123;~&#60;|~%|~,65:;~A~&#62;~&#125;|&#34;&#10;                (loop for p &#10;                      below 1024&#10;                      collect (cond ((member p monsters) &#10;                                     (cond ((= p pos) (return-from main &#39;player-loses))&#10;                                           ((&#62; (count p monsters) 1) #\#)&#10;                                           (t #\A)))&#10;                                    ((= p pos) &#10;                                     #\@)&#10;                                    (t &#10;                                     #\ ))))))</span><br></pre></td></tr></table></figure>
-<p>整个游戏就一个函数，由loop和format这种强大的lisp异类来完成。</p>
-<h2 id="写在最后">写在最后</h2><p>挺好玩的一个游戏。挺难理解的代码……</p>
-<p>为了看懂又回头看看作者的loop周期表，再次见识了format和loop的强大之处，也感受到了它们的复杂。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1514,7 +1525,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">174</span>
+              <span class="site-state-item-count">175</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1528,7 +1539,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

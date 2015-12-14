@@ -224,6 +224,166 @@
             
               
                 
+                <a class="post-title-link" href="/network/2014/05/04/" itemprop="url">
+                  扫描器原理与实现
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-05-04T00:00:00+08:00" content="2014-05-04">
+              2014-05-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/network/" itemprop="url" rel="index">
+                    <span itemprop="name">network</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/network/2014/05/04/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="network/2014/05/04//" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>随便写写端口扫描器，估计不会写多。最近事情太多。</p>
+<h2 id="原理">原理</h2><p>TCP端口扫描的基本原理，就是尝试与被探测端口建立连接，如果这个连接能够建立上，则说明端口是开放的。另一方面，按照TCP三次握手标准其实探测端口是否开放并不用完成三次握手建立连接，仅仅收到第二次握手的包基本就足以说明该端口确实打开并提供服务。</p>
+<p>UDP是另一种无连接不可靠数据报交付协议，仅仅发送UDP报文到指定端口，然后等待返回。如果收到回复信息则说明该端口确实提供UDP服务，如果在有限时间内没收到任何回复就当作该端口不存在吧。</p>
+<p>在扫描大量机器的大量端口时，比如对TCP端口扫描，如果我们发送一个包后等待建立连接，可能由于网络原因等待很久才会收到回复的报文。这样其它待扫描端口不得不等着，整个扫描器在这段时间内除了等待什么都不做。网络上行带宽没得到充分利用。所以，一般采用多线程或者异步的方式来实现扫描器的并发。</p>
+<p>扫描器往往不仅仅就看看端口是否开放，它们往往还搜集信息供人判断，甚至可以提供payload来与目标进行交互。</p>
+<h2 id="检阅">检阅</h2><p>最简单的扫描器，比如说netcat：</p>
+<pre><code> ~ ⮀ nc -v -z bbs.byr.cn <span class="number">80</span>
+Warning: inverse host lookup failed <span class="keyword">for</span> <span class="number">10.3</span><span class="number">.18</span><span class="number">.66</span>: 
+bbs.byr.cn [<span class="number">10.3</span><span class="number">.18</span><span class="number">.66</span>] <span class="number">80</span> (http) open
+</code></pre><p>事实上你只要找个能建立连接或者构造包的东西都能作为扫描器，比如hping</p>
+<pre><code> ~ ⮀ sudo hping -c <span class="number">1</span> google.com -S -V -p <span class="number">80</span> 
+<span class="keyword">using</span> eth0, addr: <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>, MTU: <span class="number">1500</span>
+HPING google.com (eth0 <span class="number">74.125</span><span class="number">.128</span><span class="number">.100</span>): S <span class="built_in">set</span>, <span class="number">40</span> headers + <span class="number">0</span> data bytes
+len=<span class="number">46</span> ip=<span class="number">74.125</span><span class="number">.128</span><span class="number">.100</span> ttl=<span class="number">29</span> id=<span class="number">13203</span> tos=<span class="number">0</span> iplen=<span class="number">44</span>
+sport=<span class="number">80</span> flags=SA seq=<span class="number">0</span> win=<span class="number">42900</span> rtt=<span class="number">185.2</span> ms
+seq=<span class="number">2055062331</span> ack=<span class="number">2123742633</span> sum=<span class="number">2338</span> urp=<span class="number">0</span>
+
+
+--- google.com hping statistic ---
+<span class="number">1</span> packets tramitted, <span class="number">1</span> packets received, <span class="number">0</span>% packet loss
+</code></pre><p>更专业一点的扫描器有nmap，非常专业的扫描器，在nmap script engine的扩展(lua)下更是可以方便的实现各种功能。功能强大、使用简洁暴力。</p>
+<pre><code>✘ ⮀ ~ ⮀ sudo nmap -sS baidu<span class="class">.com</span>
+
+Starting Nmap <span class="number">6.25</span> ( http:<span class="comment">//nmap.org ) at 2014-05-10 10:10 CST</span>
+Nmap scan report <span class="keyword">for</span> baidu<span class="class">.com</span> (<span class="number">220.181</span>.<span class="number">111.86</span>)
+Host is up (<span class="number">0.0019s</span> latency).
+Other addresses <span class="keyword">for</span> baidu<span class="class">.com</span> (not scanned): <span class="number">123.125</span>.<span class="number">114.144</span> <span class="number">220.181</span>.<span class="number">111.85</span>
+Not shown: <span class="number">999</span> filtered ports
+PORT   STATE SERVICE
+<span class="number">80</span>/tcp open  http
+
+Nmap done: <span class="number">1</span> IP <span class="tag">address</span> (<span class="number">1</span> host up) scanned <span class="keyword">in</span> <span class="number">37.67</span> seconds
+</code></pre><p>近两年出现了更加高效的面向整个互联网的扫描器。一个叫zmap，紧接着是masscan。和nmap的多线程实现不同，这两种扫描器靠异步实现高并发。</p>
+<h2 id="实践">实践</h2><p>我本来想详细写写最近研究扫描器的一些心得，可是，最近事情太多，没有心情也没有时间。大致用python写扫描器的一些心得吧。</p>
+<ol>
+<li>你不一定要用别人现成的库。因为你可能根本搞不清有些东西是怎么运作的，而一些细节会让你痛不欲生。事实上如果你只想抓取部分信息，不妨直接自己解析报文对应字段。有时你不得不自己去做什么，比如面对某些用ActiveX的奇葩系统而你还想用python来扫描并搜集信息时。</li>
+<li>gevent面对网络I/O真是毫无压力，但同时给内存和CPU带来了更大的负担。据说一个Greenlet占用四个文件描述符，gevent要拷贝大量上下文等等。实际上我这里有时并发根本上不去。超过2000就看着CPU一直处于100%左右而网络流量没有任何变化。不知道是哪里的限制，网络上行无法到达顶峰。但一些简单的例子可以无压力达到。</li>
+<li>在进行大范围扫描时不要将某个可能会变的巨大变量塞进内存，虽然把对象放入内存也许会运行的更快，但你的内存满掉时它就不会更快了。这时通过shelve来实现字典相比直接把巨大的dict读入内存并不断扩展更合适。在我的某个例子中，把变量放到硬盘上而不是一股脑塞进内存后性能得到极大改善。</li>
+<li><p>大文件的读写时，python有个优雅的方式。一行一行读取。无论是什么巨大的东西，比如说15G的字典文件，这样一行一行读入内存然后让python的垃圾回收机制慢慢回收基本不会占用什么内存。</p>
+<pre><code>with <span class="function"><span class="title">open</span><span class="params">(<span class="string">"./data/netbios/temp"</span>)</span></span> as f:
+    <span class="keyword">for</span> line <span class="keyword">in</span> f:
+        pool.<span class="function"><span class="title">spawn</span><span class="params">(get_netbios, line.strip()</span></span>)
+</code></pre></li>
+</ol>
+<p>还有些其它想法。</p>
+<ol>
+<li><p>一个是twisted，虽然之前把一个非常棒的教程完整实践下来，寒假拿着手机把文档直接都看完了，甚至Gsoc的时候还想着如果twisted是mentor organization争取报名参加下。结果几个月没接触，完全不知道怎么使用这个框架了。</p>
+</li>
+<li><p>一个是python对select和epoll的支持，我觉得可能直接使用epoll实现一些并发比gevent会好很多。可是没空去试，我一直觉得epoll和select这种东西用python写出来真是不堪入目。如果是py3，async也许是个好主意。</p>
+</li>
+<li><p>在使用python做一些比如ip地址处理等等的时候，你也许会发现python3有着内置的模块，更优雅的处理方式。有那么几次真想完全用python3改写已经使用的东西。不过，还是没空。</p>
+</li>
+</ol>
+<p>还有，同学给了我片单片机，我忽然觉得扫描器玩腻了……</p>
+<p>不过面对积累的大量扫描数据，我觉得做做数据分析和可视化还是不错的。不会遥遥无期吧，尽管只对python的工具稍微熟悉，更想去用d3.js做展示。</p>
+<p>时间和精力有限，语言技能点该怎么点呢？</p>
+<p>汇编、C、javascript、python3、lua、也许go、也许再个ruby.</p>
+<p>还有两本书等着看或正在看，TCP/IP internetworking和深入理解计算机系统.</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/network/2014/04/18/" itemprop="url">
                   且谈扫描器
                 </a>
@@ -3069,133 +3229,6 @@ context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2014/01/11/thanks/" itemprop="url">
-                  Thanks
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-01-11T00:00:00+08:00" content="2014-01-11">
-              2014-01-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2014/01/11/thanks/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2014/01/11/thanks/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>继续流水帐，不想忘了这些日子，这些人。</p>
-<p>29号gdg一个学安卓的活动，跑到eoe没找到门铃进不去就轧马路去了。天气大好，走到圣熙八号时忽然接到组织者消息喊我回去，跑回去竟然赶上进度了，谢谢。只是安卓，之后在也没看过。</p>
-<p>30、31记不清干什么了，大概在公司复习准备考试，准备R语言的期末作业和答辩。期间作为学委的某同学帮大家去打印店问历年试卷，真是辛苦了。</p>
-<p>跨年当晚在寝室呆着，具体做了什么记不太清了，好像最后和室友看了看湖南台的跨年晚会。</p>
-<p>1号一个人刷奥园，第一次到北园，觉得惊奇的是十度的气温竟然水面上都结了一层厚厚的冰，很多大朋友小朋友都在上面愉快的冒险。</p>
-<p>2号是暂没什么事的助管，开始复习近世代数，看得欲仙欲死= =</p>
-<p>3号还是在公司复习，实验室热心的同学又帮忙打印后天开卷考试用的课件，感动得眼泪都快下来了。晚上室友生日，公司附近腐败一次，寝室和对面寝室一群人，难得一起吃顿饭。</p>
-<p>4号组内活动，要不是师兄告诉我都不知道T T，一进实验室就被外放，唉～师兄还很热心地告诉我有什么项目几点一起去啊等等。话说还给了一套课件。。。虽然给错了，不过还是很感谢。一大早跑到西郊宾馆打了一上午保龄球，和两个师姐一个同学一组，虽然倒数第二，却玩得很开心。中午的自助也不错，实验室真腐败，还是我太屌丝心态。。。。。。</p>
-<p>顺便问了两个师姐近世代数的情况，师姐好热心的回答还给了份去年的笔记，好感动T  T</p>
-<p>5-9号，因为没公司钥匙各种打扰技术领队，然后一呆就是一天。丧心病狂地看近世代数，到十二点再回。之后每天几乎都是如此，麻烦技术领队每天都在公司陪我。后来一同事直接把钥匙给我了。偶尔，一个师兄也会去。还有就是这期间竟然帮技术领队装gentoo了。。。</p>
-<p>10号，考试考得丧心病狂。谢谢考前同学们给的辅助设备，帮占的座位。</p>
-<p>总之，复习这些天，各种感动。帮打课件卷子的同学(自己打了一次才知道多麻烦)，借我笔记的师姐，容许和帮助我在公司不受打扰复习技术领队，给我考试辅助用具的同学们，给我去年试题的同学，给我课件的师兄，给我钥匙的同事，给鼓励的同学，林林总总。</p>
-<p>然后考完了，还有点小想法：</p>
-<ul>
-<li>复习时在微博上说准备考完出个十天精通近世代数</li>
-<li>想整理下密码算法。不过看看雪kssd上有更好的哇。</li>
-<li>html/css/js的学习</li>
-<li>开始使用数位板学画画</li>
-<li>继续弹吉他。。。放假前弹出童年的梦想破灭了，好几天疏于练习送别都弹不好了。</li>
-<li>浏览器原理的学习</li>
-<li>DSL，有空回头看看common lisp</li>
-<li>机器学习算法应用，上完R的课最后还是打算用python的工具来做。ggplot被port到python上了，so nice</li>
-<li>工作上还有件事，google safebrowsing api，大坑现在都没填上。</li>
-<li>趁着没回家赶紧游泳啊！！！！！！</li>
-</ul>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -3242,7 +3275,7 @@ context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">174</span>
+              <span class="site-state-item-count">175</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -3256,7 +3289,7 @@ context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

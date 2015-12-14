@@ -224,6 +224,143 @@
             
               
                 
+                <a class="post-title-link" href="/python/2015/04/05/yingxin/" itemprop="url">
+                  Python Spider: 迎新系统学生信息爬取
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-04-05T00:00:00+08:00" content="2015-04-05">
+              2015-04-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2015/04/05/yingxin/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2015/04/05/yingxin/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="每一颗眼泪，是一万道光：迎新系统学生信息爬取">每一颗眼泪，是一万道光：迎新系统学生信息爬取</h2><blockquote>
+<p>You don’t get over the fear. You run towards it, with your knees buckling.</p>
+<p>—Amin Ariana, Technical Founder, hacker and advisor at several ventures</p>
+</blockquote>
+<p>有多少次，希望那短暂平凡的一刻又一刻定格到永恒。</p>
+<p>简简单单就是幸福</p>
+<p>忘乎所有只有热爱</p>
+<hr>
+<p>去年8月，来跪邮写得第一个程序。在学十还略显空荡的房间，空荡荡的桌面，床上没有被子只有个睡袋，惨白惨白的灯光和兴奋的新同学们。</p>
+<p>这次，依然是selenium专场。让程序操作浏览器。</p>
+<p>首先，依然是研究整个流程。</p>
+<p>打开 <a href="http://welcome.bupt.edu.cn" target="_blank" rel="external">http://welcome.bupt.edu.cn</a></p>
+<p>看看怎么登录</p>
+<p><img src="/images/spider/yingxin.png" alt=""></p>
+<p>一切显而易见，输入用户名密码，点击登录按钮。</p>
+<p>进入界面</p>
+<p><img src="/images/spider/yingxin1.png" alt=""></p>
+<p>这时候看到有个选框，发现可以选择研究生或者本科生。在这里我不讨论这个问题，留作读者自己思考。</p>
+<p>我们随便翻翻看看</p>
+<p>注意到左下角有几个页码，左边还有个<code>3136/210</code>之类的东西。</p>
+<p>大概研究下猜想，3136是学生总数，210是总页数。</p>
+<p>同时注意到页码是一次显示5页，通过点击<code>&gt;</code>翻入下个5页。</p>
+<p><img src="/images/spider/yingxin2.png" alt=""></p>
+<p>为了得到我们要翻多少页，需要提取出210这个数。我们已经讲过如何用xpath来索引到对应的元素。</p>
+<p><img src="/images/spider/yingxin3.png" alt=""></p>
+<p>紧接着，抓取，点击下一页，每翻五页，点击<code>&gt;</code>，然后继续重复以上步骤。</p>
+<p>直到把210页全翻完。</p>
+<p>我们要提取的信息在class<code>porlet-table</code>中</p>
+<p><img src="/images/spider/yingxin4.png" alt=""></p>
+<p>接着，一切都显而易见了，用selenium自动化这个步骤。</p>
+<p>我是直接在ipython中一点点试验这个过程，最后把历史记录摘录出来写成程序，最后在ipython中打开pdb自动捕捉异常的功能或者设置断点来运行调试。</p>
+<p>当然，也许你使用自己的方式。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="comment">#from selenium.webdriver.common.keys import Keys</span></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">__author__ = <span class="string">'Reverland'</span></span><br><span class="line"></span><br><span class="line"><span class="string">"""</span><br><span class="line">You know what it is...</span><br><span class="line">With NO warranty.</span><br><span class="line">At your OWN risk.</span><br><span class="line"></span><br><span class="line">A quick and dirty spider implemented with selenium webdriver</span><br><span class="line">to dump the students' dorm data</span><br><span class="line"></span><br><span class="line">条码号  姓名    院系    专业    学号    班级    宿舍校区    宿舍区  宿舍楼</span><br><span class="line">宿舍房号    床号    入住情况</span><br><span class="line">"""</span></span><br><span class="line"></span><br><span class="line">driver = webdriver.Firefox()</span><br><span class="line">driver.get(<span class="string">"http://welcome.bupt.edu.cn"</span>)</span><br><span class="line">username = driver.find_element_by_id(<span class="string">"username"</span>)</span><br><span class="line">password = driver.find_element_by_id(<span class="string">"password"</span>)</span><br><span class="line">username.send_keys(<span class="string">"2xxxxxx"</span>)</span><br><span class="line">password.send_keys(<span class="string">"xxxxx"</span>)</span><br><span class="line">submit = driver.find_element_by_name(<span class="string">"submit"</span>)</span><br><span class="line">submit.click()</span><br><span class="line"></span><br><span class="line">time.sleep(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># login success</span></span><br><span class="line"><span class="comment"># y</span></span><br><span class="line">p = <span class="number">1</span></span><br><span class="line">xpath_p_last = <span class="string">'//div[@class="pagination-info clearFix"]/span'</span></span><br><span class="line">n_pages = driver.find_element_by_xpath(xpath_p_last)</span><br><span class="line">p_last = int(n_pages.text.split(<span class="string">'/'</span>)[<span class="number">1</span>])</span><br><span class="line">n_student = int(n_pages.text.split(<span class="string">'/'</span>)[<span class="number">0</span>])</span><br><span class="line"><span class="keyword">print</span> <span class="string">"Number of Students Found: "</span>, n_student</span><br><span class="line"><span class="keyword">while</span> (p &lt;= p_last):</span><br><span class="line">    time.sleep(random.randint(<span class="number">3</span>, <span class="number">5</span>))</span><br><span class="line">    table = driver.find_element_by_class_name(<span class="string">"portlet-table"</span>)</span><br><span class="line">    <span class="comment"># remove headers</span></span><br><span class="line">    text = table.text[<span class="number">45</span>::] + <span class="string">'\n'</span></span><br><span class="line">    <span class="keyword">print</span> text</span><br><span class="line">    <span class="keyword">with</span> open(<span class="string">"bupt_students_yan.txt"</span>, <span class="string">'a'</span>) <span class="keyword">as</span> f:</span><br><span class="line">        f.write(text.encode(<span class="string">'utf-8'</span>))</span><br><span class="line">    p += <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span> p &gt; p_last:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"finished"</span></span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">if</span> p % <span class="number">5</span> == <span class="number">1</span>:</span><br><span class="line">        driver.find_element_by_link_text(<span class="string">"&gt;"</span>).click()</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        driver.find_element_by_link_text(str(p)).click()</span><br><span class="line"></span><br><span class="line"><span class="comment"># b</span></span><br><span class="line">option = driver.find_element_by_xpath(<span class="string">'//select/option[@value="serieN10B"]'</span>)</span><br><span class="line">option.click()</span><br><span class="line">p = <span class="number">1</span></span><br><span class="line">xpath_p_last = <span class="string">'//div[@class="pagination-info clearFix"]/span'</span></span><br><span class="line">n_pages = driver.find_element_by_xpath(xpath_p_last)</span><br><span class="line">p_last = int(n_pages.text.split(<span class="string">'/'</span>)[<span class="number">1</span>])</span><br><span class="line">n_student = int(n_pages.text.split(<span class="string">'/'</span>)[<span class="number">0</span>])</span><br><span class="line"><span class="keyword">print</span> <span class="string">"Number of Students Found: "</span>, n_student</span><br><span class="line"><span class="keyword">while</span> (p &lt;= p_last):</span><br><span class="line">    time.sleep(random.randint(<span class="number">3</span>, <span class="number">5</span>))</span><br><span class="line">    table = driver.find_element_by_class_name(<span class="string">"portlet-table"</span>)</span><br><span class="line">    <span class="comment"># remove headers</span></span><br><span class="line">    text = table.text[<span class="number">45</span>::] + <span class="string">'\n'</span></span><br><span class="line">    <span class="keyword">print</span> text</span><br><span class="line">    <span class="keyword">with</span> open(<span class="string">"bupt_students_ben.txt"</span>, <span class="string">'a'</span>) <span class="keyword">as</span> f:</span><br><span class="line">        f.write(text.encode(<span class="string">'utf-8'</span>))</span><br><span class="line">    p += <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span> p &gt; p_last:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"finished"</span></span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">if</span> p % <span class="number">5</span> == <span class="number">1</span>:</span><br><span class="line">        driver.find_element_by_link_text(<span class="string">"&gt;"</span>).click()</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        driver.find_element_by_link_text(str(p)).click()</span><br></pre></td></tr></table></figure>
+<p>Happy hacking~</p>
+<p><img src="/images/spider/yingxin6.png" alt=""></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/python/2015/04/04/chaoxing/" itemprop="url">
                   Python Spider: 超星图书爬取转换
                 </a>
@@ -2356,203 +2493,6 @@ startup:</span>
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/exploit/2015/03/16/shellcode/" itemprop="url">
-                  Shellcode
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-03-16T00:00:00+08:00" content="2015-03-16">
-              2015-03-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/exploit/" itemprop="url" rel="index">
-                    <span itemprop="name">exploit</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/exploit/2015/03/16/shellcode/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="exploit/2015/03/16/shellcode/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>意译：<a href="http://blackhat.life/Shellcode" target="_blank" rel="external">category:Shellcode</a></p>
-<p>Shellcode，也叫bytecode，是用在缓冲区溢出漏洞挖掘中的机器码(用十六进制表示的二进制文件)，或者为了方便人类阅读写成汇编。程序员能使用机器码，用汇编方法写任何应用程序(就像所有其它高级编程语言一样)。并且不像很多语言只限定在某个操作系统或指令架构上。</p>
-<p>shellcode需要位计算、linux汇编和栈溢出的基础知识。</p>
-<p>[TOC]</p>
-<p>每种语言最后都解释为二进制，不管是编译的(compile-time)还是解释(runtime)。编写缓冲区溢出时要记住，有很多潜在的来自安全机制的障碍(比如DEP、ASLR、防火墙、或者IDS或者IPS应用)。一次面对现代对策的成功漏洞利用，需要利用许多过滤绕过和IDS侵入技术。</p>
-<h2 id="类型">类型</h2><p>根据执行代码的目标环境有许多类型的shellcode，在OSI模型不同层次有不同种类的对策，需要有不同的技术来成功挖掘指定的应用漏洞。</p>
-<h3 id="可执行程序(executable)_vs_基于返回的(return-oriented)">可执行程序(executable) vs 基于返回的(return-oriented)</h3><p>大致从运行时观点看有两种shellcode：可执行shellcode和基于返回的shellcode。这要看目标环境是否能执行数据栈来决定选择哪种。如果目标合适，基于返回的shellcode无视栈是否能执行，而可执行的shellcode只能在可执行栈上运行。</p>
-<ul>
-<li><p>可执行shellcode在它相应的目标操作系统中用汇编写成，大多数可执行shellcode，或者传统的null-free shellcode，可以用在任何有漏洞且有可执行栈的应用上。</p>
-</li>
-<li><p>基于返回的shellcode当堆栈不可执行时利用ROP(return oriented programming).通常通过构造调用栈模仿正常的编译程序来调用可执行shellcode。因为调用栈被视为数据，这在漏洞挖掘中绕过了需要栈可执行的限制。</p>
-</li>
-</ul>
-<p>然而，特定指令集架构比如MIPS，不能使用基于返回的编程技术或者传统的堆栈溢出，因为它们不在栈上存储返回地址。</p>
-<h3 id="对策和措施">对策和措施</h3><p>尽管传统二进制shellcode通常能顺利工作在没过滤机制、没打补丁、或者大输入的情况下，许多目标环境和应用也有许多限制因素来组织传统机器码执行。许多C或者C++写成的应用都需要机器码是null-free的(没有<code>\x00</code>)，这就是为何null-free shellcode是可执行shellcode编程的传统基础形式。</p>
-<ul>
-<li>字符过滤可以利用多态(自修改)来在允许字符集外运行时构造字节，来绕过限制。许多字符过滤限制到可打印字符集，所以ascii和alphanumeric shellcode变成该技术的主导技术。</li>
-<li>字符编码能通过编码载荷使之解码为相应的十六进制机器码绕过。通常代码必须在被拷贝到有漏洞的缓冲区前经过unicode、base64、大小写转换或者其它解码仍然存在。</li>
-<li>缓冲区尺寸也许惊人有限，某些环境中载荷太大不能放入缓冲区，这时就需要二次注入技术(second-order-injection)。结果是shellcode尺寸保持在最小来优化重用。</li>
-<li>防火墙通过阻碍外出连接或者监听socket接收流量来限制远程shellcode。绕过防火墙技术可以通过文件描述符重用技术实现。</li>
-<li>分析者可能调试有漏洞的应用尝试逆向工程挖掘过程。int3断点探测和单向哈希(one-way hashing)技术能组织取证分析工具比如volatility</li>
-<li>签名通常特别阻止linux shellcode因为系统调用传统上被用来作为C调用风格的接口，因此大多给定shellcode的静态部分都有个C接口。甚至多态和自修改代码通常都生成包含系统调用的shellcodes。系统调用可以通过子链接代码实现。</li>
-</ul>
-<h2 id="shellcode机理">shellcode机理</h2><p>shellcode通常用汇编写成。尽管有人能记住助记符表来直接写机器码，这并不适合初学者所以不推荐。</p>
-<p>环境因子：</p>
-<ul>
-<li>许多应用和安全措施组件都部分过滤输入，限制指令集的可能。有时候这在覆盖返回地址时甚至都有影响。</li>
-<li>操作系统对C API有不同的处理。通常(不是总是)linux上的shellcode依赖内核终端或者没链接的(unlinked)调用，而微软windows不提供中断API，shellcode必须利用PE解析来执行运行时链接。</li>
-</ul>
-<h2 id="汇编代码">汇编代码</h2><p>创建一个叫<code>test_shellcode.s</code>的文件</p>
-<p>这个例子使用hatter的32字节 null-free payload，这个shellcode完成<code>setuid(0);execve(&#39;/bin/sh&#39;, null, null)</code>。拷贝以下代码到<code>test_shellcode.s</code>并保存。</p>
-<pre><code><span class="built_in">BITS</span> <span class="number">64</span>
-<span class="built_in">global</span> _start
-<span class="label">start:</span>
-    <span class="keyword">xor</span> <span class="literal">rdi</span>, <span class="literal">rdi</span>
-    <span class="keyword">push</span> <span class="preprocessor">qword</span> <span class="number">0x69</span>
-    <span class="keyword">pop</span> <span class="literal">rax</span>
-    <span class="keyword">syscall</span>
-
-    <span class="keyword">push</span> <span class="literal">rdi</span>
-    <span class="keyword">push</span> <span class="literal">rdi</span>
-    <span class="keyword">pop</span> <span class="literal">rsi</span>
-    <span class="keyword">pop</span> <span class="literal">rdx</span>
-    <span class="keyword">push</span> <span class="preprocessor">qword</span> <span class="number">0x68</span>
-    <span class="keyword">mov</span> <span class="literal">rax</span>, <span class="preprocessor">qword</span> <span class="number">0x7361622f6e69622f</span>
-    <span class="keyword">push</span> <span class="literal">rax</span>
-    <span class="keyword">push</span> <span class="literal">rsp</span>
-    <span class="keyword">pop</span> <span class="literal">rdi</span>
-    <span class="keyword">push</span> <span class="preprocessor">qword</span> <span class="number">0x3b</span>
-    <span class="keyword">pop</span> <span class="literal">rax</span>
-    <span class="keyword">syscall</span>
-</code></pre><p>我又是用nasm编译而不是gas。。。</p>
-<pre><code>nasm <span class="built_in">test</span>_shellcode.s -o <span class="built_in">test</span>_shellcode.o
-</code></pre><h2 id="提取shellcode">提取shellcode</h2><p>提取二进制字节码有许多方法，objdump可以(不过这时nasm生成的目标文件不包含二进制文件信息，所以要指定<code>nasm -felf64</code>这样生成包含符号表或者ELF文件头的文件), hexdump可以看。。。。。。不过译者喜欢用ndiasm，显然必须指定类型什么的。</p>
-<pre><code> ~/Work/project/blackhat/shellcode  ndisasm -b64 -pamd test_shellcode.o
-<span class="number">00000000</span>  <span class="number">4831F</span>F            xor rdi,rdi
-<span class="number">00000003</span>  <span class="number">6</span>A69              push byte +<span class="number">0x69</span>
-<span class="number">00000005</span>  <span class="number">58</span>                pop rax
-<span class="number">00000006</span>  <span class="number">0F</span>05              syscall
-<span class="number">00000008</span>  <span class="number">57</span>                push rdi
-<span class="number">00000009</span>  <span class="number">57</span>                push rdi
-<span class="number">0000000</span>A  <span class="number">5</span>E                pop rsi
-<span class="number">0000000</span>B  <span class="number">5</span>A                pop rdx
-<span class="number">0000000</span>C  <span class="number">6</span>A68              push byte +<span class="number">0x68</span>
-<span class="number">0000000</span>E  <span class="number">48</span>B82F62696E2F62  mov rax,<span class="number">0x7361622f6e69622f</span>
-         -<span class="number">6173</span>
-<span class="number">00000018</span>  <span class="number">50</span>                push rax
-<span class="number">00000019</span>  <span class="number">54</span>                push rsp
-<span class="number">0000001</span>A  <span class="number">5F</span>                pop rdi
-<span class="number">0000001</span>B  <span class="number">6</span>A3B              push byte +<span class="number">0x3b</span>
-<span class="number">0000001</span>D  <span class="number">58</span>                pop rax
-<span class="number">0000001</span>E  <span class="number">0F</span>05              syscall
-</code></pre><p>中间部分包含指定汇编的字节指令。大多数调试器也展示对应汇编代码的十六进制记法。</p>
-<pre><code> <span class="special">~</span>/Work/project/blackhat/shellcode  od -t x1 test_shellcode.o | awk '<span class="special">{</span><span class="formula">$1=""; print<span class="special">}</span>'|sed 'N;s/<span class="command">\n</span>//g;s/ /<span class="command">\\</span>x/g' 
-<span class="command">\x</span>48<span class="command">\x</span>31<span class="command">\xff</span><span class="command">\x</span>6a<span class="command">\x</span>69<span class="command">\x</span>58<span class="command">\x</span>0f<span class="command">\x</span>05<span class="command">\x</span>57<span class="command">\x</span>57<span class="command">\x</span>5e<span class="command">\x</span>5a<span class="command">\x</span>6a<span class="command">\x</span>68<span class="command">\x</span>48<span class="command">\xb</span>8<span class="command">\x</span>2f<span class="command">\x</span>62<span class="command">\x</span>69<span class="command">\x</span>6e<span class="command">\x</span>2f<span class="command">\x</span>62<span class="command">\x</span>61<span class="command">\x</span>73<span class="command">\x</span>50<span class="command">\x</span>54<span class="command">\x</span>5f<span class="command">\x</span>6a<span class="command">\x</span>3b<span class="command">\x</span>58<span class="command">\x</span>0f<span class="command">\x</span>05</span>
-</code></pre><h3 id="shellcode反汇编">shellcode反汇编</h3><p>许多次你看到来自‘野外的’shellcode，例如分析恶意软件和新的exploit，这时你需要反汇编shellcode来学习。最简单的方式是使用objdump(还是习惯ndiasm，呵呵)本例我们使用我们构建的实例。</p>
-<p>就是这么简单：</p>
-<pre><code> ~/Work/project/blackhat/shellcode   echo -en <span class="string">"\x48\x31\xff\x6a\x69\x58\x0f\x05\x57\x57\x5e\x5a\x48\xbf\x6a\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xef\x08\x57\x54\x5f\x6a\x3b\x58\x0f\x05"</span> &gt; shellcode ; ndisasm -b64 -pamd shellcode      
-<span class="number">00000000</span>  <span class="number">4831F</span>F            xor rdi,rdi
-<span class="number">00000003</span>  <span class="number">6</span>A69              push byte +<span class="number">0x69</span>
-<span class="number">00000005</span>  <span class="number">58</span>                pop rax
-<span class="number">00000006</span>  <span class="number">0F</span>05              syscall
-<span class="number">00000008</span>  <span class="number">57</span>                push rdi
-<span class="number">00000009</span>  <span class="number">57</span>                push rdi
-<span class="number">0000000</span>A  <span class="number">5</span>E                pop rsi
-<span class="number">0000000</span>B  <span class="number">5</span>A                pop rdx
-<span class="number">0000000</span>C  <span class="number">48</span>BF6A2F62696E2F  mov rdi,<span class="number">0x68732f6e69622f6a</span>
-         -<span class="number">7368</span>
-<span class="number">00000016</span>  <span class="number">48</span>C1EF08          shr rdi,byte <span class="number">0x8</span>
-<span class="number">0000001</span>A  <span class="number">57</span>                push rdi
-<span class="number">0000001</span>B  <span class="number">54</span>                push rsp
-<span class="number">0000001</span>C  <span class="number">5F</span>                pop rdi
-<span class="number">0000001</span>D  <span class="number">6</span>A3B              push byte +<span class="number">0x3b</span>
-<span class="number">0000001F</span>  <span class="number">58</span>                pop rax
-<span class="number">00000020</span>  <span class="number">0F</span>05              syscall
-</code></pre>
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2599,7 +2539,7 @@ startup:</span>
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">174</span>
+              <span class="site-state-item-count">175</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2613,7 +2553,7 @@ startup:</span>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

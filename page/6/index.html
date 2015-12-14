@@ -224,7 +224,1417 @@
             
               
                 
-                <a class="post-title-link" href="/uncategorized/2014/08/08/better-and-beautiful-console/" itemprop="url">
+                <a class="post-title-link" href="/exploit/2014/08/08/defeating-ioli-with-radare2/" itemprop="url">
+                  Defeating ioli with radare2
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-08-08T00:00:00+08:00" content="2014-08-08">
+              2014-08-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/exploit/" itemprop="url" rel="index">
+                    <span itemprop="name">exploit</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/exploit/2014/08/08/defeating-ioli-with-radare2/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="exploit/2014/08/08/defeating-ioli-with-radare2/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>译者表示：把两篇文章揉合到了一起。</p>
+<p>原文自：<a href="http://dustri.org/b/defeating-ioli-with-radare2.html" target="_blank" rel="external">Defeating ioli with radare2</a><br>和<a href="http://radare.nopcode.org/wiki/index.php?n=Examples.Crackme" target="_blank" rel="external">Crackme solution from pancake</a><br>需要：</p>
+<ul>
+<li><a href="http://www.radare.org/y/" target="_blank" rel="external">radare2</a></li>
+<li><a href="http://www.jegerlehner.ch/intel/" target="_blank" rel="external">asm cheat sheet</a></li>
+<li><a href="http://pof.eslack.org/tmp/IOLI-crackme.tar.gz" target="_blank" rel="external">IOLI crackme suite</a>(<a href="http://dustri.org/b/files/IOLI-crackme.tar.gz" target="_blank" rel="external">another mirror</a>)</li>
+</ul>
+<h2 id="crackme_0x00">crackme 0x00</h2><p>第一个crackme，非常简单。</p>
+<pre><code> ✘ ⮀ ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ ./crackme0x00
+IOLI Crackme Level <span class="number">0x00</span>
+Password: <span class="number">1234</span>
+Invalid Password!
+
+⮀ ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ r2 -w ./crackme0x00
+ -- I script in C, because fuck you.
+[<span class="number">0x08048360</span>]&gt; aa
+[<span class="number">0x08048360</span>]&gt; pdf@sym.main
+|          ; DATA XREF from <span class="number">0x08048377</span> (fcn<span class="number">.08048356</span>)
+/ (fcn) sym.main <span class="number">127</span>
+|          <span class="number">0x08048414</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x08048415</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x08048417</span>    <span class="number">83</span>ec28       sub esp, <span class="number">0x28</span>
+|          <span class="number">0x0804841a</span>    <span class="number">83e4</span>f0       and esp, <span class="number">0xfffffff0</span>
+|          <span class="number">0x0804841d</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x08048422</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x08048425</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x08048428</span>    c1e804       shr eax, <span class="number">0x4</span>
+|          <span class="number">0x0804842b</span>    c1e004       shl eax, <span class="number">0x4</span>
+|          <span class="number">0x0804842e</span>    <span class="number">29</span>c4         sub esp, eax
+|          <span class="number">0x08048430</span>    c7042468850. mov dword [esp], str.IOLI_Crackme_Level_0x00_n ; str.IOLI_Crackme_Level_0x00_n
+|          <span class="number">0x08048437</span>    e804ffffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048336</span>)
+|             fcn<span class="number">.08048336</span>(unk) ; sym.imp.<span class="built_in">printf</span>
+|          <span class="number">0x0804843c</span>    c7042481850. mov dword [esp], str.Password_ ; str.Password_
+|          <span class="number">0x08048443</span>    e8f8feffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048336</span>)
+|             fcn<span class="number">.08048336</span>() ; sym.imp.<span class="built_in">printf</span>
+|          <span class="number">0x08048448</span>    <span class="number">8</span>d45e8       lea eax, [ebp-<span class="number">0x18</span>]
+|          <span class="number">0x0804844b</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x0804844f</span>    c704248c850. mov dword [esp], <span class="number">0x804858c</span> ;  <span class="number">0x0804858c</span> 
+|          <span class="number">0x08048456</span>    e8d5feffff   call sym.imp.<span class="built_in">scanf</span> ; (fcn<span class="number">.08048326</span>)
+|             fcn<span class="number">.08048326</span>() ; sym.imp.<span class="built_in">scanf</span>
+|          <span class="number">0x0804845b</span>    <span class="number">8</span>d45e8       lea eax, [ebp-<span class="number">0x18</span>]
+|          <span class="number">0x0804845e</span>    c74424048f8. mov dword [esp+<span class="number">0x4</span>], str<span class="number">.250382</span> ; str<span class="number">.250382</span>
+|          <span class="number">0x08048466</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x08048469</span>    e8e2feffff   call sym.imp.<span class="built_in">strcmp</span> ; (fcn<span class="number">.08048346</span>)
+|             fcn<span class="number">.08048346</span>() ; sym.imp.<span class="built_in">strcmp</span>
+|          <span class="number">0x0804846e</span>    <span class="number">85</span>c0         test eax, eax
+|      ,=&lt; <span class="number">0x08048470</span>    <span class="number">740</span>e         je <span class="number">0x8048480</span>
+|      |   <span class="number">0x08048472</span>    c7042496850. mov dword [esp], str.Invalid_Password__n ; str.Invalid_Password__n
+|      |   <span class="number">0x08048479</span>    e8c2feffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048336</span>)
+|      |      fcn<span class="number">.08048336</span>() ; sym.imp.<span class="built_in">printf</span>
+|     ,==&lt; <span class="number">0x0804847e</span>    eb0c         jmp <span class="number">0x804848c</span> ; (sym.main)
+|     ||   ; JMP XREF from <span class="number">0x08048470</span> (unk)
+|     |`-&gt; <span class="number">0x08048480</span>    c70424a9850. mov dword [esp], str.Password_OK____n ; str.Password_OK____n
+|     |    <span class="number">0x08048487</span>    e8b4feffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048336</span>)
+|     |       fcn<span class="number">.08048336</span>() ; sym.imp.<span class="built_in">printf</span>
+|     `--&gt; <span class="number">0x0804848c</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x08048491</span>    c9           leave
+\          <span class="number">0x08048492</span>    c3           ret
+[<span class="number">0x08048360</span>]&gt; s <span class="number">0x0804847e</span>
+[<span class="number">0x0804847e</span>]&gt; wx eb
+[<span class="number">0x0804847e</span>]&gt; px <span class="number">20</span>
+- offset -   <span class="number">0</span> <span class="number">1</span>  <span class="number">2</span> <span class="number">3</span>  <span class="number">4</span> <span class="number">5</span>  <span class="number">6</span> <span class="number">7</span>  <span class="number">8</span> <span class="number">9</span>  A B  C D  E F  <span class="number">0123456789</span>ABCDEF
+<span class="number">0x0804847e</span>  eb0c c704 <span class="number">24</span>a9 <span class="number">8504</span> <span class="number">08e8</span> b4fe ffff b800  ....$...........
+<span class="number">0x0804848e</span>  <span class="number">0000</span> <span class="number">00</span>c9                                ....            
+[<span class="number">0x0804847e</span>]&gt; pD <span class="number">20</span>
+|      ,=&lt; <span class="number">0x0804847e</span>    eb0c         jmp <span class="number">0x804848c</span> ; (sym.main)
+|      |   ; JMP XREF from <span class="number">0x08048470</span> (unk)
+|      |   <span class="number">0x08048480</span>    c70424a9850. mov dword [esp], str.Password_OK____n ; str.Password_OK____n
+|      |   <span class="number">0x08048487</span>    e8b4feffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048336</span>)
+|      |      fcn<span class="number">.08048336</span>() ; sym.imp.<span class="built_in">printf</span>
+|      `-&gt; <span class="number">0x0804848c</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x08048491</span>    c9           leave
+[<span class="number">0x08048470</span>]&gt; q
+</code></pre><p>输入任何密码。</p>
+<pre><code> <span class="regexp">~/Work/</span>project<span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x00
+IOLI Crackme Level <span class="number">0x00</span>
+<span class="string">Password:</span> <span class="number">12345</span>
+Password <span class="string">OK :</span>)
+</code></pre><h2 id="crackme0x01">crackme0x01</h2><pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x01
+IOLI Crackme Level <span class="number">0</span>x01
+Password: <span class="number">12345</span>
+Invalid Password!
+</code></pre><p>反汇编我们看到有个跳转到<code>OK</code>的<code>je</code>，改成<code>jmp</code></p>
+<pre><code> ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ r2 -w ./crackme0x01
+ -- Deltify your life with radare2
+[<span class="number">0x08048330</span>]&gt; aa
+[<span class="number">0x08048330</span>]&gt; pdf@sym.main 
+|          ; DATA XREF from <span class="number">0x08048347</span> (fcn<span class="number">.08048322</span>)
+/ (fcn) sym.main <span class="number">113</span>
+|          <span class="number">0x080483e4</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x080483e5</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x080483e7</span>    <span class="number">83</span>ec18       sub esp, <span class="number">0x18</span>
+|          <span class="number">0x080483ea</span>    <span class="number">83e4</span>f0       and esp, <span class="number">0xfffffff0</span>
+|          <span class="number">0x080483ed</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x080483f2</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x080483f5</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x080483f8</span>    c1e804       shr eax, <span class="number">0x4</span>
+|          <span class="number">0x080483fb</span>    c1e004       shl eax, <span class="number">0x4</span>
+|          <span class="number">0x080483fe</span>    <span class="number">29</span>c4         sub esp, eax
+|          <span class="number">0x08048400</span>    c7042428850. mov dword [esp], str.IOLI_Crackme_Level_0x01_n ; str.IOLI_Crackme_Level_0x01_n
+|          <span class="number">0x08048407</span>    e810ffffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048312</span>)
+|             fcn<span class="number">.08048312</span>(unk) ; sym.imp.<span class="built_in">printf</span>
+|          <span class="number">0x0804840c</span>    c7042441850. mov dword [esp], str.Password_ ; str.Password_
+|          <span class="number">0x08048413</span>    e804ffffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048312</span>)
+|             fcn<span class="number">.08048312</span>() ; sym.imp.<span class="built_in">printf</span>
+|          <span class="number">0x08048418</span>    <span class="number">8</span>d45fc       lea eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x0804841b</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x0804841f</span>    c704244c850. mov dword [esp], <span class="number">0x804854c</span> ;  <span class="number">0x0804854c</span> 
+|          <span class="number">0x08048426</span>    e8e1feffff   call sym.imp.<span class="built_in">scanf</span> ; (fcn<span class="number">.08048302</span>)
+|             fcn<span class="number">.08048302</span>() ; sym.imp.<span class="built_in">scanf</span>
+|          <span class="number">0x0804842b</span>    <span class="number">817</span>dfc9a140. cmp dword [ebp-<span class="number">0x4</span>], <span class="number">0x149a</span>
+|      ,=&lt; <span class="number">0x08048432</span>    <span class="number">740</span>e         je <span class="number">0x8048442</span>
+|      |   <span class="number">0x08048434</span>    c704244f850. mov dword [esp], str.Invalid_Password__n ; str.Invalid_Password__n
+|      |   <span class="number">0x0804843b</span>    e8dcfeffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048312</span>)
+|      |      fcn<span class="number">.08048312</span>() ; sym.imp.<span class="built_in">printf</span>
+|     ,==&lt; <span class="number">0x08048440</span>    eb0c         jmp <span class="number">0x804844e</span> ; (sym.main)
+|     ||   ; JMP XREF from <span class="number">0x08048432</span> (unk)
+|     |`-&gt; <span class="number">0x08048442</span>    c7042462850. mov dword [esp], str.Password_OK____n ; str.Password_OK____n
+|     |    <span class="number">0x08048449</span>    e8cefeffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048312</span>)
+|     |       fcn<span class="number">.08048312</span>() ; sym.imp.<span class="built_in">printf</span>
+|     `--&gt; <span class="number">0x0804844e</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x08048453</span>    c9           leave
+\          <span class="number">0x08048454</span>    c3           ret
+[<span class="number">0x08048330</span>]&gt; s <span class="number">0x08048432</span>
+[<span class="number">0x08048432</span>]&gt; wx eb
+[<span class="number">0x08048432</span>]&gt; q
+</code></pre><p>接着输入任何密码：</p>
+<pre><code> <span class="regexp">~/Work/</span>project<span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x01
+IOLI Crackme Level <span class="number">0x01</span>
+<span class="string">Password:</span> <span class="number">12345</span>
+Password <span class="string">OK :</span>)
+</code></pre><h2 id="crackme0x02">crackme0x02</h2><pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x02
+IOLI Crackme Level <span class="number">0</span>x02
+Password: <span class="number">12345</span>
+Invalid Password!
+</code></pre><p>这回还是个比较，将后面的<code>je</code>判断改成<code>nop</code>。有兴趣还可以笔算下怎么生成的密码。</p>
+<pre><code> ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ r2 -w ./crackme0x02
+ -- Invert the block bytes <span class="keyword">using</span> the <span class="string">'I'</span> key in visual mode
+[<span class="number">0x08048330</span>]&gt; aa
+[<span class="number">0x08048330</span>]&gt; pdf@sym.main
+|          ; DATA XREF from <span class="number">0x08048347</span> (fcn<span class="number">.08048322</span>)
+/ (fcn) sym.main <span class="number">144</span>
+|          <span class="number">0x080483e4</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x080483e5</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x080483e7</span>    <span class="number">83</span>ec18       sub esp, <span class="number">0x18</span>
+|          <span class="number">0x080483ea</span>    <span class="number">83e4</span>f0       and esp, <span class="number">0xfffffff0</span>
+|          <span class="number">0x080483ed</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x080483f2</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x080483f5</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x080483f8</span>    c1e804       shr eax, <span class="number">0x4</span>
+|          <span class="number">0x080483fb</span>    c1e004       shl eax, <span class="number">0x4</span>
+|          <span class="number">0x080483fe</span>    <span class="number">29</span>c4         sub esp, eax
+|          <span class="number">0x08048400</span>    c7042448850. mov dword [esp], str.IOLI_Crackme_Level_0x02_n ; str.IOLI_Crackme_Level_0x02_n
+|          <span class="number">0x08048407</span>    e810ffffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048312</span>)
+|             fcn<span class="number">.08048312</span>(unk) ; sym.imp.<span class="built_in">printf</span>
+|          <span class="number">0x0804840c</span>    c7042461850. mov dword [esp], str.Password_ ; str.Password_
+|          <span class="number">0x08048413</span>    e804ffffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048312</span>)
+|             fcn<span class="number">.08048312</span>() ; sym.imp.<span class="built_in">printf</span>
+|          <span class="number">0x08048418</span>    <span class="number">8</span>d45fc       lea eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x0804841b</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x0804841f</span>    c704246c850. mov dword [esp], <span class="number">0x804856c</span> ;  <span class="number">0x0804856c</span> 
+|          <span class="number">0x08048426</span>    e8e1feffff   call sym.imp.<span class="built_in">scanf</span> ; (fcn<span class="number">.08048302</span>)
+|             fcn<span class="number">.08048302</span>() ; sym.imp.<span class="built_in">scanf</span>
+|          <span class="number">0x0804842b</span>    c745f85a000. mov dword [ebp-<span class="number">0x8</span>], <span class="number">0x5a</span> ;  <span class="number">0x0000005a</span> 
+|          <span class="number">0x08048432</span>    c745f4ec010. mov dword [ebp-<span class="number">0xc</span>], <span class="number">0x1ec</span> ;  <span class="number">0x000001ec</span> 
+|          <span class="number">0x08048439</span>    <span class="number">8</span>b55f4       mov edx, [ebp-<span class="number">0xc</span>]
+|          <span class="number">0x0804843c</span>    <span class="number">8</span>d45f8       lea eax, [ebp-<span class="number">0x8</span>]
+|          <span class="number">0x0804843f</span>    <span class="number">0110</span>         add [eax], edx
+|          <span class="number">0x08048441</span>    <span class="number">8</span>b45f8       mov eax, [ebp-<span class="number">0x8</span>]
+|          <span class="number">0x08048444</span>    <span class="number">0f</span>af45f8     imul eax, [ebp-<span class="number">0x8</span>]
+|          <span class="number">0x08048448</span>    <span class="number">8945f</span>4       mov [ebp-<span class="number">0xc</span>], eax
+|          <span class="number">0x0804844b</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x0804844e</span>    <span class="number">3</span>b45f4       cmp eax, [ebp-<span class="number">0xc</span>]
+|      ,=&lt; <span class="number">0x08048451</span>    <span class="number">750</span>e         jne <span class="number">0x8048461</span>
+|      |   <span class="number">0x08048453</span>    c704246f850. mov dword [esp], str.Password_OK____n ; str.Password_OK____n
+|      |   <span class="number">0x0804845a</span>    e8bdfeffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048312</span>)
+|      |      fcn<span class="number">.08048312</span>() ; sym.imp.<span class="built_in">printf</span>
+|     ,==&lt; <span class="number">0x0804845f</span>    eb0c         jmp <span class="number">0x804846d</span> ; (sym.main)
+|     ||   ; JMP XREF from <span class="number">0x08048451</span> (unk)
+|     |`-&gt; <span class="number">0x08048461</span>    c704247f850. mov dword [esp], str.Invalid_Password__n ; str.Invalid_Password__n
+|     |    <span class="number">0x08048468</span>    e8affeffff   call sym.imp.<span class="built_in">printf</span> ; (fcn<span class="number">.08048312</span>)
+|     |       fcn<span class="number">.08048312</span>() ; sym.imp.<span class="built_in">printf</span>
+|     `--&gt; <span class="number">0x0804846d</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x08048472</span>    c9           leave
+\          <span class="number">0x08048473</span>    c3           ret
+[<span class="number">0x08048330</span>]&gt; s <span class="number">0x08048451</span>
+[<span class="number">0x08048451</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x08048451</span>]&gt; px <span class="number">10</span>
+- offset -   <span class="number">0</span> <span class="number">1</span>  <span class="number">2</span> <span class="number">3</span>  <span class="number">4</span> <span class="number">5</span>  <span class="number">6</span> <span class="number">7</span>  <span class="number">8</span> <span class="number">9</span>  A B  C D  E F  <span class="number">0123456789</span>ABCDEF
+<span class="number">0x08048451</span>  <span class="number">9090</span> c704 <span class="number">246f</span> <span class="number">8504</span> <span class="number">08e8</span>                 ....$o....      
+[<span class="number">0x08048451</span>]&gt; q
+</code></pre><p>输入任何密码：</p>
+<pre><code> <span class="regexp">~/Work/</span>project<span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x02
+IOLI Crackme Level <span class="number">0x02</span>
+<span class="string">Password:</span> <span class="number">12345</span>
+Password <span class="string">OK :</span>)
+</code></pre><h2 id="crackme0x03">crackme0x03</h2><pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x03
+IOLI Crackme Level <span class="number">0</span>x03
+Password: <span class="number">12345</span>
+Invalid Password!
+</code></pre><p>这回发现难一些了，没有明文字符串。main函数调用一个<code>test</code>，<code>test</code>又调用<code>shift</code>。虽然不知道这些函数是干嘛的。但发现<code>sym.test</code>中有两个似乎加密过的字符串，可能对应<code>invalid</code>和<code>Ok</code>两个字符串。</p>
+<p>猜测<code>sym.shift</code>是一种移位加密方法。</p>
+<p>基本上可以猜出来<code>0x0804848a</code>是<code>OK</code>的地方</p>
+<pre><code> ✘ ⮀ ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ r2 -w ./crackme0x03
+ -- Use zoom.byte=entropy and press <span class="string">'z'</span> in visual mode to zoom out to see the entropy of the whole file
+[<span class="number">0x08048360</span>]&gt; aa
+[<span class="number">0x08048360</span>]&gt; pdf@sym.main
+|          ; UNKNOWN XREF from <span class="number">0x0804847a</span> (unk)
+|          ; DATA XREF from <span class="number">0x08048377</span> (fcn<span class="number">.08048356</span>)
+/ (fcn) sym.main <span class="number">128</span>
+|          <span class="number">0x08048498</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x08048499</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x0804849b</span>    <span class="number">83</span>ec18       sub esp, <span class="number">0x18</span>
+|          <span class="number">0x0804849e</span>    <span class="number">83e4</span>f0       and esp, <span class="number">0xfffffff0</span>
+|          <span class="number">0x080484a1</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x080484a6</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x080484a9</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x080484ac</span>    c1e804       shr eax, <span class="number">0x4</span>
+|          <span class="number">0x080484af</span>    c1e004       shl eax, <span class="number">0x4</span>
+|          <span class="number">0x080484b2</span>    <span class="number">29</span>c4         sub esp, eax
+|          <span class="number">0x080484b4</span>    c7042410860. mov dword [esp], str.IOLI_Crackme_Level_0x03_n ; str.IOLI_Crackme_Level_0x03_n
+|          <span class="number">0x080484bb</span>    e890feffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>(unk)
+|          <span class="number">0x080484c0</span>    c7042429860. mov dword [esp], str.Password_ ; str.Password_
+|          <span class="number">0x080484c7</span>    e884feffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>()
+|          <span class="number">0x080484cc</span>    <span class="number">8</span>d45fc       lea eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x080484cf</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x080484d3</span>    c7042434860. mov dword [esp], <span class="number">0x8048634</span> ;  <span class="number">0x08048634</span> 
+|          <span class="number">0x080484da</span>    e851feffff   call sym.imp.<span class="built_in">scanf</span>
+|             sym.imp.<span class="built_in">scanf</span>()
+|          <span class="number">0x080484df</span>    c745f85a000. mov dword [ebp-<span class="number">0x8</span>], <span class="number">0x5a</span> ;  <span class="number">0x0000005a</span> 
+|          <span class="number">0x080484e6</span>    c745f4ec010. mov dword [ebp-<span class="number">0xc</span>], <span class="number">0x1ec</span> ;  <span class="number">0x000001ec</span> 
+|          <span class="number">0x080484ed</span>    <span class="number">8</span>b55f4       mov edx, [ebp-<span class="number">0xc</span>]
+|          <span class="number">0x080484f0</span>    <span class="number">8</span>d45f8       lea eax, [ebp-<span class="number">0x8</span>]
+|          <span class="number">0x080484f3</span>    <span class="number">0110</span>         add [eax], edx
+|          <span class="number">0x080484f5</span>    <span class="number">8</span>b45f8       mov eax, [ebp-<span class="number">0x8</span>]
+|          <span class="number">0x080484f8</span>    <span class="number">0f</span>af45f8     imul eax, [ebp-<span class="number">0x8</span>]
+|          <span class="number">0x080484fc</span>    <span class="number">8945f</span>4       mov [ebp-<span class="number">0xc</span>], eax
+|          <span class="number">0x080484ff</span>    <span class="number">8</span>b45f4       mov eax, [ebp-<span class="number">0xc</span>]
+|          <span class="number">0x08048502</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x08048506</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x08048509</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x0804850c</span>    e85dffffff   call sym.test
+|             sym.test()
+|          <span class="number">0x08048511</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x08048516</span>    c9           leave
+\          <span class="number">0x08048517</span>    c3           ret
+[<span class="number">0x08048360</span>]&gt; pdf@sym.test
+|          ; UNKNOWN XREF from <span class="number">0x0804846e</span> (unk)
+|          ; CALL XREF from <span class="number">0x0804850c</span> (unk)
+/ (fcn) sym.test <span class="number">42</span>
+|          <span class="number">0x0804846e</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x0804846f</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x08048471</span>    <span class="number">83</span>ec08       sub esp, <span class="number">0x8</span>
+|          <span class="number">0x08048474</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|          <span class="number">0x08048477</span>    <span class="number">3</span>b450c       cmp eax, [ebp+<span class="number">0xc</span>]
+|      ,=&lt; <span class="number">0x0804847a</span>    <span class="number">740</span>e         je loc<span class="number">.0804848</span>a
+|      |   <span class="number">0x0804847c</span>    c70424ec850. mov dword [esp], str.Lqydolg_Sdvvzrug_ ; str.Lqydolg_Sdvvzrug_
+|      |   <span class="number">0x08048483</span>    e88cffffff   call sym.shift
+|      |      sym.shift(unk)
+|     ,==&lt; <span class="number">0x08048488</span>    eb0c         jmp loc<span class="number">.08048496</span>
+|     ||   ; JMP XREF from <span class="number">0x0804847a</span> (unk)
+|- loc<span class="number">.0804848</span>a <span class="number">14</span>
+|     |`-&gt; <span class="number">0x0804848a</span>    c70424fe850. mov dword [esp], str.Sdvvzrug_RN______ ; str.Sdvvzrug_RN______
+|     |    <span class="number">0x08048491</span>    e87effffff   call sym.shift
+|     |       sym.shift()
+|     |    ; JMP XREF from <span class="number">0x08048488</span> (unk)
+|- loc<span class="number">.08048496</span> <span class="number">2</span>
+|     `--&gt; <span class="number">0x08048496</span>    c9           leave
+\          <span class="number">0x08048497</span>    c3           ret
+[<span class="number">0x08048360</span>]&gt; s <span class="number">0x0804847a</span>
+[<span class="number">0x0804847a</span>]&gt; px <span class="number">20</span>
+- offset -   <span class="number">0</span> <span class="number">1</span>  <span class="number">2</span> <span class="number">3</span>  <span class="number">4</span> <span class="number">5</span>  <span class="number">6</span> <span class="number">7</span>  <span class="number">8</span> <span class="number">9</span>  A B  C D  E F  <span class="number">0123456789</span>ABCDEF
+<span class="number">0x0804847a</span>  <span class="number">7400</span> <span class="number">0000</span> <span class="number">24</span>ec <span class="number">8504</span> <span class="number">08e8</span> <span class="number">8</span>cff ffff eb0c  t...$...........
+<span class="number">0x0804848a</span>  c704 <span class="number">24f</span>e                                ..$.            
+[<span class="number">0x0804847a</span>]&gt; wx eb
+[<span class="number">0x0804847a</span>]&gt; px <span class="number">20</span>
+- offset -   <span class="number">0</span> <span class="number">1</span>  <span class="number">2</span> <span class="number">3</span>  <span class="number">4</span> <span class="number">5</span>  <span class="number">6</span> <span class="number">7</span>  <span class="number">8</span> <span class="number">9</span>  A B  C D  E F  <span class="number">0123456789</span>ABCDEF
+<span class="number">0x0804847a</span>  eb0e c704 <span class="number">24</span>ec <span class="number">8504</span> <span class="number">08e8</span> <span class="number">8</span>cff ffff eb0c  ....$...........
+<span class="number">0x0804848a</span>  c704 <span class="number">24f</span>e                                ..$.            
+[<span class="number">0x0804847a</span>]&gt; pdf@sym.test
+|          ; UNKNOWN XREF from <span class="number">0x0804846e</span> (unk)
+|          ; CALL XREF from <span class="number">0x0804850c</span> (unk)
+/ (fcn) sym.test <span class="number">42</span>
+|          <span class="number">0x0804846e</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x0804846f</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x08048471</span>    <span class="number">83</span>ec08       sub esp, <span class="number">0x8</span>
+|          <span class="number">0x08048474</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|          <span class="number">0x08048477</span>    <span class="number">3</span>b450c       cmp eax, [ebp+<span class="number">0xc</span>]
+|      ,=&lt; <span class="number">0x0804847a</span>    eb0e         jmp loc<span class="number">.0804848</span>a
+|      |   <span class="number">0x0804847c</span>    c70424ec850. mov dword [esp], str.Lqydolg_Sdvvzrug_ ; str.Lqydolg_Sdvvzrug_
+|      |   <span class="number">0x08048483</span>    e88cffffff   call sym.shift
+|      |      sym.shift(unk)
+|     ,==&lt; <span class="number">0x08048488</span>    eb0c         jmp loc<span class="number">.08048496</span>
+|     ||   ; JMP XREF from <span class="number">0x0804847a</span> (unk)
+|- loc<span class="number">.0804848</span>a <span class="number">14</span>
+|     |`-&gt; <span class="number">0x0804848a</span>    c70424fe850. mov dword [esp], str.Sdvvzrug_RN______ ; str.Sdvvzrug_RN______
+|     |    <span class="number">0x08048491</span>    e87effffff   call sym.shift
+|     |       sym.shift()
+|     |    ; JMP XREF from <span class="number">0x08048488</span> (unk)
+|- loc<span class="number">.08048496</span> <span class="number">2</span>
+|     `--&gt; <span class="number">0x08048496</span>    c9           leave
+\          <span class="number">0x08048497</span>    c3           ret
+[<span class="number">0x0804847a</span>]&gt; q
+</code></pre><p>输入任意密码</p>
+<pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x03                
+IOLI Crackme Level <span class="number">0</span>x03
+Password: <span class="number">12345</span>
+Password OK!!! :)
+</code></pre><h2 id="crackme0x04">crackme0x04</h2><p>尝试12345竟然成功了……这不重要，README中给出了所有crackme的密码方便破解。</p>
+<pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x04
+IOLI Crackme Level <span class="number">0</span>x04
+Password: aaaaa
+Password Incorrect!
+</code></pre><p>又一个叫<code>sym.check</code>的函数，里头赫然写着明文的<code>invalid</code>和<code>ok</code>。仍然是将判断跳转改成什么都不做。</p>
+<pre><code> ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ <span class="literal">r2</span> -w ./crackme0x04
+ -- Interpret your own radare2 scripts with <span class="string">'. &lt;path-to-your-script&gt;'</span>. Similar to the bash source alias command.
+[<span class="number">0x080483d0</span>]&gt; aa
+[<span class="number">0x080483d0</span>]&gt; pdf@sym.main
+|          <span class="comment">; UNKNOWN XREF from 0x08048509 (unk)</span>
+|          <span class="comment">; DATA XREF from 0x080483e7 (fcn.080483ba)</span>
+/ (fcn) sym.main <span class="number">92</span>
+|          <span class="number">0x08048509</span>    <span class="number">55</span>           <span class="keyword">push</span> <span class="literal">ebp</span>
+|          <span class="number">0x0804850a</span>    89e5         <span class="keyword">mov</span> <span class="literal">ebp</span>, <span class="literal">esp</span>
+|          <span class="number">0x0804850c</span>    81ec88000000 <span class="keyword">sub</span> <span class="literal">esp</span>, <span class="number">0x88</span>
+|          <span class="number">0x08048512</span>    83e4f0       <span class="keyword">and</span> <span class="literal">esp</span>, <span class="number">0xfffffff0</span>
+|          <span class="number">0x08048515</span>    b800000000   <span class="keyword">mov</span> <span class="literal">eax</span>, <span class="number">0x0</span>
+|          <span class="number">0x0804851a</span>    83c00f       <span class="keyword">add</span> <span class="literal">eax</span>, <span class="number">0xf</span>
+|          <span class="number">0x0804851d</span>    83c00f       <span class="keyword">add</span> <span class="literal">eax</span>, <span class="number">0xf</span>
+|          <span class="number">0x08048520</span>    c1e804       <span class="keyword">shr</span> <span class="literal">eax</span>, <span class="number">0x4</span>
+|          <span class="number">0x08048523</span>    c1e004       <span class="keyword">shl</span> <span class="literal">eax</span>, <span class="number">0x4</span>
+|          <span class="number">0x08048526</span>    29c4         <span class="keyword">sub</span> <span class="literal">esp</span>, <span class="literal">eax</span>
+|          <span class="number">0x08048528</span>    c704245e860. <span class="keyword">mov</span> <span class="preprocessor">dword</span> [<span class="literal">esp</span>], <span class="keyword">str</span>.IOLI_Crackme_Level_0x04_n <span class="comment">; str.IOLI_Crackme_Level_0x04_n</span>
+|          <span class="number">0x0804852f</span>    e860feffff   <span class="keyword">call</span> sym.imp.printf
+|             sym.imp.printf(unk)
+|          <span class="number">0x08048534</span>    c7042477860. <span class="keyword">mov</span> <span class="preprocessor">dword</span> [<span class="literal">esp</span>], <span class="keyword">str</span>.Password_ <span class="comment">; str.Password_</span>
+|          <span class="number">0x0804853b</span>    e854feffff   <span class="keyword">call</span> sym.imp.printf
+|             sym.imp.printf()
+|          <span class="number">0x08048540</span>    8d4588       <span class="keyword">lea</span> <span class="literal">eax</span>, [<span class="literal">ebp</span>-<span class="number">0x78</span>]
+|          <span class="number">0x08048543</span>    <span class="number">89442404</span>     <span class="keyword">mov</span> [<span class="literal">esp</span>+<span class="number">0x4</span>], <span class="literal">eax</span>
+|          <span class="number">0x08048547</span>    c7042482860. <span class="keyword">mov</span> <span class="preprocessor">dword</span> [<span class="literal">esp</span>], <span class="number">0x8048682</span> <span class="comment">;  0x08048682 </span>
+|          <span class="number">0x0804854e</span>    e821feffff   <span class="keyword">call</span> sym.imp.scanf
+|             sym.imp.scanf()
+|          <span class="number">0x08048553</span>    8d4588       <span class="keyword">lea</span> <span class="literal">eax</span>, [<span class="literal">ebp</span>-<span class="number">0x78</span>]
+|          <span class="number">0x08048556</span>    <span class="number">890424</span>       <span class="keyword">mov</span> [<span class="literal">esp</span>], <span class="literal">eax</span>
+|          <span class="number">0x08048559</span>    e826ffffff   <span class="keyword">call</span> sym.check
+|             sym.check()
+|          <span class="number">0x0804855e</span>    b800000000   <span class="keyword">mov</span> <span class="literal">eax</span>, <span class="number">0x0</span>
+|          <span class="number">0x08048563</span>    c9           <span class="keyword">leave</span>
+\          <span class="number">0x08048564</span>    c3           <span class="keyword">ret</span>
+[<span class="number">0x080483d0</span>]&gt; pdf@sym.check
+|          <span class="comment">; CALL XREF from 0x08048559 (unk)</span>
+/ (fcn) sym.check <span class="number">133</span>
+|          <span class="number">0x08048484</span>    <span class="number">55</span>           <span class="keyword">push</span> <span class="literal">ebp</span>
+|          <span class="number">0x08048485</span>    89e5         <span class="keyword">mov</span> <span class="literal">ebp</span>, <span class="literal">esp</span>
+|          <span class="number">0x08048487</span>    83ec28       <span class="keyword">sub</span> <span class="literal">esp</span>, <span class="number">0x28</span>
+|          <span class="number">0x0804848a</span>    c745f800000. <span class="keyword">mov</span> <span class="preprocessor">dword</span> [<span class="literal">ebp</span>-<span class="number">0x8</span>], <span class="number">0x0</span>
+|          <span class="number">0x08048491</span>    c745f400000. <span class="keyword">mov</span> <span class="preprocessor">dword</span> [<span class="literal">ebp</span>-<span class="number">0xc</span>], <span class="number">0x0</span>
+|    .---&gt; <span class="number">0x08048498</span>    8b4508       <span class="keyword">mov</span> <span class="literal">eax</span>, [<span class="literal">ebp</span>+<span class="number">0x8</span>]
+|    |     <span class="number">0x0804849b</span>    <span class="number">890424</span>       <span class="keyword">mov</span> [<span class="literal">esp</span>], <span class="literal">eax</span>
+|    |     <span class="number">0x0804849e</span>    e8e1feffff   <span class="keyword">call</span> sym.imp.strlen <span class="comment">; (fcn.0804837a)</span>
+|    |        fcn.0804837a(unk) <span class="comment">; sym.imp.strlen</span>
+|    |     <span class="number">0x080484a3</span>    3945f4       <span class="keyword">cmp</span> [<span class="literal">ebp</span>-<span class="number">0xc</span>], <span class="literal">eax</span>
+|    | ,=&lt; <span class="number">0x080484a6</span>    <span class="number">7353</span>         <span class="keyword">jae</span> <span class="number">0x80484fb</span>
+|    | |   <span class="number">0x080484a8</span>    8b45f4       <span class="keyword">mov</span> <span class="literal">eax</span>, [<span class="literal">ebp</span>-<span class="number">0xc</span>]
+|    | |   <span class="number">0x080484ab</span>    <span class="number">034508</span>       <span class="keyword">add</span> <span class="literal">eax</span>, [<span class="literal">ebp</span>+<span class="number">0x8</span>]
+|    | |   <span class="number">0x080484ae</span>    0fb600       <span class="keyword">movzx</span> <span class="literal">eax</span>, <span class="preprocessor">byte</span> [<span class="literal">eax</span>]
+|    | |   <span class="number">0x080484b1</span>    8845f3       <span class="keyword">mov</span> [<span class="literal">ebp</span>-<span class="number">0xd</span>], <span class="literal">al</span>
+|    | |   <span class="number">0x080484b4</span>    8d45fc       <span class="keyword">lea</span> <span class="literal">eax</span>, [<span class="literal">ebp</span>-<span class="number">0x4</span>]
+|    | |   <span class="number">0x080484b7</span>    <span class="number">89442408</span>     <span class="keyword">mov</span> [<span class="literal">esp</span>+<span class="number">0x8</span>], <span class="literal">eax</span>
+|    | |   <span class="number">0x080484bb</span>    c7442404388. <span class="keyword">mov</span> <span class="preprocessor">dword</span> [<span class="literal">esp</span>+<span class="number">0x4</span>], <span class="number">0x8048638</span> <span class="comment">;  0x08048638 </span>
+|    | |   <span class="number">0x080484c3</span>    8d45f3       <span class="keyword">lea</span> <span class="literal">eax</span>, [<span class="literal">ebp</span>-<span class="number">0xd</span>]
+|    | |   <span class="number">0x080484c6</span>    <span class="number">890424</span>       <span class="keyword">mov</span> [<span class="literal">esp</span>], <span class="literal">eax</span>
+|    | |   <span class="number">0x080484c9</span>    e8d6feffff   <span class="keyword">call</span> sym.imp.sscanf <span class="comment">; (fcn.0804839a)</span>
+|    | |      fcn.0804839a() <span class="comment">; sym.imp.sscanf</span>
+|    | |   <span class="number">0x080484ce</span>    8b55fc       <span class="keyword">mov</span> <span class="literal">edx</span>, [<span class="literal">ebp</span>-<span class="number">0x4</span>]
+|    | |   <span class="number">0x080484d1</span>    8d45f8       <span class="keyword">lea</span> <span class="literal">eax</span>, [<span class="literal">ebp</span>-<span class="number">0x8</span>]
+|    | |   <span class="number">0x080484d4</span>    <span class="number">0110</span>         <span class="keyword">add</span> [<span class="literal">eax</span>], <span class="literal">edx</span>
+|    | |   <span class="number">0x080484d6</span>    837df80f     <span class="keyword">cmp</span> <span class="preprocessor">dword</span> [<span class="literal">ebp</span>-<span class="number">0x8</span>], <span class="number">0xf</span>
+|    |,==&lt; <span class="number">0x080484da</span>    <span class="number">7518</span>         <span class="keyword">jne</span> <span class="number">0x80484f4</span>
+|    |||   <span class="number">0x080484dc</span>    c704243b860. <span class="keyword">mov</span> <span class="preprocessor">dword</span> [<span class="literal">esp</span>], <span class="keyword">str</span>.Password_OK__n <span class="comment">; str.Password_OK__n</span>
+|    |||   <span class="number">0x080484e3</span>    e8acfeffff   <span class="keyword">call</span> sym.imp.printf
+|    |||      sym.imp.printf()
+|    |||   <span class="number">0x080484e8</span>    c7042400000. <span class="keyword">mov</span> <span class="preprocessor">dword</span> [<span class="literal">esp</span>], <span class="number">0x0</span>
+|    |||   <span class="number">0x080484ef</span>    e8c0feffff   <span class="keyword">call</span> sym.imp.exit <span class="comment">; (fcn.080483aa)</span>
+|    |||      fcn.080483aa() <span class="comment">; sym.imp.exit</span>
+|    |<span class="string">`--&gt; 0x080484f4    8d45f4       lea eax, [ebp-0xc]
+|    | |   0x080484f7    ff00         inc dword [eax]
+|    `</span>===&lt; <span class="number">0x080484f9</span>    eb9d         <span class="keyword">jmp</span> <span class="number">0x8048498</span> <span class="comment">; (sym.check)</span>
+|      |   <span class="comment">; JMP XREF from 0x080484a6 (unk)</span>
+|      <span class="string">`-&gt; 0x080484fb    c7042449860. mov dword [esp], str.Password_Incorrect__n ; str.Password_Incorrect__n
+|          0x08048502    e88dfeffff   call sym.imp.printf
+|             sym.imp.printf()
+|          0x08048507    c9           leave
+\          0x08048508    c3           ret
+[0x080483d0]&gt; s 0x080484da
+[0x080484da]&gt; wx 9090
+[0x080484da]&gt; q</span>
+</code></pre><p>输入任何密码：</p>
+<pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x04
+IOLI Crackme Level <span class="number">0</span>x04
+Password: aaaaa
+Password OK!
+</code></pre><h2 id="crackme0x05">crackme0x05</h2><pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x05
+IOLI Crackme Level <span class="number">0</span>x05
+Password: <span class="number">12345</span>
+Password Incorrect!
+</code></pre><p><code>sym.parell</code>? 在三个地方都有判断，更改到让程序直接执行到<code>OK</code>字符串位置。</p>
+<pre><code> ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ r2 -w ./crackme0x05
+ -- Use -e bin.strings=<span class="literal">false</span> to disable search <span class="keyword">for</span> strings when loading the binary.
+[<span class="number">0x080483d0</span>]&gt; aa
+[<span class="number">0x080483d0</span>]&gt; pdf@sym.main
+|          ; UNKNOWN XREF from <span class="number">0x080484ea</span> (unk)
+|          ; DATA XREF from <span class="number">0x080483e7</span> (fcn<span class="number">.080483</span>ba)
+/ (fcn) sym.main <span class="number">92</span>
+|          <span class="number">0x08048540</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x08048541</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x08048543</span>    <span class="number">81</span>ec88000000 sub esp, <span class="number">0x88</span>
+|          <span class="number">0x08048549</span>    <span class="number">83e4</span>f0       and esp, <span class="number">0xfffffff0</span>
+|          <span class="number">0x0804854c</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x08048551</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x08048554</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x08048557</span>    c1e804       shr eax, <span class="number">0x4</span>
+|          <span class="number">0x0804855a</span>    c1e004       shl eax, <span class="number">0x4</span>
+|          <span class="number">0x0804855d</span>    <span class="number">29</span>c4         sub esp, eax
+|          <span class="number">0x0804855f</span>    c704248e860. mov dword [esp], str.IOLI_Crackme_Level_0x05_n ; str.IOLI_Crackme_Level_0x05_n
+|          <span class="number">0x08048566</span>    e829feffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>(unk)
+|          <span class="number">0x0804856b</span>    c70424a7860. mov dword [esp], str.Password_ ; str.Password_
+|          <span class="number">0x08048572</span>    e81dfeffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>()
+|          <span class="number">0x08048577</span>    <span class="number">8</span>d4588       lea eax, [ebp-<span class="number">0x78</span>]
+|          <span class="number">0x0804857a</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x0804857e</span>    c70424b2860. mov dword [esp], <span class="number">0x80486b2</span> ;  <span class="number">0x080486b2</span> 
+|          <span class="number">0x08048585</span>    e8eafdffff   call sym.imp.<span class="built_in">scanf</span>
+|             sym.imp.<span class="built_in">scanf</span>()
+|          <span class="number">0x0804858a</span>    <span class="number">8</span>d4588       lea eax, [ebp-<span class="number">0x78</span>]
+|          <span class="number">0x0804858d</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x08048590</span>    e833ffffff   call sym.check
+|             sym.check()
+|          <span class="number">0x08048595</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x0804859a</span>    c9           leave
+\          <span class="number">0x0804859b</span>    c3           ret
+[<span class="number">0x080483d0</span>]&gt; pdf@sym.check 
+|   |      ; UNKNOWN XREF from <span class="number">0x080484c8</span> (unk)
+|   |      ; CALL XREF from <span class="number">0x08048590</span> (unk)
+/ (fcn) sym.check <span class="number">120</span>
+|   |      <span class="number">0x080484c8</span>    <span class="number">55</span>           push ebp
+|   |      <span class="number">0x080484c9</span>    <span class="number">89e5</span>         mov ebp, esp
+|   |      <span class="number">0x080484cb</span>    <span class="number">83</span>ec28       sub esp, <span class="number">0x28</span>
+|   |      <span class="number">0x080484ce</span>    c745f800000. mov dword [ebp-<span class="number">0x8</span>], <span class="number">0x0</span>
+|   |      <span class="number">0x080484d5</span>    c745f400000. mov dword [ebp-<span class="number">0xc</span>], <span class="number">0x0</span>
+|   |      ; JMP XREF from <span class="number">0x08048530</span> (unk)
+|- loc<span class="number">.080484</span>dc <span class="number">100</span>
+|   |.---&gt; <span class="number">0x080484dc</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|   ||     <span class="number">0x080484df</span>    <span class="number">890424</span>       mov [esp], eax
+|   ||     <span class="number">0x080484e2</span>    e89dfeffff   call sym.imp.<span class="built_in">strlen</span>
+|   ||        sym.imp.<span class="built_in">strlen</span>(unk)
+|   ||     <span class="number">0x080484e7</span>    <span class="number">3945f</span>4       cmp [ebp-<span class="number">0xc</span>], eax
+|   || ,=&lt; <span class="number">0x080484ea</span>    <span class="number">7346</span>         jae loc<span class="number">.08048532</span>
+|   || |   <span class="number">0x080484ec</span>    <span class="number">8</span>b45f4       mov eax, [ebp-<span class="number">0xc</span>]
+|   || |   <span class="number">0x080484ef</span>    <span class="number">034508</span>       add eax, [ebp+<span class="number">0x8</span>]
+|   || |   <span class="number">0x080484f2</span>    <span class="number">0f</span>b600       movzx eax, byte [eax]
+|   || |   <span class="number">0x080484f5</span>    <span class="number">8845f</span>3       mov [ebp-<span class="number">0xd</span>], al
+|   || |   <span class="number">0x080484f8</span>    <span class="number">8</span>d45fc       lea eax, [ebp-<span class="number">0x4</span>]
+|   || |   <span class="number">0x080484fb</span>    <span class="number">89442408</span>     mov [esp+<span class="number">0x8</span>], eax
+|   || |   <span class="number">0x080484ff</span>    c7442404688. mov dword [esp+<span class="number">0x4</span>], <span class="number">0x8048668</span> ;  <span class="number">0x08048668</span> 
+|   || |   <span class="number">0x08048507</span>    <span class="number">8</span>d45f3       lea eax, [ebp-<span class="number">0xd</span>]
+|   || |   <span class="number">0x0804850a</span>    <span class="number">890424</span>       mov [esp], eax
+|   || |   <span class="number">0x0804850d</span>    e892feffff   call sym.imp.<span class="built_in">sscanf</span>
+|   || |      sym.imp.<span class="built_in">sscanf</span>()
+|   || |   <span class="number">0x08048512</span>    <span class="number">8</span>b55fc       mov edx, [ebp-<span class="number">0x4</span>]
+|   || |   <span class="number">0x08048515</span>    <span class="number">8</span>d45f8       lea eax, [ebp-<span class="number">0x8</span>]
+|   || |   <span class="number">0x08048518</span>    <span class="number">0110</span>         add [eax], edx
+|   || |   <span class="number">0x0804851a</span>    <span class="number">837</span>df810     cmp dword [ebp-<span class="number">0x8</span>], <span class="number">0x10</span>
+|   ||,==&lt; <span class="number">0x0804851e</span>    <span class="number">750</span>b         jne loc<span class="number">.0804852</span>b
+|   ||||   <span class="number">0x08048520</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|   ||||   <span class="number">0x08048523</span>    <span class="number">890424</span>       mov [esp], eax
+|   ||||   <span class="number">0x08048526</span>    e859ffffff   call sym.parell
+|   ||||      sym.parell()
+|   |||    ; JMP XREF from <span class="number">0x0804851e</span> (unk)
+|- loc<span class="number">.0804852</span>b <span class="number">21</span>
+|   ||`--&gt; <span class="number">0x0804852b</span>    <span class="number">8</span>d45f4       lea eax, [ebp-<span class="number">0xc</span>]
+|   || |   <span class="number">0x0804852e</span>    ff00         inc dword [eax]
+|   |`===&lt; <span class="number">0x08048530</span>    ebaa         jmp loc<span class="number">.080484</span>dc
+|   |  |   ; JMP XREF from <span class="number">0x080484ea</span> (unk)
+|- loc<span class="number">.08048532</span> <span class="number">14</span>
+|   |  `-&gt; <span class="number">0x08048532</span>    c7042479860. mov dword [esp], str.Password_Incorrect__n ; str.Password_Incorrect__n
+|          <span class="number">0x08048539</span>    e856feffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>()
+|          <span class="number">0x0804853e</span>    c9           leave
+\          <span class="number">0x0804853f</span>    c3           ret
+[<span class="number">0x080483d0</span>]&gt; pdf@sym.parell 
+|          ; CALL XREF from <span class="number">0x08048526</span> (unk)
+/ (fcn) sym.parell <span class="number">68</span>
+|          <span class="number">0x08048484</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x08048485</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x08048487</span>    <span class="number">83</span>ec18       sub esp, <span class="number">0x18</span>
+|          <span class="number">0x0804848a</span>    <span class="number">8</span>d45fc       lea eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x0804848d</span>    <span class="number">89442408</span>     mov [esp+<span class="number">0x8</span>], eax
+|          <span class="number">0x08048491</span>    c7442404688. mov dword [esp+<span class="number">0x4</span>], <span class="number">0x8048668</span> ;  <span class="number">0x08048668</span> 
+|          <span class="number">0x08048499</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|          <span class="number">0x0804849c</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x0804849f</span>    e800ffffff   call sym.imp.<span class="built_in">sscanf</span>
+|             sym.imp.<span class="built_in">sscanf</span>(unk)
+|          <span class="number">0x080484a4</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x080484a7</span>    <span class="number">83e001</span>       and eax, <span class="number">0x1</span>
+|          <span class="number">0x080484aa</span>    <span class="number">85</span>c0         test eax, eax
+|      ,=&lt; <span class="number">0x080484ac</span>    <span class="number">7518</span>         jne <span class="number">0x80484c6</span>
+|      |   <span class="number">0x080484ae</span>    c704246b860. mov dword [esp], str.Password_OK__n ; str.Password_OK__n
+|      |   <span class="number">0x080484b5</span>    e8dafeffff   call sym.imp.<span class="built_in">printf</span>
+|      |      sym.imp.<span class="built_in">printf</span>()
+|      |   <span class="number">0x080484ba</span>    c7042400000. mov dword [esp], <span class="number">0x0</span>
+|      |   <span class="number">0x080484c1</span>    e8eefeffff   call sym.imp.<span class="built_in">exit</span> ; (fcn<span class="number">.080483</span>aa)
+|      |      fcn<span class="number">.080483</span>aa() ; sym.imp.<span class="built_in">exit</span>
+|      |   ; JMP XREF from <span class="number">0x080484ac</span> (unk)
+|      `-&gt; <span class="number">0x080484c6</span>    c9           leave
+\          <span class="number">0x080484c7</span>    c3           ret
+[<span class="number">0x080483d0</span>]&gt; s <span class="number">0x080484ea</span>
+[<span class="number">0x080484ea</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x080484ea</span>]&gt; s <span class="number">0x0804851e</span>
+[<span class="number">0x0804851e</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x0804851e</span>]&gt; s <span class="number">0x080484ac</span>
+[<span class="number">0x080484ac</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x080484ac</span>]&gt; q
+</code></pre><p>输入任意密码</p>
+<pre><code> ✘ ⮀ ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x05      
+IOLI Crackme Level <span class="number">0</span>x05
+Password: <span class="number">12345</span>
+Password OK!
+</code></pre><h2 id="crackme0x06">crackme0x06</h2><pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x06
+IOLI Crackme Level <span class="number">0</span>x06
+Password: <span class="number">12345</span>
+Password Incorrect!
+</code></pre><p>破解么，又不需要知道程序逻辑，只要让程序运行到想要的代码块就好。于是……把所有跳转灭掉。</p>
+<pre><code> ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ r2 -w ./crackme0x06
+ -- Dissasemble? No dissasemble, no dissassemble!!!!!
+[<span class="number">0x08048400</span>]&gt; aa
+[<span class="number">0x08048400</span>]&gt; pdf@sym.main
+|          ; UNKNOWN XREF from <span class="number">0x080485aa</span> (unk)
+|          ; DATA XREF from <span class="number">0x08048417</span> (fcn<span class="number">.080483</span>ee)
+/ (fcn) sym.main <span class="number">99</span>
+|          <span class="number">0x08048607</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x08048608</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x0804860a</span>    <span class="number">81</span>ec88000000 sub esp, <span class="number">0x88</span>
+|          <span class="number">0x08048610</span>    <span class="number">83e4</span>f0       and esp, <span class="number">0xfffffff0</span>
+|          <span class="number">0x08048613</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x08048618</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x0804861b</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x0804861e</span>    c1e804       shr eax, <span class="number">0x4</span>
+|          <span class="number">0x08048621</span>    c1e004       shl eax, <span class="number">0x4</span>
+|          <span class="number">0x08048624</span>    <span class="number">29</span>c4         sub esp, eax
+|          <span class="number">0x08048626</span>    c7042463870. mov dword [esp], str.IOLI_Crackme_Level_0x06_n ; str.IOLI_Crackme_Level_0x06_n
+|          <span class="number">0x0804862d</span>    e886fdffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>(unk)
+|          <span class="number">0x08048632</span>    c704247c870. mov dword [esp], str.Password_ ; str.Password_
+|          <span class="number">0x08048639</span>    e87afdffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>()
+|          <span class="number">0x0804863e</span>    <span class="number">8</span>d4588       lea eax, [ebp-<span class="number">0x78</span>]
+|          <span class="number">0x08048641</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x08048645</span>    c7042487870. mov dword [esp], <span class="number">0x8048787</span> ;  <span class="number">0x08048787</span> 
+|          <span class="number">0x0804864c</span>    e847fdffff   call sym.imp.<span class="built_in">scanf</span>
+|             sym.imp.<span class="built_in">scanf</span>()
+|          <span class="number">0x08048651</span>    <span class="number">8</span>b4510       mov eax, [ebp+<span class="number">0x10</span>]
+|          <span class="number">0x08048654</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x08048658</span>    <span class="number">8</span>d4588       lea eax, [ebp-<span class="number">0x78</span>]
+|          <span class="number">0x0804865b</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x0804865e</span>    e825ffffff   call sym.check
+|             sym.check()
+|          <span class="number">0x08048663</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x08048668</span>    c9           leave
+\          <span class="number">0x08048669</span>    c3           ret
+[<span class="number">0x08048400</span>]&gt; pdf@sym.check 
+|          ; UNKNOWN XREF from <span class="number">0x0804854e</span> (unk)
+|          ; CALL XREF from <span class="number">0x0804865e</span> (unk)
+/ (fcn) sym.check <span class="number">127</span>
+|          <span class="number">0x08048588</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x08048589</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x0804858b</span>    <span class="number">83</span>ec28       sub esp, <span class="number">0x28</span>
+|          <span class="number">0x0804858e</span>    c745f800000. mov dword [ebp-<span class="number">0x8</span>], <span class="number">0x0</span>
+|          <span class="number">0x08048595</span>    c745f400000. mov dword [ebp-<span class="number">0xc</span>], <span class="number">0x0</span>
+|          ; JMP XREF from <span class="number">0x080485f7</span> (unk)
+|- loc<span class="number">.0804859</span>c <span class="number">107</span>
+|    .---&gt; <span class="number">0x0804859c</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|    |     <span class="number">0x0804859f</span>    <span class="number">890424</span>       mov [esp], eax
+|    |     <span class="number">0x080485a2</span>    e801feffff   call sym.imp.<span class="built_in">strlen</span>
+|    |        sym.imp.<span class="built_in">strlen</span>(unk)
+|    |     <span class="number">0x080485a7</span>    <span class="number">3945f</span>4       cmp [ebp-<span class="number">0xc</span>], eax
+|    | ,=&lt; <span class="number">0x080485aa</span>    <span class="number">734</span>d         jae loc<span class="number">.080485f</span>9
+|    | |   <span class="number">0x080485ac</span>    <span class="number">8</span>b45f4       mov eax, [ebp-<span class="number">0xc</span>]
+|    | |   <span class="number">0x080485af</span>    <span class="number">034508</span>       add eax, [ebp+<span class="number">0x8</span>]
+|    | |   <span class="number">0x080485b2</span>    <span class="number">0f</span>b600       movzx eax, byte [eax]
+|    | |   <span class="number">0x080485b5</span>    <span class="number">8845f</span>3       mov [ebp-<span class="number">0xd</span>], al
+|    | |   <span class="number">0x080485b8</span>    <span class="number">8</span>d45fc       lea eax, [ebp-<span class="number">0x4</span>]
+|    | |   <span class="number">0x080485bb</span>    <span class="number">89442408</span>     mov [esp+<span class="number">0x8</span>], eax
+|    | |   <span class="number">0x080485bf</span>    c74424043d8. mov dword [esp+<span class="number">0x4</span>], <span class="number">0x804873d</span> ;  <span class="number">0x0804873d</span> 
+|    | |   <span class="number">0x080485c7</span>    <span class="number">8</span>d45f3       lea eax, [ebp-<span class="number">0xd</span>]
+|    | |   <span class="number">0x080485ca</span>    <span class="number">890424</span>       mov [esp], eax
+|    | |   <span class="number">0x080485cd</span>    e8f6fdffff   call sym.imp.<span class="built_in">sscanf</span>
+|    | |      sym.imp.<span class="built_in">sscanf</span>()
+|    | |   <span class="number">0x080485d2</span>    <span class="number">8</span>b55fc       mov edx, [ebp-<span class="number">0x4</span>]
+|    | |   <span class="number">0x080485d5</span>    <span class="number">8</span>d45f8       lea eax, [ebp-<span class="number">0x8</span>]
+|    | |   <span class="number">0x080485d8</span>    <span class="number">0110</span>         add [eax], edx
+|    | |   <span class="number">0x080485da</span>    <span class="number">837</span>df810     cmp dword [ebp-<span class="number">0x8</span>], <span class="number">0x10</span>
+|    |,==&lt; <span class="number">0x080485de</span>    <span class="number">7512</span>         jne loc<span class="number">.080485f</span>2
+|    |||   <span class="number">0x080485e0</span>    <span class="number">8</span>b450c       mov eax, [ebp+<span class="number">0xc</span>]
+|    |||   <span class="number">0x080485e3</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|    |||   <span class="number">0x080485e7</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|    |||   <span class="number">0x080485ea</span>    <span class="number">890424</span>       mov [esp], eax
+|    |||   <span class="number">0x080485ed</span>    e828ffffff   call sym.parell
+|    |||      sym.parell()
+|    ||    ; JMP XREF from <span class="number">0x080485de</span> (unk)
+|- loc<span class="number">.080485f</span>2 <span class="number">21</span>
+|    |`--&gt; <span class="number">0x080485f2</span>    <span class="number">8</span>d45f4       lea eax, [ebp-<span class="number">0xc</span>]
+|    | |   <span class="number">0x080485f5</span>    ff00         inc dword [eax]
+|    `===&lt; <span class="number">0x080485f7</span>    eba3         jmp loc<span class="number">.0804859</span>c
+|      |   ; JMP XREF from <span class="number">0x080485aa</span> (unk)
+|- loc<span class="number">.080485f</span>9 <span class="number">14</span>
+|      `-&gt; <span class="number">0x080485f9</span>    c704244e870. mov dword [esp], str.Password_Incorrect__n ; str.Password_Incorrect__n
+|          <span class="number">0x08048600</span>    e8b3fdffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>()
+|          <span class="number">0x08048605</span>    c9           leave
+\          <span class="number">0x08048606</span>    c3           ret
+[<span class="number">0x08048400</span>]&gt; pdf@sym.parell 
+|          ; UNKNOWN XREF from <span class="number">0x0804851a</span> (unk)
+|          ; CALL XREF from <span class="number">0x080485ed</span> (unk)
+/ (fcn) sym.parell <span class="number">110</span>
+|          <span class="number">0x0804851a</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x0804851b</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x0804851d</span>    <span class="number">83</span>ec18       sub esp, <span class="number">0x18</span>
+|          <span class="number">0x08048520</span>    <span class="number">8</span>d45fc       lea eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x08048523</span>    <span class="number">89442408</span>     mov [esp+<span class="number">0x8</span>], eax
+|          <span class="number">0x08048527</span>    c74424043d8. mov dword [esp+<span class="number">0x4</span>], <span class="number">0x804873d</span> ;  <span class="number">0x0804873d</span> 
+|          <span class="number">0x0804852f</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|          <span class="number">0x08048532</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x08048535</span>    e88efeffff   call sym.imp.<span class="built_in">sscanf</span>
+|             sym.imp.<span class="built_in">sscanf</span>(unk)
+|          <span class="number">0x0804853a</span>    <span class="number">8</span>b450c       mov eax, [ebp+<span class="number">0xc</span>]
+|          <span class="number">0x0804853d</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x08048541</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x08048544</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x08048547</span>    e868ffffff   call sym.dummy
+|             sym.dummy()
+|          <span class="number">0x0804854c</span>    <span class="number">85</span>c0         test eax, eax
+|      ,=&lt; <span class="number">0x0804854e</span>    <span class="number">7436</span>         je loc<span class="number">.08048586</span>
+|      |   <span class="number">0x08048550</span>    c745f800000. mov dword [ebp-<span class="number">0x8</span>], <span class="number">0x0</span>
+|      |   ; JMP XREF from <span class="number">0x08048584</span> (unk)
+|- loc<span class="number">.08048557</span> <span class="number">49</span>
+|      |   <span class="number">0x08048557</span>    <span class="number">837</span>df809     cmp dword [ebp-<span class="number">0x8</span>], <span class="number">0x9</span>
+|     ,==&lt; <span class="number">0x0804855b</span>    <span class="number">7f</span>29         jg loc<span class="number">.08048586</span>
+|     ||   <span class="number">0x0804855d</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|     ||   <span class="number">0x08048560</span>    <span class="number">83e001</span>       and eax, <span class="number">0x1</span>
+|     ||   <span class="number">0x08048563</span>    <span class="number">85</span>c0         test eax, eax
+|    ,===&lt; <span class="number">0x08048565</span>    <span class="number">7518</span>         jne loc<span class="number">.0804857f</span>
+|    |||   <span class="number">0x08048567</span>    c7042440870. mov dword [esp], str.Password_OK__n ; str.Password_OK__n
+|    |||   <span class="number">0x0804856e</span>    e845feffff   call sym.imp.<span class="built_in">printf</span>
+|    |||      sym.imp.<span class="built_in">printf</span>()
+|    |||   <span class="number">0x08048573</span>    c7042400000. mov dword [esp], <span class="number">0x0</span>
+|    |||   <span class="number">0x0804857a</span>    e869feffff   call sym.imp.<span class="built_in">exit</span>
+|    |||      sym.imp.<span class="built_in">exit</span>()
+|    |     ; JMP XREF from <span class="number">0x08048565</span> (unk)
+|- loc<span class="number">.0804857f</span> <span class="number">9</span>
+|    `---&gt; <span class="number">0x0804857f</span>    <span class="number">8</span>d45f8       lea eax, [ebp-<span class="number">0x8</span>]
+|     ||   <span class="number">0x08048582</span>    ff00         inc dword [eax]
+|     ||   <span class="number">0x08048584</span>    ebd1         jmp loc<span class="number">.08048557</span>
+|     ||   ; JMP XREF from <span class="number">0x0804854e</span> (unk)
+|     ||   ; JMP XREF from <span class="number">0x0804855b</span> (unk)
+|- loc<span class="number">.08048586</span> <span class="number">2</span>
+|     ``-&gt; <span class="number">0x08048586</span>    c9           leave
+\          <span class="number">0x08048587</span>    c3           ret
+[<span class="number">0x08048400</span>]&gt; s <span class="number">0x080485aa</span>
+[<span class="number">0x080485aa</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x080485aa</span>]&gt; s <span class="number">0x080485de</span>
+[<span class="number">0x080485de</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x080485de</span>]&gt; s <span class="number">0x0804854e</span>
+[<span class="number">0x0804854e</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x0804854e</span>]&gt; s <span class="number">0x0804855b</span>
+[<span class="number">0x0804855b</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x0804855b</span>]&gt; s <span class="number">0x08048565</span>
+[<span class="number">0x08048565</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x08048565</span>]&gt; q
+</code></pre><p>输入任意密码：</p>
+<pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x06
+IOLI Crackme Level <span class="number">0</span>x06
+Password: <span class="number">123456</span>
+Password OK!
+</code></pre><h2 id="crackme0x07">crackme0x07</h2><pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x07
+IOLI Crackme Level <span class="number">0</span>x07
+Password: <span class="number">12345</span>
+Password Incorrect!
+</code></pre><p>这次函数名都变了。大致搜索下就找到<code>Ok</code>代码段，把所有跳转清除。</p>
+<pre><code> ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ r2 -w ./crackme0x07
+ -- Wow, my cat knows radare2 hotkeys better than me!
+[<span class="number">0x08048400</span>]&gt; aa
+[<span class="number">0x08048400</span>]&gt; pdf@main
+|          ; UNKNOWN XREF from <span class="number">0x08048643</span> (fcn<span class="number">.080485</span>b9)
+|          ; DATA XREF from <span class="number">0x08048417</span> (entry0)
+/ (fcn) main <span class="number">99</span>
+|          <span class="number">0x0804867d</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x0804867e</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x08048680</span>    <span class="number">81</span>ec88000000 sub esp, <span class="number">0x88</span>
+|          <span class="number">0x08048686</span>    <span class="number">83e4</span>f0       and esp, <span class="number">0xfffffff0</span>
+|          <span class="number">0x08048689</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x0804868e</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x08048691</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x08048694</span>    c1e804       shr eax, <span class="number">0x4</span>
+|          <span class="number">0x08048697</span>    c1e004       shl eax, <span class="number">0x4</span>
+|          <span class="number">0x0804869a</span>    <span class="number">29</span>c4         sub esp, eax
+|          <span class="number">0x0804869c</span>    c70424d9870. mov dword [esp], str.IOLI_Crackme_Level_0x07_n ; str.IOLI_Crackme_Level_0x07_n
+|          <span class="number">0x080486a3</span>    e810fdffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>(unk)
+|          <span class="number">0x080486a8</span>    c70424f2870. mov dword [esp], str.Password_ ; str.Password_
+|          <span class="number">0x080486af</span>    e804fdffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>()
+|          <span class="number">0x080486b4</span>    <span class="number">8</span>d4588       lea eax, [ebp-<span class="number">0x78</span>]
+|          <span class="number">0x080486b7</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x080486bb</span>    c70424fd870. mov dword [esp], <span class="number">0x80487fd</span> ;  <span class="number">0x080487fd</span> 
+|          <span class="number">0x080486c2</span>    e8d1fcffff   call sym.imp.<span class="built_in">scanf</span>
+|             sym.imp.<span class="built_in">scanf</span>()
+|          <span class="number">0x080486c7</span>    <span class="number">8</span>b4510       mov eax, [ebp+<span class="number">0x10</span>]
+|          <span class="number">0x080486ca</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x080486ce</span>    <span class="number">8</span>d4588       lea eax, [ebp-<span class="number">0x78</span>]
+|          <span class="number">0x080486d1</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x080486d4</span>    e8e0feffff   call fcn<span class="number">.080485</span>b9
+|             fcn<span class="number">.080485</span>b9()
+|          <span class="number">0x080486d9</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x080486de</span>    c9           leave
+\          <span class="number">0x080486df</span>    c3           ret
+[<span class="number">0x08048400</span>]&gt; pdf@fcn<span class="number">.080485</span>b9
+            ; UNKNOWN XREF from <span class="number">0x08048576</span> (fcn<span class="number">.08048524</span>)
+            ; CALL XREF from <span class="number">0x080486d4</span> (unk)
+/ (fcn) fcn<span class="number">.080485</span>b9 <span class="number">196</span>
+|           <span class="number">0x080485b9</span>    <span class="number">55</span>           push ebp
+|           <span class="number">0x080485ba</span>    <span class="number">89e5</span>         mov ebp, esp
+|           <span class="number">0x080485bc</span>    <span class="number">83</span>ec28       sub esp, <span class="number">0x28</span>
+|           <span class="number">0x080485bf</span>    c745f800000. mov dword [ebp-<span class="number">0x8</span>], <span class="number">0x0</span>
+|           <span class="number">0x080485c6</span>    c745f400000. mov dword [ebp-<span class="number">0xc</span>], <span class="number">0x0</span>
+|           ; JMP XREF from <span class="number">0x08048628</span> (fcn<span class="number">.080485</span>b9)
+|- fcn<span class="number">.080485</span>cd <span class="number">176</span>
+|     .---&gt; <span class="number">0x080485cd</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|     |     <span class="number">0x080485d0</span>    <span class="number">890424</span>       mov [esp], eax
+|     |     <span class="number">0x080485d3</span>    e8d0fdffff   call sym.imp.<span class="built_in">strlen</span>
+|     |        sym.imp.<span class="built_in">strlen</span>(unk)
+|     |     <span class="number">0x080485d8</span>    <span class="number">3945f</span>4       cmp [ebp-<span class="number">0xc</span>], eax
+|     | ,=&lt; <span class="number">0x080485db</span>    <span class="number">734</span>d         jae loc<span class="number">.0804862</span>a
+|     | |   <span class="number">0x080485dd</span>    <span class="number">8</span>b45f4       mov eax, [ebp-<span class="number">0xc</span>]
+|     | |   <span class="number">0x080485e0</span>    <span class="number">034508</span>       add eax, [ebp+<span class="number">0x8</span>]
+|     | |   <span class="number">0x080485e3</span>    <span class="number">0f</span>b600       movzx eax, byte [eax]
+|     | |   <span class="number">0x080485e6</span>    <span class="number">8845f</span>3       mov [ebp-<span class="number">0xd</span>], al
+|     | |   <span class="number">0x080485e9</span>    <span class="number">8</span>d45fc       lea eax, [ebp-<span class="number">0x4</span>]
+|     | |   <span class="number">0x080485ec</span>    <span class="number">89442408</span>     mov [esp+<span class="number">0x8</span>], eax
+|     | |   <span class="number">0x080485f0</span>    c7442404c28. mov dword [esp+<span class="number">0x4</span>], <span class="number">0x80487c2</span> ;  <span class="number">0x080487c2</span> 
+|     | |   <span class="number">0x080485f8</span>    <span class="number">8</span>d45f3       lea eax, [ebp-<span class="number">0xd</span>]
+|     | |   <span class="number">0x080485fb</span>    <span class="number">890424</span>       mov [esp], eax
+|     | |   <span class="number">0x080485fe</span>    e8c5fdffff   call sym.imp.<span class="built_in">sscanf</span>
+|     | |      sym.imp.<span class="built_in">sscanf</span>()
+|     | |   <span class="number">0x08048603</span>    <span class="number">8</span>b55fc       mov edx, [ebp-<span class="number">0x4</span>]
+|     | |   <span class="number">0x08048606</span>    <span class="number">8</span>d45f8       lea eax, [ebp-<span class="number">0x8</span>]
+|     | |   <span class="number">0x08048609</span>    <span class="number">0110</span>         add [eax], edx
+|     | |   <span class="number">0x0804860b</span>    <span class="number">837</span>df810     cmp dword [ebp-<span class="number">0x8</span>], <span class="number">0x10</span>
+|     |,==&lt; <span class="number">0x0804860f</span>    <span class="number">7512</span>         jne loc<span class="number">.08048623</span>
+|     |||   <span class="number">0x08048611</span>    <span class="number">8</span>b450c       mov eax, [ebp+<span class="number">0xc</span>]
+|     |||   <span class="number">0x08048614</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|     |||   <span class="number">0x08048618</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|     |||   <span class="number">0x0804861b</span>    <span class="number">890424</span>       mov [esp], eax
+|     |||   <span class="number">0x0804861e</span>    e81fffffff   call fcn<span class="number">.08048542</span>
+|     |||      fcn<span class="number">.08048542</span>()
+|     ||    ; JMP XREF from <span class="number">0x0804860f</span> (fcn<span class="number">.080485</span>b9)
+|- loc<span class="number">.08048623</span> <span class="number">90</span>
+|     |`--&gt; <span class="number">0x08048623</span>    <span class="number">8</span>d45f4       lea eax, [ebp-<span class="number">0xc</span>]
+|     | |   <span class="number">0x08048626</span>    ff00         inc dword [eax]
+|     `===&lt; <span class="number">0x08048628</span>    eba3         jmp fcn<span class="number">.080485</span>cd
+|       |   ; JMP XREF from <span class="number">0x080485db</span> (fcn<span class="number">.080485</span>b9)
+|- loc<span class="number">.0804862</span>a <span class="number">83</span>
+|       `-&gt; <span class="number">0x0804862a</span>    e8f5feffff   call fcn<span class="number">.08048524</span>
+|       | &gt;    fcn<span class="number">.08048524</span>()
+|           <span class="number">0x0804862f</span>    <span class="number">8</span>b450c       mov eax, [ebp+<span class="number">0xc</span>]
+|           <span class="number">0x08048632</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|           <span class="number">0x08048636</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|           <span class="number">0x08048639</span>    <span class="number">890424</span>       mov [esp], eax
+|           <span class="number">0x0804863c</span>    e873feffff   call fcn<span class="number">.080484</span>b4
+|              fcn<span class="number">.080484</span>b4() ; entry0+<span class="number">180</span>
+|           <span class="number">0x08048641</span>    <span class="number">85</span>c0         test eax, eax
+|    ,====&lt; <span class="number">0x08048643</span>    <span class="number">7436</span>         je loc<span class="number">.0804867</span>b
+|    |      <span class="number">0x08048645</span>    c745f400000. mov dword [ebp-<span class="number">0xc</span>], <span class="number">0x0</span>
+|    |      ; JMP XREF from <span class="number">0x08048679</span> (fcn<span class="number">.080485</span>b9)
+|- loc<span class="number">.0804864</span>c <span class="number">49</span>
+|    |      <span class="number">0x0804864c</span>    <span class="number">837</span>df409     cmp dword [ebp-<span class="number">0xc</span>], <span class="number">0x9</span>
+|   ,=====&lt; <span class="number">0x08048650</span>    <span class="number">7f</span>29         jg loc<span class="number">.0804867</span>b
+|   ||      <span class="number">0x08048652</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|   ||      <span class="number">0x08048655</span>    <span class="number">83e001</span>       and eax, <span class="number">0x1</span>
+|   ||      <span class="number">0x08048658</span>    <span class="number">85</span>c0         test eax, eax
+|  ,======&lt; <span class="number">0x0804865a</span>    <span class="number">7518</span>         jne loc<span class="number">.08048674</span>
+|  |||      <span class="number">0x0804865c</span>    c70424d3870. mov dword [esp], str.wtf__n ; str.wtf__n
+|  |||      <span class="number">0x08048663</span>    e850fdffff   call sym.imp.<span class="built_in">printf</span>
+|  |||         sym.imp.<span class="built_in">printf</span>()
+|  |||      <span class="number">0x08048668</span>    c7042400000. mov dword [esp], <span class="number">0x0</span>
+|  |||      <span class="number">0x0804866f</span>    e874fdffff   call sym.imp.<span class="built_in">exit</span>
+|  |||         sym.imp.<span class="built_in">exit</span>()
+|  |        ; JMP XREF from <span class="number">0x0804865a</span> (fcn<span class="number">.080485</span>b9)
+|- loc<span class="number">.08048674</span> <span class="number">9</span>
+|  `------&gt; <span class="number">0x08048674</span>    <span class="number">8</span>d45f4       lea eax, [ebp-<span class="number">0xc</span>]
+|   ||      <span class="number">0x08048677</span>    ff00         inc dword [eax]
+|   ||      <span class="number">0x08048679</span>    ebd1         jmp loc<span class="number">.0804864</span>c
+|   ||      ; JMP XREF from <span class="number">0x08048643</span> (fcn<span class="number">.080485</span>b9)
+|   ||      ; JMP XREF from <span class="number">0x08048650</span> (fcn<span class="number">.080485</span>b9)
+|- loc<span class="number">.0804867</span>b <span class="number">2</span>
+|   ``----&gt; <span class="number">0x0804867b</span>    c9           leave
+\           <span class="number">0x0804867c</span>    c3           ret
+[<span class="number">0x08048400</span>]&gt; pdf@fcn<span class="number">.08048542</span>
+           ; CALL XREF from <span class="number">0x0804861e</span> (fcn<span class="number">.080485</span>b9)
+/ (fcn) fcn<span class="number">.08048542</span> <span class="number">119</span>
+|          <span class="number">0x08048542</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x08048543</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x08048545</span>    <span class="number">83</span>ec18       sub esp, <span class="number">0x18</span>
+|          <span class="number">0x08048548</span>    <span class="number">8</span>d45fc       lea eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x0804854b</span>    <span class="number">89442408</span>     mov [esp+<span class="number">0x8</span>], eax
+|          <span class="number">0x0804854f</span>    c7442404c28. mov dword [esp+<span class="number">0x4</span>], <span class="number">0x80487c2</span> ;  <span class="number">0x080487c2</span> 
+|          <span class="number">0x08048557</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|          <span class="number">0x0804855a</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x0804855d</span>    e866feffff   call sym.imp.<span class="built_in">sscanf</span>
+|             sym.imp.<span class="built_in">sscanf</span>(unk)
+|          <span class="number">0x08048562</span>    <span class="number">8</span>b450c       mov eax, [ebp+<span class="number">0xc</span>]
+|          <span class="number">0x08048565</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x08048569</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x0804856c</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x0804856f</span>    e840ffffff   call fcn<span class="number">.080484</span>b4
+|             fcn<span class="number">.080484</span>b4() ; entry0+<span class="number">180</span>
+|          <span class="number">0x08048574</span>    <span class="number">85</span>c0         test eax, eax
+|      ,=&lt; <span class="number">0x08048576</span>    <span class="number">743f</span>         je loc<span class="number">.080485</span>b7
+|      |   <span class="number">0x08048578</span>    c745f800000. mov dword [ebp-<span class="number">0x8</span>], <span class="number">0x0</span>
+|      |   ; JMP XREF from <span class="number">0x080485b5</span> (fcn<span class="number">.08048524</span>)
+|- loc<span class="number">.0804857f</span> <span class="number">58</span>
+|      |   <span class="number">0x0804857f</span>    <span class="number">837</span>df809     cmp dword [ebp-<span class="number">0x8</span>], <span class="number">0x9</span>
+|     ,==&lt; <span class="number">0x08048583</span>    <span class="number">7f</span>32         jg loc<span class="number">.080485</span>b7
+|     ||   <span class="number">0x08048585</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|     ||   <span class="number">0x08048588</span>    <span class="number">83e001</span>       and eax, <span class="number">0x1</span>
+|     ||   <span class="number">0x0804858b</span>    <span class="number">85</span>c0         test eax, eax
+|    ,===&lt; <span class="number">0x0804858d</span>    <span class="number">7521</span>         jne loc<span class="number">.080485</span>b0
+|    |||   <span class="number">0x0804858f</span>    <span class="number">833</span>d2ca0040. cmp dword [<span class="number">0x804a02c</span>], <span class="number">0x1</span>
+|   ,====&lt; <span class="number">0x08048596</span>    <span class="number">750</span>c         jne loc<span class="number">.080485</span>a4
+|   ||||   <span class="number">0x08048598</span>    c70424c5870. mov dword [esp], str.Password_OK__n ; str.Password_OK__n
+|   ||||   <span class="number">0x0804859f</span>    e814feffff   call sym.imp.<span class="built_in">printf</span>
+|   ||||      sym.imp.<span class="built_in">printf</span>()
+|   |      ; JMP XREF from <span class="number">0x08048596</span> (fcn<span class="number">.08048524</span>)
+|- loc<span class="number">.080485</span>a4 <span class="number">21</span>
+|   `----&gt; <span class="number">0x080485a4</span>    c7042400000. mov dword [esp], <span class="number">0x0</span>
+|    |||   <span class="number">0x080485ab</span>    e838feffff   call sym.imp.<span class="built_in">exit</span>
+|    |||      sym.imp.<span class="built_in">exit</span>()
+|    |     ; JMP XREF from <span class="number">0x0804858d</span> (fcn<span class="number">.08048524</span>)
+|- loc<span class="number">.080485</span>b0 <span class="number">9</span>
+|    `---&gt; <span class="number">0x080485b0</span>    <span class="number">8</span>d45f8       lea eax, [ebp-<span class="number">0x8</span>]
+|     ||   <span class="number">0x080485b3</span>    ff00         inc dword [eax]
+|     ||   <span class="number">0x080485b5</span>    ebc8         jmp loc<span class="number">.0804857f</span>
+|     ||   ; JMP XREF from <span class="number">0x08048576</span> (fcn<span class="number">.08048524</span>)
+|     ||   ; JMP XREF from <span class="number">0x08048583</span> (fcn<span class="number">.08048524</span>)
+|- loc<span class="number">.080485</span>b7 <span class="number">2</span>
+|     ``-&gt; <span class="number">0x080485b7</span>    c9           leave
+\          <span class="number">0x080485b8</span>    c3           ret
+[<span class="number">0x08048400</span>]&gt; s <span class="number">0x080485db</span>
+[<span class="number">0x080485db</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x080485db</span>]&gt; s <span class="number">0x0804860f</span>
+[<span class="number">0x0804860f</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x0804860f</span>]&gt; s <span class="number">0x08048576</span>
+[<span class="number">0x08048576</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x08048576</span>]&gt; s <span class="number">0x08048583</span>
+[<span class="number">0x08048583</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x08048583</span>]&gt; s <span class="number">0x0804858d</span>
+[<span class="number">0x0804858d</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x0804858d</span>]&gt; s <span class="number">0x08048596</span>
+[<span class="number">0x08048596</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x08048596</span>]&gt; q
+</code></pre><p>输入任意密码</p>
+<pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x07
+IOLI Crackme Level <span class="number">0</span>x07
+Password: <span class="number">12345</span>
+Password OK!
+</code></pre><h2 id="crackme0x08">crackme0x08</h2><pre><code> ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ ./crackme0x08
+IOLI Crackme Level <span class="number">0x08</span>
+Password: <span class="number">12345</span>
+Password Incorrect!
+
+ ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ r2 -w ./crackme0x08
+ -- THE ONLY WINNING MOVE IS NOT TO PLAY.
+[<span class="number">0x08048400</span>]&gt; aa
+[<span class="number">0x08048400</span>]&gt; pdf@main 
+|          ; UNKNOWN XREF from <span class="number">0x08048643</span> (unk)
+|          ; DATA XREF from <span class="number">0x08048417</span> (fcn<span class="number">.080483</span>ee)
+/ (fcn) sym.main <span class="number">99</span>
+|          <span class="number">0x0804867d</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x0804867e</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x08048680</span>    <span class="number">81</span>ec88000000 sub esp, <span class="number">0x88</span>
+|          <span class="number">0x08048686</span>    <span class="number">83e4</span>f0       and esp, <span class="number">0xfffffff0</span>
+|          <span class="number">0x08048689</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x0804868e</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x08048691</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x08048694</span>    c1e804       shr eax, <span class="number">0x4</span>
+|          <span class="number">0x08048697</span>    c1e004       shl eax, <span class="number">0x4</span>
+|          <span class="number">0x0804869a</span>    <span class="number">29</span>c4         sub esp, eax
+|          <span class="number">0x0804869c</span>    c70424d9870. mov dword [esp], str.IOLI_Crackme_Level_0x08_n ; str.IOLI_Crackme_Level_0x08_n
+|          <span class="number">0x080486a3</span>    e810fdffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>(unk)
+|          <span class="number">0x080486a8</span>    c70424f2870. mov dword [esp], str.Password_ ; str.Password_
+|          <span class="number">0x080486af</span>    e804fdffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>()
+|          <span class="number">0x080486b4</span>    <span class="number">8</span>d4588       lea eax, [ebp-<span class="number">0x78</span>]
+|          <span class="number">0x080486b7</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x080486bb</span>    c70424fd870. mov dword [esp], <span class="number">0x80487fd</span> ;  <span class="number">0x080487fd</span> 
+|          <span class="number">0x080486c2</span>    e8d1fcffff   call sym.imp.<span class="built_in">scanf</span>
+|             sym.imp.<span class="built_in">scanf</span>()
+|          <span class="number">0x080486c7</span>    <span class="number">8</span>b4510       mov eax, [ebp+<span class="number">0x10</span>]
+|          <span class="number">0x080486ca</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x080486ce</span>    <span class="number">8</span>d4588       lea eax, [ebp-<span class="number">0x78</span>]
+|          <span class="number">0x080486d1</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x080486d4</span>    e8e0feffff   call sym.check
+|             sym.check()
+|          <span class="number">0x080486d9</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x080486de</span>    c9           leave
+\          <span class="number">0x080486df</span>    c3           ret
+[<span class="number">0x08048400</span>]&gt; pdf@sym.check
+|           ; UNKNOWN XREF from <span class="number">0x08048576</span> (unk)
+|           ; CALL XREF from <span class="number">0x080486d4</span> (unk)
+/ (fcn) sym.check <span class="number">196</span>
+|           <span class="number">0x080485b9</span>    <span class="number">55</span>           push ebp
+|           <span class="number">0x080485ba</span>    <span class="number">89e5</span>         mov ebp, esp
+|           <span class="number">0x080485bc</span>    <span class="number">83</span>ec28       sub esp, <span class="number">0x28</span>
+|           <span class="number">0x080485bf</span>    c745f800000. mov dword [ebp-<span class="number">0x8</span>], <span class="number">0x0</span>
+|           <span class="number">0x080485c6</span>    c745f400000. mov dword [ebp-<span class="number">0xc</span>], <span class="number">0x0</span>
+|           ; JMP XREF from <span class="number">0x08048628</span> (unk)
+|- fcn<span class="number">.080485</span>cd <span class="number">176</span>
+|     .---&gt; <span class="number">0x080485cd</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|     |     <span class="number">0x080485d0</span>    <span class="number">890424</span>       mov [esp], eax
+|     |     <span class="number">0x080485d3</span>    e8d0fdffff   call sym.imp.<span class="built_in">strlen</span>
+|     |        sym.imp.<span class="built_in">strlen</span>(unk)
+|     |     <span class="number">0x080485d8</span>    <span class="number">3945f</span>4       cmp [ebp-<span class="number">0xc</span>], eax
+|     | ,=&lt; <span class="number">0x080485db</span>    <span class="number">734</span>d         jae loc<span class="number">.0804862</span>a
+|     | |   <span class="number">0x080485dd</span>    <span class="number">8</span>b45f4       mov eax, [ebp-<span class="number">0xc</span>]
+|     | |   <span class="number">0x080485e0</span>    <span class="number">034508</span>       add eax, [ebp+<span class="number">0x8</span>]
+|     | |   <span class="number">0x080485e3</span>    <span class="number">0f</span>b600       movzx eax, byte [eax]
+|     | |   <span class="number">0x080485e6</span>    <span class="number">8845f</span>3       mov [ebp-<span class="number">0xd</span>], al
+|     | |   <span class="number">0x080485e9</span>    <span class="number">8</span>d45fc       lea eax, [ebp-<span class="number">0x4</span>]
+|     | |   <span class="number">0x080485ec</span>    <span class="number">89442408</span>     mov [esp+<span class="number">0x8</span>], eax
+|     | |   <span class="number">0x080485f0</span>    c7442404c28. mov dword [esp+<span class="number">0x4</span>], <span class="number">0x80487c2</span> ;  <span class="number">0x080487c2</span> 
+|     | |   <span class="number">0x080485f8</span>    <span class="number">8</span>d45f3       lea eax, [ebp-<span class="number">0xd</span>]
+|     | |   <span class="number">0x080485fb</span>    <span class="number">890424</span>       mov [esp], eax
+|     | |   <span class="number">0x080485fe</span>    e8c5fdffff   call sym.imp.<span class="built_in">sscanf</span>
+|     | |      sym.imp.<span class="built_in">sscanf</span>()
+|     | |   <span class="number">0x08048603</span>    <span class="number">8</span>b55fc       mov edx, [ebp-<span class="number">0x4</span>]
+|     | |   <span class="number">0x08048606</span>    <span class="number">8</span>d45f8       lea eax, [ebp-<span class="number">0x8</span>]
+|     | |   <span class="number">0x08048609</span>    <span class="number">0110</span>         add [eax], edx
+|     | |   <span class="number">0x0804860b</span>    <span class="number">837</span>df810     cmp dword [ebp-<span class="number">0x8</span>], <span class="number">0x10</span>
+|     |,==&lt; <span class="number">0x0804860f</span>    <span class="number">7512</span>         jne loc<span class="number">.08048623</span>
+|     |||   <span class="number">0x08048611</span>    <span class="number">8</span>b450c       mov eax, [ebp+<span class="number">0xc</span>]
+|     |||   <span class="number">0x08048614</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|     |||   <span class="number">0x08048618</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|     |||   <span class="number">0x0804861b</span>    <span class="number">890424</span>       mov [esp], eax
+|     |||   <span class="number">0x0804861e</span>    e81fffffff   call sym.parell
+|     |||      sym.parell()
+|     ||    ; JMP XREF from <span class="number">0x0804860f</span> (unk)
+|- loc<span class="number">.08048623</span> <span class="number">90</span>
+|     |`--&gt; <span class="number">0x08048623</span>    <span class="number">8</span>d45f4       lea eax, [ebp-<span class="number">0xc</span>]
+|     | |   <span class="number">0x08048626</span>    ff00         inc dword [eax]
+|     `===&lt; <span class="number">0x08048628</span>    eba3         jmp fcn<span class="number">.080485</span>cd
+|       |   ; JMP XREF from <span class="number">0x080485db</span> (unk)
+|- loc<span class="number">.0804862</span>a <span class="number">83</span>
+|       `-&gt; <span class="number">0x0804862a</span>    e8f5feffff   call sym.che
+|       | &gt;    sym.che()
+|           <span class="number">0x0804862f</span>    <span class="number">8</span>b450c       mov eax, [ebp+<span class="number">0xc</span>]
+|           <span class="number">0x08048632</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|           <span class="number">0x08048636</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|           <span class="number">0x08048639</span>    <span class="number">890424</span>       mov [esp], eax
+|           <span class="number">0x0804863c</span>    e873feffff   call sym.dummy
+|              sym.dummy()
+|           <span class="number">0x08048641</span>    <span class="number">85</span>c0         test eax, eax
+|    ,====&lt; <span class="number">0x08048643</span>    <span class="number">7436</span>         je loc<span class="number">.0804867</span>b
+|    |      <span class="number">0x08048645</span>    c745f400000. mov dword [ebp-<span class="number">0xc</span>], <span class="number">0x0</span>
+|    |      ; JMP XREF from <span class="number">0x08048679</span> (unk)
+|- loc<span class="number">.0804864</span>c <span class="number">49</span>
+|    |      <span class="number">0x0804864c</span>    <span class="number">837</span>df409     cmp dword [ebp-<span class="number">0xc</span>], <span class="number">0x9</span>
+|   ,=====&lt; <span class="number">0x08048650</span>    <span class="number">7f</span>29         jg loc<span class="number">.0804867</span>b
+|   ||      <span class="number">0x08048652</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|   ||      <span class="number">0x08048655</span>    <span class="number">83e001</span>       and eax, <span class="number">0x1</span>
+|   ||      <span class="number">0x08048658</span>    <span class="number">85</span>c0         test eax, eax
+|  ,======&lt; <span class="number">0x0804865a</span>    <span class="number">7518</span>         jne loc<span class="number">.08048674</span>
+|  |||      <span class="number">0x0804865c</span>    c70424d3870. mov dword [esp], str.wtf__n ; str.wtf__n
+|  |||      <span class="number">0x08048663</span>    e850fdffff   call sym.imp.<span class="built_in">printf</span>
+|  |||         sym.imp.<span class="built_in">printf</span>()
+|  |||      <span class="number">0x08048668</span>    c7042400000. mov dword [esp], <span class="number">0x0</span>
+|  |||      <span class="number">0x0804866f</span>    e874fdffff   call sym.imp.<span class="built_in">exit</span>
+|  |||         sym.imp.<span class="built_in">exit</span>()
+|  |        ; JMP XREF from <span class="number">0x0804865a</span> (unk)
+|- loc<span class="number">.08048674</span> <span class="number">9</span>
+|  `------&gt; <span class="number">0x08048674</span>    <span class="number">8</span>d45f4       lea eax, [ebp-<span class="number">0xc</span>]
+|   ||      <span class="number">0x08048677</span>    ff00         inc dword [eax]
+|   ||      <span class="number">0x08048679</span>    ebd1         jmp loc<span class="number">.0804864</span>c
+|   ||      ; JMP XREF from <span class="number">0x08048643</span> (unk)
+|   ||      ; JMP XREF from <span class="number">0x08048650</span> (unk)
+|- loc<span class="number">.0804867</span>b <span class="number">2</span>
+|   ``----&gt; <span class="number">0x0804867b</span>    c9           leave
+\           <span class="number">0x0804867c</span>    c3           ret
+[<span class="number">0x08048400</span>]&gt; pdf@sym.che
+|          ; UNKNOWN XREF from <span class="number">0x08048524</span> (unk)
+|          ; CALL XREF from <span class="number">0x0804862a</span> (unk)
+/ (fcn) sym.che <span class="number">149</span>
+|          <span class="number">0x08048524</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x08048525</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x08048527</span>    <span class="number">83</span>ec08       sub esp, <span class="number">0x8</span>
+|          <span class="number">0x0804852a</span>    c70424ad870. mov dword [esp], str.Password_Incorrect__n ; str.Password_Incorrect__n
+|          <span class="number">0x08048531</span>    e882feffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>(unk)
+|          <span class="number">0x08048536</span>    c7042400000. mov dword [esp], <span class="number">0x0</span>
+|          <span class="number">0x0804853d</span>    e8a6feffff   call sym.imp.<span class="built_in">exit</span>
+|             sym.imp.<span class="built_in">exit</span>()
+|          ; CALL XREF from <span class="number">0x0804861e</span> (unk)
+/ (fcn) sym.parell <span class="number">119</span>
+|          <span class="number">0x08048542</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x08048543</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x08048545</span>    <span class="number">83</span>ec18       sub esp, <span class="number">0x18</span>
+|          <span class="number">0x08048548</span>    <span class="number">8</span>d45fc       lea eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x0804854b</span>    <span class="number">89442408</span>     mov [esp+<span class="number">0x8</span>], eax
+|          <span class="number">0x0804854f</span>    c7442404c28. mov dword [esp+<span class="number">0x4</span>], <span class="number">0x80487c2</span> ;  <span class="number">0x080487c2</span> 
+|          <span class="number">0x08048557</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|          <span class="number">0x0804855a</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x0804855d</span>    e866feffff   call sym.imp.<span class="built_in">sscanf</span>
+|             sym.imp.<span class="built_in">sscanf</span>(unk)
+|          <span class="number">0x08048562</span>    <span class="number">8</span>b450c       mov eax, [ebp+<span class="number">0xc</span>]
+|          <span class="number">0x08048565</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x08048569</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x0804856c</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x0804856f</span>    e840ffffff   call sym.dummy
+|             sym.dummy()
+|          <span class="number">0x08048574</span>    <span class="number">85</span>c0         test eax, eax
+|      ,=&lt; <span class="number">0x08048576</span>    <span class="number">743f</span>         je loc<span class="number">.080485</span>b7
+|      |   <span class="number">0x08048578</span>    c745f800000. mov dword [ebp-<span class="number">0x8</span>], <span class="number">0x0</span>
+|      |   ; JMP XREF from <span class="number">0x080485b5</span> (unk)
+|- loc<span class="number">.0804857f</span> <span class="number">58</span>
+|      |   <span class="number">0x0804857f</span>    <span class="number">837</span>df809     cmp dword [ebp-<span class="number">0x8</span>], <span class="number">0x9</span>
+|     ,==&lt; <span class="number">0x08048583</span>    <span class="number">7f</span>32         jg loc<span class="number">.080485</span>b7
+|     ||   <span class="number">0x08048585</span>    <span class="number">8</span>b45fc       mov eax, [ebp-<span class="number">0x4</span>]
+|     ||   <span class="number">0x08048588</span>    <span class="number">83e001</span>       and eax, <span class="number">0x1</span>
+|     ||   <span class="number">0x0804858b</span>    <span class="number">85</span>c0         test eax, eax
+|    ,===&lt; <span class="number">0x0804858d</span>    <span class="number">7521</span>         jne loc<span class="number">.080485</span>b0
+|    |||   <span class="number">0x0804858f</span>    <span class="number">833</span>d2ca0040. cmp dword [sym.LOL], <span class="number">0x1</span>
+|   ,====&lt; <span class="number">0x08048596</span>    <span class="number">750</span>c         jne loc<span class="number">.080485</span>a4
+|   ||||   <span class="number">0x08048598</span>    c70424c5870. mov dword [esp], str.Password_OK__n ; str.Password_OK__n
+|   ||||   <span class="number">0x0804859f</span>    e814feffff   call sym.imp.<span class="built_in">printf</span>
+|   ||||      sym.imp.<span class="built_in">printf</span>()
+|   |      ; JMP XREF from <span class="number">0x08048596</span> (unk)
+|- loc<span class="number">.080485</span>a4 <span class="number">21</span>
+|   `----&gt; <span class="number">0x080485a4</span>    c7042400000. mov dword [esp], <span class="number">0x0</span>
+|    |||   <span class="number">0x080485ab</span>    e838feffff   call sym.imp.<span class="built_in">exit</span>
+|    |||      sym.imp.<span class="built_in">exit</span>()
+|    |     ; JMP XREF from <span class="number">0x0804858d</span> (unk)
+|- loc<span class="number">.080485</span>b0 <span class="number">9</span>
+|    `---&gt; <span class="number">0x080485b0</span>    <span class="number">8</span>d45f8       lea eax, [ebp-<span class="number">0x8</span>]
+|     ||   <span class="number">0x080485b3</span>    ff00         inc dword [eax]
+|     ||   <span class="number">0x080485b5</span>    ebc8         jmp loc<span class="number">.0804857f</span>
+|     ||   ; JMP XREF from <span class="number">0x08048576</span> (unk)
+|     ||   ; JMP XREF from <span class="number">0x08048583</span> (unk)
+|- loc<span class="number">.080485</span>b7 <span class="number">2</span>
+|     ``-&gt; <span class="number">0x080485b7</span>    c9           leave
+\          <span class="number">0x080485b8</span>    c3           ret
+[<span class="number">0x08048400</span>]&gt; s <span class="number">0x080485db</span>
+[<span class="number">0x080485db</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x080485db</span>]&gt; s <span class="number">0x0804860f</span>
+[<span class="number">0x0804860f</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x0804860f</span>]&gt; s <span class="number">0x08048576</span>
+[<span class="number">0x08048576</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x08048576</span>]&gt; s <span class="number">0x08048583</span>
+[<span class="number">0x08048583</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x08048583</span>]&gt; s <span class="number">0x0804858d</span>
+[<span class="number">0x0804858d</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x0804858d</span>]&gt; s <span class="number">0x08048596</span>
+[<span class="number">0x08048596</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x08048596</span>]&gt; q
+
+ ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ ./crackme0x08
+IOLI Crackme Level <span class="number">0x08</span>
+Password: <span class="number">12345</span>
+Password OK!
+</code></pre><h2 id="crackme0x09">crackme0x09</h2><pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/reverse/</span>IOLI-crackme<span class="regexp">/bin-linux ⮀ ./</span>crackme0x09
+IOLI Crackme Level <span class="number">0</span>x09
+Password: <span class="number">12345</span>
+Password Incorrect!
+</code></pre><p>稍微计算下。看出来<code>ebp</code>作为某个时刻的栈顶指针用来索引字符串。一番搜索在某个<code>printf</code>中发现了<code>OK</code></p>
+<pre><code>✘ ⮀ ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ r2 -w ./crackme0x09
+ -- Use scr.accel to browse the file faster!
+[<span class="number">0x08048420</span>]&gt; aa
+[<span class="number">0x08048420</span>]&gt; pdf@main
+|          ; UNKNOWN XREF from <span class="number">0x080486ae</span> (fcn<span class="number">.08048616</span>)
+|          ; DATA XREF from <span class="number">0x08048437</span> (entry0)
+/ (fcn) main <span class="number">120</span>
+|          <span class="number">0x080486ee</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x080486ef</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x080486f1</span>    <span class="number">53</span>           push ebx
+|          <span class="number">0x080486f2</span>    <span class="number">81</span>ec84000000 sub esp, <span class="number">0x84</span>
+|          <span class="number">0x080486f8</span>    e869000000   call fcn<span class="number">.08048766</span>
+|             fcn<span class="number">.08048766</span>(unk, unk)
+|          <span class="number">0x080486fd</span>    <span class="number">81</span>c3f7180000 add ebx, <span class="number">0x18f7</span>
+|          <span class="number">0x08048703</span>    <span class="number">83e4</span>f0       and esp, <span class="number">0xfffffff0</span>
+|          <span class="number">0x08048706</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x0804870b</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x0804870e</span>    <span class="number">83</span>c00f       add eax, <span class="number">0xf</span>
+|          <span class="number">0x08048711</span>    c1e804       shr eax, <span class="number">0x4</span>
+|          <span class="number">0x08048714</span>    c1e004       shl eax, <span class="number">0x4</span>
+|          <span class="number">0x08048717</span>    <span class="number">29</span>c4         sub esp, eax
+|          <span class="number">0x08048719</span>    <span class="number">8</span>d8375e8ffff lea eax, [ebx-<span class="number">0x178b</span>]
+|          <span class="number">0x0804871f</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x08048722</span>    e8b9fcffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>()
+|          <span class="number">0x08048727</span>    <span class="number">8</span>d838ee8ffff lea eax, [ebx-<span class="number">0x1772</span>]
+|          <span class="number">0x0804872d</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x08048730</span>    e8abfcffff   call sym.imp.<span class="built_in">printf</span>
+|             sym.imp.<span class="built_in">printf</span>()
+|          <span class="number">0x08048735</span>    <span class="number">8</span>d4588       lea eax, [ebp-<span class="number">0x78</span>]
+|          <span class="number">0x08048738</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x0804873c</span>    <span class="number">8</span>d8399e8ffff lea eax, [ebx-<span class="number">0x1767</span>]
+|          <span class="number">0x08048742</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x08048745</span>    e876fcffff   call sym.imp.<span class="built_in">scanf</span>
+|             sym.imp.<span class="built_in">scanf</span>()
+|          <span class="number">0x0804874a</span>    <span class="number">8</span>b4510       mov eax, [ebp+<span class="number">0x10</span>]
+|          <span class="number">0x0804874d</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x08048751</span>    <span class="number">8</span>d4588       lea eax, [ebp-<span class="number">0x78</span>]
+|          <span class="number">0x08048754</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x08048757</span>    e8bafeffff   call fcn<span class="number">.08048616</span>
+|             fcn<span class="number">.08048616</span>()
+|          <span class="number">0x0804875c</span>    b800000000   mov eax, <span class="number">0x0</span>
+|          <span class="number">0x08048761</span>    <span class="number">8</span>b5dfc       mov ebx, [ebp-<span class="number">0x4</span>]
+|          <span class="number">0x08048764</span>    c9           leave
+\          <span class="number">0x08048765</span>    c3           ret
+[<span class="number">0x08048420</span>]&gt; pdf@fcn<span class="number">.08048616</span>
+            ; UNKNOWN XREF from <span class="number">0x080485cb</span> (fcn<span class="number">.0804855</span>d)
+            ; CALL XREF from <span class="number">0x08048757</span> (unk)
+/ (fcn) fcn<span class="number">.08048616</span> <span class="number">216</span>
+|           <span class="number">0x08048616</span>    <span class="number">55</span>           push ebp
+|           <span class="number">0x08048617</span>    <span class="number">89e5</span>         mov ebp, esp
+|           <span class="number">0x08048619</span>    <span class="number">53</span>           push ebx
+|           <span class="number">0x0804861a</span>    <span class="number">83</span>ec24       sub esp, <span class="number">0x24</span>
+|           <span class="number">0x0804861d</span>    e844010000   call fcn<span class="number">.08048766</span>
+|              fcn<span class="number">.08048766</span>(unk, unk)
+|           <span class="number">0x08048622</span>    <span class="number">81</span>c3d2190000 add ebx, <span class="number">0x19d2</span>
+|           <span class="number">0x08048628</span>    c745f400000. mov dword [ebp-<span class="number">0xc</span>], <span class="number">0x0</span>
+|           <span class="number">0x0804862f</span>    c745f000000. mov dword [ebp-<span class="number">0x10</span>], <span class="number">0x0</span>
+|           ; JMP XREF from <span class="number">0x08048693</span> (fcn<span class="number">.08048616</span>)
+|- fcn<span class="number">.08048636</span> <span class="number">184</span>
+|     .---&gt; <span class="number">0x08048636</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|     |     <span class="number">0x08048639</span>    <span class="number">890424</span>       mov [esp], eax
+|     |     <span class="number">0x0804863c</span>    e88ffdffff   call sym.imp.<span class="built_in">strlen</span>
+|     |        sym.imp.<span class="built_in">strlen</span>()
+|     |     <span class="number">0x08048641</span>    <span class="number">3945f</span>0       cmp [ebp-<span class="number">0x10</span>], eax
+|     | ,=&lt; <span class="number">0x08048644</span>    <span class="number">734f</span>         jae loc<span class="number">.08048695</span>
+|     | |   <span class="number">0x08048646</span>    <span class="number">8</span>b45f0       mov eax, [ebp-<span class="number">0x10</span>]
+|     | |   <span class="number">0x08048649</span>    <span class="number">034508</span>       add eax, [ebp+<span class="number">0x8</span>]
+|     | |   <span class="number">0x0804864c</span>    <span class="number">0f</span>b600       movzx eax, byte [eax]
+|     | |   <span class="number">0x0804864f</span>    <span class="number">8845</span>ef       mov [ebp-<span class="number">0x11</span>], al
+|     | |   <span class="number">0x08048652</span>    <span class="number">8</span>d45f8       lea eax, [ebp-<span class="number">0x8</span>]
+|     | |   <span class="number">0x08048655</span>    <span class="number">89442408</span>     mov [esp+<span class="number">0x8</span>], eax
+|     | |   <span class="number">0x08048659</span>    <span class="number">8</span>d835ee8ffff lea eax, [ebx-<span class="number">0x17a2</span>]
+|     | |   <span class="number">0x0804865f</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|     | |   <span class="number">0x08048663</span>    <span class="number">8</span>d45ef       lea eax, [ebp-<span class="number">0x11</span>]
+|     | |   <span class="number">0x08048666</span>    <span class="number">890424</span>       mov [esp], eax
+|     | |   <span class="number">0x08048669</span>    e882fdffff   call sym.imp.<span class="built_in">sscanf</span>
+|     | |      sym.imp.<span class="built_in">sscanf</span>()
+|     | |   <span class="number">0x0804866e</span>    <span class="number">8</span>b55f8       mov edx, [ebp-<span class="number">0x8</span>]
+|     | |   <span class="number">0x08048671</span>    <span class="number">8</span>d45f4       lea eax, [ebp-<span class="number">0xc</span>]
+|     | |   <span class="number">0x08048674</span>    <span class="number">0110</span>         add [eax], edx
+|     | |   <span class="number">0x08048676</span>    <span class="number">837</span>df410     cmp dword [ebp-<span class="number">0xc</span>], <span class="number">0x10</span>
+|     |,==&lt; <span class="number">0x0804867a</span>    <span class="number">7512</span>         jne loc<span class="number">.0804868</span>e
+|     |||   <span class="number">0x0804867c</span>    <span class="number">8</span>b450c       mov eax, [ebp+<span class="number">0xc</span>]
+|     |||   <span class="number">0x0804867f</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|     |||   <span class="number">0x08048683</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|     |||   <span class="number">0x08048686</span>    <span class="number">890424</span>       mov [esp], eax
+|     |||   <span class="number">0x08048689</span>    e8fbfeffff   call fcn<span class="number">.08048589</span>
+|     |||      fcn<span class="number">.08048589</span>()
+|     ||    ; JMP XREF from <span class="number">0x0804867a</span> (fcn<span class="number">.08048616</span>)
+|- loc<span class="number">.0804868</span>e <span class="number">96</span>
+|     |`--&gt; <span class="number">0x0804868e</span>    <span class="number">8</span>d45f0       lea eax, [ebp-<span class="number">0x10</span>]
+|     | |   <span class="number">0x08048691</span>    ff00         inc dword [eax]
+|     `===&lt; <span class="number">0x08048693</span>    eba1         jmp fcn<span class="number">.08048636</span>
+|       |   ; JMP XREF from <span class="number">0x08048644</span> (fcn<span class="number">.08048616</span>)
+|- loc<span class="number">.08048695</span> <span class="number">89</span>
+|       `-&gt; <span class="number">0x08048695</span>    e8c3feffff   call fcn<span class="number">.0804855</span>d
+|       | &gt;    fcn<span class="number">.0804855</span>d()
+|           <span class="number">0x0804869a</span>    <span class="number">8</span>b450c       mov eax, [ebp+<span class="number">0xc</span>]
+|           <span class="number">0x0804869d</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|           <span class="number">0x080486a1</span>    <span class="number">8</span>b45f8       mov eax, [ebp-<span class="number">0x8</span>]
+|           <span class="number">0x080486a4</span>    <span class="number">890424</span>       mov [esp], eax
+|           <span class="number">0x080486a7</span>    e828feffff   call fcn<span class="number">.080484</span>d4
+|              fcn<span class="number">.080484</span>d4() ; entry0+<span class="number">180</span>
+|           <span class="number">0x080486ac</span>    <span class="number">85</span>c0         test eax, eax
+|    ,====&lt; <span class="number">0x080486ae</span>    <span class="number">7438</span>         je loc<span class="number">.080486e8</span>
+|    |      <span class="number">0x080486b0</span>    c745f000000. mov dword [ebp-<span class="number">0x10</span>], <span class="number">0x0</span>
+|    |      ; JMP XREF from <span class="number">0x080486e6</span> (fcn<span class="number">.08048616</span>)
+|- loc<span class="number">.080486</span>b7 <span class="number">55</span>
+|    |      <span class="number">0x080486b7</span>    <span class="number">837</span>df009     cmp dword [ebp-<span class="number">0x10</span>], <span class="number">0x9</span>
+|   ,=====&lt; <span class="number">0x080486bb</span>    <span class="number">7f</span>2b         jg loc<span class="number">.080486e8</span>
+|   ||      <span class="number">0x080486bd</span>    <span class="number">8</span>b45f8       mov eax, [ebp-<span class="number">0x8</span>]
+|   ||      <span class="number">0x080486c0</span>    <span class="number">83e001</span>       and eax, <span class="number">0x1</span>
+|   ||      <span class="number">0x080486c3</span>    <span class="number">85</span>c0         test eax, eax
+|  ,======&lt; <span class="number">0x080486c5</span>    <span class="number">751</span>a         jne loc<span class="number">.080486e1</span>
+|  |||      <span class="number">0x080486c7</span>    <span class="number">8</span>d836fe8ffff lea eax, [ebx-<span class="number">0x1791</span>]
+|  |||      <span class="number">0x080486cd</span>    <span class="number">890424</span>       mov [esp], eax
+|  |||      <span class="number">0x080486d0</span>    e80bfdffff   call sym.imp.<span class="built_in">printf</span>
+|  |||         sym.imp.<span class="built_in">printf</span>()
+|  |||      <span class="number">0x080486d5</span>    c7042400000. mov dword [esp], <span class="number">0x0</span>
+|  |||      <span class="number">0x080486dc</span>    e82ffdffff   call sym.imp.<span class="built_in">exit</span>
+|  |||         sym.imp.<span class="built_in">exit</span>()
+|  |        ; JMP XREF from <span class="number">0x080486c5</span> (fcn<span class="number">.08048616</span>)
+|- loc<span class="number">.080486e1</span> <span class="number">13</span>
+|  `------&gt; <span class="number">0x080486e1</span>    <span class="number">8</span>d45f0       lea eax, [ebp-<span class="number">0x10</span>]
+|   ||      <span class="number">0x080486e4</span>    ff00         inc dword [eax]
+|   ||      <span class="number">0x080486e6</span>    ebcf         jmp loc<span class="number">.080486</span>b7
+|   ||      ; JMP XREF from <span class="number">0x080486ae</span> (fcn<span class="number">.08048616</span>)
+|   ||      ; JMP XREF from <span class="number">0x080486bb</span> (fcn<span class="number">.08048616</span>)
+|- loc<span class="number">.080486e8</span> <span class="number">6</span>
+|   ``----&gt; <span class="number">0x080486e8</span>    <span class="number">83</span>c424       add esp, <span class="number">0x24</span>
+|           <span class="number">0x080486eb</span>    <span class="number">5</span>b           pop ebx
+|           <span class="number">0x080486ec</span>    <span class="number">5</span>d           pop ebp
+\           <span class="number">0x080486ed</span>    c3           ret
+[<span class="number">0x08048420</span>]&gt; pdf@fcn<span class="number">.08048589</span>
+           ; CALL XREF from <span class="number">0x08048689</span> (fcn<span class="number">.08048616</span>)
+/ (fcn) fcn<span class="number">.08048589</span> <span class="number">141</span>
+|          <span class="number">0x08048589</span>    <span class="number">55</span>           push ebp
+|          <span class="number">0x0804858a</span>    <span class="number">89e5</span>         mov ebp, esp
+|          <span class="number">0x0804858c</span>    <span class="number">53</span>           push ebx
+|          <span class="number">0x0804858d</span>    <span class="number">83</span>ec14       sub esp, <span class="number">0x14</span>
+|          <span class="number">0x08048590</span>    e8d1010000   call fcn<span class="number">.08048766</span>
+|             fcn<span class="number">.08048766</span>(unk, unk)
+|          <span class="number">0x08048595</span>    <span class="number">81</span>c35f1a0000 add ebx, <span class="number">0x1a5f</span>
+|          <span class="number">0x0804859b</span>    <span class="number">8</span>d45f8       lea eax, [ebp-<span class="number">0x8</span>]
+|          <span class="number">0x0804859e</span>    <span class="number">89442408</span>     mov [esp+<span class="number">0x8</span>], eax
+|          <span class="number">0x080485a2</span>    <span class="number">8</span>d835ee8ffff lea eax, [ebx-<span class="number">0x17a2</span>]
+|          <span class="number">0x080485a8</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x080485ac</span>    <span class="number">8</span>b4508       mov eax, [ebp+<span class="number">0x8</span>]
+|          <span class="number">0x080485af</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x080485b2</span>    e839feffff   call sym.imp.<span class="built_in">sscanf</span>
+|             sym.imp.<span class="built_in">sscanf</span>()
+|          <span class="number">0x080485b7</span>    <span class="number">8</span>b450c       mov eax, [ebp+<span class="number">0xc</span>]
+|          <span class="number">0x080485ba</span>    <span class="number">89442404</span>     mov [esp+<span class="number">0x4</span>], eax
+|          <span class="number">0x080485be</span>    <span class="number">8</span>b45f8       mov eax, [ebp-<span class="number">0x8</span>]
+|          <span class="number">0x080485c1</span>    <span class="number">890424</span>       mov [esp], eax
+|          <span class="number">0x080485c4</span>    e80bffffff   call fcn<span class="number">.080484</span>d4
+|             fcn<span class="number">.080484</span>d4() ; entry0+<span class="number">180</span>
+|          <span class="number">0x080485c9</span>    <span class="number">85</span>c0         test eax, eax
+|      ,=&lt; <span class="number">0x080485cb</span>    <span class="number">7443</span>         je loc<span class="number">.08048610</span>
+|      |   <span class="number">0x080485cd</span>    c745f400000. mov dword [ebp-<span class="number">0xc</span>], <span class="number">0x0</span>
+|      |   ; JMP XREF from <span class="number">0x0804860e</span> (fcn<span class="number">.0804855</span>d)
+|- loc<span class="number">.080485</span>d4 <span class="number">66</span>
+|      |   <span class="number">0x080485d4</span>    <span class="number">837</span>df409     cmp dword [ebp-<span class="number">0xc</span>], <span class="number">0x9</span>
+|     ,==&lt; <span class="number">0x080485d8</span>    <span class="number">7f</span>36         jg loc<span class="number">.08048610</span>
+|     ||   <span class="number">0x080485da</span>    <span class="number">8</span>b45f8       mov eax, [ebp-<span class="number">0x8</span>]
+|     ||   <span class="number">0x080485dd</span>    <span class="number">83e001</span>       and eax, <span class="number">0x1</span>
+|     ||   <span class="number">0x080485e0</span>    <span class="number">85</span>c0         test eax, eax
+|    ,===&lt; <span class="number">0x080485e2</span>    <span class="number">7525</span>         jne loc<span class="number">.08048609</span>
+|    |||   <span class="number">0x080485e4</span>    <span class="number">8</span>b83fcffffff mov eax, [ebx-<span class="number">0x4</span>]
+|    |||   <span class="number">0x080485ea</span>    <span class="number">833801</span>       cmp dword [eax], <span class="number">0x1</span>
+|   ,====&lt; <span class="number">0x080485ed</span>    <span class="number">750</span>e         jne loc<span class="number">.080485f</span>d
+|   ||||   <span class="number">0x080485ef</span>    <span class="number">8</span>d8361e8ffff lea eax, [ebx-<span class="number">0x179f</span>]
+|   ||||   <span class="number">0x080485f5</span>    <span class="number">890424</span>       mov [esp], eax
+|   ||||   <span class="number">0x080485f8</span>    e8e3fdffff   call sym.imp.<span class="built_in">printf</span>
+|   ||||      sym.imp.<span class="built_in">printf</span>()
+|   |      ; JMP XREF from <span class="number">0x080485ed</span> (fcn<span class="number">.0804855</span>d)
+|- loc<span class="number">.080485f</span>d <span class="number">25</span>
+|   `----&gt; <span class="number">0x080485fd</span>    c7042400000. mov dword [esp], <span class="number">0x0</span>
+|    |||   <span class="number">0x08048604</span>    e807feffff   call sym.imp.<span class="built_in">exit</span>
+|    |||      sym.imp.<span class="built_in">exit</span>()
+|    |     ; JMP XREF from <span class="number">0x080485e2</span> (fcn<span class="number">.0804855</span>d)
+|- loc<span class="number">.08048609</span> <span class="number">13</span>
+|    `---&gt; <span class="number">0x08048609</span>    <span class="number">8</span>d45f4       lea eax, [ebp-<span class="number">0xc</span>]
+|     ||   <span class="number">0x0804860c</span>    ff00         inc dword [eax]
+|     ||   <span class="number">0x0804860e</span>    ebc4         jmp loc<span class="number">.080485</span>d4
+|     ||   ; JMP XREF from <span class="number">0x080485cb</span> (fcn<span class="number">.0804855</span>d)
+|     ||   ; JMP XREF from <span class="number">0x080485d8</span> (fcn<span class="number">.0804855</span>d)
+|- loc<span class="number">.08048610</span> <span class="number">6</span>
+|     ``-&gt; <span class="number">0x08048610</span>    <span class="number">83</span>c414       add esp, <span class="number">0x14</span>
+|          <span class="number">0x08048613</span>    <span class="number">5</span>b           pop ebx
+|          <span class="number">0x08048614</span>    <span class="number">5</span>d           pop ebp
+\          <span class="number">0x08048615</span>    c3           ret
+[<span class="number">0x08048420</span>]&gt; s 
+<span class="number">0x8048420</span>
+[<span class="number">0x08048420</span>]&gt; s <span class="number">0x08048644</span>
+[<span class="number">0x08048644</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x08048644</span>]&gt; s <span class="number">0x0804867a</span>
+[<span class="number">0x0804867a</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x0804867a</span>]&gt; s <span class="number">0x080485cb</span>
+[<span class="number">0x080485cb</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x080485cb</span>]&gt; s <span class="number">0x080485d8</span>
+[<span class="number">0x080485d8</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x080485d8</span>]&gt; s <span class="number">0x080485e2</span>
+[<span class="number">0x080485e2</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x080485e2</span>]&gt; s <span class="number">0x080485ed</span>
+[<span class="number">0x080485ed</span>]&gt; wx <span class="number">9090</span>
+[<span class="number">0x0804852d</span>]&gt; s <span class="number">0x080485c4</span>
+[<span class="number">0x080485c4</span>]&gt; wx <span class="number">9090909090</span>
+[<span class="number">0x080485c4</span>]&gt; q
+
+ ~/Work/project/reverse/IOLI-crackme/bin-linux ⮀ ./crackme0x09
+IOLI Crackme Level <span class="number">0x09</span>
+Password: <span class="number">12345</span>
+Password OK!
+</code></pre><p>这不叫逆向……这叫把目标代码之外的东西都注释掉……</p>
+<p>到此，忽然觉得吧，少了点东西。</p>
+<ul>
+<li>r2的动态调试功能</li>
+<li>说好的reverse-engineer</li>
+</ul>
+<p>I find an interesting book: RE-for-beginers</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/linux/2014/08/08/better-and-beautiful-console/" itemprop="url">
                   Better and Beautiful Console
                 </a>
               
@@ -241,13 +1651,28 @@
           </span>
 
           
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
 
           
             
               <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/uncategorized/2014/08/08/better-and-beautiful-console/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="uncategorized/2014/08/08/better-and-beautiful-console/" itemprop="commentsCount"></span>
+              <a href="/linux/2014/08/08/better-and-beautiful-console/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2014/08/08/better-and-beautiful-console/" itemprop="commentsCount"></span>
               </a>
             </span>
             
@@ -2693,166 +4118,6 @@ Reading symbols <span class="built_in">from</span> /home/lyy/Work/msp430/main.el
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/network/2014/05/04/" itemprop="url">
-                  扫描器原理与实现
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-05-04T00:00:00+08:00" content="2014-05-04">
-              2014-05-04
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/network/" itemprop="url" rel="index">
-                    <span itemprop="name">network</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/network/2014/05/04/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="network/2014/05/04//" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>随便写写端口扫描器，估计不会写多。最近事情太多。</p>
-<h2 id="原理">原理</h2><p>TCP端口扫描的基本原理，就是尝试与被探测端口建立连接，如果这个连接能够建立上，则说明端口是开放的。另一方面，按照TCP三次握手标准其实探测端口是否开放并不用完成三次握手建立连接，仅仅收到第二次握手的包基本就足以说明该端口确实打开并提供服务。</p>
-<p>UDP是另一种无连接不可靠数据报交付协议，仅仅发送UDP报文到指定端口，然后等待返回。如果收到回复信息则说明该端口确实提供UDP服务，如果在有限时间内没收到任何回复就当作该端口不存在吧。</p>
-<p>在扫描大量机器的大量端口时，比如对TCP端口扫描，如果我们发送一个包后等待建立连接，可能由于网络原因等待很久才会收到回复的报文。这样其它待扫描端口不得不等着，整个扫描器在这段时间内除了等待什么都不做。网络上行带宽没得到充分利用。所以，一般采用多线程或者异步的方式来实现扫描器的并发。</p>
-<p>扫描器往往不仅仅就看看端口是否开放，它们往往还搜集信息供人判断，甚至可以提供payload来与目标进行交互。</p>
-<h2 id="检阅">检阅</h2><p>最简单的扫描器，比如说netcat：</p>
-<pre><code> ~ ⮀ nc -v -z bbs.byr.cn <span class="number">80</span>
-Warning: inverse host lookup failed <span class="keyword">for</span> <span class="number">10.3</span><span class="number">.18</span><span class="number">.66</span>: 
-bbs.byr.cn [<span class="number">10.3</span><span class="number">.18</span><span class="number">.66</span>] <span class="number">80</span> (http) open
-</code></pre><p>事实上你只要找个能建立连接或者构造包的东西都能作为扫描器，比如hping</p>
-<pre><code> ~ ⮀ sudo hping -c <span class="number">1</span> google.com -S -V -p <span class="number">80</span> 
-<span class="keyword">using</span> eth0, addr: <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>, MTU: <span class="number">1500</span>
-HPING google.com (eth0 <span class="number">74.125</span><span class="number">.128</span><span class="number">.100</span>): S <span class="built_in">set</span>, <span class="number">40</span> headers + <span class="number">0</span> data bytes
-len=<span class="number">46</span> ip=<span class="number">74.125</span><span class="number">.128</span><span class="number">.100</span> ttl=<span class="number">29</span> id=<span class="number">13203</span> tos=<span class="number">0</span> iplen=<span class="number">44</span>
-sport=<span class="number">80</span> flags=SA seq=<span class="number">0</span> win=<span class="number">42900</span> rtt=<span class="number">185.2</span> ms
-seq=<span class="number">2055062331</span> ack=<span class="number">2123742633</span> sum=<span class="number">2338</span> urp=<span class="number">0</span>
-
-
---- google.com hping statistic ---
-<span class="number">1</span> packets tramitted, <span class="number">1</span> packets received, <span class="number">0</span>% packet loss
-</code></pre><p>更专业一点的扫描器有nmap，非常专业的扫描器，在nmap script engine的扩展(lua)下更是可以方便的实现各种功能。功能强大、使用简洁暴力。</p>
-<pre><code>✘ ⮀ ~ ⮀ sudo nmap -sS baidu<span class="class">.com</span>
-
-Starting Nmap <span class="number">6.25</span> ( http:<span class="comment">//nmap.org ) at 2014-05-10 10:10 CST</span>
-Nmap scan report <span class="keyword">for</span> baidu<span class="class">.com</span> (<span class="number">220.181</span>.<span class="number">111.86</span>)
-Host is up (<span class="number">0.0019s</span> latency).
-Other addresses <span class="keyword">for</span> baidu<span class="class">.com</span> (not scanned): <span class="number">123.125</span>.<span class="number">114.144</span> <span class="number">220.181</span>.<span class="number">111.85</span>
-Not shown: <span class="number">999</span> filtered ports
-PORT   STATE SERVICE
-<span class="number">80</span>/tcp open  http
-
-Nmap done: <span class="number">1</span> IP <span class="tag">address</span> (<span class="number">1</span> host up) scanned <span class="keyword">in</span> <span class="number">37.67</span> seconds
-</code></pre><p>近两年出现了更加高效的面向整个互联网的扫描器。一个叫zmap，紧接着是masscan。和nmap的多线程实现不同，这两种扫描器靠异步实现高并发。</p>
-<h2 id="实践">实践</h2><p>我本来想详细写写最近研究扫描器的一些心得，可是，最近事情太多，没有心情也没有时间。大致用python写扫描器的一些心得吧。</p>
-<ol>
-<li>你不一定要用别人现成的库。因为你可能根本搞不清有些东西是怎么运作的，而一些细节会让你痛不欲生。事实上如果你只想抓取部分信息，不妨直接自己解析报文对应字段。有时你不得不自己去做什么，比如面对某些用ActiveX的奇葩系统而你还想用python来扫描并搜集信息时。</li>
-<li>gevent面对网络I/O真是毫无压力，但同时给内存和CPU带来了更大的负担。据说一个Greenlet占用四个文件描述符，gevent要拷贝大量上下文等等。实际上我这里有时并发根本上不去。超过2000就看着CPU一直处于100%左右而网络流量没有任何变化。不知道是哪里的限制，网络上行无法到达顶峰。但一些简单的例子可以无压力达到。</li>
-<li>在进行大范围扫描时不要将某个可能会变的巨大变量塞进内存，虽然把对象放入内存也许会运行的更快，但你的内存满掉时它就不会更快了。这时通过shelve来实现字典相比直接把巨大的dict读入内存并不断扩展更合适。在我的某个例子中，把变量放到硬盘上而不是一股脑塞进内存后性能得到极大改善。</li>
-<li><p>大文件的读写时，python有个优雅的方式。一行一行读取。无论是什么巨大的东西，比如说15G的字典文件，这样一行一行读入内存然后让python的垃圾回收机制慢慢回收基本不会占用什么内存。</p>
-<pre><code>with <span class="function"><span class="title">open</span><span class="params">(<span class="string">"./data/netbios/temp"</span>)</span></span> as f:
-    <span class="keyword">for</span> line <span class="keyword">in</span> f:
-        pool.<span class="function"><span class="title">spawn</span><span class="params">(get_netbios, line.strip()</span></span>)
-</code></pre></li>
-</ol>
-<p>还有些其它想法。</p>
-<ol>
-<li><p>一个是twisted，虽然之前把一个非常棒的教程完整实践下来，寒假拿着手机把文档直接都看完了，甚至Gsoc的时候还想着如果twisted是mentor organization争取报名参加下。结果几个月没接触，完全不知道怎么使用这个框架了。</p>
-</li>
-<li><p>一个是python对select和epoll的支持，我觉得可能直接使用epoll实现一些并发比gevent会好很多。可是没空去试，我一直觉得epoll和select这种东西用python写出来真是不堪入目。如果是py3，async也许是个好主意。</p>
-</li>
-<li><p>在使用python做一些比如ip地址处理等等的时候，你也许会发现python3有着内置的模块，更优雅的处理方式。有那么几次真想完全用python3改写已经使用的东西。不过，还是没空。</p>
-</li>
-</ol>
-<p>还有，同学给了我片单片机，我忽然觉得扫描器玩腻了……</p>
-<p>不过面对积累的大量扫描数据，我觉得做做数据分析和可视化还是不错的。不会遥遥无期吧，尽管只对python的工具稍微熟悉，更想去用d3.js做展示。</p>
-<p>时间和精力有限，语言技能点该怎么点呢？</p>
-<p>汇编、C、javascript、python3、lua、也许go、也许再个ruby.</p>
-<p>还有两本书等着看或正在看，TCP/IP internetworking和深入理解计算机系统.</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2899,7 +4164,7 @@ Nmap done: <span class="number">1</span> IP <span class="tag">address</span> (<s
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">174</span>
+              <span class="site-state-item-count">175</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2913,7 +4178,7 @@ Nmap done: <span class="number">1</span> IP <span class="tag">address</span> (<s
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">60</span>
+              <span class="site-state-item-count">61</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
