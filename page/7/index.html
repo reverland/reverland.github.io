@@ -384,6 +384,127 @@ Nmap done: <span class="number">1</span> IP <span class="tag">address</span> (<s
             
               
                 
+                <a class="post-title-link" href="/life/2014/05/04/360-hack-game/" itemprop="url">
+                  360 Hack game网络攻防
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-05-04T00:00:00+08:00" content="2014-05-04">
+              2014-05-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/life/" itemprop="url" rel="index">
+                    <span itemprop="name">life</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/life/2014/05/04/360-hack-game/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2014/05/04/360-hack-game/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>不知道把这篇文章归入哪一类，那就life吧。Hack也是life的一部分吧。</p>
+<p>最开始是见有人在论坛上问第三道解码的题目。然后lz给出了个地址，就去看了看。后来还挺好玩，就继续做下去了。</p>
+<p>没必要在这里披露什么答案，<a href="http://bbs.blackbap.org/thread-5800-1-1.html" target="_blank" rel="external">习科</a>和<a href="http://www.freebuf.com/articles/web/33145.html" target="_blank" rel="external">FreeBuf</a>上已经有详细解答参考答案。就随便记下个人解题过程。</p>
+<p>第一关没什么压力。一看就知道显然是更改refer。</p>
+<p>第二关，习惯性打开js文件，赫然写着<code>password</code>几个大字。然后就是在浏览器调试工具或者node中跑呗。出题人耍了个小技巧，让结果不返回。反正我当时竟然凭着对js的一点浅薄知识一路复制粘帖用js一层一层解了三次。最后碰到一堆<code>[+&gt;]</code>的东西。我竟然以为是brainfuck，然后把自己电脑跑死机了……后来才忽然感觉是js，复制运行得到结果。</p>
+<p>第三关，一不小心在论坛上看到结果了，不过这显然对我不是什么问题。</p>
+<p>第四关，发了好久呆。不了解jpg文件格式，用vim打开也没看出什么。后来发现vim打开二进制文件必须加<code>-b</code>参数。再后来在论坛上其他人的提醒下发现竟然是两幅图。光看文件大小真看不出来。</p>
+<p>第五关，最简单有没有。虽然不知道都是些什么，全靠百度得来答案。。。是的，百度，谷歌都没用上。</p>
+<p>第六关，试了<code>~</code>后缀，最后论坛上有人提醒是vi……真是丧心病狂……</p>
+<p>第七关，还是仰仗论坛上提醒要大小写，又这么一碰竟然过了。然后128位的哈希一看就是md5,直接google得到结果。</p>
+<p>第八关，代码审计给跪了，php完全不会。考虑暴力穷举感觉尝试量太大，后来见论坛上有人穷举出来了……于是也随手写了个小程序穷举起来。最后论坛上其它人用我的程序穷举出来了我还没穷举出来……</p>
+<p>第九关，对着习科上答案来的……可能网络太差吧，等了好久。</p>
+<p>第十关，对着参考答案来，可每次文件名都变化。看到32字节长的文件名，就想是不是报头中某个变化的东西比如时间的md5？结果愣是没看出来cookie过期了。还抓了上千个哈希试图破解，却发现只有在cmd5可以找到，还是付费内容。写了个小脚本跑字典，也没解出来文件名到底怎么来的。算了，仰仗论坛上大婶的指点，反正过了。</p>
+<p>接下来我想写几样东西：</p>
+<ul>
+<li>关于扫描器的原理与实现</li>
+<li>某次抓取DVS/DVR信息的过程</li>
+<li>ftp搜索引擎</li>
+</ul>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/network/2014/04/18/" itemprop="url">
                   且谈扫描器
                 </a>
@@ -2980,255 +3101,6 @@ ACCEPT
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/python/2014/01/12/python/" itemprop="url">
-                  Python中文标签云之pytagcloud
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-01-12T00:00:00+08:00" content="2014-01-12">
-              2014-01-12
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/python/2014/01/12/python/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2014/01/12/python/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>本文讨论如何使用python的<code>pytagcloud</code>模块制作中文标签云图片和html文件。</p>
-<p>如果你只是为了搜索到如何用python制作中文标签云，请跳过缘起和爬取文本数据部分从<code>标签云部分</code>看起：</p>
-<h2 id="缘起">缘起</h2><ol>
-<li>学习scrapy，顺便就拿byr做了实验，异步强大的吞吐能力看的目瞪口呆。看到scrapy官网说到scrapy就是抽取网页中的元数据用以数据分析等作用，想了想就做做版面标签云分析吧。</li>
-<li>另一方面，R语言课上老师讲到文本分析，R语言那些包对中文的支持真是不错。为什么Python没有支持中文的包呢？我试着搜索了下，都是提问如何使用的而没有任何具体解决方案。不由得感慨还是R的社区在文本分析领域活跃。</li>
-</ol>
-<h2 id="爬取文本数据">爬取文本数据</h2><p>首先要获取生成标签云的原始数据。什么都行，直接拿篇中文文章都可以，不过我这里是爬取byr论坛某些板块的标题数据。</p>
-<p>scrapy从网页抽取数据的能力相当强大，我在这里第一次体验到了xpath的方便之处，从此，即使是一些简单的网页任务也会用lxml来使用xpath。</p>
-<p>在firebug里简单分析下，然后一页一页地请求网页然后抽取标题。再合成一个单独的文本。</p>
-<h2 id="标签云部分">标签云部分</h2><p>需要以下先决条件：</p>
-<ul>
-<li><p>确保安装pytagcloud，pip会顺便帮你帮它的依赖都装上</p>
-<pre><code>pip install --<span class="keyword">user</span> <span class="title">pytagcloud</span>
-</code></pre></li>
-<li><p>准备一个中文字体文件比如<code>simhei.ttf</code></p>
-</li>
-<li><p>安装中文分词模块jieba</p>
-<pre><code>pip install --<span class="keyword">user</span> <span class="title">jieba</span>
-</code></pre></li>
-</ul>
-<p>然后，为了生成中文标签云，我们要分几步：</p>
-<p>首先，把你的文本进行分词，并生成一个以单词为键以单词出现频数为值的字典。顺便去掉没有意义的词语比如“的”，“一个”这种。</p>
-<pre><code>wg = jieba.cut(YOUR_TEXT, cut_all=<span class="keyword">True</span>)
-wd = {}
-nonsense = [<span class="string">u"一下"</span>, <span class="string">u"什么"</span>, <span class="string">u"一个"</span>]
-<span class="keyword">for</span> w <span class="keyword">in</span> wg:
-    <span class="keyword">if</span> len(w) &lt; <span class="number">2</span>:
-        <span class="keyword">continue</span>
-    <span class="keyword">elif</span> w <span class="keyword">in</span> nonsense:
-        <span class="keyword">continue</span>
-    <span class="keyword">try</span>:
-        str(w)
-        <span class="keyword">continue</span>
-    <span class="keyword">except</span>:
-        <span class="keyword">if</span> w <span class="keyword">not</span> <span class="keyword">in</span> wd:
-            wd[w] = <span class="number">1</span>
-        <span class="keyword">else</span>:
-            wd[w] += <span class="number">1</span>
-</code></pre><p>其次，如果字典太大pytagcloud会报错：</p>
-<pre><code>IOError: unable <span class="keyword">to</span> <span class="command">read</span> font <span class="type">file</span> '/home/reverland/.<span class="keyword">local</span>/lib64/python2<span class="number">.7</span>/site-packages/pytagcloud/fonts/simhei.ttf'
-</code></pre><p>另外，一个标签云图片上也不需要太多词语。所以我们对词语出现频数排序，然后选取前50</p>
-<pre><code>from operator import itemgetter
-swd = <span class="function"><span class="title">sorted</span><span class="params">(wd.iteritems()</span></span>, key=<span class="function"><span class="title">itemgetter</span><span class="params">(<span class="number">1</span>)</span></span>, reverse=True)
-swd = swd[<span class="number">1</span>:<span class="number">50</span>]
-</code></pre><p>接下来就可以参见pytagcloud再github主页上说明生成tag数据：</p>
-<pre><code>tags = make_tags<span class="list">(<span class="keyword">swd</span>,
-                 minsize=SIZE1,
-                 maxsize=SIZE2,
-                 colors=random.choice<span class="list">(<span class="keyword">COLOR_SCHEMES</span>.values<span class="list">()</span>)</span>)</span>
-</code></pre><p>但此时pytagcloud还不支持中文字体，我们需要添加一个中文字体。</p>
-<p>然后把你准备好的中文字体文件<code>simhei.ttf</code>移动到<code>~/.local/lib64/python2.7/site-packages/pytagcloud/fonts/</code>下，并更改其下的<code>fonts.json</code>文件，比如在头部添加一条记录：</p>
-<pre><code>[
-    {
-        "<span class="attribute">name</span>": <span class="value"><span class="string">"SimHei"</span></span>,
-        "<span class="attribute">ttf</span>": <span class="value"><span class="string">"simhei.ttf"</span></span>,
-        "<span class="attribute">web</span>": <span class="value"><span class="string">"none"</span>
-    </span>},
-......
-</code></pre><p>现在，生成标签云png图像：</p>
-<pre><code>create_tag_image<span class="list">(<span class="keyword">tags</span>,
-                 <span class="quoted">'tag_cloud</span>.png',
-                 background=<span class="list">(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>)</span>,
-                 size=<span class="list">(<span class="number">900</span>, <span class="number">600</span>)</span>,
-                 fontname=<span class="string">"SimHei"</span>)</span>
-</code></pre><p>你将在当前目录下发现一个名为<code>tag_cloud.png</code>的标签云图片：</p>
-<p><img src="/images/tagcloud/tagcloud_png.png" alt="byr论坛Worklife版热词标签云"></p>
-<p>注意：参数SIZE1和SIZE2可能需要反复试验才能找到合适的。</p>
-<p>现在，继续讨论如何生成html格式的标签云，html格式的标签云不会出现图片中有横有竖的情况。更多细节参看pytagcloud在github上的源码中测试文件。</p>
-<p>在我们已经通过<code>make_tags</code>生成标签数据之后，生成html数据：</p>
-<pre><code>data = create_html_data(tags,
-                        size=(<span class="number">900</span>, <span class="number">600</span>),
-                        layout=<span class="number">3</span>,
-                        fontname=<span class="string">"SimHei"</span>,
-                        rectangular=False)
-</code></pre><p>还要准备个模板文件来生成html文件，比如<code>template.html</code>,关键别忘了指定语言和编码让浏览器能正常识别:</p>
-<pre><code><span class="tag">&lt;<span class="title">html</span> <span class="attribute">lang</span>=<span class="value">"zh_CN"</span>&gt;</span>
-    <span class="tag">&lt;<span class="title">head</span>&gt;</span>
-        <span class="tag">&lt;<span class="title">meta</span> <span class="attribute">charset</span>=<span class="value">"UTF-8"</span>&gt;</span>
-        <span class="tag">&lt;<span class="title">title</span>&gt;</span>PyTagCloud<span class="tag">&lt;/<span class="title">title</span>&gt;</span>
-        <span class="tag">&lt;<span class="title">style</span> <span class="attribute">type</span>=<span class="value">"text/css"</span>&gt;</span><span class="css">
-            <span class="tag">body</span><span class="rules">{
-                <span class="rule"><span class="attribute">background-color</span>:<span class="value"> black</span></span>;
-            }</span>
-
-            <span class="tag">a</span><span class="class">.tag</span><span class="rules">{
-                <span class="rule"><span class="attribute">font-family</span>:<span class="value"> <span class="string">'SimHei'</span>, <span class="string">'Sans'</span></span></span>;
-                <span class="rule"><span class="attribute">text-decoration</span>:<span class="value"> none</span></span>;
-            }</span>
-
-            <span class="tag">li</span><span class="class">.cnt</span><span class="rules">{
-                <span class="rule"><span class="attribute">overflow</span>:<span class="value"> hidden</span></span>;
-                <span class="rule"><span class="attribute">position</span>:<span class="value"> absolute</span></span>;
-                <span class="rule"><span class="attribute">display</span>:<span class="value"> block</span></span>;
-            }</span>
-
-            <span class="tag">ul</span><span class="class">.cloud</span><span class="rules">{
-                <span class="rule"><span class="attribute">position</span>:<span class="value"> relative</span></span>;
-                <span class="rule"><span class="attribute">display</span>:<span class="value"> block</span></span>;
-                <span class="rule"><span class="attribute">width</span>:<span class="value"> ${width</span></span></span>}<span class="tag">px</span>;
-                <span class="tag">height</span>: $<span class="rules">{height}</span><span class="tag">px</span>;
-                <span class="tag">overflow</span>: <span class="tag">hidden</span>;
-                <span class="tag">margin</span>: 0;
-                <span class="tag">padding</span>: 0;
-                <span class="tag">list-style</span>: <span class="tag">none</span>;
-            }
-            $<span class="tag">css</span>
-        </span><span class="tag">&lt;/<span class="title">style</span>&gt;</span>
-    <span class="tag">&lt;/<span class="title">head</span>&gt;</span>
-    <span class="tag">&lt;<span class="title">body</span>&gt;</span>
-        <span class="tag">&lt;<span class="title">ul</span> <span class="attribute">class</span>=<span class="value">"cloud"</span>&gt;</span>
-            $tags
-        <span class="tag">&lt;/<span class="title">ul</span>&gt;</span>
-    <span class="tag">&lt;/<span class="title">body</span>&gt;</span>
-<span class="tag">&lt;/<span class="title">html</span>&gt;</span>
-</code></pre><p>将其读入并转化为模板</p>
-<pre><code><span class="built_in">from</span> <span class="keyword">string</span> import Template
-<span class="operator">with</span> <span class="built_in">open</span>(template_filename) <span class="keyword">as</span> f:
-    html_template = Template(f.<span class="built_in">read</span>())
-</code></pre><p>准备填充进去内容的字典：</p>
-<pre><code>context = {}
-tags_template = '<span class="xml"><span class="tag">&lt;<span class="title">li</span> <span class="attribute">class</span>=<span class="value">"cnt"</span> <span class="attribute">style</span>=<span class="value">"top: %(top)dpx; left: %(left)dpx; \
-    height: %(height)dpx;"</span>&gt;</span></span><span class="xml"><span class="tag">&lt;<span class="title">a</span> <span class="attribute">class</span>=<span class="value">"tag \
-    %(cls)s"</span> <span class="attribute">href</span>=<span class="value">"#%(tag)s"</span> <span class="attribute">style</span>=<span class="value">"top: %(top)dpx;\
-        left: %(left)dpx; font-size: %(size)dpx; height: %(height)dpx; \
-    line-height:%(lh)dpx;"</span>&gt;</span></span>%(tag)s<span class="xml"><span class="tag">&lt;/<span class="title">a</span>&gt;</span></span><span class="xml"><span class="tag">&lt;/<span class="title">li</span>&gt;</span></span>'
-context['tags'] = ''.join([tags_template % link for link in data['links']])
-context[<span class="link_label">'width'</span>] = data[<span class="link_label">'size'</span>][<span class="link_reference">0</span>]
-context[<span class="link_label">'height'</span>] = data[<span class="link_label">'size'</span>][<span class="link_reference">1</span>]
-context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
-<span class="code">                         a.%(cname)s:hover{color:%(hover)s;}" %</span>
-<span class="code">                         {'cname': k,</span>
-<span class="code">                          'normal': v[0],</span>
-<span class="code">                          'hover': v[1]}</span>
-<span class="code">                         for k, v in data['css'].items())</span>
-</code></pre><p>得到要生成的html文件并写入：</p>
-<pre><code>html_text = html_template.<span class="function"><span class="title">substitute</span><span class="params">(context)</span></span>
-    with <span class="function"><span class="title">open</span><span class="params">(<span class="string">'tagcloud.html'</span>, <span class="string">'w'</span>)</span></span> as html_file:
-        html_file.<span class="function"><span class="title">write</span><span class="params">(html_text.encode(<span class="string">'utf-8'</span>)</span></span>)
-</code></pre><p>在当前目录你会得到一个名为<code>tagcloud.html</code>的文件，用浏览器打开如下：</p>
-<p><img src="/images/tagcloud/tagcloud_html.png" alt="html标签云"></p>
-<iframe src="/tagcloud_zh.html" height="500px" width="100%"></iframe>
-
-<p>That’s all. 有兴趣的同学可以自行封装以便自己使用。</p>
-<h2 id="可能永远不会实现的碎碎念">可能永远不会实现的碎碎念</h2><pre><code>大概不会有机会了
-<span class="number">2014.1</span><span class="number">.29</span>
-</code></pre><p>利用热度和标题正文数据可以分析下什么样的帖子更容易被回复，试着用bayes方法看看。可以做做内容聚类，主题模型分析。</p>
-<p>想起github上一本叫 <em>Bayes Probablistic Programming for Hackers</em> .不知道有空看没</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -3275,7 +3147,7 @@ context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">175</span>
+              <span class="site-state-item-count">176</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -3289,7 +3161,7 @@ context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">61</span>
+              <span class="site-state-item-count">62</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -3409,7 +3281,7 @@ context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
         <div class="copyright" >
   
   &copy;  2011 - 
-  <span itemprop="copyrightYear">2015</span>
+  <span itemprop="copyrightYear">2016</span>
   <span class="with-love">
     <i class="icon-next-heart fa fa-heart"></i>
   </span>

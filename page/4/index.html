@@ -421,6 +421,201 @@
             
               
                 
+                <a class="post-title-link" href="/exploit/2015/03/16/shellcodeloaders/" itemprop="url">
+                  Shellcode/Loaders
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-03-16T00:00:00+08:00" content="2015-03-16">
+              2015-03-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/exploit/" itemprop="url" rel="index">
+                    <span itemprop="name">exploit</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/exploit/2015/03/16/shellcodeloaders/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="exploit/2015/03/16/shellcodeloaders/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>意译：<a href="http://blackhat.life/Shellcode_Loaders" target="_blank" rel="external">Shellcode/Loaders</a></p>
+<p>shellcode Loader被用在缓冲区溢出或者其它形式的二进制挖掘活动中测试shellcode。最好的方法嘛，构建从命令行参数的用户友好的loader，并且传递给刚分配的可执行内存空间。本文在x86指令集写x64汇编来在linux上构建这么个载入器。</p>
+<p>32位的在文末给出</p>
+<p>[TOC]</p>
+<h2 id="可执行loader">可执行loader</h2><h3 id="命令行参数">命令行参数</h3><p>命令行参数入栈的顺序是：第二个参数，第一个参数，参数数目。因此，为了从参数获得shellcode，<code>pop rbx</code>三次。一旦完成，<code>rbx</code>将包含指向shellcode的指针：</p>
+<pre><code><span class="built_in">BITS</span> <span class="number">64</span>
+<span class="built_in">global</span> _start
+<span class="label">_start:</span>
+    <span class="keyword">pop</span> <span class="literal">rbx</span> <span class="comment">;argc</span>
+    <span class="keyword">pop</span> <span class="literal">rbx</span> <span class="comment">; 参数列表指针</span>
+    <span class="keyword">pop</span> <span class="literal">rbx</span> <span class="comment">; 指向第一个参数的指针</span>
+</code></pre><h3 id="通过mmap()分配可执行内存区域">通过mmap()分配可执行内存区域</h3><p>参考x64 syscall table，自己谷歌就好。</p>
+<p>现代操作系统的栈默认并不可执行，但我们成功执行代码需要一个可执行栈。这可以通过mmap系统调用实现。</p>
+<p><code>mmap()</code>的原型是(<code>man mmap</code>)：</p>
+<pre><code><span class="function"><span class="keyword">void</span> *<span class="title">mmap</span><span class="params">(<span class="keyword">void</span> *addr, size_t length, <span class="keyword">int</span> prot, <span class="keyword">int</span> flags,
+                 <span class="keyword">int</span> fd, off_t offset)</span></span>;
+</code></pre><p>在64位处理器上，函数调用如下：</p>
+<pre><code>function_call(<span class="variable">%rax</span>) = function(<span class="variable">%rdi</span>,  <span class="variable">%rsi</span>,  <span class="variable">%rdx</span>,  <span class="variable">%r10</span>,  <span class="variable">%r8</span>,  <span class="variable">%r9</span>)
+              ^<span class="keyword">system</span>          ^arg1  ^arg2  ^arg3  ^arg4  ^arg5 ^arg6
+               call <span class="comment">#</span>
+</code></pre><p>首先，<code>mmap()</code>的系统调用数(syscall number)放入<code>rax</code>：</p>
+<pre><code><span class="keyword">push</span> <span class="number">0x9</span>
+<span class="keyword">pop</span> <span class="literal">rax</span>
+</code></pre><p><code>mmap()</code>的第一个参数需要是<code>null</code>，所以<code>xor rdi rdi</code>。</p>
+<pre><code><span class="keyword">xor</span> <span class="literal">rdi</span>, <span class="literal">rdi</span>
+</code></pre><p>指定缓冲区大小(4096字节或者0x1000字节) ，这个参数传给<code>rsi</code></p>
+<pre><code><span class="keyword">push</span> <span class="literal">rdi</span>
+<span class="keyword">pop</span> <span class="literal">rsi</span> <span class="comment">; rsi = 0</span>
+<span class="keyword">inc</span> <span class="literal">rsi</span> <span class="comment">; rsi = 1</span>
+<span class="keyword">shl</span> <span class="literal">rsi</span>, <span class="number">0xc</span>  <span class="comment">; rsi=0x1000</span>
+</code></pre><p>第三个参数<code>prot</code>保存在<code>rdx</code>中，是内核权限标志(读、写、执行或无)，对多个标志，它们用按位或方式合在一起，<code>PROT_READ|PROT_WRITE|PROT_EXEC</code>是数字<code>7</code>,所以直接在<code>rdx</code>中放入7就行。</p>
+<pre><code><span class="keyword">push</span> <span class="number">0x7</span>
+<span class="keyword">pop</span> <span class="literal">rdx</span>
+</code></pre><p>接下来的参数<code>flag</code>跟<code>prot</code>类似，保存了内存映射标志。本例中设置为<code>MAP_PRIVATE|MAP_ANONYMOUS</code>，其值为数字<code>0x22</code>。存储在<code>r10</code>中。</p>
+<pre><code><span class="keyword">push </span><span class="number">0x22</span>
+<span class="keyword">pop </span><span class="literal">r10</span>
+</code></pre><p>最后两个参数应该为<code>null</code>，放到<code>r8</code>和<code>r9</code>中</p>
+<pre><code><span class="keyword">push</span> <span class="literal">rdi</span>
+<span class="keyword">push</span> <span class="literal">rdi</span>
+<span class="keyword">pop</span> <span class="literal">r8</span>
+<span class="keyword">pop</span> <span class="literal">r9</span>
+</code></pre><p>万事具备，进行系统调用。</p>
+<pre><code><span class="keyword">syscall</span>
+</code></pre><p>接下来<code>rax</code>中就包含指向缓冲区的指针，这个指针可以用来把shellcode拷贝进去。</p>
+<h3 id="拷贝代码到新内存区域">拷贝代码到新内存区域</h3><p>把<code>rsi</code>作为计数器，初始化为0：</p>
+<pre><code>inject：
+    <span class="keyword">xor</span> <span class="literal">rsi</span>, <span class="literal">rsi</span>
+</code></pre><p>把<code>rdi</code>设为<code>null</code>，等下要把当前字节和<code>dil</code>(rdi低8位)中的值比较来确定shellcode的结束位置。</p>
+<pre><code><span class="keyword">push</span> <span class="literal">rsi</span>
+<span class="keyword">pop</span> <span class="literal">rdi</span>
+</code></pre><p>如果拷贝到达shellcode末尾，则跳到<code>inject_finished</code>：</p>
+<pre><code><span class="label">inject_loop:</span>
+    <span class="keyword">cmp</span> [<span class="literal">rbx</span> + <span class="literal">rsi</span> * <span class="number">1</span>], <span class="literal">dil</span>
+    <span class="keyword">je</span> inject_finished
+</code></pre><p>每个字节从<code>[rbx + rsi]</code>移动到<code>[rax + rsi]</code>，通过<code>r10b</code>(<code>r10</code>低八位)。</p>
+<pre><code><span class="keyword">mov</span> <span class="literal">r10b</span>, [<span class="literal">rbx</span>+<span class="literal">rsi</span>*<span class="number">1</span>]
+<span class="keyword">mov</span> [<span class="literal">rax</span>+<span class="literal">rsi</span>*<span class="number">1</span>], <span class="literal">r10b</span>
+</code></pre><p><code>rsi</code>作为偏移量和计数器：</p>
+<pre><code><span class="keyword">inc</span> <span class="literal">rsi</span>
+</code></pre><p>继续循环</p>
+<pre><code><span class="keyword">jmp</span> inject_loop:
+</code></pre><p>在<code>inject_finished</code>程序出附上<code>ret</code>操作符(opcode)<code>0xc3</code></p>
+<pre><code><span class="label">inject_finished:</span>
+    <span class="keyword">mov</span> <span class="preprocessor">byte</span> [<span class="literal">rax</span>+<span class="literal">rsi</span>*<span class="number">1</span>], <span class="number">0xc3</span>
+</code></pre><p>一般，操作符(opcode)指指令而字节码(bytecode)不仅包含操作符还包含参数，成为操作数(operand)。</p>
+<h3 id="返回代码">返回代码</h3><p>代码返回而不是跳转或被调用的原因在于，这更充分模拟了类似有漏洞应用在缓冲区溢出时的环境。有效载荷会返回，因此，当shellcode被加载后，它应该返回。</p>
+<p>首先调用<code>ret_to_shellcode</code>。这会把<code>exit</code>的地址推入栈顶，于是shellcode结束后返回<code>exit</code>的地址。</p>
+<pre><code><span class="built_in">call</span> ret_to_shellcode
+</code></pre><p>原始的返回地址被覆盖为为shellcode的地址，并且进入(returned into)</p>
+<pre><code><span class="label">ret_to_shellcode:</span>
+    <span class="keyword">push</span> rax
+    <span class="keyword">ret</span>
+</code></pre><p>当shellcode结束时，将返回到<code>exit</code>函数优雅的退出</p>
+<pre><code>exit：
+    <span class="keyword">push</span> <span class="number">60</span>
+    <span class="keyword">pop</span> <span class="literal">rax</span>
+    <span class="keyword">xor</span> <span class="literal">rdi</span>, <span class="literal">rdi</span>
+    <span class="keyword">syscall</span>
+</code></pre><h3 id="执行loader">执行loader</h3><p>编译链接吧</p>
+<pre><code> <span class="special">~</span>/Work/project/blackhat/shellcode  nasm -felf64 loader64.s -o loader64.o
+ <span class="special">~</span>/Work/project/blackhat/shellcode  ld loader64.o -o loader64
+ <span class="special">~</span>/Work/project/blackhat/shellcode  ./loader64 <span class="formula">$(echo -en "<span class="command">\x</span>48<span class="command">\x</span>31<span class="command">\xff</span><span class="command">\x</span>6a<span class="command">\x</span>69<span class="command">\x</span>58<span class="command">\x</span>0f<span class="command">\x</span>05<span class="command">\x</span>57<span class="command">\x</span>57<span class="command">\x</span>5e<span class="command">\x</span>5a<span class="command">\x</span>48<span class="command">\xbf</span><span class="command">\x</span>6a<span class="command">\x</span>2f<span class="command">\x</span>62<span class="command">\x</span>69<span class="command">\x</span>6e<span class="command">\x</span>2f<span class="command">\x</span>73<span class="command">\x</span>68<span class="command">\x</span>48<span class="command">\xc</span>1<span class="command">\xef</span><span class="command">\x</span>08<span class="command">\x</span>57<span class="command">\x</span>54<span class="command">\x</span>5f<span class="command">\x</span>6a<span class="command">\x</span>3b<span class="command">\x</span>58<span class="command">\x</span>0f<span class="command">\x</span>05")
+<span class="special">[</span>reverland@gentoo shellcode<span class="special">]</span>$</span>
+</code></pre><p>这个shellcode来自之前启动一个shell的shellcode，注意提示符。</p>
+<h2 id="基于返回的载入器">基于返回的载入器</h2><p>基于返回的代码也能用载入器测试，而且更小，不需要分配内存。</p>
+<pre><code><span class="label">_start:</span>
+    <span class="keyword">pop</span> <span class="literal">rbx</span>
+    <span class="keyword">pop</span> <span class="literal">rbx</span>
+    <span class="keyword">pop</span> <span class="literal">rsp</span> <span class="comment">; rsp现在指向第一个参数</span>
+    <span class="keyword">ret</span>
+</code></pre><p>只是我觉得，似乎参数位置是不可执行的。关于ROP，以后说吧</p>
+<p>最后还有些动态载入和动态socket载入器。当shellcode依赖有漏洞二进制程序上下文时包含一个链接的动态部分，这是啥我现在还不知道。。。。。。</p>
+<p>下一篇<a href="http://blackhat.life/Shellcode/Dynamic" target="_blank" rel="external">Dynamic shellcode</a></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/exploit/2015/03/11/shellcodeenvironment/" itemprop="url">
                   Shellcode/Environment
                 </a>
@@ -2009,129 +2204,6 @@ kernel<span class="class">.randomize_va_space</span> = <span class="number">2</s
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2014/11/12/some-articles/" itemprop="url">
-                  Some articles
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-11-12T00:00:00+08:00" content="2014-11-12">
-              2014-11-12
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2014/11/12/some-articles/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2014/11/12/some-articles/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <ul>
-<li><a href="http://phrack.org/issues/68/7.html#article" target="_blank" rel="external">Happy Hacking</a></li>
-</ul>
-<p>这篇文章探讨了下人不快乐的来源，探讨了安全工业和黑客社区不同的评判标准，探讨了可能的应对方案。</p>
-<blockquote>
-<p>I hope I brought some understanding to what makes people happier, what you<br>should look into any industry you seek to work in if you want to maximize<br>your happiness, and more importantly how the security industry behaves. </p>
-<p>Hopefully some of you will be able to make better decisions, and ultimately<br>the conclusion should be:</p>
-<ul>
-<li>Hacking will never die, because ultimately we all want happiness, and<br>hacking brings happiness. -</li>
-</ul>
-<p>HAPPY HACKING!</p>
-</blockquote>
-<ul>
-<li><a href="http://phrack.org/papers/fall_of_groups.html" target="_blank" rel="external"> The Fall of Hacker Groups</a></li>
-</ul>
-<p>随着社会发展，个人越来越自由，人们越来越个性化，信任越来越难，人与人之间越来越难以合作。</p>
-<ul>
-<li><a href="http://phrack.org/issues/65/6.html" target="_blank" rel="external">The only laws on the Internet are assembly and RFCs</a></li>
-</ul>
-<p>提出了一些法律，和一些绕过法律方式。</p>
-<p>开坑后忘了还有这篇……</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2178,7 +2250,7 @@ kernel<span class="class">.randomize_va_space</span> = <span class="number">2</s
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">175</span>
+              <span class="site-state-item-count">176</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2192,7 +2264,7 @@ kernel<span class="class">.randomize_va_space</span> = <span class="number">2</s
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">61</span>
+              <span class="site-state-item-count">62</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -2312,7 +2384,7 @@ kernel<span class="class">.randomize_va_space</span> = <span class="number">2</s
         <div class="copyright" >
   
   &copy;  2011 - 
-  <span itemprop="copyrightYear">2015</span>
+  <span itemprop="copyrightYear">2016</span>
   <span class="with-love">
     <i class="icon-next-heart fa fa-heart"></i>
   </span>

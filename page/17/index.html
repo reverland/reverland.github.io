@@ -224,6 +224,131 @@
             
               
                 
+                <a class="post-title-link" href="/lisp/2012/05/10/streams-in-lisp/" itemprop="url">
+                  Streams in Lisp
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-05-10T00:00:00+08:00" content="2012-05-10">
+              2012-05-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/lisp/2012/05/10/streams-in-lisp/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/05/10/streams-in-lisp/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>lisp中有多种流，不同的流与不同的资源交互。这些流包括控制台流，文件流，socket流和字符串流。</p>
+<p>流的处理方式是popup和push.</p>
+<p>流可依据方向分为输入流和输出流。</p>
+<p>Socket流允许网络上的计算机程序进行通信。我们必须在通信的两端都打开socket并且在程序间建立连接。</p>
+<p>字符串流允许我们使用不需要连接外部资源来使用流的函数来调试，同时能帮我们用优美有效率的方法（with-open-to-string）来建立复杂字符串。但这个宏不符合函数式编程原则，争议很大。</p>
+<p>下面是使用stream的一些例子</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;&#22312;&#20570;&#22270;&#30340;&#37027;&#37096;&#20998;&#24050;&#32463;&#35265;&#35782;&#36807;&#20102;&#10;;;to see if we have a valid output stream&#10;(output-stream-p *standard-output*) &#10;;;write a chracter to stream&#10;(write-char #\x *standard-output*)&#10;&#10;;;to see if we have a valid stream&#10;(input-stream-p *standard-input*)&#10;;;pop an item off the stream&#10;(read-char *standard-input*)&#10;;123&#10;;\#1&#10;;;reading and printing can be used too&#10;;;;reading and writing with files&#10;(with-open-file (my-stream &#34;data.txt&#34; :direction :output)&#10;  (print &#34;my data&#34; my-stream))&#10;(with-open-file (my-stream &#34;data.txt&#34; :direction :input)&#10;  (read my-stream))&#10;;;;some more complicated examples using print and read&#10;(let ((animal-noises &#39;((dog . woof)&#10;                       (cat . meow))))&#10;  (with-open-file (my-stream &#34;animal-noises.txt&#34; :direction :output)&#10;    (print animal-noises my-stream)))&#10;(with-open-file (my-stream &#34;animal-noises.txt&#34; :direction :input)&#10;  (read my-stream))&#10;;;if exists&#10;(with-open-file (my-stream &#34;data.txt&#34; :direction :output :if-exists :error)&#10;  (print &#34;my data&#34; my-stream)) &#10;(with-open-file (my-stream &#34;data.txt&#34; :direction :output :if-exists :supersede)&#10;  (print &#34;my data&#34; my-stream))&#10;;;stream over a socket&#10;(defparameter my-socket (socket-server 4321)) ;ON THE SERVER&#10;(defparameter my-stream (socket-accept my-socket)) ;ON THE SERVER&#10;;;It&#39;s a bidirectional stream&#10;;;princ may cause strange things&#10;(print &#34;Yo Server!&#34; my-stream) ;ON THE CLIENT&#10;(read my-stream) ;ON THE SERVER&#10;(print &#34;What up, Client!&#34; my-stream) ;ON THE SERVER&#10;(read my-stream) ;ON THE CLIENT&#10;;;tidying up after ourselves&#10;(close my-stream) ;ON BOTH&#10;(socket-server-close my-socket) ;ON THE SERVER&#10;;;;String Streams: The Oddball Type&#10;;;;They are useful for debugging, &#10;;;;as well as for creating complex strings efficiently.&#10;(defparameter foo (make-string-output-stream))&#10;(princ &#34;This will go into foo. &#34; foo)&#10;(princ &#34;This will also go into foo. &#34; foo)&#10;(get-output-stream-string foo)&#10;;;with-output-to-string&#10;(with-output-to-string (*standard-output*)&#10;  (princ &#34;the sum of &#34;)&#10;  (princ 5)&#10;  (princ &#34; and &#34;)&#10;  (princ 2)&#10;  (princ &#34; is &#34;)&#10;  (princ (+ 2 5)))</span><br></pre></td></tr></table></figure>
+<p>正如你所见，我们之前用过这些流，来完成与外界资源的交互。</p>
+<h2 id="学习到这些命令">学习到这些命令</h2><ul>
+<li>output-steam-p/input-stream-p</li>
+<li>write-char/read-char</li>
+<li>with-open-file</li>
+<li>make-string-output-stream</li>
+<li>get-output-stream-string</li>
+<li>with-output-to-string</li>
+<li>close</li>
+</ul>
+<p>clisp中特有：</p>
+<ul>
+<li>socket-server</li>
+<li>socket-accept</li>
+<li>socket-server-close</li>
+</ul>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/lisp/2012/05/09/attack-of-the-robots/" itemprop="url">
                   Attack of the Robots
                 </a>
@@ -1461,140 +1586,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/linux/2012/03/25/archlinux3264/" itemprop="url">
-                  将Archlinux从32位迁移到64位
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-03-25T00:00:00+08:00" content="2012-03-25">
-              2012-03-25
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/linux/2012/03/25/archlinux3264/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2012/03/25/archlinux3264/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="将archlinux从32位迁移到64位">将archlinux从32位迁移到64位</h2><h3 id="概要">概要</h3><p>大致过程及要注意的地方,某天顺手把archlinux的中文wiki翻译了下，所以现在有个中文版的。不过有需求的同学们还是看英文wiki吧，不要太相信我翻译的水平……</p>
-<hr>
-<h3 id="过程">过程</h3><h4 id="准备">准备</h4><ul>
-<li>首先确定cpu支持64位，一般近几年的电脑都支持</li>
-<li>确定磁盘空间足够</li>
-<li>电力充足</li>
-<li>回退准备(说是这么说根本就没管)</li>
-</ul>
-<h4 id="迁移">迁移</h4><ul>
-<li>保存旧包</li>
-<li>改变架构，此时要注意</li>
-<li>Make sure the server lists in /etc/pacman.conf and /etc/pacman.d/mirrorlist use $arch instead of explicitly specifying i686 or x86_64.</li>
-<li>下载新包，注意lib32-glibc，在安装kernel之后再装,如果装不上加上-f参数强制安装</li>
-<li>重启后就进入字符界面了，可以确认内核已经64位了</li>
-<li>安装pacman，可能有一堆错误或警告。不要重启</li>
-<li>安装剩余的包</li>
-<li>清理busybox和lib32-glibc</li>
-<li>设定makepkg编译标志</li>
-<li><p>kde用户注意了，要运行</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm -rf /var/tmp/kde-&lt;username&gt;</span><br></pre></td></tr></table></figure>
-<p>  之后再startkde,否则会出现从splash直接退回到kdm而无法进入kde的情况。</p>
-</li>
-</ul>
-<h4 id="后续工作">后续工作</h4><p>比如说你要wine war3,那么很多lib32的库软件什么的就要装好，比如32位的显卡、lib32-mpg123等等。</p>
-<hr>
-<h3 id="参考文献">参考文献</h3><ol>
-<li><a href="https://wiki.archlinux.org/index.php/Migrating_Between_Architectures_Without_Reinstalling#Change_Pacman_architecture" target="_blank" rel="external">Migrating Between Architectures Without Reinstalling</a></li>
-<li><a href="http://fancyoung.com/blog/migrating-between-architectures-without-reinstalling/" target="_blank" rel="external">将Arch Linux从32位升到64位</a></li>
-<li><a href="http://lilydjwg.is-programmer.com/2012/2/23/migrate-to-64bit-archlinux.32230.html" target="_blank" rel="external">迁移到64位 ArchLinux</a></li>
-<li><a href="https://bbs.archlinux.org/viewtopic.php?id#79549" target="_blank" rel="external">Wine font rendering + libmpg123 question</a></li>
-<li><a href="http://forum.kde.org/viewtopic.php?f#17&amp;t#91736" target="_blank" rel="external">Since crash of plasma netbook, no login via kdm</a></li>
-</ol>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1641,7 +1632,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">175</span>
+              <span class="site-state-item-count">176</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1655,7 +1646,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">61</span>
+              <span class="site-state-item-count">62</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
@@ -1775,7 +1766,7 @@
         <div class="copyright" >
   
   &copy;  2011 - 
-  <span itemprop="copyrightYear">2015</span>
+  <span itemprop="copyrightYear">2016</span>
   <span class="with-love">
     <i class="icon-next-heart fa fa-heart"></i>
   </span>
