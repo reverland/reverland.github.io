@@ -326,8 +326,8 @@
 <h3 id="锁定(Locking)">锁定(Locking)</h3><p>读取流读者(readable stream reader)是允许直接从读取流中读取数据块的对象。没有这个对象，消费者只能对读取流进行高级操作：等待流关闭或者出错，取消流，用管道将读取流连接上写入流。许多这些高级操作实际自身使用流读者。</p>
 <p>给定的流一次只能有一个读者。叫做流被锁定到读者(locked to the reader)，读者被成为激活的(active)。</p>
 <p>读者也有能力释放它的锁(release its read lock)，让其不再激活。其他读者可以自由获取这个锁。如果流因为潜在来源或这取消而关闭或出错，读者将自动释放锁。</p>
-<h2 id="Stream_in_NodeJS">Stream in NodeJS</h2><p>关于</p>
-<p>数据处理惰性求值</p>
+<h2 id="Stream_in_NodeJS">Stream in NodeJS</h2><p>本章翻译整理自<a href="https://brycebaril.github.io/streams2-presentation/" target="_blank" rel="external">Streams2 Node.js Streams2 Demystified. by Bryce Baril</a></p>
+<p>Stream可以看作是一种数据处理惰性求值(lazy evaluation)。</p>
 <h3 id="好处">好处</h3><ul>
 <li>延迟处理缓冲的数据</li>
 <li>时间驱动非阻塞</li>
@@ -425,7 +425,7 @@
 <p>–<a href="https://nodejs.org/en/blog/feature/streams2/" target="_blank" rel="external">A New Streaming API for Node v0.10, Isaac Z. Schlueter, 2012-12-21</a></p>
 </blockquote>
 <p>那么，NodeJS中的流是怎样进化的呢？</p>
-<h3 id="Stream_1">Stream 1</h3><p>最早的Stream某爱是从http.js和net.js模块抽象出来，说明其源头正是因处理网络而生。参见<a href="https://github.com/nodejs/node/commit/bc695475b908ccf30e5016689328df37b678b870" target="_blank" rel="external">Add Stream Base class with stream.pipe, ry committed on 11 Oct 2010</a></p>
+<h3 id="Stream_1">Stream 1</h3><p>最早的Stream是从http.js和net.js模块抽象出来，说明其源头正是因处理网络而生。参见<a href="https://github.com/nodejs/node/commit/bc695475b908ccf30e5016689328df37b678b870" target="_blank" rel="external">Add Stream Base class with stream.pipe, ry committed on 11 Oct 2010</a></p>
 <p>这时候的Stream是朴素的基础类，仅仅从EventEmitter继承而来，有一个<code>pipe</code>方法，实现从src读取数据写入dest的功能。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Stream</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  events.EventEmitter.call(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br><span class="line">inherits(Stream, events.EventEmitter);</span><br><span class="line">exports.Stream = Stream;</span><br><span class="line"></span><br><span class="line">Stream.prototype.pipe = <span class="function"><span class="keyword">function</span> (<span class="params">dest, options</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> source = <span class="keyword">this</span>;</span><br><span class="line"></span><br><span class="line">source.on(<span class="string">"data"</span>, <span class="function"><span class="keyword">function</span> (<span class="params">chunk</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="literal">false</span> === dest.write(chunk)) source.pause();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">dest.on(<span class="string">"drain"</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (source.readable) source.resume();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 <p>pipe实现了一种简单的流量管理。有数据时，就往dest写入。而dest.write如果返回false就表示dest无法及时处理数据，将source暂停(pause)。一旦dest的缓冲区为空，drain事件触发，如果src是可读的，就恢复(resume)src。看上去似乎很好。</p>
@@ -489,7 +489,7 @@
 <li><a href="https://github.com/nodejs/node/blob/292218828eea50861680ac9276b1b764e7342134/lib/_stream_readable.js#L321" target="_blank" rel="external">(13)</a>继续读。。。</li>
 </ul>
 <p>have fun!</p>
-<h2 id="参考文献">参考文献</h2><p>关于NodeJS</p>
+<h2 id="参考文献">参考文献</h2><p>关于NodeJS其中那个的流及其发展的资料</p>
 <ul>
 <li><a href="https://strongloop.com/strongblog/whats-new-io-js-beta-streams3/" target="_blank" rel="external">whats-new-io-js-beta-streams3</a></li>
 <li><a href="https://nodejs.org/en/blog/feature/streams2/" target="_blank" rel="external">A New Streaming API for Node v0.10</a></li>
@@ -504,9 +504,10 @@
 <li><a href="http://thlorenz.com/stream-viz/" target="_blank" rel="external">Stream-Viz</a></li>
 <li><a href="https://github.com/substack/stream-handbook" target="_blank" rel="external">stream-handbook</a></li>
 <li><a href="https://blog.risingstack.com/functional-reactive-programming-with-the-power-of-nodejs-streams/" target="_blank" rel="external">Functional Reactive Programming with the Power of Node.js Streams</a></li>
-<li><a href="https://github.com/dominictarr/event-stream" target="_blank" rel="external">event-stream</a></li>
+<li><a href="https://github.com/dominictarr/event-stream" target="_blank" rel="external">event-stream</a><br>  FIXME:</li>
+<li><a href="https://brycebaril.github.io/streams2-presentation/" target="_blank" rel="external">Streams2 - Node.js Streams2 Demystified, by Bryce Baril</a></li>
 </ul>
-<p>非NodeJS关于流和backpressure</p>
+<p>非NodeJS关于流和backpressure，说明这是随着计算机实践发展应运而生的编程方式和需求。</p>
 <ul>
 <li><a href="http://www.reactive-streams.org/" target="_blank" rel="external">Reactive Streams</a></li>
 <li><a href="http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/java/stream-flows-and-basics.html" target="_blank" rel="external">Basics and working with Flows - Akka Documentation</a></li>
