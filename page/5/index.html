@@ -224,6 +224,145 @@
             
               
                 
+                <a class="post-title-link" href="/reverse/2014/11/15/" itemprop="url">
+                  linux下函数参数调用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-11-15T00:00:00+08:00" content="2014-11-15">
+              2014-11-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/reverse/" itemprop="url" rel="index">
+                    <span itemprop="name">reverse</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/reverse/2014/11/15/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="reverse/2014/11/15//" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="x64">x64</h2><p>整型和指针型参数次保存在寄存器:</p>
+<ul>
+<li><code>rdi</code></li>
+<li><code>rsi</code></li>
+<li><code>rdx</code></li>
+<li><code>rcx</code></li>
+<li><code>r8</code></li>
+<li>‘r9’</li>
+</ul>
+<p>浮点型参数依次保存到:</p>
+<ul>
+<li><code>xmm0</code></li>
+<li><code>xmm1</code><br>…</li>
+</ul>
+<p>其它从右往左依次入栈。</p>
+<h2 id="x86">x86</h2><p>从右往左依次入栈，即在栈上从低地址向高地址分布。</p>
+<p>一般栈上是这样的，从上到下地址增长：</p>
+<pre><code>0 1 2 3
+<span class="header">...
+--------</span>
+<span class="header">上层FP  &lt;----FP
+--------</span>
+<span class="header">返回地址
+--------</span>
+<span class="header">参数1
+--------</span>
+参数2
+...
+</code></pre><p>如果参数大于四个字节，则占据多个字节，按cpu字节序(endian)入栈</p>
+<h3 id="fastcall">fastcall</h3><p>使用寄存器，前三个使用寄存器传递参数：</p>
+<ul>
+<li><code>eax</code></li>
+<li><code>edx</code></li>
+<li><code>ecx</code></li>
+</ul>
+<p>其它按入栈规则入栈。</p>
+<h2 id="C++">C++</h2><p>除了参数，对象指针也会被传递。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/life/2014/11/12/some-articles/" itemprop="url">
                   Some articles
                 </a>
@@ -1073,6 +1212,142 @@ modprobe dm_crypt
             
               
                 
+                <a class="post-title-link" href="/python/2014/10/09/lrc/" itemprop="url">
+                  支持LRC歌词的终端播放器
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-10-09T00:00:00+08:00" content="2014-10-09">
+              2014-10-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2014/10/09/lrc/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2014/10/09/lrc/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>最终效果可以看这里：</p>
+<p><a href="http://ascii.io/a/12843" target="_blank" rel="external">来自asciinema的终端录像</a></p>
+<h2 id="缘起">缘起</h2><p>自从降频之后，电脑特别卡……</p>
+<p>降频是因为总是自动关机</p>
+<p>自动关机据几个月观察是因为cpu过热</p>
+<p>cpu过热猜测是因为散热有问题了</p>
+<p>散热有问题猜测是该清灰换硅胶了</p>
+<p>但三星……非常麻烦，自从去年毕业自己把本拆了一遍后就再懒得拆机了。</p>
+<p>于是，想听歌时懒得打开vlc界面，就用命令行版本的cvlc来播放</p>
+<p>可是……没有歌词？</p>
+<p>某天想干脆自己做个支持lrc的终端播放器算了。</p>
+<p>作为一个脚本小子，我只习惯python……</p>
+<h2 id="说干就干">说干就干</h2><p>谷歌搜寻了下：</p>
+<ul>
+<li>python如何播放mp3音乐</li>
+<li>lrc文件的格式，考虑下如何在终端打印歌词</li>
+<li>vlc有没有python绑定</li>
+</ul>
+<p>于是，有了以下版本，仅仅100行的多彩歌词显示终端播放器(使用<code>pygame</code>来播放音乐)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pygame <span class="keyword">import</span> mixer</span><br><span class="line"><span class="keyword">from</span> mutagen.mp3 <span class="keyword">import</span> MP3</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">f_mp3 = sys.argv[<span class="number">1</span>]</span><br><span class="line">f_lrc = sys.argv[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lrc2dict</span><span class="params">(lrc)</span>:</span></span><br><span class="line">    lrc_dict = &#123;&#125;</span><br><span class="line">    remove = <span class="keyword">lambda</span> x: x.strip(<span class="string">'[|]'</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> lrc.split(<span class="string">'\n'</span>):</span><br><span class="line">        time_stamps = re.findall(<span class="string">r'\[[^\]]+\]'</span>, line)</span><br><span class="line">        <span class="keyword">if</span> time_stamps:</span><br><span class="line">            <span class="comment"># 截取歌词</span></span><br><span class="line">            lyric = line</span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                lyric = lyric.replace(tplus, <span class="string">''</span>)</span><br><span class="line">            <span class="comment"># 解析时间</span></span><br><span class="line">            <span class="comment"># tplus: [02:31.79]</span></span><br><span class="line">            <span class="comment"># t 02:31.79</span></span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                t = remove(tplus)</span><br><span class="line">                tag_flag = t.split(<span class="string">':'</span>)[<span class="number">0</span>]</span><br><span class="line">                <span class="comment"># 跳过: [ar: 逃跑计划]</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> tag_flag.isdigit():</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                time_lrc = int(tag_flag) * <span class="number">60000</span></span><br><span class="line">                time_lrc += int(t.split(<span class="string">':'</span>)[<span class="number">1</span>].split(<span class="string">'.'</span>)[<span class="number">0</span>]) * <span class="number">1000</span></span><br><span class="line">                <span class="comment"># ms也许没有</span></span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    time_lrc += int(t.split(<span class="string">'.'</span>)[<span class="number">1</span>])</span><br><span class="line">                <span class="keyword">except</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">                time_lrc = time_lrc / <span class="number">100</span> * <span class="number">100</span></span><br><span class="line">                lrc_dict[time_lrc] = lyric</span><br><span class="line">    <span class="keyword">return</span> lrc_dict</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_lrc</span><span class="params">(mixer, lrc_d, color, wholetime)</span>:</span></span><br><span class="line">    mixer.music.play()</span><br><span class="line">    <span class="comment"># 防止开头歌词来不及播放</span></span><br><span class="line">    mixer.music.pause()</span><br><span class="line">    time.sleep(<span class="number">0.001</span>)</span><br><span class="line">    mixer.music.play()</span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">        t = mixer.music.get_pos() / <span class="number">100</span> * <span class="number">100</span></span><br><span class="line">        sys.stdout.write(<span class="string">'['</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>, time.localtime(t / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'/'</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>,</span><br><span class="line">                                       time.localtime(wholetime)) +</span><br><span class="line">                         <span class="string">'] '</span>)</span><br><span class="line">        <span class="keyword">if</span> t <span class="keyword">in</span> lrc_d:</span><br><span class="line">            sys.stdout.write(color + lrc_d[t] + <span class="string">'\033[0m'</span>)</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            sys.stdout.write(<span class="string">"\033[K"</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            <span class="comment"># sys.stdout.write("\033[K")</span></span><br><span class="line">        sys.stdout.write(<span class="string">'\r'</span>)</span><br><span class="line">        <span class="comment"># 播放停止时退出</span></span><br><span class="line">        <span class="keyword">if</span> t &lt; <span class="number">0</span>:</span><br><span class="line">            sys.exit(<span class="number">0</span>)</span><br><span class="line">        <span class="comment"># 0.05s循环</span></span><br><span class="line">        time.sleep(<span class="number">0.05</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(f_lrc) <span class="keyword">as</span> f:</span><br><span class="line">    lrc = f.read()</span><br><span class="line"></span><br><span class="line">lrc_d = lrc2dict(lrc)</span><br><span class="line"></span><br><span class="line">mixer.init()</span><br><span class="line">mixer.music.load(f_mp3)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    wholetime = MP3(f_mp3).info.length</span><br><span class="line"><span class="keyword">except</span>:</span><br><span class="line">    wholetime = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">colors = [</span><br><span class="line">    <span class="string">'\x1B[31m'</span>,  <span class="comment"># 红色</span></span><br><span class="line">    <span class="string">'\x1B[32m'</span>,  <span class="comment"># 绿色</span></span><br><span class="line">    <span class="string">'\x1B[33m'</span>,  <span class="comment"># 黄色</span></span><br><span class="line">    <span class="string">'\x1B[34m'</span>,  <span class="comment"># 蓝色</span></span><br><span class="line">    <span class="string">'\x1B[35m'</span>,  <span class="comment"># 紫色</span></span><br><span class="line">    <span class="string">'\x1B[36m'</span>,  <span class="comment"># 青色</span></span><br><span class="line">    <span class="string">'\x1B[37m'</span>  <span class="comment"># 灰白</span></span><br><span class="line">]</span><br><span class="line">color = random.choice(colors)</span><br><span class="line">print_lrc(mixer, lrc_d, color, wholetime)</span><br></pre></td></tr></table></figure>
+<p>那个不断循环查看播放进度打印对应歌词的实现真够丧心病狂的……精确到0.1s算了。</p>
+<pre><code>Be aware that MP3 support is limited. <span class="keyword">On</span> some systems <span class="keyword">an</span> unsupported <span class="keyword">format</span> can crash the <span class="keyword">program</span>, <span class="keyword">e</span>.<span class="keyword">g</span>. Debian Linux. Consider using OGG instead.
+</code></pre><p>开始在pygame的<a href="http://www.pygame.org/docs/ref/music.html" target="_blank" rel="external">文档</a>中看到这句话还没在意后来，播放某个叫<code>in my life</code>的mp3时发现完全不对劲……而且没有获取音频长度的功能[^1]</p>
+<p>后来想想，还是用vlc的py绑定吧。</p>
+<p>vlc的py绑定相当赞：</p>
+<p>完整覆盖libvlc功能，纯python，支持各个vlc版本和完整的文档。[^2]</p>
+<p>但开始我以为pip可以直接下载……后来发现pip搜索到的是macos独有的vlc python wrapper……和这个绑定是两码事……真给跪了……</p>
+<p>自行下载<a href="http://git.videolan.org/?p=vlc/bindings/python.git;a=tree;f=generated;b=HEAD" target="_blank" rel="external">vlc.py</a>到当前目录或者扔到python搜索路径。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> vlc</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">f_mp3 = sys.argv[<span class="number">1</span>]</span><br><span class="line">f_lrc = sys.argv[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lrc2dict</span><span class="params">(lrc)</span>:</span></span><br><span class="line">    lrc_dict = &#123;&#125;</span><br><span class="line">    remove = <span class="keyword">lambda</span> x: x.strip(<span class="string">'[|]'</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> lrc.split(<span class="string">'\n'</span>):</span><br><span class="line">        time_stamps = re.findall(<span class="string">r'\[[^\]]+\]'</span>, line)</span><br><span class="line">        <span class="keyword">if</span> time_stamps:</span><br><span class="line">            <span class="comment"># 截取歌词</span></span><br><span class="line">            lyric = line</span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                lyric = lyric.replace(tplus, <span class="string">''</span>)</span><br><span class="line">            <span class="comment"># 解析时间</span></span><br><span class="line">            <span class="comment"># tplus: [02:31.79]</span></span><br><span class="line">            <span class="comment"># t 02:31.79</span></span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                t = remove(tplus)</span><br><span class="line">                tag_flag = t.split(<span class="string">':'</span>)[<span class="number">0</span>]</span><br><span class="line">                <span class="comment"># 跳过: [ar: 逃跑计划]</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> tag_flag.isdigit():</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                time_lrc = int(tag_flag) * <span class="number">60000</span></span><br><span class="line">                time_lrc += int(t.split(<span class="string">':'</span>)[<span class="number">1</span>].split(<span class="string">'.'</span>)[<span class="number">0</span>]) * <span class="number">1000</span></span><br><span class="line">                <span class="comment"># ms也许没有</span></span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    time_lrc += int(t.split(<span class="string">'.'</span>)[<span class="number">1</span>])</span><br><span class="line">                <span class="keyword">except</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">                time_lrc = time_lrc / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">                lrc_dict[time_lrc] = lyric</span><br><span class="line">    <span class="keyword">return</span> lrc_dict</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_lrc</span><span class="params">(player, lrc_d, color)</span>:</span></span><br><span class="line">    player.play()</span><br><span class="line">    player.pause()</span><br><span class="line">    <span class="comment"># 防止无法获取整个音频时长</span></span><br><span class="line">    <span class="comment"># 音频时长必须加载才能读取</span></span><br><span class="line">    time.sleep(<span class="number">0.1</span>)</span><br><span class="line">    player.play()</span><br><span class="line">    wholetime = mediaObject.get_duration() / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        <span class="comment"># 截取到0.1s精度,降低cpu占用, notwork fine for vlc</span></span><br><span class="line">        <span class="comment"># <span class="doctag">FIXME:</span> get_time NOT WORK WELL, 只能精确到0.3s</span></span><br><span class="line">        <span class="comment"># t = player.get_position() * wholetime</span></span><br><span class="line">        t = player.get_time() / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">        <span class="comment"># sys.stdout.write(str(t) + '\r')</span></span><br><span class="line">        sys.stdout.write(<span class="string">'['</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>, time.localtime(t / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'/'</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>,</span><br><span class="line">                                       time.localtime(wholetime / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'] '</span>)</span><br><span class="line">        <span class="keyword">if</span> t <span class="keyword">not</span> <span class="keyword">in</span> lrc_d:</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            <span class="comment"># sys.stdout.write("\033[K")</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            sys.stdout.write(color + lrc_d[t] + <span class="string">'\033[0m'</span>)</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            sys.stdout.write(<span class="string">"\033[K"</span>)</span><br><span class="line">        sys.stdout.write(<span class="string">'\r'</span>)</span><br><span class="line">        <span class="comment"># 播放停止时退出</span></span><br><span class="line">        <span class="keyword">if</span> t == wholetime:</span><br><span class="line">            sys.exit(<span class="number">0</span>)</span><br><span class="line">        <span class="comment"># 0.05s循环</span></span><br><span class="line">        time.sleep(<span class="number">0.05</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(f_lrc) <span class="keyword">as</span> f:</span><br><span class="line">    lrc = f.read()</span><br><span class="line"></span><br><span class="line">lrc_d = lrc2dict(lrc)</span><br><span class="line"></span><br><span class="line">vlcInstance = vlc.Instance()</span><br><span class="line">player = vlcInstance.media_player_new()</span><br><span class="line">mediaObject = vlcInstance.media_new(f_mp3)</span><br><span class="line">player.set_media(mediaObject)</span><br><span class="line"></span><br><span class="line">colors = [</span><br><span class="line">    <span class="string">'\x1B[31m'</span>,  <span class="comment"># 红色</span></span><br><span class="line">    <span class="string">'\x1B[32m'</span>,  <span class="comment"># 绿色</span></span><br><span class="line">    <span class="string">'\x1B[33m'</span>,  <span class="comment"># 黄色</span></span><br><span class="line">    <span class="string">'\x1B[34m'</span>,  <span class="comment"># 蓝色</span></span><br><span class="line">    <span class="string">'\x1B[35m'</span>,  <span class="comment"># 紫色</span></span><br><span class="line">    <span class="string">'\x1B[36m'</span>,  <span class="comment"># 青色</span></span><br><span class="line">    <span class="string">'\x1B[37m'</span>  <span class="comment"># 灰白</span></span><br><span class="line">]</span><br><span class="line">color = random.choice(colors)</span><br><span class="line">print_lrc(player, lrc_d, color)</span><br></pre></td></tr></table></figure>
+<p>奇葩的还是那个丧心病狂的循环，查询播放进度最短间隔只有0.3s。只好把lrc歌词显示精度降到1s了</p>
+<p>反正对我是能用了。</p>
+<p>也许有空可以让它支持播放列表的，用vlc完全不是问题。</p>
+<p>嗯，完工。我擦嘞我竟然一天写了俩！</p>
+<h2 id="FootNotes">FootNotes</h2><p>[^1]: <a href="http://stackoverflow.com/questions/6936393/find-the-length-of-a-song-with-pygame" target="_blank" rel="external">Find the Length of a Song with Pygame</a><br>[^2]: <a href="https://wiki.videolan.org/Python_bindings" target="_blank" rel="external">Python bindings</a></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/python/2014/10/09/" itemprop="url">
                   游泳日报
                 </a>
@@ -1178,142 +1453,6 @@ modprobe dm_crypt
 <li>原谅我渣一样的前端水平。</li>
 </ol>
 <p>好吧，本渣只是一个script kid……</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/python/2014/10/09/lrc/" itemprop="url">
-                  支持LRC歌词的终端播放器
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-10-09T00:00:00+08:00" content="2014-10-09">
-              2014-10-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/python/2014/10/09/lrc/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2014/10/09/lrc/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>最终效果可以看这里：</p>
-<p><a href="http://ascii.io/a/12843" target="_blank" rel="external">来自asciinema的终端录像</a></p>
-<h2 id="缘起">缘起</h2><p>自从降频之后，电脑特别卡……</p>
-<p>降频是因为总是自动关机</p>
-<p>自动关机据几个月观察是因为cpu过热</p>
-<p>cpu过热猜测是因为散热有问题了</p>
-<p>散热有问题猜测是该清灰换硅胶了</p>
-<p>但三星……非常麻烦，自从去年毕业自己把本拆了一遍后就再懒得拆机了。</p>
-<p>于是，想听歌时懒得打开vlc界面，就用命令行版本的cvlc来播放</p>
-<p>可是……没有歌词？</p>
-<p>某天想干脆自己做个支持lrc的终端播放器算了。</p>
-<p>作为一个脚本小子，我只习惯python……</p>
-<h2 id="说干就干">说干就干</h2><p>谷歌搜寻了下：</p>
-<ul>
-<li>python如何播放mp3音乐</li>
-<li>lrc文件的格式，考虑下如何在终端打印歌词</li>
-<li>vlc有没有python绑定</li>
-</ul>
-<p>于是，有了以下版本，仅仅100行的多彩歌词显示终端播放器(使用<code>pygame</code>来播放音乐)：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pygame <span class="keyword">import</span> mixer</span><br><span class="line"><span class="keyword">from</span> mutagen.mp3 <span class="keyword">import</span> MP3</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">f_mp3 = sys.argv[<span class="number">1</span>]</span><br><span class="line">f_lrc = sys.argv[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lrc2dict</span><span class="params">(lrc)</span>:</span></span><br><span class="line">    lrc_dict = &#123;&#125;</span><br><span class="line">    remove = <span class="keyword">lambda</span> x: x.strip(<span class="string">'[|]'</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> lrc.split(<span class="string">'\n'</span>):</span><br><span class="line">        time_stamps = re.findall(<span class="string">r'\[[^\]]+\]'</span>, line)</span><br><span class="line">        <span class="keyword">if</span> time_stamps:</span><br><span class="line">            <span class="comment"># 截取歌词</span></span><br><span class="line">            lyric = line</span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                lyric = lyric.replace(tplus, <span class="string">''</span>)</span><br><span class="line">            <span class="comment"># 解析时间</span></span><br><span class="line">            <span class="comment"># tplus: [02:31.79]</span></span><br><span class="line">            <span class="comment"># t 02:31.79</span></span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                t = remove(tplus)</span><br><span class="line">                tag_flag = t.split(<span class="string">':'</span>)[<span class="number">0</span>]</span><br><span class="line">                <span class="comment"># 跳过: [ar: 逃跑计划]</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> tag_flag.isdigit():</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                time_lrc = int(tag_flag) * <span class="number">60000</span></span><br><span class="line">                time_lrc += int(t.split(<span class="string">':'</span>)[<span class="number">1</span>].split(<span class="string">'.'</span>)[<span class="number">0</span>]) * <span class="number">1000</span></span><br><span class="line">                <span class="comment"># ms也许没有</span></span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    time_lrc += int(t.split(<span class="string">'.'</span>)[<span class="number">1</span>])</span><br><span class="line">                <span class="keyword">except</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">                time_lrc = time_lrc / <span class="number">100</span> * <span class="number">100</span></span><br><span class="line">                lrc_dict[time_lrc] = lyric</span><br><span class="line">    <span class="keyword">return</span> lrc_dict</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_lrc</span><span class="params">(mixer, lrc_d, color, wholetime)</span>:</span></span><br><span class="line">    mixer.music.play()</span><br><span class="line">    <span class="comment"># 防止开头歌词来不及播放</span></span><br><span class="line">    mixer.music.pause()</span><br><span class="line">    time.sleep(<span class="number">0.001</span>)</span><br><span class="line">    mixer.music.play()</span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">        t = mixer.music.get_pos() / <span class="number">100</span> * <span class="number">100</span></span><br><span class="line">        sys.stdout.write(<span class="string">'['</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>, time.localtime(t / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'/'</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>,</span><br><span class="line">                                       time.localtime(wholetime)) +</span><br><span class="line">                         <span class="string">'] '</span>)</span><br><span class="line">        <span class="keyword">if</span> t <span class="keyword">in</span> lrc_d:</span><br><span class="line">            sys.stdout.write(color + lrc_d[t] + <span class="string">'\033[0m'</span>)</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            sys.stdout.write(<span class="string">"\033[K"</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            <span class="comment"># sys.stdout.write("\033[K")</span></span><br><span class="line">        sys.stdout.write(<span class="string">'\r'</span>)</span><br><span class="line">        <span class="comment"># 播放停止时退出</span></span><br><span class="line">        <span class="keyword">if</span> t &lt; <span class="number">0</span>:</span><br><span class="line">            sys.exit(<span class="number">0</span>)</span><br><span class="line">        <span class="comment"># 0.05s循环</span></span><br><span class="line">        time.sleep(<span class="number">0.05</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(f_lrc) <span class="keyword">as</span> f:</span><br><span class="line">    lrc = f.read()</span><br><span class="line"></span><br><span class="line">lrc_d = lrc2dict(lrc)</span><br><span class="line"></span><br><span class="line">mixer.init()</span><br><span class="line">mixer.music.load(f_mp3)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    wholetime = MP3(f_mp3).info.length</span><br><span class="line"><span class="keyword">except</span>:</span><br><span class="line">    wholetime = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">colors = [</span><br><span class="line">    <span class="string">'\x1B[31m'</span>,  <span class="comment"># 红色</span></span><br><span class="line">    <span class="string">'\x1B[32m'</span>,  <span class="comment"># 绿色</span></span><br><span class="line">    <span class="string">'\x1B[33m'</span>,  <span class="comment"># 黄色</span></span><br><span class="line">    <span class="string">'\x1B[34m'</span>,  <span class="comment"># 蓝色</span></span><br><span class="line">    <span class="string">'\x1B[35m'</span>,  <span class="comment"># 紫色</span></span><br><span class="line">    <span class="string">'\x1B[36m'</span>,  <span class="comment"># 青色</span></span><br><span class="line">    <span class="string">'\x1B[37m'</span>  <span class="comment"># 灰白</span></span><br><span class="line">]</span><br><span class="line">color = random.choice(colors)</span><br><span class="line">print_lrc(mixer, lrc_d, color, wholetime)</span><br></pre></td></tr></table></figure>
-<p>那个不断循环查看播放进度打印对应歌词的实现真够丧心病狂的……精确到0.1s算了。</p>
-<pre><code>Be aware that MP3 support is limited. <span class="keyword">On</span> some systems <span class="keyword">an</span> unsupported <span class="keyword">format</span> can crash the <span class="keyword">program</span>, <span class="keyword">e</span>.<span class="keyword">g</span>. Debian Linux. Consider using OGG instead.
-</code></pre><p>开始在pygame的<a href="http://www.pygame.org/docs/ref/music.html" target="_blank" rel="external">文档</a>中看到这句话还没在意后来，播放某个叫<code>in my life</code>的mp3时发现完全不对劲……而且没有获取音频长度的功能[^1]</p>
-<p>后来想想，还是用vlc的py绑定吧。</p>
-<p>vlc的py绑定相当赞：</p>
-<p>完整覆盖libvlc功能，纯python，支持各个vlc版本和完整的文档。[^2]</p>
-<p>但开始我以为pip可以直接下载……后来发现pip搜索到的是macos独有的vlc python wrapper……和这个绑定是两码事……真给跪了……</p>
-<p>自行下载<a href="http://git.videolan.org/?p=vlc/bindings/python.git;a=tree;f=generated;b=HEAD" target="_blank" rel="external">vlc.py</a>到当前目录或者扔到python搜索路径。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> vlc</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">f_mp3 = sys.argv[<span class="number">1</span>]</span><br><span class="line">f_lrc = sys.argv[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lrc2dict</span><span class="params">(lrc)</span>:</span></span><br><span class="line">    lrc_dict = &#123;&#125;</span><br><span class="line">    remove = <span class="keyword">lambda</span> x: x.strip(<span class="string">'[|]'</span>)</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> lrc.split(<span class="string">'\n'</span>):</span><br><span class="line">        time_stamps = re.findall(<span class="string">r'\[[^\]]+\]'</span>, line)</span><br><span class="line">        <span class="keyword">if</span> time_stamps:</span><br><span class="line">            <span class="comment"># 截取歌词</span></span><br><span class="line">            lyric = line</span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                lyric = lyric.replace(tplus, <span class="string">''</span>)</span><br><span class="line">            <span class="comment"># 解析时间</span></span><br><span class="line">            <span class="comment"># tplus: [02:31.79]</span></span><br><span class="line">            <span class="comment"># t 02:31.79</span></span><br><span class="line">            <span class="keyword">for</span> tplus <span class="keyword">in</span> time_stamps:</span><br><span class="line">                t = remove(tplus)</span><br><span class="line">                tag_flag = t.split(<span class="string">':'</span>)[<span class="number">0</span>]</span><br><span class="line">                <span class="comment"># 跳过: [ar: 逃跑计划]</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> tag_flag.isdigit():</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                time_lrc = int(tag_flag) * <span class="number">60000</span></span><br><span class="line">                time_lrc += int(t.split(<span class="string">':'</span>)[<span class="number">1</span>].split(<span class="string">'.'</span>)[<span class="number">0</span>]) * <span class="number">1000</span></span><br><span class="line">                <span class="comment"># ms也许没有</span></span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    time_lrc += int(t.split(<span class="string">'.'</span>)[<span class="number">1</span>])</span><br><span class="line">                <span class="keyword">except</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="comment"># 截取到0.1s精度,降低cpu占用</span></span><br><span class="line">                time_lrc = time_lrc / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">                lrc_dict[time_lrc] = lyric</span><br><span class="line">    <span class="keyword">return</span> lrc_dict</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_lrc</span><span class="params">(player, lrc_d, color)</span>:</span></span><br><span class="line">    player.play()</span><br><span class="line">    player.pause()</span><br><span class="line">    <span class="comment"># 防止无法获取整个音频时长</span></span><br><span class="line">    <span class="comment"># 音频时长必须加载才能读取</span></span><br><span class="line">    time.sleep(<span class="number">0.1</span>)</span><br><span class="line">    player.play()</span><br><span class="line">    wholetime = mediaObject.get_duration() / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        <span class="comment"># 截取到0.1s精度,降低cpu占用, notwork fine for vlc</span></span><br><span class="line">        <span class="comment"># <span class="doctag">FIXME:</span> get_time NOT WORK WELL, 只能精确到0.3s</span></span><br><span class="line">        <span class="comment"># t = player.get_position() * wholetime</span></span><br><span class="line">        t = player.get_time() / <span class="number">1000</span> * <span class="number">1000</span></span><br><span class="line">        <span class="comment"># sys.stdout.write(str(t) + '\r')</span></span><br><span class="line">        sys.stdout.write(<span class="string">'['</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>, time.localtime(t / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'/'</span> +</span><br><span class="line">                         time.strftime(<span class="string">"%M:%S"</span>,</span><br><span class="line">                                       time.localtime(wholetime / <span class="number">1000</span>)) +</span><br><span class="line">                         <span class="string">'] '</span>)</span><br><span class="line">        <span class="keyword">if</span> t <span class="keyword">not</span> <span class="keyword">in</span> lrc_d:</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            <span class="comment"># sys.stdout.write("\033[K")</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            sys.stdout.write(color + lrc_d[t] + <span class="string">'\033[0m'</span>)</span><br><span class="line">            sys.stdout.flush()</span><br><span class="line">            <span class="comment"># 向后清除</span></span><br><span class="line">            sys.stdout.write(<span class="string">"\033[K"</span>)</span><br><span class="line">        sys.stdout.write(<span class="string">'\r'</span>)</span><br><span class="line">        <span class="comment"># 播放停止时退出</span></span><br><span class="line">        <span class="keyword">if</span> t == wholetime:</span><br><span class="line">            sys.exit(<span class="number">0</span>)</span><br><span class="line">        <span class="comment"># 0.05s循环</span></span><br><span class="line">        time.sleep(<span class="number">0.05</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(f_lrc) <span class="keyword">as</span> f:</span><br><span class="line">    lrc = f.read()</span><br><span class="line"></span><br><span class="line">lrc_d = lrc2dict(lrc)</span><br><span class="line"></span><br><span class="line">vlcInstance = vlc.Instance()</span><br><span class="line">player = vlcInstance.media_player_new()</span><br><span class="line">mediaObject = vlcInstance.media_new(f_mp3)</span><br><span class="line">player.set_media(mediaObject)</span><br><span class="line"></span><br><span class="line">colors = [</span><br><span class="line">    <span class="string">'\x1B[31m'</span>,  <span class="comment"># 红色</span></span><br><span class="line">    <span class="string">'\x1B[32m'</span>,  <span class="comment"># 绿色</span></span><br><span class="line">    <span class="string">'\x1B[33m'</span>,  <span class="comment"># 黄色</span></span><br><span class="line">    <span class="string">'\x1B[34m'</span>,  <span class="comment"># 蓝色</span></span><br><span class="line">    <span class="string">'\x1B[35m'</span>,  <span class="comment"># 紫色</span></span><br><span class="line">    <span class="string">'\x1B[36m'</span>,  <span class="comment"># 青色</span></span><br><span class="line">    <span class="string">'\x1B[37m'</span>  <span class="comment"># 灰白</span></span><br><span class="line">]</span><br><span class="line">color = random.choice(colors)</span><br><span class="line">print_lrc(player, lrc_d, color)</span><br></pre></td></tr></table></figure>
-<p>奇葩的还是那个丧心病狂的循环，查询播放进度最短间隔只有0.3s。只好把lrc歌词显示精度降到1s了</p>
-<p>反正对我是能用了。</p>
-<p>也许有空可以让它支持播放列表的，用vlc完全不是问题。</p>
-<p>嗯，完工。我擦嘞我竟然一天写了俩！</p>
-<h2 id="FootNotes">FootNotes</h2><p>[^1]: <a href="http://stackoverflow.com/questions/6936393/find-the-length-of-a-song-with-pygame" target="_blank" rel="external">Find the Length of a Song with Pygame</a><br>[^2]: <a href="https://wiki.videolan.org/Python_bindings" target="_blank" rel="external">Python bindings</a></p>
 
             
           </span>
@@ -1629,194 +1768,6 @@ modprobe dm_crypt
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2014/08/26/" itemprop="url">
-                  希望
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-08-26T00:00:00+08:00" content="2014-08-26">
-              2014-08-26
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2014/08/26/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2014/08/26//" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <blockquote>
-<p>“I am looking at the future with concern, but with good hope.”</p>
-<p>Albert Schweitzer</p>
-</blockquote>
-<p>希望就像北京夏日的晚风，感受到，却无法捕捉，就像萦绕在空气中的思绪。</p>
-<p>我数了数，就要感冒第九天了吧。</p>
-<h2 id="I">I</h2><p>下午从寝室睡醒，迷迷糊糊地爬起来去实验室。</p>
-<p>走在路上，阳光好炽烈，炽烈得好像世界马上就要融化了，灰飞烟灭，不复存在。</p>
-<p>抬头看着科研楼的玻璃幕墙映出下午的蓝天白云，恍恍惚惚就像梦境一样。</p>
-<p>就这么如行尸走肉般走进实验室了。</p>
-<p>实验室总管大人坐在我的位置背后，看到我出现后问，你这是间歇性上班么。</p>
-<p>嗯。</p>
-<p>我没有看她，喝了一口水，坐下来，继续搬砖。</p>
-<p>完全不想理人。</p>
-<p>完全在想另外一些事：</p>
-<p>明天，还下不了水么。</p>
-<h2 id="II">II</h2><p>清晨，对面窗户的反光直愣愣地射到床上。</p>
-<p>我睁开眼看了看，映入脑海的第一个消息是个坏消息：</p>
-<p>还感冒着。</p>
-<p>时间总是过得飞快，不管你喜欢它还是不愿接受，世界还是会毫不留情地从你的挽留前碾压过去。</p>
-<p>上班时迷迷糊糊，走到面前才看到是组长大人。</p>
-<p>进了电梯，她提起周末组内活动的事。</p>
-<p>我说，晚上吃饭，我就下午去游泳。</p>
-<p>她说，你不跟我们一起桌游了么，游泳换个时间游。</p>
-<p>不，能游泳的日子一分都不想放过。</p>
-<p>她没再说什么，似乎不高兴的样子，或者是我有些愧疚。</p>
-<p>然而也没心情管这些，她应该明白我是什么样的人。</p>
-<p>明天能下水吗？</p>
-<h2 id="III">III</h2><p>我就是个疯子。</p>
-<p>从来没掩饰过自己是多么看重游泳这件事。</p>
-<p>我说过，头可断，血可流，泳不能不游。</p>
-<p>我说，我来帝都，就有一个目的，能在学校里以低成本游泳。仅此一条就够了，我不在乎上什么学、毕什么业、将来找它什么工作。</p>
-<p>所以，凡是阻碍游泳的都是敌人，凡是一起游泳的都是朋友。</p>
-<p>游泳时碰到个信安的将毕业师兄，说到想休学一年或者退学旅行，我说我也想退学或者休学啊，想了都不是一次两次了。师兄问我，你退学干嘛？我不知道干啥，我只知道我有一大堆想干的但没法尽说，只知道一件事是肯定的，我要留在这里游泳！</p>
-<p>游泳时才仿佛找到了自己，跳出了狭小而熟悉的圈子，拥抱更丰富多彩的世界。</p>
-<p>暑假的一周假期，过得恍恍惚惚，莫名奇妙地就结束了。</p>
-<p>几乎是从家里逃回了学校，原因之一就是无法忍受，不能下水的日子。</p>
-<p>回校那天下午刚到，晚上就迫不及待游泳去了。</p>
-<p>喂，就是这样。</p>
-<p>大概如果，某天实验室要求我去哪个没法游泳的地方，即使再好，</p>
-<p>大概我会决绝地拒绝过去。</p>
-<p>大概有人如果跟我讲游泳怎么怎么不好或者想歪了的都会有种与之友尽的冲动。</p>
-<p>其实现在已经在想工作之后的事。</p>
-<p>从来只看眼前不看将来的我竟然在游泳这件事上能往后想十年。</p>
-<p>然而回校没几天，就从师姐那里知悉了个悲剧。</p>
-<p>学校的游泳馆整修关门，不知道什么时候开门。</p>
-<h1 id="IV">IV</h1><p>不管怎样，泳是一定要游的。</p>
-<p>拿出社工的技术把周遭所有游泳馆的信息几乎检查一遍。</p>
-<p>北师、北交、北航、首体、水立方、人大、北外、英东……</p>
-<p>去了北师几趟，1.4米的深水差点摔蒙。</p>
-<p>差点去遍游北京各大高校……</p>
-<p>后来怎么回事一起去了次人大，大家就选择人大了。</p>
-<p>于是有了现在的“每晚攻占人大小分队”，我却掉队了……</p>
-<p>那是和ZQ攻占人大后的当晚，嗓子疼得难以入眠，爬起来跑到阳台上</p>
-<p>看着远处电光雷影，却听不到一点雷声。</p>
-<p>然后就感冒了。那是周日晚</p>
-<p>周一和父亲打电话，父亲问我还游泳么。我说，哦，如果明天没啥事就去。父亲说，还是等好了再去吧。</p>
-<p>周二，我知道四天内是没指望了。晚上碰到DD，问周末要不要一起去。我真希望，而且以为周末感冒会好。</p>
-<p>周三，请了一天假在寝室郁闷。希望周五就能下水了。</p>
-<p>周四，呵呵了，希望周五感冒就好了。</p>
-<p>周五，妹的，希望周六能下水。</p>
-<p>周六，跟AS从西土城徒步到奥园，晚上洗澡时感觉随时都要倒下。我知道周日下水的美梦破灭了。</p>
-<p>周日，DD还惦念着送了我一大袋子梨，我以为她就说说……然后我还厚颜无耻地收下了……额……心里太温暖了。晚上去北理和本科室友扯淡……直觉周一能下水的希望又破灭了。</p>
-<p>周一，唉……但愿明天感冒好了</p>
-<p>周二，花擦。</p>
-<h2 id="V">V</h2><p>不管怎样，有得必有失，有失必有得。</p>
-<p>结果是，准备弹一学期的歌可能用不了一学期了。</p>
-<p>终于知道学校的洗澡堂是什么样的了。</p>
-<p>我在想，我这个疯子，很多事该放弃了。毕竟，Don’t take the world upon your shoulders.</p>
-<p>该想想怎么爱他人，就像他人对我的爱一样。</p>
-<p>来帝都那天，收到妹妹的祝福短信。你们生日我都没记住过T T，连父母都不知道该送什么礼物好，你们难过伤心的时候我也无能为力地在暗处看着，听着，却不知道该做什么说什么。我只想远远得逃开，反正留着也没用。</p>
-<p>人情是温暖的，也是沉重的。有这么些时候，就想默默地淡去。</p>
-<p>但不想终其一生都是在逃避，无论是碧水中、网络上、琴弦里、还是色彩变换的光影里。</p>
-<p>终究要面对，所有害怕的、不愿接受的、不喜欢的，该来的早晚来。</p>
-<p>但我还想在水里逍遥一会儿。</p>
-<h2 id="VI">VI</h2><p>虽然以上都是瞎扯的，但为了保证身体健康和心理健康，不知道明天能不能下水……估计得后天了，唉……</p>
-<blockquote>
-<p>Hey Jude, Don’t be afraid.</p>
-<p>You are made to, go out and get her.</p>
-<p>The minute you let it under your skins.</p>
-<p>Then you begin to make it better.</p>
-<p>Any time you feel the pain.</p>
-<p>Hey Jude, refrain.</p>
-<p>Don’t carry the world upon your shoulders.</p>
-</blockquote>
-<p>Na-nananananananannanananananananananananananannanananananananana</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1863,7 +1814,7 @@ modprobe dm_crypt
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">176</span>
+              <span class="site-state-item-count">177</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

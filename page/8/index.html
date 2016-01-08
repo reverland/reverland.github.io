@@ -224,6 +224,551 @@
             
               
                 
+                <a class="post-title-link" href="/python/2014/01/29/python/" itemprop="url">
+                  用python写一个http代(和谐)理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-01-29T00:00:00+08:00" content="2014-01-29">
+              2014-01-29
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2014/01/29/python/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2014/01/29/python/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>简单展示和学习，清晰为主，不考虑效率。</p>
+<p>本文简单讨论支持GET/CONNECT方法的http代理。这两种可能是最常用的方法。GET请求用于大多数http请求，CONNECT请求负责处理https。</p>
+<p>为了更加明晰，也没有使用requests或者httplib等其它模块，没有使用SocketServer和它的子类，因为我个人觉得从socket开始能有个更加清晰的理解。</p>
+<p>看着玩吧。</p>
+<p>如果真的要用一个Proxy，我会直接使用pytho中的twisted或者BaseHTTPServer，或者基于nodejs的。它们有着更好的设计和更高层次的抽象，当然，更全面的特性和更稳定、更高的性能。文末将给出相关资料与实现。</p>
+<p>请准备好一台linux系统，安装好netcat, openssl和python解释器。目前我用的还是2.7。</p>
+<h2 id="基本原理">基本原理</h2><h3 id="客户服务器模型">客户服务器模型</h3><p>首要问题是：客户服务器之间如何通信。简单说来就是客户端发送请求，告诉服务器我要什么东西，服务器则告诉客户端想要的东西或者告诉客户端找不到。</p>
+<p>首先，客户端比如你的浏览器要找到服务器，通常的做法是在浏览器地址栏输入你想寻找的服务器。至于怎么寻找，如何最后在你的客户端和服务器间建立连接这点不细说。总之最后的结果是，两者之间建立了一条可以互相通话的专有线路，就像两个打电话的人一样，电话已经接通。</p>
+<p>接着，你的浏览器说，我想要什么什么东西，有什么什么要求。电话另一头的服务器听到后就回复它有没有什么东西，如果有返回个什么样的东西，然后把东西传给你的浏览器。</p>
+<p>接受到从服务器传来的数据后，浏览器把一堆你看不懂的东西绘制到屏幕上，绘声绘色地显示给你。</p>
+<p>就这么简单。详情请参考RFC 2616，这是第一手最好的资料。</p>
+<p>下面让我么实际看看他们都怎么通话的</p>
+<p>我们先看看不用代理时，浏览器向服务器发送了些什么。监听本地8888端口</p>
+<pre><code> ~ ⮀ nc -lvp <span class="number">8888</span>
+listening on [any] <span class="number">8888</span> ...
+connect to [<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>] from localhost [<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>] <span class="number">56499</span>
+GET /index.html?haha=<span class="number">1</span>&amp;papa=<span class="number">2</span> HTTP/<span class="number">1.1</span> Host: localhost:<span class="number">8888</span> User-Agent: Mozilla/<span class="number">5.0</span> (X11; Linux x86_64; rv:<span class="number">24.0</span>) Gecko/<span class="number">20100101</span> Firefox/<span class="number">24.0</span>
+Accept: text/html,application/xhtml+xml,application/xml;q=<span class="number">0.9</span>,*<span class="comment">/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Cookie:  __utma=<span class="label">XXXXXXXXXXXXXXXXXXXXXXXXXx; __utmz=111x7x2x1.13x86x7x41.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)</span>
+Connection: keep-alive</span>
+</code></pre><p>忽略无关紧要的细节，这就是传说中的HTTP头。注意，最后还得有个空行表示我说完了。它告诉服务器以下一些信息：</p>
+<ul>
+<li>浏览器想做什么(<code>GET</code>)</li>
+<li>想要什么(<code>index.html?haha=1&amp;papa=2</code>)</li>
+<li>说的什么版本的什么话(<code>HTTP/1.1</code>)</li>
+<li>要的东西在哪里(<code>Host</code>)</li>
+<li>浏览器的一些特征(<code>User-Agent:</code>)</li>
+<li>浏览器接收什么样的东西(<code>Accept</code>)</li>
+<li>浏览器可以接受什么样的人类语言(<code>Accept-Language</code>)</li>
+<li>浏览器能处理的压缩或编码方式(<code>Accept-Encoding</code>)</li>
+<li>其它信息(标识浏览器身份的<code>Cookie</code>和在通话完成后是否把电话挂掉的信息<code>Connection</code>)</li>
+</ul>
+<p>对于特定版本的HTTP协议1.1，除了前两行是必要的其它都是可选的。</p>
+<p>我们再看看服务器返回的信息是啥样的。</p>
+<pre><code> ~ ⮀ nc baidu.com 80
+GET / HTTP/1.1
+Host: baidu.com
+
+HTTP/1.1 200 OK
+Date: Mon, 03 Feb 2014 07:37:46 GMT
+Server: Apache
+<span class="operator"><span class="keyword">Cache</span>-Control: <span class="keyword">max</span>-age=<span class="number">86400</span>
+Expires: Tue, <span class="number">04</span> Feb <span class="number">2014</span> <span class="number">07</span>:<span class="number">37</span>:<span class="number">46</span> GMT
+<span class="keyword">Last</span>-Modified: Tue, <span class="number">12</span> Jan <span class="number">2010</span> <span class="number">13</span>:<span class="number">48</span>:<span class="number">00</span> GMT
+ETag: <span class="string">"51-4b4c7d90"</span>
+<span class="keyword">Accept</span>-Ranges: <span class="keyword">bytes</span>
+<span class="keyword">Content</span>-<span class="keyword">Length</span>: <span class="number">81</span>
+<span class="keyword">Connection</span>: <span class="keyword">Keep</span>-Alive
+<span class="keyword">Content</span>-<span class="keyword">Type</span>: <span class="built_in">text</span>/html
+
+&lt;html&gt;
+&lt;meta <span class="keyword">http</span>-equiv=<span class="string">"refresh"</span> <span class="keyword">content</span>=<span class="string">"0;url=http://www.baidu.com/"</span>&gt;
+&lt;/html&gt;</span>
+</code></pre><p>服务器返回了这些信息：</p>
+<ul>
+<li>服务器端用什么版本的什么话通信(<code>HTTP/1.1</code>)</li>
+<li>浏览器请求的资源是否可获得(<code>200 OK</code>)</li>
+<li>还有其它细节用来表示时间，它的情况，浏览器应该怎么做，传送的消息是什么等等。</li>
+</ul>
+<p>这就是传说中的HTTP响应头。一个空行之后是实际传送的数据。嗯，这里就是浏览器喜欢的html文本文件。浏览器接收后会将其解析渲染或执行对应操作。</p>
+<p>嗯基本原理就是这样。</p>
+<h2 id="连接的建立">连接的建立</h2><p>当我们谈互联网时，不得不说说什么是socket。</p>
+<p>当然，还得知道互联网的分层架构。</p>
+<p>然而暂时不要管什么是socket，反正它就存在在那里，整个互联网建立在socket通信之上，包括Unix系统的内部通信。</p>
+<p>可以把它设想成一个通信管道或线路的入口。如何使用它呢？拿python示例：</p>
+<pre><code>import <span class="built_in">socket</span>
+soc = <span class="built_in">socket</span>.<span class="built_in">socket</span>(<span class="built_in">socket</span>.AF_INET, <span class="built_in">socket</span>.SOCK_STREAM)
+</code></pre><p>我们先导入socket模块，然后建立了一种指定类型的socket，嗯，这里是支持IPv4上TCP连接的socket。</p>
+<p>一个服务器应该这样，要先绑定，然后监听：</p>
+<pre><code>soc.<span class="function"><span class="title">bind</span><span class="params">(<span class="string">""</span>, <span class="number">8888</span>)</span></span>
+new_soc, <span class="tag">address</span> = soc.<span class="function"><span class="title">accept</span><span class="params">()</span></span>
+new_soc.<span class="function"><span class="title">recv</span><span class="params">(<span class="number">1024</span>)</span></span>
+</code></pre><p>以上将socket绑定到本地(<code>&quot;&quot;</code>)的8888端口。这样，所有连接到本机8888端口的连接实际上都是通过这个socket连接了。</p>
+<p>接着，开始监听，一旦有客户端连接本机8888端口，就返回它的地址(address)和一个新的socket。注意，服务器端socket并不进行通信，只监听连接并生成一个新的用来连接的socket。然后，可以通过这个新的socket和客户端通信。</p>
+<p>客户端则比较简单：</p>
+<pre><code>soc.connect(localhost, <span class="number">8888</span>)
+soc.send(<span class="string">"<span class="keyword">GET</span> / HTTP/1.1\r\nHost: baidu.com\r\n\r\n"</span>)
+</code></pre><p>连接某个机器的某个端口后则可以通过socket进行通信</p>
+<h3 id="代理服务器">代理服务器</h3><p>代理服务器，是服务器和客户端之间一个中间站。将客户端发送的请求转发给服务器，将服务器的响应转发给客户端。</p>
+<p>当我们说到代理服务器，首先它是一个服务器。</p>
+<p>有了上面的基础可以写出以下代码，更多细节参考Python的socket文档：</p>
+<pre><code>import <span class="keyword">socket</span>
+soc.<span class="keyword">bind</span>(<span class="string">""</span>, <span class="number">8888</span>)
+<span class="keyword">while</span> True:
+    <span class="comment"># 监听接入的连接</span>
+    new_soc, address = soc.<span class="keyword">accept</span>()
+    <span class="comment"># 从socket读取数据</span>
+    data = new_soc.<span class="keyword">recv</span>(<span class="number">1024</span>)
+    <span class="comment"># 向socket发送数据</span>
+    new_soc.<span class="keyword">send</span>(data)
+</code></pre><p>其次它是一个客户端，它要向服务器请求数据。</p>
+<p>其次它是个web服务器，尽管它大部分数据只需要转发。但它应该能处理HTTP协议，只是不必什么都处理。下面将展示有哪些地方在转发时必须处理。</p>
+<h3 id="火狐在使用代理时的HTTP头">火狐在使用代理时的HTTP头</h3><p>与不使用代理时有什么不同呢？</p>
+<pre><code>~ ⮀ nc -lvp <span class="number">8000</span>
+listening on [any] <span class="number">8000</span> ...
+connect to [<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>] from localhost [<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>] <span class="number">60601</span>
+GET http:<span class="comment">//baidu.com/ HTTP/1.1</span>
+Host: baidu.com
+User-Agent: Mozilla/<span class="number">5.0</span> (X11; Linux x86_64; rv:<span class="number">24.0</span>) Gecko/<span class="number">20100101</span> Firefox/<span class="number">24.0</span>
+Accept: text/html,application/xhtml+xml,application/xml;q=<span class="number">0.9</span>,*<span class="comment">/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Cookie: BAIDUID=×××××××××××××××:FG=1; BDUSS=<span class="label">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX; bid_1=XXXXXXXXXXXXXXXXXXX; MCITY=-XXXXXXXXX%3A</span>
+Connection: keep-alive</span>
+</code></pre><p>注意没，GET后面不是请求的文件的路径，而是整个URI。那么我们的代理服务器得把浏览器的请求改成路径再转发。</p>
+<p>其次，我们不希望再转发给baidu.com的服务器之后服务器不断开连接而一直保持，我们希望它赶紧断开连接好让我们能干点其它事。</p>
+<pre><code><span class="attribute">Connection</span>: <span class="string">close</span>
+</code></pre><p>综上，一个简单的能处理GET请求的代理服务器应该能做到：</p>
+<ul>
+<li>将浏览器请求的第一行中完整的URL(<a href="http://baidu.com/)替换成路径(&#39;/&#39;)，通常情况下，没有指定资源文件的情况下默认是`/index.html`。" target="_blank" rel="external">http://baidu.com/)替换成路径(&#39;/&#39;)，通常情况下，没有指定资源文件的情况下默认是`/index.html`。</a></li>
+<li>将HTTP头中的Connection设置为close。</li>
+</ul>
+<p>基本原理就是这样，嗯，多简单。</p>
+<h2 id="实现代(和谐)理">实现代(和谐)理</h2><p>我们可以先写点什么验证我们的想法，</p>
+<pre><code><span class="comment">#!/usr/bin/env python</span>
+<span class="comment"># -*- coding: utf-8 -*-</span>
+
+<span class="keyword">import</span> socket
+<span class="keyword">import</span> urlparse
+
+HOST = <span class="string">''</span>                 <span class="comment"># Symbolic name meaning all available interfaces</span>
+PORT = <span class="number">8000</span>              <span class="comment"># Arbitrary non-privileged port</span>
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">server</span><span class="params">(host, port)</span>:</span>
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, <span class="number">1</span>)
+    s.bind((host, port))
+    s.listen(<span class="number">500</span>)
+    <span class="keyword">print</span> <span class="string">"Serving at %s"</span> % PORT
+    <span class="keyword">while</span> <span class="number">1</span>:
+        <span class="keyword">try</span>:
+            conn, addr = s.accept()
+            handle_connection(conn)
+        <span class="keyword">except</span> KeyboardInterrupt:
+            <span class="keyword">print</span> <span class="string">"Bye..."</span>
+            <span class="keyword">break</span>
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">getline</span><span class="params">(conn)</span>:</span>
+    line = <span class="string">''</span>
+    <span class="keyword">while</span> <span class="number">1</span>:
+        buf = conn.recv(<span class="number">1</span>)
+        <span class="keyword">if</span> buf == <span class="string">'\r'</span>:
+            line += buf
+            buf = conn.recv(<span class="number">1</span>)
+            <span class="keyword">if</span> buf == <span class="string">'\n'</span>:
+                line += buf
+                <span class="keyword">return</span> line
+        <span class="comment"># elif buf == '':</span>
+        <span class="comment">#     return</span>
+        <span class="keyword">else</span>:
+            line += buf
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">get_header</span><span class="params">(conn)</span>:</span>
+    <span class="string">'''
+    不包括\r\n
+    '''</span>
+    headers = <span class="string">''</span>
+    <span class="keyword">while</span> <span class="number">1</span>:
+        line = getline(conn)
+        <span class="keyword">if</span> line <span class="keyword">is</span> <span class="keyword">None</span>:
+            <span class="keyword">break</span>
+        <span class="keyword">if</span> line == <span class="string">'\r\n'</span>:
+            <span class="keyword">break</span>
+        <span class="keyword">else</span>:
+            headers += line
+    <span class="keyword">return</span> headers
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">parse_header</span><span class="params">(raw_headers)</span>:</span>
+    request_lines = raw_headers.split(<span class="string">'\r\n'</span>)
+    first_line = request_lines[<span class="number">0</span>].split(<span class="string">' '</span>)
+    method = first_line[<span class="number">0</span>]
+    full_path = first_line[<span class="number">1</span>]
+    version = first_line[<span class="number">2</span>]
+    <span class="keyword">print</span> <span class="string">"%s %s"</span> % (method, full_path)
+    (scm, netloc, path, params, query, fragment) \
+        = urlparse.urlparse(full_path, <span class="string">'http'</span>)
+    <span class="comment"># 如果url中有‘：’就指定端口，没有则为默认80端口</span>
+    i = netloc.find(<span class="string">':'</span>)
+    <span class="keyword">if</span> i &gt;= <span class="number">0</span>:
+        address = netloc[:i], int(netloc[i + <span class="number">1</span>:])
+    <span class="keyword">else</span>:
+        address = netloc, <span class="number">80</span>
+    <span class="keyword">return</span> method, version, scm, address, path, params, query, fragment
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">handle_connection</span><span class="params">(conn)</span>:</span>
+    <span class="comment"># 从socket读取头</span>
+    req_headers = get_header(conn)
+    <span class="comment"># 更改HTTP头</span>
+    <span class="comment">## 要没有HTTP头的话。。。</span>
+    <span class="keyword">if</span> req_headers <span class="keyword">is</span> <span class="keyword">None</span>:
+        <span class="keyword">return</span>
+    method, version, scm, address, path, params, query, fragment = \
+        parse_header(req_headers)
+    path = urlparse.urlunparse((<span class="string">""</span>, <span class="string">""</span>, path, params, query, <span class="string">""</span>))
+    req_headers = <span class="string">" "</span>.join([method, path, version]) + <span class="string">"\r\n"</span> +\
+        <span class="string">"\r\n"</span>.join(req_headers.split(<span class="string">'\r\n'</span>)[<span class="number">1</span>:])
+    <span class="comment"># 建立socket用以连接URL指定的机器</span>
+    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    <span class="comment"># soc.settimeout(1)</span>
+    <span class="comment"># 尝试连接</span>
+    <span class="keyword">try</span>:
+        soc.connect(address)
+    <span class="keyword">except</span> socket.error, arg:
+        conn.sendall(<span class="string">"HTTP/1.1"</span> + str(arg[<span class="number">0</span>]) + <span class="string">" Fail\r\n\r\n"</span>)
+        conn.close()
+        soc.close()
+    <span class="keyword">else</span>:  <span class="comment"># 若连接成功</span>
+        <span class="comment"># 把HTTP头中连接设置为中断</span>
+        <span class="comment"># 如果不想让火狐卡在那里不继续加载的话</span>
+        <span class="keyword">if</span> req_headers.find(<span class="string">'Connection'</span>) &gt;= <span class="number">0</span>:
+            req_headers = req_headers.replace(<span class="string">'keep-alive'</span>, <span class="string">'close'</span>)
+        <span class="keyword">else</span>:
+            req_headers += req_headers + <span class="string">'Connection: close\r\n'</span>
+        <span class="comment"># 发送形如`GET path/params/query HTTP/1.1`</span>
+        <span class="comment"># 结束HTTP头</span>
+        req_headers += <span class="string">'\r\n'</span>
+        soc.sendall(req_headers)
+        <span class="comment"># 发送完毕, 接下来从soc读取服务器的回复</span>
+        <span class="comment"># 建立个缓冲区</span>
+        data = <span class="string">''</span>
+        <span class="keyword">while</span> <span class="number">1</span>:
+            <span class="keyword">try</span>:
+                buf = soc.recv(<span class="number">8129</span>)
+                data += buf
+            <span class="keyword">except</span>:
+                buf = <span class="keyword">None</span>
+            <span class="keyword">finally</span>:
+                <span class="keyword">if</span> <span class="keyword">not</span> buf:
+                    soc.close()
+                    <span class="keyword">break</span>
+        <span class="comment"># 转发给客户端</span>
+        conn.sendall(data)
+        conn.close()
+<span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+    server(HOST, PORT)
+</code></pre><p>运行它并且将浏览器设置为使用该代理：</p>
+<pre><code><span class="keyword">python</span> socket-proxy.<span class="keyword">py</span>
+</code></pre><p>在本地建立一个web服务器实验：</p>
+<pre><code>~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/proxy/</span>base_python ⮀ python -m SimpleHTTPServer <span class="number">8888</span> 
+</code></pre><p>在浏览器中访问<code>http://localhost:8888</code>,成功列出当前目录。</p>
+<p>你可以直接访问任何网站看看。渐渐会发现，我们的代理服务器虽然运行基本良好，一次却只能接受一个请求？非常低效。程序经常会阻塞在socket的读写上。</p>
+<p>目前来说，提高效率有三种途径：</p>
+<ul>
+<li>异步I/O</li>
+<li>线程</li>
+<li>进程</li>
+</ul>
+<p>然而，本文暂不讨论如何提高效率。也许下回或某天会专门说说。我们接着再谈谈CONNECT代理实现原理。</p>
+<h2 id="可进行https连接的http代理">可进行https连接的http代理</h2><p>https是建立在SSL/TLS上的安全连接，不要在意它是什么，我们只谈及它做什么。</p>
+<p>通过SSL/TLS建立点与点之间的连接不被窃听。我们要为https连接代理的话，代理服务器就只能帮助客户端和服务器建立一条安全的加密通道，然后仅仅将数据中转。由于是加密的数据流，代理服务器并不能理解是什么，只看到一堆加密后的字符。</p>
+<p>HTTP协议规定了一种CONNECT方法，用来向服务器申请这种中转。具体过程我们可以自己试着访问<code>https://google.com</code>看看，首先将浏览器代理设置为本地8000端口:</p>
+<pre><code>~ ⮀ nc -lvp <span class="number">8000</span>
+listening on [any] <span class="number">8000</span> ...
+connect to [<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>] from localhost [<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>] <span class="number">43263</span>
+CONNECT google.com:<span class="number">443</span> HTTP/<span class="number">1.1</span>
+User-Agent: Mozilla/<span class="number">5.0</span> (X11; Linux x86_64; rv:<span class="number">24.0</span>) Gecko/<span class="number">20100101</span> Firefox/<span class="number">24.0</span>
+Proxy-Connection: keep-alive
+Connection: keep-alive
+Host: google.com
+
+<span class="number">200</span> OK
+��R����^��<span class="number">4</span>G��&gt;�&lt;�N�R���D1kVg|X�lH��
+���<span class="number">98</span>���<span class="number">5</span>�      ���ED32��
+���                      ���A/��
+-
+google.com
+▒
+ <span class="preprocessor">#<span class="number">3</span>t</span>
+</code></pre><p>我们可以看到</p>
+<ul>
+<li>客户端向代理服务器申请代理(<code>CONNECT google.com:443 HTTP/1.1</code>)</li>
+<li>代理服务器向客户端应答表示可以代理(<code>200 OK</code>)</li>
+<li>客户端开始发送数据，准备建立加密信道</li>
+</ul>
+<p>剩下的工作应该由代理服务器继续。</p>
+<ul>
+<li>代理服务器建立一条与服务器的socket连接，</li>
+<li>代理服务器在服务器和客户端之间转发数据。</li>
+</ul>
+<p>我们简单更改之前的简单脚本使之支持CONNECT（毫无设计的脚本风格写法……见笑）：</p>
+<pre><code><span class="function"><span class="keyword">def</span> <span class="title">handle_connection</span><span class="params">(conn)</span>:</span>
+    <span class="comment"># 从socket读取头</span>
+    req_headers = get_header(conn)
+    <span class="comment"># 更改HTTP头</span>
+    <span class="comment">## 要没有HTTP头的话。。。</span>
+    <span class="keyword">if</span> req_headers <span class="keyword">is</span> <span class="keyword">None</span>:
+        <span class="keyword">return</span>
+    method, version, scm, address, path, params, query, fragment = \
+        parse_header(req_headers)
+    <span class="keyword">if</span> method == <span class="string">'GET'</span>:
+        do_GET(conn,
+               req_headers,
+               address,
+               path,
+               params,
+               query,
+               method,
+               version)
+    <span class="keyword">elif</span> method == <span class="string">'CONNECT'</span>:
+        <span class="comment"># 注意</span>
+        address = (path.split(<span class="string">':'</span>)[<span class="number">0</span>], int(path.split(<span class="string">':'</span>)[<span class="number">1</span>]))
+        do_CONNECT(conn,
+                   req_headers,
+                   address)
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">do_CONNECT</span><span class="params">(conn, req_headers, address)</span>:</span>
+    <span class="comment"># 建立socket用以连接URL指定的机器</span>
+    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    <span class="comment"># soc.settimeout(4)</span>
+    <span class="comment"># 尝试连接</span>
+    <span class="keyword">try</span>:
+        soc.connect(address)
+    <span class="keyword">except</span> socket.error, arg:
+        conn.sendall(<span class="string">"/1.1"</span> + str(arg[<span class="number">0</span>]) + <span class="string">" Fail\r\n\r\n"</span>)
+        conn.close()
+        soc.close()
+    <span class="keyword">else</span>:  <span class="comment"># 若连接成功</span>
+        conn.sendall(<span class="string">'HTTP/1.1 200 Connection established\r\n\r\n'</span>)
+        <span class="comment"># 数据缓冲区</span>
+        <span class="comment"># 读取浏览器给出的消息</span>
+        <span class="keyword">try</span>:
+            <span class="keyword">while</span> <span class="keyword">True</span>:
+                <span class="comment"># 从客户端读取数据，并转发给conn</span>
+                data = conn.recv(<span class="number">99999</span>)
+                soc.sendall(data)
+                <span class="comment"># 从服务器读取回复，转发回客户端</span>
+                data = soc.recv(<span class="number">999999</span>)
+                conn.sendall(data)
+        <span class="keyword">except</span>:
+            conn.close()
+            soc.close()
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">do_GET</span><span class="params">(conn, req_headers, address, path, params, query, method, version)</span>:</span>
+    path = urlparse.urlunparse((<span class="string">""</span>, <span class="string">""</span>, path, params, query, <span class="string">""</span>))
+    req_headers = <span class="string">" "</span>.join([method, path, version]) + <span class="string">"\r\n"</span> +\
+        <span class="string">"\r\n"</span>.join(req_headers.split(<span class="string">'\r\n'</span>)[<span class="number">1</span>:])
+    <span class="comment"># 建立socket用以连接URL指定的机器</span>
+    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    <span class="comment"># soc.settimeout(1)</span>
+    <span class="comment"># 尝试连接</span>
+    <span class="keyword">try</span>:
+        soc.connect(address)
+    <span class="keyword">except</span> socket.error, arg:
+        conn.sendall(<span class="string">"HTTP/1.1"</span> + str(arg[<span class="number">0</span>]) + <span class="string">" Fail\r\n\r\n"</span>)
+        conn.close()
+        soc.close()
+    <span class="keyword">else</span>:  <span class="comment"># 若连接成功</span>
+        <span class="comment"># 把HTTP头中连接设置为中断</span>
+        <span class="comment"># 如果不想让火狐卡在那里不继续加载的话</span>
+        <span class="keyword">if</span> req_headers.find(<span class="string">'Connection'</span>) &gt;= <span class="number">0</span>:
+            req_headers = req_headers.replace(<span class="string">'keep-alive'</span>, <span class="string">'close'</span>)
+        <span class="keyword">else</span>:
+            req_headers += req_headers + <span class="string">'Connection: close\r\n'</span>
+        <span class="comment"># 发送形如`GET path/params/query HTTP/1.1`</span>
+        <span class="comment"># 结束HTTP头</span>
+        req_headers += <span class="string">'\r\n'</span>
+        soc.sendall(req_headers)
+        <span class="comment"># 发送完毕, 接下来从soc读取服务器的回复</span>
+        <span class="comment"># 建立个缓冲区</span>
+        data = <span class="string">''</span>
+        <span class="keyword">while</span> <span class="number">1</span>:
+            <span class="keyword">try</span>:
+                buf = soc.recv(<span class="number">8129</span>)
+                data += buf
+            <span class="keyword">except</span>:
+                buf = <span class="keyword">None</span>
+            <span class="keyword">finally</span>:
+                <span class="keyword">if</span> <span class="keyword">not</span> buf:
+                    soc.close()
+                    <span class="keyword">break</span>
+        <span class="comment"># 转发给客户端</span>
+        conn.sendall(data)
+        conn.close()
+</code></pre><p>在终端运行代理：</p>
+<pre><code><span class="keyword">python</span> socket-proxy.<span class="keyword">py</span>
+</code></pre><p>紧接着我们用openssl搭建一个简单的测试用https服务器。</p>
+<p>首先生成私钥：</p>
+<pre><code> ~/Work/project/proxy/base_python ⮀ openssl genrsa <span class="attribute">-out</span> privkey<span class="built_in">.</span>pem <span class="number">1024</span>    
+Generating RSA <span class="keyword">private</span> key, <span class="number">1024</span> bit long modulus
+<span class="built_in">..</span>++++++
+<span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="attribute">...</span><span class="built_in">..</span>++++++
+e is <span class="number">65537</span> (<span class="number">0x10001</span>)
+</code></pre><p>生成一个未签名的证书：</p>
+<pre><code> ~/Work/project/proxy/base_python ⮀ openssl req -new -x509 -key privkey.pem -out cert.pem
+You are <span class="keyword">about</span> <span class="keyword">to</span> be asked <span class="keyword">to</span> enter information <span class="keyword">that</span> will be incorporated
+<span class="keyword">into</span> your certificate request.
+What you are <span class="keyword">about</span> <span class="keyword">to</span> enter <span class="keyword">is</span> what <span class="keyword">is</span> called a Distinguished Name <span class="keyword">or</span> a DN.
+There are quite a few fields <span class="keyword">but</span> you can leave <span class="keyword">some</span> blank
+For <span class="keyword">some</span> fields there will be a default value,
+If you enter '.', <span class="keyword">the</span> field will be left blank.
+<span class="comment">-----</span>
+Country Name (<span class="number">2</span> letter code) [AU]:
+State <span class="keyword">or</span> Province Name (full <span class="property">name</span>) [Some-State]:
+Locality Name (eg, city) []:
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:
+Organizational Unit Name (eg, section) []:
+Common Name (e.g. server FQDN <span class="keyword">or</span> YOUR <span class="property">name</span>) []:
+Email Address []:
+</code></pre><p>把私钥和证书合在一起生成服务器能使用的文件：</p>
+<pre><code>~/Work/project/proxy/base_python ⮀ cat privkey<span class="class">.pem</span> cert<span class="class">.pem</span> &gt; server.pem
+</code></pre><p>建立测试https服务器</p>
+<pre><code> ~<span class="regexp">/Work/</span><span class="keyword">project</span><span class="regexp">/proxy/</span>base_python ⮀ openssl s_server -accept <span class="number">8888</span> -cert server.pem -www
+Using <span class="keyword">default</span> temp DH parameters
+ACCEPT
+ACCEPT
+ACCEPT
+</code></pre><p>使用浏览器先直接访问，再试着用自己写的代理服务器访问下。bingo！It really works！</p>
+<h2 id="Last_but_not_least">Last but not least</h2><p>从头到尾，好像两句话就能讲清楚的原理竟然花了这么多笔墨去解释。</p>
+<p>总之，如果想真的让代理“能用”，使用线程或异步I/O来实现是必然的。在以后的某天，大概会详细对各种从select到asyncio每个层面的异步来做个走马观花的简介。</p>
+<h2 id="参考资料">参考资料</h2><p>主要参考资料：</p>
+<ul>
+<li><a href="http://docs.python.org/2/library/socket.html" target="_blank" rel="external">socket — Low-level networking interface</a></li>
+<li><a href="http://www.devsec.org/info/ssl-cert.html" target="_blank" rel="external">Simple SSL cert HOWTO</a></li>
+<li><a href="https://tools.ietf.org/html/rfc2616" target="_blank" rel="external">RFC2616 Hypertext Transfer Protocol – HTTP/1.1</a></li>
+<li><a href="http://www.ietf.org/rfc/rfc2817.txt" target="_blank" rel="external">RFC2817 Upgrading to TLS Within HTTP/1.1</a></li>
+<li><a href="http://stackoverflow.com/questions/11697943/when-should-one-use-connect-and-get-http-methods-at-http-proxy-server" target="_blank" rel="external">When should one use CONNECT and GET HTTP methods at HTTP Proxy Server?</a></li>
+<li><a href="http://www.openssl.org/docs/apps/s_server.html" target="_blank" rel="external">Openssl Documentation:s_server(1)</a></li>
+<li><a href="http://en.wikipedia.org/wiki/HTTP_tunnel" target="_blank" rel="external">HTTP Tunnel</a></li>
+<li><a href="http://en.wikipedia.org/wiki/HTTP_Secure" target="_blank" rel="external">HTTPS</a></li>
+<li><a href="http://serverfault.com/questions/473155/unable-to-load-certificate-in-openssl" target="_blank" rel="external">Unable to load certificate in openssl</a></li>
+</ul>
+<p>如果你想学习异步：</p>
+<ul>
+<li><a href="http://haypo-notes.readthedocs.org/asyncio.html" target="_blank" rel="external">The new python asyncio aka tulip</a></li>
+<li><a href="http://scotdoyle.com/python-epoll-howto.html" target="_blank" rel="external">How To Use Linux epoll with Python</a></li>
+<li><a href="http://www.kegel.com/c10k.html" target="_blank" rel="external">The C10K problem</a></li>
+</ul>
+<p>呵呵，就这些吧。竟然死机了，还连死两次，已经好久不知道什么叫死机了，白添加半天链接vim自动保存一恢复反而恢复没了。</p>
+<p>最近vim倒挺顺，也不卡也不闹，本来第一次司机恢复下恢复写的内容，结果尼玛还没保存又死机死机死机死机了。firefox不知道怎么回事就卡住然后就鼠标能动键盘都卡住。还有我打字时fcitx这么卡你爸妈知道么，没以前感觉智能无所谓，要不要敲个字等一秒再出来！！！</p>
+<p>忽然顺了……我擦……</p>
+<h2 id="OT">OT</h2><ul>
+<li><a href="https://github.com/luocheng/twisted-intro-cn" target="_blank" rel="external">Twisted简介和异步编程入门</a></li>
+<li>哈哈，成功完成python2 koans</li>
+</ul>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/python/2014/01/12/python/" itemprop="url">
                   Python中文标签云之pytagcloud
                 </a>
@@ -2072,144 +2617,6 @@ fail:
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2013/10/11/" itemprop="url">
-                  沉沉如梦
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2013-10-11T00:00:00+08:00" content="2013-10-11">
-              2013-10-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2013/10/11/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2013/10/11//" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <pre><code>阳光透过树林洒下，
-好像零零碎碎的梦
-支离破碎的记忆中
-光怪陆离的影像里
-
-卷起残叶的风有些微凉
-阳光热情而温暖
-冷热之间 回眸百味
-
-羞涩的风
-一转眼你就消失，
-不能捉摸你的样子
-你的踪迹你的方向
-你来时出人意料
-你离开时一片狼籍
-你昨天为什么这么炽烈
-扬起温柔的沙
-迷住了我的眼
-止住了旅人匆匆的脚步
-却没有给他一个家？
-
-你没在天空留下痕迹
-但滚烫的风沙划伤了旅人的玻璃心
-没有血
-没有泪
-
-阳光下真温暖
-耳边依然是你的气息你的声音你的温存
-好想在一片温暖中沉沉入梦
-好想在温暖的梦中忘却所有
-好想在一无所有中重新拥抱
-拥抱美丽的世界
-拥抱彷徨中寻找的心
-
-沉沉如梦，
-我在想什么 
-</code></pre>
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2256,7 +2663,7 @@ fail:
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">176</span>
+              <span class="site-state-item-count">177</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

@@ -224,6 +224,145 @@
             
               
                 
+                <a class="post-title-link" href="/lisp/2012/05/12/web-server-written-in-lisp/" itemprop="url">
+                  Lisp Web Server
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-05-12T00:00:00+08:00" content="2012-05-12">
+              2012-05-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/lisp/2012/05/12/web-server-written-in-lisp/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/05/12/web-server-written-in-lisp/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="关于服务器">关于服务器</h2><p>首先我们要知道服务器是怎么工作的。如下图(有没有很熟悉?)</p>
+<p><img src="/images/server.dot.png" alt="Alt 服务器工作原理"></p>
+<p>浏览器负责接收和渲染服务器返回的信息，服务器解析浏览器发送的报文并返回正确的信息。两方通过socket来进行通信。</p>
+<p>浏览器发给服务器的报文应该是这样的，这是我从firebug中复制的：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /greeting HTTP/<span class="number">1.1</span></span><br><span class="line">Host: <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">8080</span></span><br><span class="line">User-Agent: Mozilla/<span class="number">5.0</span> (X11; Linux x86_64; rv:<span class="number">12.0</span>) Gecko/<span class="number">20100101</span> Firefox/<span class="number">12.0</span></span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=<span class="number">0.9</span>,*/*;q=<span class="number">0.8</span></span><br><span class="line">Accept-Language: zh-cn,zh;q=<span class="number">0.8</span>,en-us;q=<span class="number">0.5</span>,en;q=<span class="number">0.3</span></span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">DNT: <span class="number">1</span></span><br><span class="line">Connection: keep-alive</span><br></pre></td></tr></table></figure>
+<p>其中第一行中间是url，说到url，如果url是这样</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/greeting?name=bob</span><br></pre></td></tr></table></figure>
+<p>？后面的称作参数</p>
+<p>还有种叫作Post请求方法，该方法向指定资源提交数据进行处理请求（例如提交表单或者上传文件）。数据被包含在请求体中。POST请求可能会导致新的资源的建立和/或已有资源的修改。</p>
+<p>如果是post request,应该像下面这样,最后一行也是参数。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">POST /login.html HTTP/<span class="number">1.1</span></span><br><span class="line">Host: www.mywebsite.com</span><br><span class="line">User-Agent: Mozilla/<span class="number">5.0</span> (X11; U; Linux i686; en-US; rv:<span class="number">1.9</span>.<span class="number">0.5</span>)</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=<span class="number">0.9</span>,*/*;q=<span class="number">0.8</span></span><br><span class="line">Accept-Language: en-us,en;q=<span class="number">0.5</span></span><br><span class="line">Accept-Encoding: gzip,deflate</span><br><span class="line">Accept-Charset: ISO-<span class="number">8859</span>-<span class="number">1</span>,utf-<span class="number">8</span>;q=<span class="number">0.7</span>,*;q=<span class="number">0.7</span></span><br><span class="line">Keep-Alive: <span class="number">300</span></span><br><span class="line">Connection: keep-alive</span><br><span class="line">Content-Length: <span class="number">39</span></span><br><span class="line"></span><br><span class="line">userid=foo&amp;password=supersecretpassword</span><br></pre></td></tr></table></figure>
+<h2 id="如何以lisp的方式处理">如何以lisp的方式处理</h2><p>在common lisp中，我们可以通过socket stream来完成服务器和浏览器的通信，通过把http报文转换成alist形式存储在clisp webserver中，同时完成对浏览器相应信息的响应。</p>
+<p>因为网络中有许多意料之外的例外错误，为了确保发生错误后程序继续运行，比如说让webserver出错后可以正确关闭socket。可以使用unwind-protect.</p>
+<p>源码如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;;;&#36825;&#26159;&#19968;&#20010;&#31616;&#21333;&#30340;lisp&#26381;&#21153;&#22120;&#31034;&#20363;&#10;;;;Decoding the Values of Request Parameters&#10;;;&#23558;c1&#21644;c2&#20004;&#20010;&#23383;&#31526;&#35835;&#20026;16&#36827;&#21046;&#25968;&#24182;&#36820;&#22238;&#23545;&#24212;ascii&#30721;&#31526;&#21495;&#10;(defun http-char (c1 c2 &#38;optional (default #\space))&#10;  (let ((code (parse-integer&#10;                (coerce (list c1 c2) &#39;string)&#10;                :radix 16&#10;                :junk-allowed t)))&#10;    (if code&#10;      (code-char code)&#10;      default)))&#10;;;&#20998;&#21035;&#35752;&#35770;&#10;;;%&#21518;&#20026;16&#36827;&#21046;&#25968;&#65292;&#36716;&#21270;&#20026;&#30456;&#24212;ascii&#30721;&#23383;&#31526;&#10;;;+&#36716;&#21270;&#20301;&#31354;&#26684;&#10;(defun decode-param (s)&#10;  (labels ((f (lst)&#10;             (when lst&#10;               (case (car lst)&#10;                 (#\% (cons (http-char (cadr lst) (caddr lst))&#10;                            (f (cdddr lst))))&#10;                 (#\+ (cons #\space (f (cdr lst))))&#10;                 (otherwise (cons (car lst) (f (cdr lst))))))))&#10;  (coerce (f (coerce s &#39;list)) &#39;string)))&#10;;&#23558;&#23383;&#31526;&#20018;&#25286;&#25104;&#21015;&#34920;&#22788;&#29702;&#20877;&#36716;&#25104;&#23383;&#31526;&#20018;&#10;;&#21487;&#20197;&#29992;&#20197;&#19979;&#21629;&#20196;&#26597;&#30475;&#25928;&#26524;&#10;;(decode-param &#34;foo&#34;)&#10;;(decode-param &#34;foo%3F&#34;)&#10;;(decode-param &#34;foo+bar&#34;)&#10;;;;Decoding Lists of Request Parameters&#10;;;store these parameters as an alist&#10;;;&#36882;&#24402;&#35843;&#29992;&#65292;&#23558;&#24418;&#22914;name=bob&#38;age=25&#30340;&#19996;&#35199;&#21464;&#25104;&#10;;;((name . &#34;bob&#34;) (age . &#34;25&#34;))&#36825;&#26679;&#30340;alist&#10;(defun parse-params (s)&#10;  (let* ((i1 (position #\= s))&#10;         (i2 (position #\&#38; s)))&#10;    (cond (i1 (cons (cons (intern (string-upcase (subseq s 0 i1))) &#10;                          (decode-param (subseq s (1+ i1) i2)))&#10;                    (and i2 (parse-params (subseq s (1+ i2))))))&#10;          ((equal s &#34;&#34;) nil);?&#21518;&#20004;&#34892;&#32463;&#27979;&#35797;&#23436;&#20840;&#21487;&#20197;&#19981;&#35201;&#8230;&#8230;&#10;          (t s))));?&#10;;;;Parsing the Request Header&#10;;;&#20174;http&#25253;&#34920;&#22836;&#20013;&#25277;&#21462;url&#65292;&#24182;&#25226;&#20854;&#20313;&#37096;&#20998;&#20445;&#23384;&#20026;alist&#10;;;GET /this/is/url?name=bob&#38;gender=female HTTP/1.1&#10;(defun parse-url (s)&#10;  (let* ((url (subseq s&#10;                      (+ 2 (position #\space s))&#10;                      (position #\space s :from-end t)))&#10;         (x (position #\? url)))&#10;    (if x&#10;      (cons (subseq url 0 x) (parse-params (subseq url (1+ x))))&#10;      ;&#27880;&#24847;+1&#25152;&#20197;&#35201;&#20998;&#24773;&#20917;&#35752;&#35770;&#10;      (cons url &#39;()))))&#10;;&#21487;&#20197;&#29992;&#20197;&#19979;&#30475;&#30475;&#25928;&#26524;&#10;;(parse-url &#34;GET /lolcats.html?name=bob&#38;gender=female HTTP/1.1&#34;)&#10;;;&#23558;http&#25253;&#34920;&#30340;body&#37096;&#20998;&#35299;&#26512;&#25104;alist&#24418;&#24335;&#10;;;name: bob-&#62;(name . &#34;bob&#34;)&#10;(defun get-header (stream)&#10;  (let* ((s (read-line stream))&#10;         (h (let ((i (position #\: s)))&#10;              (when i&#10;                (cons (intern (string-upcase (subseq s 0 i)))&#10;                      (subseq s (+ i 2)))))))&#10;    (when h&#10;      (cons h (get-header stream)))))&#10;;&#21487;&#20197;&#29992;&#20197;&#19979;&#21629;&#20196;&#30475;&#25928;&#26524;&#10;;(get-header (make-string-input-stream &#34;foo: 1&#10;;bar: abc, 123&#10;&#10;;&#34;))&#10;;;;Parsing the Request Body&#10;;;;&#35299;&#26512;post request&#20013;&#26368;&#21518;&#19968;&#34892;,&#22635;&#20805;&#36827;content-length&#38271;&#30340;&#23383;&#31526;&#20018;&#20013;&#10;(defun get-content-params (stream header)&#10;  (let ((length (cdr (assoc &#39;content-length header))))&#10;    (when length&#10;      (let ((content (make-string (parse-integer length))))&#10;        (read-sequence content stream)&#10;        (parse-params content)))))&#10;&#10;;;;The serve function&#10;(defun serve (request-handler)&#10;  (let ((socket (socket-server 8080)))&#10;    (unwind-protect;&#38169;&#35823;&#20445;&#25252;&#10;      (loop (with-open-stream (stream (socket-accept socket))&#10;              (let* ((url&#10;                       (parse-url (read-line stream)))&#10;                     ;&#35835;&#20986;stream&#20013;&#31532;&#19968;&#34892;&#24182;&#35299;&#26512;&#20986;url&#65292;&#30041;&#19979;&#21097;&#19979;&#30340;&#34892;&#10;                     (path&#10;                       (car url))&#10;                     (header (get-header stream))&#10;                     ;&#23558;header&#35299;&#26512;&#10;                     (params (append &#10;                               (cdr url)&#10;                               (get-content-params stream header)))&#10;                     ;&#23558;post request&#26368;&#21518;&#19968;&#34892;&#35299;&#26512;&#19982;url&#20013;&#20869;&#23481;&#19968;&#36215;&#25918;&#36827;&#10;                     ;params&#37324;&#10;                     (*standard-output* stream))&#10;                (funcall request-handler path header params))))&#10;      (socket-server-close socket))));&#20851;&#38381;socket&#10;;;;Building a Dynamic Website&#10;(defun hello-request-handler (path header params)&#10;  (if (equal path &#34;greeting&#34;)&#10;    (let ((name (assoc &#39;name params)))&#10;      (if (not name)&#10;        (princ &#34;HTTP/1.1 200 OK&#10;&#10;&#60;!DOCTYPE html&#62;&#10;&#60;html&#62;&#10;&#60;body&#62;&#10;&#60;form&#62;What is your name?&#60;input name=&#39;name&#39; /&#62;&#10;&#60;/form&#62;&#10;&#60;/body&#62;&#10;&#60;/html&#62;&#34;)&#10;(format t &#34;HTTP/1.1 200 OK&#10;&#10;&#60;!DOCTYPE html&#62;&#10;&#60;html&#62;&#60;head&#62;&#60;/head&#62;&#60;body&#62;Nice to meet you, ~a!&#60;/body&#62;&#60;/html&#62;&#34;&#10;(cdr name))))&#10;(princ &#34;Sorry... I don&#39;t know that page.&#34;)))</span><br></pre></td></tr></table></figure>
+<h2 id="学到的命令">学到的命令</h2><ul>
+<li>parse-integer</li>
+<li>code-char</li>
+<li>position</li>
+<li>subseq</li>
+<li>intern</li>
+<li>make-string</li>
+<li>read-sequence</li>
+<li>with-open-stream</li>
+<li>unwind-protect</li>
+<li>read-line</li>
+</ul>
+<h2 id="写在最后">写在最后</h2><p>其实这个webserver还是有很多疑惑的。</p>
+<p>首先，实际操作中我在firebugs中并没有看到Post request，<strike>邮件组中热心人说可以用telnet来查看交互信息但我不会。所以对content-length的处理就感觉挺蹊跷（liutos同学似乎也这样认为）。可能通信时为了准确性都要验证吧。</strike></p>
+<p>其二是照书上源码和网上提供的源码返回给浏览器的是plain text而非解析为html，经参照服务器返回信息添加上</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HTTP/<span class="number">1.1</span> <span class="number">200</span> OK</span><br></pre></td></tr></table></figure>
+<p>同时保证html5标准，不要漏掉一大堆head、body、html标签。</p>
+<p>最后还有对parse-params的处理，为什么要分三种情况处理?我把后两种去掉后也能正常运行,还是说三种情况容错性好？<strike>我不明白，这个问题留待高人吧。</strike></p>
+<p>edit:第二种情况处理末尾，虽然对commonlisp来说没有指定输入nil的情况也会输出nil，秉持着递归时考虑所有情况的lisper们还是会写出来。另外最后一种情况处理错误情况，以防出现中断.</p>
+<p>如果webserver不能正常工作，可以用telnet来测试。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet <span class="number">127.0</span>.<span class="number">0.1</span> <span class="number">8080</span></span><br></pre></td></tr></table></figure>
+<p>最后对Purity和liuto的解惑与帮助致以诚挚谢意。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/lisp/2012/05/10/streams-in-lisp/" itemprop="url">
                   Streams in Lisp
                 </a>
@@ -1441,151 +1580,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/web/2012/04/13/How-I-built-this-blog/" itemprop="url">
-                  How I built this blog
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-04-13T00:00:00+08:00" content="2012-04-13">
-              2012-04-13
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/web/" itemprop="url" rel="index">
-                    <span itemprop="name">web</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/web/2012/04/13/How-I-built-this-blog/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="web/2012/04/13/How-I-built-this-blog/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="缘起">缘起</h2><p>大概两个月前，曾经折腾过jekyll和Octopress。当时对照<a href="http://chen.yanping.me/cn/blog/2011/12/15/building-static-sites-with-jekyll/" target="_blank" rel="external">【译文】用Jekyll构建静态网站</a>在archlinux实现了把jekyll。因为rvm的问题，octpress就怎么也搞不定了。再加上当时对vimwiki比较熟悉，jekyll和Octopress再也不曾碰过。</p>
-<p>然而几天前发现vimwiki的语法分析器甚至不支持xhtml，忽然又碰进<a href="http://www.soimort.org/" target="_blank" rel="external">Mort的主页里</a>.Mort绚丽的jekyll博客瞬时grasp my heart，一股不可抑制的折腾情怀升腾起来。</p>
-<h2 id="经过">经过</h2><h3 id="ruby版本控制">ruby版本控制</h3><p>当初没有继续折腾的原因之一，就是ruby搞不定。jekyll可以用ruby1.9.1或1.9.2,Octopress则要求1.9.2-p290.而archlinux当前版本的ruby是1.9.3。故使用rvm来控制ruby版本。</p>
-<p>####设置代理</p>
-<p>安装rvm，如果网络良好完全没问题。由于我在学校内使用的是sogou代理，而export http_proxy之流的命令偏偏不顶事，后来发现git和curl的网络链接根本就不继承shell环境的代理。</p>
-<p>为了装上rvm，先在curlrc中写入</p>
-<pre><code>proxy=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">1998</span>
-</code></pre><p>在gitconfig中写入</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[http]</span><br><span class="line">    proxy = http://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1998</span></span><br></pre></td></tr></table></figure>
-<p>然后参见文档开始安装就是，我比较悲催，开始不知道可以这样做。直接hack rvm那个安装脚本才搞定</p>
-<h4 id="ruby环境搭建">ruby环境搭建</h4><p>因为我既是ruby小白又是python小白，所以选什么都没区别，如果你对python熟悉，<a href="http://hyde.github.com/index.html" target="_blank" rel="external">Hyde</a>而非jekyll可能是更好的选择。</p>
-<p>装好rvm后，使用ruby1.9.2</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rvm install <span class="number">1.9</span>.<span class="number">2</span> &amp;&amp; rvm use <span class="number">1.9</span>.<span class="number">2</span></span><br></pre></td></tr></table></figure>
-<p>使用taobao的gem源</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gem sources -remove http://rubygem.org/ </span><br><span class="line">gem sources <span class="operator">-a</span> http://ruby.taobao.org/ --http-proxy http://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1998</span></span><br></pre></td></tr></table></figure>
-<p>安装对应的jekyll</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gem install --http-proxy http://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">1998</span> jekyll</span><br></pre></td></tr></table></figure>
-<p>其它和官方文档就没什么区别了。</p>
-<p>ps:如果用socks代理请自行配置tsocks。</p>
-<h3 id="jekyll">jekyll</h3><p>直接从soimort扒来的源码和jekyllbootstrap的源码经过个人需求重新加工整合，这个过程比较繁琐,此处略去。</p>
-<p>然后就是push…</p>
-<h3 id="后续">后续</h3><h4 id="语法高亮">语法高亮</h4><p>之前我是用pygments解决的，没有按官方文档来，因为装python2-pygments后才有pygmentize命令…</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo pacman -S python2-pygments</span><br><span class="line">pygmentize -S default <span class="operator">-f</span> html &gt; ~css/pygments.css</span><br></pre></td></tr></table></figure>
-<p>后来发现还是syntaxhighlighter好看，于是把vimwiki那一大堆东西迁移过来了。结果搞的网页加载很慢，效果虽好很久出不来，所以先改会pygments</p>
-<hr>
-<h3 id="参考文献">参考文献</h3><h4 id="关于jekyll">关于jekyll</h4><ol>
-<li><a href="https://github.com/mojombo/jekyll/wiki/" target="_blank" rel="external">jekyll wiki</a></li>
-<li><a href="http://chen.yanping.me/cn/blog/2011/12/15/building-static-sites-with-jekyll/" target="_blank" rel="external">【译文】用Jekyll构建静态网站</a></li>
-<li><a href="http://www.yangzhiping.com/tech/wordpress-to-jekyll.html" target="_blank" rel="external">告别wordpress，拥抱jekyll</a></li>
-<li><a href="http://www.pizn.me/2012/03/01/some-tips-for-jekyll-blog.html" target="_blank" rel="external">搭建 Jekyll 博客的一些小技巧</a></li>
-<li><a href="http://jiyinyiyong.blog.163.com/blog/static/64699876201111291856363/" target="_blank" rel="external">尝试 Jekyll 博客</a></li>
-</ol>
-<h4 id="关于语法高亮">关于语法高亮</h4><ol>
-<li><a href="http://www.stehem.net/2012/02/14/how-to-get-pygments-to-work-with-jekyll.html" target="_blank" rel="external">How to get Pygments to work with Jekyll</a></li>
-<li><a href="http://bbs.laxjyj.com/read-htm-tid-162443.html" target="_blank" rel="external">Jekyll的代码高亮</a></li>
-<li><a href="http://www.v2ex.com/t/28708" target="_blank" rel="external">jekyll 是不是不能使用插件啊？</a></li>
-</ol>
-<h4 id="其它">其它</h4><ol>
-<li><a href="http://blog.csdn.net/huzhenwei/article/details/4369027" target="_blank" rel="external">wget和curl设置代理服务器的命令</a></li>
-<li><a href="http://chenhailong.iteye.com/blog/1340924" target="_blank" rel="external">Ruby Gem Proxy 代理设置</a></li>
-<li><a href="http://beginrescueend.com/workflow/proxy/" target="_blank" rel="external">Using RVM behind a proxy </a></li>
-<li><a href="http://beginrescueend.com/rvm/install/" target="_blank" rel="external">Installing RVM</a></li>
-</ol>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1632,7 +1626,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">176</span>
+              <span class="site-state-item-count">177</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

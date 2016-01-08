@@ -224,6 +224,140 @@
             
               
                 
+                <a class="post-title-link" href="/lisp/2012/06/08/first-ai-in-lisp/" itemprop="url">
+                  First AI in lisp
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-06-08T00:00:00+08:00" content="2012-06-08">
+              2012-06-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/lisp/2012/06/08/first-ai-in-lisp/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/06/08/first-ai-in-lisp/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="创造一个智能的对手">创造一个智能的对手</h2><p>我们的<a href="/lisp/2012/05/23/dice-of-doom/">Dice of Doom</a>游戏树代码有个分开的游戏树生成使向游戏引擎添加AI很容易。事实上，让我们跟着作者添加23行代码来实现AI！！</p>
+<p>让我们先看看AI如何决定移动：</p>
+<ul>
+<li>查看每个可允许的移动</li>
+<li>对每一步的后的board评分</li>
+<li>选择分值最高的移动</li>
+</ul>
+<p>看起来很容易，那么怎么实现评分？如果一步后就赢了，很容易评分。如果不是的话怎么办？我们的移动将取决于对手的移动，为了不陷入不断考虑对手的境地中，提出一种算法。</p>
+<h2 id="最小最大算法">最小最大算法</h2><p>当赛场上只有两个玩家时，有这么个规则：对他人好的对我不好。这意味着我们可以采取如下模式决定对手的移动：</p>
+<ul>
+<li>查看每个可行移动</li>
+<li>对每一步后的board评分</li>
+<li>选择最小的评分的移动</li>
+</ul>
+<p>综上，这就是最大最小算法。这很关键，结果是我们可以避免分别为自己和对手计算评分，然后向下搜索游戏树中好的移动变得更简单和更快。为了让算法成为代码，还需要做少许调整。</p>
+<h2 id="将最大最小算法转化为代码">将最大最小算法转化为代码</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun rate-position (tree player)&#10;  (let ((moves (caddr tree)))&#10;    (if moves&#10;      (apply (if (eq (car tree) player)&#10;               #&#39;max&#10;               #&#39;min)&#10;             (get-ratings tree player))&#10;      (let ((w (winners (cadr tree))))&#10;        (if (member player w)&#10;          (/ 1 (length w))&#10;          0)))))&#10;(defun get-ratings (tree player)&#10;  (mapcar (lambda (move)&#10;            (rate-position (cadr move) player))&#10;          (caddr tree)))</span><br></pre></td></tr></table></figure>
+<h2 id="创造一个有AI的游戏循环">创造一个有AI的游戏循环</h2><p>先写个电脑处理函数，像我们的handle-human函数,首先找出每个移动的评分，然后选择评分最高的移动。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun handle-computer (tree)&#10;  (let ((ratings (get-ratings tree (car tree))))&#10;    (cadr (nth (position (apply #&#39;max ratings) ratings) (caddr tree)))))</span><br></pre></td></tr></table></figure>
+<p>最后，创造一个游戏环境即游戏循环</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun play-vs-computer (tree)&#10;  (print-info tree)&#10;  (cond ((null (caddr tree)) (announce-winner (cadr tree)))&#10;        ((zerop (car tree)) (play-vs-computer (handle-human tree)));&#22240;&#20026;&#28216;&#25103;&#20013;player1&#21363;&#20195;&#30721;0&#20026;&#20154;&#31867;&#29609;&#23478;&#10;        (t (play-vs-computer (handle-computer tree)))))</span><br></pre></td></tr></table></figure>
+<p>finished!!</p>
+<h2 id="试试人类vs电脑游戏">试试人类vs电脑游戏</h2><p>在repl中输入</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(play-vs-computer (game-tree (gen-board) 0 0 t))</span><br></pre></td></tr></table></figure>
+<h2 id="写在最后">写在最后</h2><p>终于考完试了，好久没看这本书。发现很多东西都生疏了，还好作者每次解释都很详细。这一章一看了好久，回头看看common lisp，东西真是相当之多……正好从图书馆找到HTDP的中文版，看完这本书全面转向scheme。</p>
+<p>最后引用首爱默生《人生苦旅》中的诗：</p>
+<blockquote>
+<p>我们把美归于简单</p>
+<p>不含多余部分</p>
+<p>边界清晰</p>
+<p>与一切相关联</p>
+<p>是中庸之道</p>
+</blockquote>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/scheme/2012/06/05/scheme/" itemprop="url">
                   Scheme初体验
                 </a>
@@ -1320,145 +1454,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/lisp/2012/05/12/web-server-written-in-lisp/" itemprop="url">
-                  Lisp Web Server
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-05-12T00:00:00+08:00" content="2012-05-12">
-              2012-05-12
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/lisp/" itemprop="url" rel="index">
-                    <span itemprop="name">lisp</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/lisp/2012/05/12/web-server-written-in-lisp/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/05/12/web-server-written-in-lisp/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="关于服务器">关于服务器</h2><p>首先我们要知道服务器是怎么工作的。如下图(有没有很熟悉?)</p>
-<p><img src="/images/server.dot.png" alt="Alt 服务器工作原理"></p>
-<p>浏览器负责接收和渲染服务器返回的信息，服务器解析浏览器发送的报文并返回正确的信息。两方通过socket来进行通信。</p>
-<p>浏览器发给服务器的报文应该是这样的，这是我从firebug中复制的：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /greeting HTTP/<span class="number">1.1</span></span><br><span class="line">Host: <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">8080</span></span><br><span class="line">User-Agent: Mozilla/<span class="number">5.0</span> (X11; Linux x86_64; rv:<span class="number">12.0</span>) Gecko/<span class="number">20100101</span> Firefox/<span class="number">12.0</span></span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=<span class="number">0.9</span>,*/*;q=<span class="number">0.8</span></span><br><span class="line">Accept-Language: zh-cn,zh;q=<span class="number">0.8</span>,en-us;q=<span class="number">0.5</span>,en;q=<span class="number">0.3</span></span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">DNT: <span class="number">1</span></span><br><span class="line">Connection: keep-alive</span><br></pre></td></tr></table></figure>
-<p>其中第一行中间是url，说到url，如果url是这样</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/greeting?name=bob</span><br></pre></td></tr></table></figure>
-<p>？后面的称作参数</p>
-<p>还有种叫作Post请求方法，该方法向指定资源提交数据进行处理请求（例如提交表单或者上传文件）。数据被包含在请求体中。POST请求可能会导致新的资源的建立和/或已有资源的修改。</p>
-<p>如果是post request,应该像下面这样,最后一行也是参数。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">POST /login.html HTTP/<span class="number">1.1</span></span><br><span class="line">Host: www.mywebsite.com</span><br><span class="line">User-Agent: Mozilla/<span class="number">5.0</span> (X11; U; Linux i686; en-US; rv:<span class="number">1.9</span>.<span class="number">0.5</span>)</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=<span class="number">0.9</span>,*/*;q=<span class="number">0.8</span></span><br><span class="line">Accept-Language: en-us,en;q=<span class="number">0.5</span></span><br><span class="line">Accept-Encoding: gzip,deflate</span><br><span class="line">Accept-Charset: ISO-<span class="number">8859</span>-<span class="number">1</span>,utf-<span class="number">8</span>;q=<span class="number">0.7</span>,*;q=<span class="number">0.7</span></span><br><span class="line">Keep-Alive: <span class="number">300</span></span><br><span class="line">Connection: keep-alive</span><br><span class="line">Content-Length: <span class="number">39</span></span><br><span class="line"></span><br><span class="line">userid=foo&amp;password=supersecretpassword</span><br></pre></td></tr></table></figure>
-<h2 id="如何以lisp的方式处理">如何以lisp的方式处理</h2><p>在common lisp中，我们可以通过socket stream来完成服务器和浏览器的通信，通过把http报文转换成alist形式存储在clisp webserver中，同时完成对浏览器相应信息的响应。</p>
-<p>因为网络中有许多意料之外的例外错误，为了确保发生错误后程序继续运行，比如说让webserver出错后可以正确关闭socket。可以使用unwind-protect.</p>
-<p>源码如下：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;;;&#36825;&#26159;&#19968;&#20010;&#31616;&#21333;&#30340;lisp&#26381;&#21153;&#22120;&#31034;&#20363;&#10;;;;Decoding the Values of Request Parameters&#10;;;&#23558;c1&#21644;c2&#20004;&#20010;&#23383;&#31526;&#35835;&#20026;16&#36827;&#21046;&#25968;&#24182;&#36820;&#22238;&#23545;&#24212;ascii&#30721;&#31526;&#21495;&#10;(defun http-char (c1 c2 &#38;optional (default #\space))&#10;  (let ((code (parse-integer&#10;                (coerce (list c1 c2) &#39;string)&#10;                :radix 16&#10;                :junk-allowed t)))&#10;    (if code&#10;      (code-char code)&#10;      default)))&#10;;;&#20998;&#21035;&#35752;&#35770;&#10;;;%&#21518;&#20026;16&#36827;&#21046;&#25968;&#65292;&#36716;&#21270;&#20026;&#30456;&#24212;ascii&#30721;&#23383;&#31526;&#10;;;+&#36716;&#21270;&#20301;&#31354;&#26684;&#10;(defun decode-param (s)&#10;  (labels ((f (lst)&#10;             (when lst&#10;               (case (car lst)&#10;                 (#\% (cons (http-char (cadr lst) (caddr lst))&#10;                            (f (cdddr lst))))&#10;                 (#\+ (cons #\space (f (cdr lst))))&#10;                 (otherwise (cons (car lst) (f (cdr lst))))))))&#10;  (coerce (f (coerce s &#39;list)) &#39;string)))&#10;;&#23558;&#23383;&#31526;&#20018;&#25286;&#25104;&#21015;&#34920;&#22788;&#29702;&#20877;&#36716;&#25104;&#23383;&#31526;&#20018;&#10;;&#21487;&#20197;&#29992;&#20197;&#19979;&#21629;&#20196;&#26597;&#30475;&#25928;&#26524;&#10;;(decode-param &#34;foo&#34;)&#10;;(decode-param &#34;foo%3F&#34;)&#10;;(decode-param &#34;foo+bar&#34;)&#10;;;;Decoding Lists of Request Parameters&#10;;;store these parameters as an alist&#10;;;&#36882;&#24402;&#35843;&#29992;&#65292;&#23558;&#24418;&#22914;name=bob&#38;age=25&#30340;&#19996;&#35199;&#21464;&#25104;&#10;;;((name . &#34;bob&#34;) (age . &#34;25&#34;))&#36825;&#26679;&#30340;alist&#10;(defun parse-params (s)&#10;  (let* ((i1 (position #\= s))&#10;         (i2 (position #\&#38; s)))&#10;    (cond (i1 (cons (cons (intern (string-upcase (subseq s 0 i1))) &#10;                          (decode-param (subseq s (1+ i1) i2)))&#10;                    (and i2 (parse-params (subseq s (1+ i2))))))&#10;          ((equal s &#34;&#34;) nil);?&#21518;&#20004;&#34892;&#32463;&#27979;&#35797;&#23436;&#20840;&#21487;&#20197;&#19981;&#35201;&#8230;&#8230;&#10;          (t s))));?&#10;;;;Parsing the Request Header&#10;;;&#20174;http&#25253;&#34920;&#22836;&#20013;&#25277;&#21462;url&#65292;&#24182;&#25226;&#20854;&#20313;&#37096;&#20998;&#20445;&#23384;&#20026;alist&#10;;;GET /this/is/url?name=bob&#38;gender=female HTTP/1.1&#10;(defun parse-url (s)&#10;  (let* ((url (subseq s&#10;                      (+ 2 (position #\space s))&#10;                      (position #\space s :from-end t)))&#10;         (x (position #\? url)))&#10;    (if x&#10;      (cons (subseq url 0 x) (parse-params (subseq url (1+ x))))&#10;      ;&#27880;&#24847;+1&#25152;&#20197;&#35201;&#20998;&#24773;&#20917;&#35752;&#35770;&#10;      (cons url &#39;()))))&#10;;&#21487;&#20197;&#29992;&#20197;&#19979;&#30475;&#30475;&#25928;&#26524;&#10;;(parse-url &#34;GET /lolcats.html?name=bob&#38;gender=female HTTP/1.1&#34;)&#10;;;&#23558;http&#25253;&#34920;&#30340;body&#37096;&#20998;&#35299;&#26512;&#25104;alist&#24418;&#24335;&#10;;;name: bob-&#62;(name . &#34;bob&#34;)&#10;(defun get-header (stream)&#10;  (let* ((s (read-line stream))&#10;         (h (let ((i (position #\: s)))&#10;              (when i&#10;                (cons (intern (string-upcase (subseq s 0 i)))&#10;                      (subseq s (+ i 2)))))))&#10;    (when h&#10;      (cons h (get-header stream)))))&#10;;&#21487;&#20197;&#29992;&#20197;&#19979;&#21629;&#20196;&#30475;&#25928;&#26524;&#10;;(get-header (make-string-input-stream &#34;foo: 1&#10;;bar: abc, 123&#10;&#10;;&#34;))&#10;;;;Parsing the Request Body&#10;;;;&#35299;&#26512;post request&#20013;&#26368;&#21518;&#19968;&#34892;,&#22635;&#20805;&#36827;content-length&#38271;&#30340;&#23383;&#31526;&#20018;&#20013;&#10;(defun get-content-params (stream header)&#10;  (let ((length (cdr (assoc &#39;content-length header))))&#10;    (when length&#10;      (let ((content (make-string (parse-integer length))))&#10;        (read-sequence content stream)&#10;        (parse-params content)))))&#10;&#10;;;;The serve function&#10;(defun serve (request-handler)&#10;  (let ((socket (socket-server 8080)))&#10;    (unwind-protect;&#38169;&#35823;&#20445;&#25252;&#10;      (loop (with-open-stream (stream (socket-accept socket))&#10;              (let* ((url&#10;                       (parse-url (read-line stream)))&#10;                     ;&#35835;&#20986;stream&#20013;&#31532;&#19968;&#34892;&#24182;&#35299;&#26512;&#20986;url&#65292;&#30041;&#19979;&#21097;&#19979;&#30340;&#34892;&#10;                     (path&#10;                       (car url))&#10;                     (header (get-header stream))&#10;                     ;&#23558;header&#35299;&#26512;&#10;                     (params (append &#10;                               (cdr url)&#10;                               (get-content-params stream header)))&#10;                     ;&#23558;post request&#26368;&#21518;&#19968;&#34892;&#35299;&#26512;&#19982;url&#20013;&#20869;&#23481;&#19968;&#36215;&#25918;&#36827;&#10;                     ;params&#37324;&#10;                     (*standard-output* stream))&#10;                (funcall request-handler path header params))))&#10;      (socket-server-close socket))));&#20851;&#38381;socket&#10;;;;Building a Dynamic Website&#10;(defun hello-request-handler (path header params)&#10;  (if (equal path &#34;greeting&#34;)&#10;    (let ((name (assoc &#39;name params)))&#10;      (if (not name)&#10;        (princ &#34;HTTP/1.1 200 OK&#10;&#10;&#60;!DOCTYPE html&#62;&#10;&#60;html&#62;&#10;&#60;body&#62;&#10;&#60;form&#62;What is your name?&#60;input name=&#39;name&#39; /&#62;&#10;&#60;/form&#62;&#10;&#60;/body&#62;&#10;&#60;/html&#62;&#34;)&#10;(format t &#34;HTTP/1.1 200 OK&#10;&#10;&#60;!DOCTYPE html&#62;&#10;&#60;html&#62;&#60;head&#62;&#60;/head&#62;&#60;body&#62;Nice to meet you, ~a!&#60;/body&#62;&#60;/html&#62;&#34;&#10;(cdr name))))&#10;(princ &#34;Sorry... I don&#39;t know that page.&#34;)))</span><br></pre></td></tr></table></figure>
-<h2 id="学到的命令">学到的命令</h2><ul>
-<li>parse-integer</li>
-<li>code-char</li>
-<li>position</li>
-<li>subseq</li>
-<li>intern</li>
-<li>make-string</li>
-<li>read-sequence</li>
-<li>with-open-stream</li>
-<li>unwind-protect</li>
-<li>read-line</li>
-</ul>
-<h2 id="写在最后">写在最后</h2><p>其实这个webserver还是有很多疑惑的。</p>
-<p>首先，实际操作中我在firebugs中并没有看到Post request，<strike>邮件组中热心人说可以用telnet来查看交互信息但我不会。所以对content-length的处理就感觉挺蹊跷（liutos同学似乎也这样认为）。可能通信时为了准确性都要验证吧。</strike></p>
-<p>其二是照书上源码和网上提供的源码返回给浏览器的是plain text而非解析为html，经参照服务器返回信息添加上</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HTTP/<span class="number">1.1</span> <span class="number">200</span> OK</span><br></pre></td></tr></table></figure>
-<p>同时保证html5标准，不要漏掉一大堆head、body、html标签。</p>
-<p>最后还有对parse-params的处理，为什么要分三种情况处理?我把后两种去掉后也能正常运行,还是说三种情况容错性好？<strike>我不明白，这个问题留待高人吧。</strike></p>
-<p>edit:第二种情况处理末尾，虽然对commonlisp来说没有指定输入nil的情况也会输出nil，秉持着递归时考虑所有情况的lisper们还是会写出来。另外最后一种情况处理错误情况，以防出现中断.</p>
-<p>如果webserver不能正常工作，可以用telnet来测试。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet <span class="number">127.0</span>.<span class="number">0.1</span> <span class="number">8080</span></span><br></pre></td></tr></table></figure>
-<p>最后对Purity和liuto的解惑与帮助致以诚挚谢意。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1505,7 +1500,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">176</span>
+              <span class="site-state-item-count">177</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

@@ -224,6 +224,481 @@
             
               
                 
+                <a class="post-title-link" href="/python/2012/10/19/python/" itemprop="url">
+                  优化代码(Python)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-10-19T00:00:00+08:00" content="2012-10-19">
+              2012-10-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2012/10/19/python/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/10/19/python/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="优化代码">优化代码</h1><p>翻译自：<a href="http://scipy-lectures.github.com/advanced/optimizing/index.html" target="_blank" rel="external">http://scipy-lectures.github.com/advanced/optimizing/index.html</a></p>
+<p>作者:Gaël Varoquaux</p>
+<p>License:Creative Commons Attribution 3.0 United States License (CC-by) <a href="http://creativecommons.org/licenses/by/3.0/us" target="_blank" rel="external">http://creativecommons.org/licenses/by/3.0/us</a></p>
+<blockquote>
+<p>过早的优化是罪恶的根源。</p>
+<p>——Donald. Knuth</p>
+</blockquote>
+<p>这个章节涉及使Python代码运行更快的策略。</p>
+<p><strong>先决条件</strong></p>
+<ul>
+<li>line_profiler(<a href="http://packages.python.org/line_profiler/" target="_blank" rel="external">http://packages.python.org/line_profiler/</a>)</li>
+</ul>
+<p><strong>目录</strong></p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<h2 id="优化工作流">优化工作流</h2><ol>
+<li>让它工作：以简单<em>清晰</em>的方式书写代码。</li>
+<li>让它可靠的动作：书写自动化的测试实例，确认你的算法是正确的。如果你中止它，测试将捕捉到中断。</li>
+<li>优化代码：通过剖析(profile)简单的用例来发现瓶颈，并且加速这些瓶颈，找到更好的算法或实现。记住在剖析一个现实的实例和代码的简洁与执行速度之间权衡。对于有效率的工作，最好让剖析运行约十秒。</li>
+</ol>
+<h2 id="剖析(profile)Python代码">剖析(profile)Python代码</h2><p><strong>非测量，不优化</strong></p>
+<ul>
+<li><em>测量</em>：剖析(profiling)， 计时(timing)</li>
+</ul>
+<h3 id="Timeit">Timeit</h3><p>在Ipython中，使用<code>timeit</code>(<a href="http://docs.python.org/library/timeit.html" target="_blank" rel="external">http://docs.python.org/library/timeit.html</a>)来计算基本运算时间。</p>
+<pre><code>In [<span class="number">1</span>]: import numpy as np
+
+In [<span class="number">2</span>]: a = np.arange(<span class="number">1000</span>)
+
+In [<span class="number">3</span>]: %timeit a ** <span class="number">2</span>
+<span class="number">100000</span> loops, best of <span class="number">3</span>: <span class="number">3.55</span> us per loop
+
+In [<span class="number">4</span>]: %timeit a ** <span class="number">2.1</span>
+<span class="number">10000</span> loops, best of <span class="number">3</span>: <span class="number">105</span> us per loop
+
+In [<span class="number">5</span>]: %timeit a * a
+<span class="number">100000</span> loops, best of <span class="number">3</span>: <span class="number">3.5</span> us per loop
+</code></pre><p>使用这个指引你的策略选择。</p>
+<p><strong>注意：</strong>对于长时间运行的调用，使用<code>%time</code>代替<code>%timeit</code>;虽然精确度降低但运行更快。</p>
+<h3 id="分析器(Profiler)">分析器(Profiler)</h3><p>当你有个很大的程序去分析时会有用，例如以下文件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mport numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> scipy <span class="keyword">import</span> linalg</span><br><span class="line"><span class="keyword">from</span> sklearn.decomposition <span class="keyword">import</span> fastica</span><br><span class="line"><span class="comment"># from mdp import fastica</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    data = np.random.random((<span class="number">5000</span>, <span class="number">100</span>))</span><br><span class="line">    u, s, v = linalg.svd(data)</span><br><span class="line">    pca = np.dot(u[:<span class="number">10</span>, :], data) </span><br><span class="line">    results = fastica(pca.T, whiten=<span class="keyword">False</span>)</span><br><span class="line"></span><br><span class="line">test()</span><br></pre></td></tr></table></figure>
+<p>在IPython中我们可以测量脚本运行时间：</p>
+<pre><code><span class="tag">In</span> <span class="attr_selector">[6]</span>: %<span class="tag">run</span> <span class="tag">-t</span> <span class="tag">demo</span><span class="class">.py</span>
+
+<span class="tag">IPython</span> <span class="tag">CPU</span> <span class="tag">timings</span> (<span class="tag">estimated</span>):
+  <span class="tag">User</span>   :      11<span class="class">.03</span> <span class="tag">s</span>.
+  <span class="tag">System</span> :       0<span class="class">.43</span> <span class="tag">s</span>.
+<span class="tag">Wall</span> <span class="tag">time</span>:      13<span class="class">.12</span> <span class="tag">s</span>.
+</code></pre><p>然后分析(profile)它：</p>
+<pre><code>In [<span class="number">7</span>]: %run -p <span class="filename">demo.py
+
+1169 function calls in 10.765 seconds
+
+   Ordered by</span>: internal time
+
+   <span class="header"><span class="keyword">ncalls</span>  <span class="keyword">tottime</span>  percall  <span class="keyword">cumtime</span>  percall <span class="keyword">filename</span>:lineno(function)</span>
+        <span class="number">2</span>   <span class="number">10.693</span>    <span class="number">5.346</span>   <span class="number">10.699</span>    <span class="number">5.350</span> <span class="filename">decomp_svd.py</span>:<span class="number">14</span><span class="function">(<span class="title">svd</span>)</span>
+      <span class="number">144</span>    <span class="number">0.040</span>    <span class="number">0.000</span>    <span class="number">0.040</span>    <span class="number">0.000</span> {<span class="built_in">numpy.core.multiarray.dot</span>}
+        <span class="number">1</span>    <span class="number">0.015</span>    <span class="number">0.015</span>    <span class="number">0.015</span>    <span class="number">0.015</span> {<span class="built_in">method <span class="string">'random_sample'</span> of <span class="string">'mtrand.RandomState'</span> objects</span>}
+       <span class="number">20</span>    <span class="number">0.005</span>    <span class="number">0.000</span>    <span class="number">0.007</span>    <span class="number">0.000</span> <span class="filename">function_base.py</span>:<span class="number">526</span><span class="function">(<span class="title">asarray_chkfinite</span>)</span>
+        <span class="number">1</span>    <span class="number">0.003</span>    <span class="number">0.003</span>   <span class="number">10.764</span>   <span class="number">10.764</span> <span class="filename">demo.py</span>:<span class="number">1</span><span class="function">(&lt;<span class="title">module</span>&gt;)</span>
+       <span class="number">18</span>    <span class="number">0.002</span>    <span class="number">0.000</span>    <span class="number">0.002</span>    <span class="number">0.000</span> <span class="filename">decomp.py</span>:<span class="number">197</span><span class="function">(<span class="title">eigh</span>)</span>
+       <span class="number">17</span>    <span class="number">0.001</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.000</span> <span class="filename">fastica_.py</span>:<span class="number">219</span><span class="function">(<span class="title">gprime</span>)</span>
+       <span class="number">40</span>    <span class="number">0.001</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.000</span> {<span class="built_in">method <span class="string">'any'</span> of <span class="string">'numpy.ndarray'</span> objects</span>}
+       <span class="number">17</span>    <span class="number">0.001</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.000</span> <span class="filename">fastica_.py</span>:<span class="number">215</span><span class="function">(<span class="title">g</span>)</span>
+        <span class="number">1</span>    <span class="number">0.001</span>    <span class="number">0.001</span>    <span class="number">0.008</span>    <span class="number">0.008</span> <span class="filename">fastica_.py</span>:<span class="number">88</span><span class="function">(<span class="title">_ica_par</span>)</span>
+        <span class="number">1</span>    <span class="number">0.001</span>    <span class="number">0.001</span>   <span class="number">10.764</span>   <span class="number">10.764</span> {<span class="built_in">execfile</span>}
+       <span class="number">52</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.000</span> <span class="filename">twodim_base.py</span>:<span class="number">220</span><span class="function">(<span class="title">diag</span>)</span>
+       <span class="number">18</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.003</span>    <span class="number">0.000</span> <span class="filename">fastica_.py</span>:<span class="number">40</span><span class="function">(<span class="title">_sym_decorrelation</span>)</span>
+       <span class="number">18</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span> {<span class="built_in">method <span class="string">'mean'</span> of <span class="string">'numpy.ndarray'</span> objects</span>}
+</code></pre><p>显然<code>svd</code>(在<em>decomp.py</em>中)是占用我们时间最多的东西，即瓶颈。我们得找到一种方法来让这一步运行更快，或者避免这一步(算法优化)。加速代码剩下的部分并无益处。</p>
+<h3 id="Line-profiler">Line-profiler</h3><p>分析器(profiler)很棒：它告诉我们那个函数费时最多，但并不是它在哪里调用。</p>
+<p>对此，我们使用<a href="http://packages.python.org/line_profiler/" target="_blank" rel="external">line_profiler</a>：在原文件中，我们用<code>@profile</code>修饰一些我们想要检查的函数(不用导入它)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="decorator">@profile</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    data = np.random.random((<span class="number">5000</span>, <span class="number">100</span>))</span><br><span class="line">    u, s, v = linalg.svd(data)</span><br><span class="line">    pca = np.dot(u[:<span class="number">10</span>, :], data)</span><br><span class="line">    results = fastica(pca.T, whiten=<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure>
+<p>然后我们使用<a href="packages.python.org/line_profiler/kernprof.py">kernprof.py</a>程序，用-l和-v：</p>
+<pre><code>lyy@<span class="keyword">arch</span> ~ % kernprof.py -<span class="keyword">l</span> -v demo.py
+Wrote profile results to demo.py.lprof
+<span class="keyword">Timer</span> unit: 1e-06 <span class="literal">s</span>
+
+<span class="keyword">File</span>: demo.py
+Function: <span class="keyword">test</span> at <span class="keyword">line</span> 6
+<span class="keyword">Total</span> time: 10.5932 <span class="literal">s</span>
+
+<span class="keyword">Line</span> #      Hits         Time  Per Hit   % Time  <span class="keyword">Line</span> Contents
+==============================================================
+     6                                           @profile
+     7                                           def <span class="keyword">test</span>():
+     8         1        11070  11070.0      0.1          data = np.random.random((5000, 100))
+     9         1     10530291 10530291.0     99.4          <span class="keyword">u</span>, s, v = linalg.svd(data)
+    10         1        31026  31026.0      0.3          <span class="keyword">pca</span> = np.dot(<span class="keyword">u</span>[:10, :], data)
+    11         1        20766  20766.0      0.2          results = fastica(<span class="keyword">pca</span>.T)
+
+kernprof.py -<span class="keyword">l</span> -v demo.py  12.57s user 0.25s system 99% cpu 12.891 <span class="keyword">total</span>
+</code></pre><p><em>SVD占用了大部分时间</em>。我们需要优化这行。</p>
+<h2 id="让代码更快">让代码更快</h2><p>一旦我们确认了瓶颈，我们需要让相应的代码运行更快。</p>
+<h3 id="算法优化">算法优化</h3><p>首先寻找算法优化：有没有运算更少或更好的方式？</p>
+<p>对于更高层次地看待问题，充分理解算法后的数学很有帮助。然而，寻找简单的改变并不寻常，像<em>移动计算<a href="存疑">^1</a>和在循环外分配内存<a href="我不懂">^2</a></em>,会带来很大益处。</p>
+<p>####SVD的示例</p>
+<p>在以上每个例子中，SVD——<a href="http://en.wikipedia.org/wiki/Singular_value_decomposition" target="_blank" rel="external">奇异值分解</a>——是占用时间最多的。确实，当输入矩阵大小为n时算法计算代价大约是$n^3$。</p>
+<p>然而，这些例子中，我们都没有使用SVD的输出，但是仅仅使用它最开始返回的参数最初很少的几行。如果我们使用scipy的<code>svd</code>实现，我们可以获得一个不完整的SVD版本。注意这个在scipy中的线性代数实现比numpy中的更加丰富，应该优先使用。</p>
+<pre><code>In [<span class="number">4</span>]: %timeit np.linalg.svd(data)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">10.8</span> s per loop
+
+In [<span class="number">5</span>]: from scipy import linalg
+
+In [<span class="number">6</span>]: %timeit linalg.svd(data)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">10.4</span> s per loop
+
+In [<span class="number">7</span>]: %timeit linalg.svd(data, full_matrices=False)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">278</span> ms per loop
+
+In [<span class="number">8</span>]: %timeit np.linalg.svd(data, full_matrices=False)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">276</span> ms per loop
+</code></pre><p>真正的不完全SVD，例如仅仅计算前十个特征向量，可以用arpack<a href="[Arpack——fortran数值计算库](http://en.wikipedia.org/wiki/ARPACK)">^3</a>计算，可以在<code>scipy.sparse.linalg.eigsh</code>获得。</p>
+<p><strong>计算线性代数</strong></p>
+<p>对于确定的算法，许多瓶颈将是线性代数计算。在本例中，使用正确的函数解决正确的问题是关键。例如，一个对称矩阵的本征值问题比一个普通矩阵更容易解决。同样的，很多时候，你可以避免反转矩阵，并且使用代价更小(并更数值稳定)的运算。</p>
+<p>了解你的线性代数计算。当有疑问时，探索scipy.linalg，并且用%timeit 来对你的数据尝试不同的选择。</p>
+<h2 id="写更快的数值代码">写更快的数值代码</h2><p>一个完整的关于使用numpy的讨论可以在<a href="http://scipy-lectures.github.com/advanced/advanced_numpy/index.html#advanced-numpy" target="_blank" rel="external">Advanced Numpy</a>章节中找到，或者在van der Walt等人的文章<a href="http://hal.inria.fr/inria-00564007/en" target="_blank" rel="external">The NumPy array: a structure for efficient numerical computation</a>中。这里我们仅仅讨论加速代码运行速度常见的技巧。</p>
+<ul>
+<li><p>向量化循环</p>
+<p>找到技巧来避免使用numpy数组循环。对此，掩码(masks)数组和索引(indices)数组会更有用。</p>
+</li>
+<li><p>广播</p>
+<p>使用<a href="http://scipy-lectures.github.com/intro/numpy/operations.html#broadcasting" target="_blank" rel="external">广播(broadcasting)</a>来在结合它们之前对数组尽可能少的运算。</p>
+</li>
+<li><p>在适当的位置运算</p>
+<pre><code>In [<span class="number">9</span>]: a = np.zeros(<span class="number">1e7</span>)
+In [<span class="number">11</span>]: %timeit global a ; a *= <span class="number">0</span>
+<span class="number">10</span> loops, best of <span class="number">3</span>: <span class="number">29.1</span> ms per loop
+
+in [<span class="number">12</span>]: %timeit global a ; a = <span class="number">0</span>*a
+<span class="number">10</span> loops, best of <span class="number">3</span>: <span class="number">54.3</span> ms per loop
+</code></pre><p> <strong>注意：</strong>我们需要个<code>global a</code>让timeit工作，因为它被赋给a，因此将它视作一个局部变量。</p>
+</li>
+<li><p>善待内存：使用视图(views)而非拷贝(copies)</p>
+<p>拷贝一个大数组就像对它们进行简单的数值计算一样耗费资源</p>
+<pre><code>In [<span class="number">18</span>]: a = np.zeros(<span class="number">1e7</span>)
+
+In [<span class="number">19</span>]: %timeit a.copy()
+<span class="number">10</span> loops, best of <span class="number">3</span>: <span class="number">69</span> ms per loop
+
+In [<span class="number">20</span>]: %timeit a + <span class="number">1</span>
+<span class="number">10</span> loops, best of <span class="number">3</span>: <span class="number">56.2</span> ms per loop
+</code></pre></li>
+<li><p>小心缓存影响(cache effects)</p>
+<p>内存存取当是成组时是省资源的：以连续的方式存取一个大数组比随机存取更快。这意味着除其它事项外更小的元素间距更快(参见<a href="http://scipy-lectures.github.com/advanced/advanced_numpy/index.html#cache-effects" target="_blank" rel="external">CPU cache effects</a>)<a href="python科学计算里numpy部分讲得非常清楚，第二种间距小的明显快了很多。">^4</a></p>
+<p>  In [21]: c = np.zeros((1e4, 1e4), order=’C’)</p>
+<pre><code>In [<span class="number">22</span>]: %timeit c.sum(axis=<span class="number">0</span>)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">3.62</span> s per loop
+
+In [<span class="number">23</span>]: %timeit c.sum(axis=<span class="number">1</span>)
+<span class="number">10</span> loops, best of <span class="number">3</span>: <span class="number">171</span> ms per loop
+
+In [<span class="number">24</span>]: c.strides
+Out[<span class="number">24</span>]: (<span class="number">80000</span>, <span class="number">8</span>)
+
+In [<span class="number">25</span>]: c = np.zeros((<span class="number">1e4</span>, <span class="number">1e4</span>), order=<span class="string">'F'</span>)
+
+In [<span class="number">26</span>]: %timeit c.sum(axis=<span class="number">0</span>)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">166</span> ms per loop
+
+In [<span class="number">27</span>]: %timeit c.sum(axis=<span class="number">1</span>)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">3.63</span> s per loop
+</code></pre><p>这就是为何Fortran顺序或C顺序可能对运算的影响很大：</p>
+<pre><code>in [<span class="number">28</span>]: a = np.random.rand(<span class="number">20</span>, <span class="number">2</span>**<span class="number">18</span>)
+
+in [<span class="number">29</span>]: b = np.random.rand(<span class="number">20</span>, <span class="number">2</span>**<span class="number">18</span>)
+
+in [<span class="number">30</span>]: %timeit np.dot(b, a.T)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">278</span> ms per loop
+
+in [<span class="number">31</span>]: c = np.ascontiguousarray(a.T)
+
+in [<span class="number">32</span>]: %timeit np.dot(b, c)
+<span class="number">1</span> loops, best of <span class="number">3</span>: <span class="number">1.94</span> s per loop
+</code></pre></li>
+</ul>
+<p>  注意拷贝数据来解决这个影响不值得：</p>
+<pre><code>In [<span class="number">34</span>]: %timeit c = np.ascontiguousarray(a.T)
+<span class="number">10</span> loops, best of <span class="number">3</span>: <span class="number">45.4</span> ms per loop
+</code></pre><p>  使用numexpr来自动为这种效应优化会很有用。</p>
+<ul>
+<li><p>使用编译好的代码</p>
+<p>一旦你确定所有高层次的优化都已经摸索过了，最后手段是将热点，也就是耗费时间最多的代码或函数，变成编译好的代码。对于编译代码，最优的选择是使用<a href="http://www.cython.org/" target="_blank" rel="external">Cython</a>:它很轻松地让你将已知的Python代码转换成编译好的代码，并且对numpy数组很好利用<a href="http://docs.cython.org/src/tutorial/numpy.html" target="_blank" rel="external">numpy支持</a>产生有效率的代码，例如通过循环展开(unrolling loops)。</p>
+</li>
+</ul>
+<p><strong>Waring:</strong>对上述所有流程，分析(profile)并且计时(time)你的选择。不要以理论为依据来进行优化。<br>{: alert }</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/life/2012/10/14/always-look-on-the-bright-side-of-life/" itemprop="url">
+                  Always Look on the Bright Side of life
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-10-14T00:00:00+08:00" content="2012-10-14">
+              2012-10-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/life/" itemprop="url" rel="index">
+                    <span itemprop="name">life</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/life/2012/10/14/always-look-on-the-bright-side-of-life/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2012/10/14/always-look-on-the-bright-side-of-life/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>blahblahblah,这几天看了三部电影，随便感慨下。</p>
+<h2 id="Always_Look_on_the_Bright_Side_of_life">Always Look on the Bright Side of life</h2><p>也许执念太深，从一年前开始看到无所事事的人就极度不爽，也无法忍受自己浪费一分一秒，然而事情总是这样：你越想抓住什么，什么就越从你的指缝间溜走得越快。</p>
+<p>一年来总是给自己一些莫名奇妙的压力，天天为各种各样的琐事烦得一塌糊涂。结果身体一直也不好，要不要感冒每个月就像大姨妈一样来一次？[^1]有很多人和事，只觉得他们二逼，然而搅扰的自己也无法静下心。也许只是我自己太在意。</p>
+<p>我想黑我们学校，黑自己专业，黑这学校很多人很久了。然而最终还是忍住，也许世界就该这样，或者你爱怎样就怎样。没必要因此搅扰得自己不安。</p>
+<p>也许我就该笑笑，依旧回头走我的路，如果路被人堵上，换另一条继续走，条条大路通罗马。</p>
+<p>也许我就该放下许多执念，在心灵上解放自我，在行动上自我解放。</p>
+<p>也许我就该随波逐流，无所谓得失，让该来的来，让该去的去，万事随缘。</p>
+<p>每天入夜，当我怨恨时，我不断暗示自己，神赐你一颗平和的心，不要怨恨。</p>
+<p>当我为周围的风吹草动胆颤心惊时，不断鼓舞自己，神赐给你的是一个刚强的心，无所畏惧。</p>
+<p>让心平和下来吧，</p>
+<p>一直想考研，跨掉自己的专业，离开熟悉的学校，寻找更好的环境和人<a href="希望不要误解，对每个人好坏都是不同的，我不想黑任何人。">^2</a>。</p>
+<p>但没必要逼自己，让心平和下来吧</p>
+<p>好好锻炼身体，考不上明年再来。</p>
+<p>再考不上再做打算。</p>
+<p>留得青山在，不怕没柴烧。</p>
+<p>总是看见生活光明的一面。</p>
+<embed src="http://www.xiami.com/widget/0_2018536/singlePlayer.swf" type="application/x-shockwave-flash" width="257" height="33" wmode="transparent">
+
+
+<blockquote>
+<p>some things in life are bad,生命中总有些不如意</p>
+<p>they can really make you mad, 它们真的能让你抓狂</p>
+<p>other things just make you swear and curse.还有些使你诅咒和咒骂</p>
+<p>when you’re chewing on life’s gristle 当你咀嚼生活的乏味</p>
+<p>don’t grumble, give a whistle. 别抱怨 ,吹个口哨</p>
+<p>and this’ll help things turn out for the best.这能帮事情变好 </p>
+<p>and…. 还有</p>
+<p>always look on the bright side of life,(whistle) 总是看到好的一面</p>
+<p>always look on the bright side of life,(whistle) 总是看到好的一面</p>
+<p>if life seems jolly rotten, 如果生活看起来非常糟糕</p>
+<p>there’s something you’ve forgotten, 肯定有什么事你忘了</p>
+<p>and that’s to laugh and smile and dance and sing.那些关于高兴、微笑、舞蹈和歌唱的事情 </p>
+<p>when you’re feeling in the dumps,当你觉得一团糟 </p>
+<p>don’t be silly chumps. 别象个榆木疙瘩</p>
+<p>just purse your lips and whistle, that’s the thing.缩起你的嘴，吹个口哨，就这样</p>
+<p>and… 还有</p>
+<p>always look on the bright side of life.(whistle) 总是看到好的一面</p>
+<p>come on… 来吧</p>
+<p>always look on the bright side of life…总是看到好的一面 </p>
+<p>for life is quite absurd, 因为生活如此荒诞</p>
+<p>and death’s the final word, 死亡是最终的结局</p>
+<p>you must always face the curtain with a bow. 你总得鞠躬谢幕</p>
+<p>forget about your sin, 忘了你的罪</p>
+<p>give the audience a grin, 给观众一个开怀的笑</p>
+<p>enjoy it - it’s your last chance anyhow.享受它，不管怎么说这是你最后的机会 </p>
+<p>so always look on the bright side of death, 所以总是看到好的一面</p>
+<p>just before you draw your terminal breath, 就在你最后一次呼吸之前</p>
+<p>life’s a piece of shit, 生活是坨屎</p>
+<p>when you look at it, 当你看着它的时候</p>
+<p>life’s a laugh and death’s a joke, it’s true. 生活是一次大笑，死亡是个玩笑，真的</p>
+<p>you’ll see it’s all a show,你会看到这都是一场戏 </p>
+<p>keep ‘em laughing as you go. 当你上演时保持是喜剧</p>
+<p>just remember that the last laugh is on you.记住要笑到最后 </p>
+<p>and always look on the bright side of life, 总是看到好的一面</p>
+<p>always look on the right side of life, 看生活好的一面</p>
+<p>come on guys, cheer up. 来吧伙伴，庆祝一下</p>
+<p>always look on the bright side of life. 总看到好的一面</p>
+<p>worse things happen at sea, you know. 世界末日离你还远，知道吗？</p>
+<p>always look on the bright side of life. 总是看到好的一面</p>
+<p>i mean - what have you got to lose? 我是说——你将会失去什么？</p>
+<p>you know, you come from nothing, 你知道，你本来就一无所有</p>
+<p>you’re going back to nothing. 你会再回到虚无</p>
+<p>what have you lost? nothing 你将会失去什么？什么也没有</p>
+</blockquote>
+<h2 id="Aal_izz_well">Aal izz well</h2><p>你在做自己不喜欢的事情吗？</p>
+<p>你总是担心太多吗？</p>
+<p>兰彻导师说：追随自己的心，不断追求卓越，其它的都会追随而来的。</p>
+<p>兰彻导师说：我们心很怯懦，需要我们“欺骗”，Aal izz well(一切都好)。</p>
+<p>三年前和玩伴在他的mp4上看了一半，只是觉的好笑，如今看着确是完全不同的感觉。</p>
+<p>一切都好，一语胜千言。</p>
+<h2 id="纵使抛弃一切终归还有执着">纵使抛弃一切终归还有执着</h2><p>“人人都愿意相信自已愿意相信的东西。”</p>
+<p>不断想起大一在图书馆的日日夜夜</p>
+<p>翻看那些心理学、社会科学的书籍，</p>
+<p>甚至很多成功学的书(我现在依然非常喜欢卡耐基的书)。</p>
+<p>里头很多观点、看法、假说，深深植入我的心里。</p>
+<p>我会怀念，整个学校我最喜欢的地方。</p>
+<p>怀念那里的光影，味道，声音。</p>
+<p>还有无法忘怀的记忆。</p>
+<p>有些执着我永远不愿放弃，</p>
+<p>不过是想让自己的心冷静下来，</p>
+<p>该来的终将到来。</p>
+<p>有意思的喜剧。</p>
+<h2 id="Footnotes">Footnotes</h2><p>[^1]:<del>真尼玛扯淡，几次跑步回去就觉的嗓子疼，然后他妈的就生病来着。我他妈的每次保持一个月一晚一小时的习惯都被一场接一场莫名奇妙的感冒什么的给毁了。我还记得冬天跑步手被冻伤过，还记得从没什么人到天气转暖到处是人的操场，然而现实的冷水泼的比谁都厉害。</del></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/python/2012/10/14/scikit-learn-machine-learning-in-python/" itemprop="url">
                   Scikit Learn: 在python中机器学习
                 </a>
@@ -632,191 +1107,6 @@ LassoCV(alphas=<span class="keyword">array</span>([ <span class="number">2.14804
 <hr>
 <h2 id="Footnotes">Footnotes</h2><p>[^3]:<a href="http://en.wikipedia.org/wiki/Ball_tree" target="_blank" rel="external">Ball tree数据结构</a></p>
 <p>[^8]:<a href="http://en.wikipedia.org/wiki/Penalty_method" target="_blank" rel="external">Penalty methods</a><br>[^9]:<a href="http://en.wikipedia.org/wiki/Least_squares#LASSO_method" target="_blank" rel="external">LASSO method</a><br>[^10]:<a href="http://en.wikipedia.org/wiki/Coordinate_descent" target="_blank" rel="external">Coordinate descent</a></p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2012/10/14/always-look-on-the-bright-side-of-life/" itemprop="url">
-                  Always Look on the Bright Side of life
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-10-14T00:00:00+08:00" content="2012-10-14">
-              2012-10-14
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2012/10/14/always-look-on-the-bright-side-of-life/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2012/10/14/always-look-on-the-bright-side-of-life/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>blahblahblah,这几天看了三部电影，随便感慨下。</p>
-<h2 id="Always_Look_on_the_Bright_Side_of_life">Always Look on the Bright Side of life</h2><p>也许执念太深，从一年前开始看到无所事事的人就极度不爽，也无法忍受自己浪费一分一秒，然而事情总是这样：你越想抓住什么，什么就越从你的指缝间溜走得越快。</p>
-<p>一年来总是给自己一些莫名奇妙的压力，天天为各种各样的琐事烦得一塌糊涂。结果身体一直也不好，要不要感冒每个月就像大姨妈一样来一次？[^1]有很多人和事，只觉得他们二逼，然而搅扰的自己也无法静下心。也许只是我自己太在意。</p>
-<p>我想黑我们学校，黑自己专业，黑这学校很多人很久了。然而最终还是忍住，也许世界就该这样，或者你爱怎样就怎样。没必要因此搅扰得自己不安。</p>
-<p>也许我就该笑笑，依旧回头走我的路，如果路被人堵上，换另一条继续走，条条大路通罗马。</p>
-<p>也许我就该放下许多执念，在心灵上解放自我，在行动上自我解放。</p>
-<p>也许我就该随波逐流，无所谓得失，让该来的来，让该去的去，万事随缘。</p>
-<p>每天入夜，当我怨恨时，我不断暗示自己，神赐你一颗平和的心，不要怨恨。</p>
-<p>当我为周围的风吹草动胆颤心惊时，不断鼓舞自己，神赐给你的是一个刚强的心，无所畏惧。</p>
-<p>让心平和下来吧，</p>
-<p>一直想考研，跨掉自己的专业，离开熟悉的学校，寻找更好的环境和人<a href="希望不要误解，对每个人好坏都是不同的，我不想黑任何人。">^2</a>。</p>
-<p>但没必要逼自己，让心平和下来吧</p>
-<p>好好锻炼身体，考不上明年再来。</p>
-<p>再考不上再做打算。</p>
-<p>留得青山在，不怕没柴烧。</p>
-<p>总是看见生活光明的一面。</p>
-<embed src="http://www.xiami.com/widget/0_2018536/singlePlayer.swf" type="application/x-shockwave-flash" width="257" height="33" wmode="transparent">
-
-
-<blockquote>
-<p>some things in life are bad,生命中总有些不如意</p>
-<p>they can really make you mad, 它们真的能让你抓狂</p>
-<p>other things just make you swear and curse.还有些使你诅咒和咒骂</p>
-<p>when you’re chewing on life’s gristle 当你咀嚼生活的乏味</p>
-<p>don’t grumble, give a whistle. 别抱怨 ,吹个口哨</p>
-<p>and this’ll help things turn out for the best.这能帮事情变好 </p>
-<p>and…. 还有</p>
-<p>always look on the bright side of life,(whistle) 总是看到好的一面</p>
-<p>always look on the bright side of life,(whistle) 总是看到好的一面</p>
-<p>if life seems jolly rotten, 如果生活看起来非常糟糕</p>
-<p>there’s something you’ve forgotten, 肯定有什么事你忘了</p>
-<p>and that’s to laugh and smile and dance and sing.那些关于高兴、微笑、舞蹈和歌唱的事情 </p>
-<p>when you’re feeling in the dumps,当你觉得一团糟 </p>
-<p>don’t be silly chumps. 别象个榆木疙瘩</p>
-<p>just purse your lips and whistle, that’s the thing.缩起你的嘴，吹个口哨，就这样</p>
-<p>and… 还有</p>
-<p>always look on the bright side of life.(whistle) 总是看到好的一面</p>
-<p>come on… 来吧</p>
-<p>always look on the bright side of life…总是看到好的一面 </p>
-<p>for life is quite absurd, 因为生活如此荒诞</p>
-<p>and death’s the final word, 死亡是最终的结局</p>
-<p>you must always face the curtain with a bow. 你总得鞠躬谢幕</p>
-<p>forget about your sin, 忘了你的罪</p>
-<p>give the audience a grin, 给观众一个开怀的笑</p>
-<p>enjoy it - it’s your last chance anyhow.享受它，不管怎么说这是你最后的机会 </p>
-<p>so always look on the bright side of death, 所以总是看到好的一面</p>
-<p>just before you draw your terminal breath, 就在你最后一次呼吸之前</p>
-<p>life’s a piece of shit, 生活是坨屎</p>
-<p>when you look at it, 当你看着它的时候</p>
-<p>life’s a laugh and death’s a joke, it’s true. 生活是一次大笑，死亡是个玩笑，真的</p>
-<p>you’ll see it’s all a show,你会看到这都是一场戏 </p>
-<p>keep ‘em laughing as you go. 当你上演时保持是喜剧</p>
-<p>just remember that the last laugh is on you.记住要笑到最后 </p>
-<p>and always look on the bright side of life, 总是看到好的一面</p>
-<p>always look on the right side of life, 看生活好的一面</p>
-<p>come on guys, cheer up. 来吧伙伴，庆祝一下</p>
-<p>always look on the bright side of life. 总看到好的一面</p>
-<p>worse things happen at sea, you know. 世界末日离你还远，知道吗？</p>
-<p>always look on the bright side of life. 总是看到好的一面</p>
-<p>i mean - what have you got to lose? 我是说——你将会失去什么？</p>
-<p>you know, you come from nothing, 你知道，你本来就一无所有</p>
-<p>you’re going back to nothing. 你会再回到虚无</p>
-<p>what have you lost? nothing 你将会失去什么？什么也没有</p>
-</blockquote>
-<h2 id="Aal_izz_well">Aal izz well</h2><p>你在做自己不喜欢的事情吗？</p>
-<p>你总是担心太多吗？</p>
-<p>兰彻导师说：追随自己的心，不断追求卓越，其它的都会追随而来的。</p>
-<p>兰彻导师说：我们心很怯懦，需要我们“欺骗”，Aal izz well(一切都好)。</p>
-<p>三年前和玩伴在他的mp4上看了一半，只是觉的好笑，如今看着确是完全不同的感觉。</p>
-<p>一切都好，一语胜千言。</p>
-<h2 id="纵使抛弃一切终归还有执着">纵使抛弃一切终归还有执着</h2><p>“人人都愿意相信自已愿意相信的东西。”</p>
-<p>不断想起大一在图书馆的日日夜夜</p>
-<p>翻看那些心理学、社会科学的书籍，</p>
-<p>甚至很多成功学的书(我现在依然非常喜欢卡耐基的书)。</p>
-<p>里头很多观点、看法、假说，深深植入我的心里。</p>
-<p>我会怀念，整个学校我最喜欢的地方。</p>
-<p>怀念那里的光影，味道，声音。</p>
-<p>还有无法忘怀的记忆。</p>
-<p>有些执着我永远不愿放弃，</p>
-<p>不过是想让自己的心冷静下来，</p>
-<p>该来的终将到来。</p>
-<p>有意思的喜剧。</p>
-<h2 id="Footnotes">Footnotes</h2><p>[^1]:<del>真尼玛扯淡，几次跑步回去就觉的嗓子疼，然后他妈的就生病来着。我他妈的每次保持一个月一晚一小时的习惯都被一场接一场莫名奇妙的感冒什么的给毁了。我还记得冬天跑步手被冻伤过，还记得从没什么人到天气转暖到处是人的操场，然而现实的冷水泼的比谁都厉害。</del></p>
 
             
           </span>
@@ -3911,134 +4201,6 @@ pylab.show()
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2012/08/15/galgame/" itemprop="url">
-                  GALGAME
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-08-15T00:00:00+08:00" content="2012-08-15">
-              2012-08-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2012/08/15/galgame/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2012/08/15/galgame/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="GALGAME">GALGAME</h1><h2 id="Galgame初体验——AIR">Galgame初体验——AIR</h2><p>第一次接触galgame<a href="美少女游戏。其实您一定知道什么意思，就算不知道也可以google/baidu。">^1</a>大概是一年以前，忽然看到当年痴迷动漫时看过<a href="http://baike.baidu.com/view/4449.htm#sub6281444" target="_blank" rel="external">《AIR》</a>的游戏原作下载，正好闲的……于是便莫名开始了GALGAME初体验。到头也不记得剧情什么什么的了，只记得最后把某条线一气照着网上胡乱搜来的攻略通关，然后就是那什么什么h图的CG<a href="[百度百科解释](http://baike.baidu.com/view/4406.htm#sub8281901)">^2</a>。</p>
-<p>对这个galgame经典之作总体印象不怎么样,感觉画面有些古老，音乐也没什么印象<a href="鸟之诗？">^3</a>,现在剧情早忘的一干二净，连有没有配音都不记得了。反正后来很久很久都觉得，这种游戏貌似也没什么意思嘛。<a href="好吧，其实我总共就接触过两个Galgame，所以见识浅薄，口出狂言，见谅。">^4</a></p>
-<p>之后接触linux，兴趣开始泛滥<a href="泛滥，数学、计算机、一堆计算机语言、数据挖掘与可视化、计算软件、文本处理、web前端、linux系统及工具集、动态及静态博客系统、图像处理……">^6</a>，没时间和心思干其它的了。</p>
-<h2 id="Another_Galgame_one_year_later">Another Galgame one year later</h2><p><code>_我怎么就没想到我又开始玩Galgame了！！！_</code></p>
-<p>前几天在arch论坛上看到有人推荐<a href="http://katawa-shoujo.com/" target="_blank" rel="external">katawa shoujo</a><a href="片轮少女，即残疾少女的意思。">^5</a>，然后在archlinux贴吧看到有人贴图。感觉画面做得挺精致的，又渐渐听说国际团队制作，Creative Commons协议发布，原生linux支持……</p>
-<p>好吧，总之我手贱了，花了一点时间和精力让它运行在我的linux x86_64之上。</p>
-<p>然后想，费力劳神折腾好，难道不玩玩看？</p>
-<p>于是作为考研党可耻地花时间开始攻略Galgame……</p>
-<p>片首动画直接把我震惊了，做的真精致。</p>
-<p>音轨也很棒</p>
-<p>故事也……只能说有种很奇怪的感觉，似乎remind me of something，反正最后打算每天花近一个小时读读这个视觉小说。虽然一句话有两个单词不认识，开着电子词典查个不停.</p>
-<p>上游戏效果图，这个场景忽然有种耳目一新的感觉，也许是因为画面，色调，音乐，或者是出乎意料的剧情：</p>
-<p><img src="http://fmn.rrfmn.com/fmn058/20120815/1740/p_large_COVT_6e6d000009051263.jpg" alt="katawa-shoujo"></p>
-<h2 id="选择">选择</h2><p>galgame这种游戏基本是依靠玩家的选择来决定剧情和结局的，每当做完选择，对未选之事便浮想联翩。老感觉自己错过了什么重要而不同的精彩剧情。自己的人生有何尝不是，选择之前它充满可能性。选择之后却一切都不能回头，只能浮想联翩，当初我若是做出了不同的选择，我将会是怎样的我，遇到怎样的人。一切都必将变化很多，万事都是缘分，发生后便是刻骨铭心的命运。</p>
-<p>不知道准备把兴趣转变成自己的工作是个什么结果、也许当作兴趣更好、工作反而会把所有的乐趣毁掉。长恨此生非我有、何时忘却营营。准备到最后可能是踏遍铁鞋无觅处，无心插柳却成荫。不关福祸、做现在的打算。</p>
-<p>To-do list：</p>
-<ul>
-<li>learning python the hard way</li>
-<li>htdp</li>
-<li>prolog</li>
-<li>common lisp</li>
-<li>gimp/krita/inkscape</li>
-</ul>
-<p><strong>^o^ go for it!</strong></p>
-<p>之前的选择，已经让我踏上看不清未来的路，福兮？祸兮？</p>
-<hr>
-<h2 id="Footnotes">Footnotes</h2>
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -4085,7 +4247,7 @@ pylab.show()
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">176</span>
+              <span class="site-state-item-count">177</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
