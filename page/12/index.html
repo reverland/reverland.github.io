@@ -224,6 +224,347 @@
             
               
                 
+                <a class="post-title-link" href="/python/2013/02/19/yet-another-photomosaic-generator/" itemprop="url">
+                  Yet Another PhotoMosaic Generator
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2013-02-19T00:00:00+08:00" content="2013-02-19">
+              2013-02-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2013/02/19/yet-another-photomosaic-generator/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2013/02/19/yet-another-photomosaic-generator/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="Yet_Another_PhotoMosaic_Generator">Yet Another PhotoMosaic Generator</h1><p>Update: Mon 25 Feb 2013 11:38:47 AM CST add classic style. More refer to <a href="https://github.com/reverland/scripts/blob/master/python/yapmg.py" target="_blank" rel="external">github</a></p>
+<blockquote>
+<p>Python是面向对象的？没有对象面向毛对象。</p>
+<p>——Anonymous</p>
+</blockquote>
+<p>Several weeks ago, I saw a poster of presidential campaign for Obama, in which Obama’s portrait was made up of many voter’s photos. It really attracted me, somedays later, I want to make one myself.</p>
+<p>The completed code host <a href="http://github.com/reverland/scripts/blob/master/python/yapmg.py" target="_blank" rel="external">here</a>. It is much more functional than object-oriented…</p>
+<h2 id="Search_the_Internet">Search the Internet</h2><p>First of all, I searched the Google to find out how others achieve it, then I found many interesting implement and post on it.Along with them, there are pretty demos around.One of the demo of <a href="http://www.fmedda.com/en/mosaic/chaos" target="_blank" rel="external">Foto-Mosaik-Edda</a> striked me.It declaims as follows in their site:</p>
+<blockquote>
+<p>The Chaos Mosaic Picture is a new form of photo mosaic which can, at present, only be created by Foto-Mosaik-Edda.</p>
+</blockquote>
+<p><img src="http://www.fmedda.com/sites/default/files/pic/mosaic_chaos.png" alt="Chaos Mosaic Picture"></p>
+<p>Uhm…Foto-Mosaic-Edda is an open-source project that really impressive.But it was an C# project. Linux users don’t like it however.I don’t like <code>mono</code>.</p>
+<p>I searched other open-source implement on photomosaic. I get some simple programs only use gray photos, and some complex ones can make beautiful classic photomosaic(like metapixel, even chaos style which it calls collage style), But none has as beautiful demos as Foto-Mosaic-Edda.(metapixel really amazing, it is robust and quickly.)</p>
+<p>However, I saw many enthusiastic people write one themselves, it really looks interesting for me. I’ve used PIL for processing images when I tried to decode captchas several days ago, so I believe with the help of PIL, someone can achieve photomosaic simply.</p>
+<p>So I just read the documentation of PIL, then start my hack.</p>
+<h2 id="Write_My_Own_PhotoMosaic_Generator">Write My Own PhotoMosaic Generator</h2><p>It’s not hard, however, what you should do is clear and simple:</p>
+<ul>
+<li>analyse the image to be made mosaic, get a dict in which position as key and color as value.</li>
+<li>use a bunch of images to get a dict, in which image name as key and colors as value.</li>
+<li>thumbnail bunches of images and paste it in the right position, so that the big image looks like it consists of many small one.</li>
+</ul>
+<p>I’d like to got the chaos style, so some other requirements:</p>
+<ul>
+<li>frame and shadow for small images</li>
+<li>random paste small images onto large one</li>
+</ul>
+<p>Now, let’s go.</p>
+<h3 id="Frame,_Shadow_and_Rotate">Frame, Shadow and Rotate</h3><p>first add frame, shadow to small images</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_frame</span><span class="params">(image)</span>:</span></span><br><span class="line">    <span class="string">'''Add frame for image.'''</span></span><br><span class="line">    im = ImageOps.expand(image, border=int(<span class="number">0.01</span> * max(image.size)), fill=<span class="number">0xffffff</span>)</span><br><span class="line">    <span class="keyword">return</span> im</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">drop_shadow</span><span class="params">(image, offset, border=<span class="number">0</span>, shadow_color=<span class="number">0x444444</span>)</span>:</span></span><br><span class="line">    <span class="string">"""Add shadows for image"""</span></span><br><span class="line">    <span class="comment"># Caclulate size</span></span><br><span class="line">    fullWidth = image.size[<span class="number">0</span>] + abs(offset[<span class="number">0</span>]) + <span class="number">2</span> * border</span><br><span class="line">    fullHeight = image.size[<span class="number">1</span>] + abs(offset[<span class="number">1</span>]) + <span class="number">2</span> * border</span><br><span class="line">    <span class="comment"># Create shadow, hardcode color</span></span><br><span class="line">    shadow = Image.new(<span class="string">'RGBA'</span>, (fullWidth, fullHeight), (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>))</span><br><span class="line">    <span class="comment"># Place the shadow, with required offset</span></span><br><span class="line">    shadowLeft = border + max(offset[<span class="number">0</span>], <span class="number">0</span>)  <span class="comment"># if &lt;0, push the rest of the image right</span></span><br><span class="line">    shadowTop = border + max(offset[<span class="number">1</span>], <span class="number">0</span>)  <span class="comment"># if &lt;0, push the rest of the image down</span></span><br><span class="line">    shadow.paste(shadow_color, [shadowLeft, shadowTop, shadowLeft + image.size[<span class="number">0</span>], shadowTop + image.size[<span class="number">1</span>]])</span><br><span class="line">    shadow_mask = shadow.convert(<span class="string">"L"</span>)</span><br><span class="line">     <span class="comment"># Paste the original image on top of the shadow</span></span><br><span class="line">    imgLeft = border - min(offset[<span class="number">0</span>], <span class="number">0</span>)  <span class="comment"># if the shadow offset was &lt;0, push right</span></span><br><span class="line">    imgTop = border - min(offset[<span class="number">1</span>], <span class="number">0</span>)  <span class="comment"># if the shadow offset was &lt;0, push down</span></span><br><span class="line">    shadow.putalpha(shadow_mask)</span><br><span class="line">    shadow.paste(image, (imgLeft, imgTop))</span><br><span class="line">    <span class="keyword">return</span> shadow</span><br></pre></td></tr></table></figure>
+<p>Then a function to rotate images.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">rotate_image</span><span class="params">(image, degree)</span>:</span></span><br><span class="line">    <span class="string">'''Rotate images for specific degree. Expand to show all'''</span></span><br><span class="line">    <span class="keyword">if</span> image.mode != <span class="string">'RGBA'</span>:</span><br><span class="line">        image = image.convert(<span class="string">'RGBA'</span>)</span><br><span class="line">    im = image.rotate(degree, expand=<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> im</span><br></pre></td></tr></table></figure>
+<p>‘RGBA’ mode is to support transparency. What’s matter here is that jpeg/jpg does not support transparency. So you can’t get transparency shadows and rotate pictures if you just use jpg/jpeg images.So, write a function to process images with jpg/jpeg format, transpose it into png.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">process_image</span><span class="params">(filename, newname)</span>:</span></span><br><span class="line">    <span class="string">'''convert image to png to support transparency'''</span></span><br><span class="line">    <span class="keyword">if</span> filename.split(<span class="string">'.'</span>)[-<span class="number">1</span>] != <span class="string">'png'</span>:</span><br><span class="line">        im = Image.open(filename)</span><br><span class="line">        im.save(newname + <span class="string">'.png'</span>)</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"processing image file %s"</span> % filename</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">process_directory</span><span class="params">(path)</span>:</span></span><br><span class="line">    os.chdir(path)</span><br><span class="line">    count = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> filename <span class="keyword">in</span> os.listdir(path):</span><br><span class="line">        ext = filename.split(<span class="string">'.'</span>)[-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">if</span> ext == <span class="string">'jpeg'</span> <span class="keyword">or</span> ext == <span class="string">'jpg'</span>:</span><br><span class="line">            process_image(filename, str(count))</span><br><span class="line">            os.remove(filename)</span><br><span class="line">            count += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>Really poor work… But it works for me: )</p>
+<p>We have to thumnail bunches of images, It’s easy to thumbnail with PIL:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">thumbnail</span><span class="params">(im, size)</span>:</span></span><br><span class="line">    <span class="string">"""thumnail the image"""</span></span><br><span class="line">    im.thumbnail(size, Image.ANTIALIAS)</span><br><span class="line">    <span class="keyword">return</span> im</span><br></pre></td></tr></table></figure>
+<p>Let’s have a fun with them. To get heaps of images randomly on the desktop, I hardcoded these parameters to get my photos work, you HAVE TO find yours:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Just for fun</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">chao_image</span><span class="params">(path, size=<span class="params">(<span class="number">800</span>, <span class="number">800</span>)</span>, thumbnail_size=<span class="params">(<span class="number">50</span>, <span class="number">50</span>)</span>, shadow_offset=<span class="params">(<span class="number">10</span>, <span class="number">10</span>)</span>, backgroud_color=<span class="number">0xffffff</span>)</span>:</span></span><br><span class="line">    image_all = Image.new(<span class="string">'RGB'</span>, size, backgroud_color)</span><br><span class="line">    <span class="keyword">for</span> image <span class="keyword">in</span> os.listdir(path):</span><br><span class="line">        <span class="keyword">if</span> image.split(<span class="string">'.'</span>)[-<span class="number">1</span>] == <span class="string">'png'</span>:</span><br><span class="line">            im = Image.open(image)</span><br><span class="line">            degree = random.randint(-<span class="number">30</span>, <span class="number">30</span>)</span><br><span class="line">            im = thumbnail(rotate_image(drop_shadow(add_frame(im), shadow_offset), degree), thumbnail_size)</span><br><span class="line">            image_all.paste(im, (random.randint(-thumbnail_size[<span class="number">0</span>], size[<span class="number">0</span>]), random.randint(-thumbnail_size[<span class="number">1</span>], size[<span class="number">1</span>])), im)</span><br><span class="line">    <span class="keyword">return</span> image_all</span><br></pre></td></tr></table></figure>
+<h2 id="Calculate_Images_And_Compare">Calculate Images And Compare</h2><p>Get average colors of an image</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">average_image</span><span class="params">(im)</span>:</span></span><br><span class="line">    <span class="string">"""return average (r,g,b) for image"""</span></span><br><span class="line">    color_vector = [int(x) <span class="keyword">for</span> x <span class="keyword">in</span> ImageStat.Stat(im).mean]</span><br><span class="line">    <span class="keyword">return</span> color_vector</span><br></pre></td></tr></table></figure>
+<p>to compare images? Compare the (r,g,b) value of them.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">compare_vectors</span><span class="params">(v1, v2)</span>:</span></span><br><span class="line">    <span class="string">"""compare image1 and image2, return relations"""</span></span><br><span class="line">    <span class="keyword">if</span> len(v1) == len(v2):</span><br><span class="line">        distance = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> xrange(len(v1)):</span><br><span class="line">            distance += (v1[i] - v2[i]) ** <span class="number">2</span></span><br><span class="line">        <span class="keyword">return</span> distance</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"vector not match in dimensions"</span></span><br></pre></td></tr></table></figure>
+<p>I just use distance in (R, G, B) space to calculate similarity, someone advice compare in other space, you can change it just like the example in PIL’s documentation:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># May not useful</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">rgb2xyz</span><span class="params">(im)</span>:</span></span><br><span class="line">    <span class="string">"""rgb to xyz"""</span></span><br><span class="line">    rgb2xyz = (<span class="number">0.412453</span>, <span class="number">0.357580</span>, <span class="number">0.180423</span>, <span class="number">0</span>, <span class="number">0.212671</span>, <span class="number">0.715160</span>, <span class="number">0.072169</span>, <span class="number">0</span>, <span class="number">0.019334</span>, <span class="number">0.119193</span>, <span class="number">0.950227</span>, <span class="number">0</span>)</span><br><span class="line">    out = im.convert(<span class="string">"RGB"</span>, rgb2xyz)</span><br><span class="line">    <span class="keyword">return</span> out</span><br></pre></td></tr></table></figure>
+<p>But I find many implements just use R,G,B, and it works well.</p>
+<p>Next, get a dict of image in current path, in which filename as key, average (R,G,B) colors as value.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">tile_dict</span><span class="params">(path)</span>:</span></span><br><span class="line">    <span class="string">"""Return list of average (R,G,B) for image in this path as dict."""</span></span><br><span class="line">    dic = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> image <span class="keyword">in</span> os.listdir(path):</span><br><span class="line">        <span class="keyword">if</span> image.split(<span class="string">'.'</span>)[-<span class="number">1</span>] == <span class="string">'png'</span>:</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                im = Image.open(image)</span><br><span class="line">            <span class="keyword">except</span>:</span><br><span class="line">                <span class="keyword">print</span> <span class="string">"image file %s cannot open"</span> % image</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">if</span> im.mode != <span class="string">'RGB'</span>:</span><br><span class="line">                im = im.convert(<span class="string">'RGB'</span>)</span><br><span class="line">            dic[image] = average_image(im)</span><br><span class="line">    <span class="keyword">return</span> dic</span><br></pre></td></tr></table></figure>
+<p>We don’t need to calculate every pixel of the large picture, just thumbnail it to get a nearest color of different regions.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">thumbnail_background</span><span class="params">(im, scale)</span>:</span></span><br><span class="line">    <span class="string">"""thumbnail backgroud image"""</span></span><br><span class="line">    newsize = im.size[<span class="number">0</span>] / scale, im.size[<span class="number">1</span>] / scale</span><br><span class="line">    im.thumbnail(newsize)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">'thumbnail size and the number of tiles %d X %d'</span> % im.size</span><br><span class="line">    <span class="keyword">return</span> im.size</span><br></pre></td></tr></table></figure>
+<p>For every pixel in the thumbnailed large image, find most similar small image filenames.(top ten):</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">find_similar</span><span class="params">(lst, dic)</span>:</span></span><br><span class="line">    <span class="string">"""for lst([R, G, B], Calculate which key-value in dic has the most similarity.Return first 10)"""</span></span><br><span class="line">    similar = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> k, v <span class="keyword">in</span> dic.items():</span><br><span class="line">        similar[k] = compare_vectors(v, lst)</span><br><span class="line">        <span class="comment"># if len(v) != len(lst):</span></span><br><span class="line">        <span class="comment">#     print v, len(v), lst, len(lst)</span></span><br><span class="line">    similar = [(v, k) <span class="keyword">for</span> k, v <span class="keyword">in</span> similar.items()]  <span class="comment"># Not good, lost the same Score</span></span><br><span class="line">    similar.sort()</span><br><span class="line">    <span class="keyword">return</span> similar[:<span class="number">10</span>]</span><br></pre></td></tr></table></figure>
+<p>Poor hack, but it really works…</p>
+<h2 id="Final_Work">Final Work</h2><p>Now it’s the final magic.</p>
+<p>Get the small image in order, the order imply where it should be. Then rotate, add shadows and frames for small images, finally paste it onto the large one randomly in the right position:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_image_list</span><span class="params">(im, dic)</span>:</span></span><br><span class="line">    <span class="string">"""receive a thumbnail image and a dict of image to be mosaic, return tiles(filename) in order(as a list)"""</span></span><br><span class="line">    lst = list(im.getdata())</span><br><span class="line">    tiles = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(lst)):</span><br><span class="line">        <span class="comment">#print find_similar(lst[i], dic)[random.randrange(10)][1]</span></span><br><span class="line">        tiles.append(find_similar(lst[i], dic)[random.randrange(<span class="number">10</span>)][<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> tiles</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">paste_chaos</span><span class="params">(image, tiles, size, shadow_off_set=<span class="params">(<span class="number">30</span>, <span class="number">30</span>)</span>)</span>:</span></span><br><span class="line">    <span class="string">"""size is thumbnail of backgroud size that is how many tiles per line and row"""</span></span><br><span class="line">    <span class="comment"># image_all = Image.new('RGB', image.size, 0xffffff)</span></span><br><span class="line">    image_all = image</span><br><span class="line">    lst = range(len(tiles))</span><br><span class="line">    random.shuffle(lst)</span><br><span class="line">    fragment_size = (image.size[<span class="number">0</span>] / size[<span class="number">0</span>], image.size[<span class="number">1</span>] / size[<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">print</span> <span class="string">'tiles size %d X %d'</span> % fragment_size</span><br><span class="line">    <span class="keyword">print</span> <span class="string">'number of tiles one iteration: %d'</span> % len(lst)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> lst:</span><br><span class="line">        im = Image.open(tiles[i])</span><br><span class="line">        degree = random.randint(-<span class="number">20</span>, <span class="number">20</span>)</span><br><span class="line">        im = thumbnail(rotate_image(drop_shadow(add_frame(im), shadow_off_set), degree), (fragment_size[<span class="number">0</span>] * <span class="number">3</span> / <span class="number">2</span>, fragment_size[<span class="number">1</span>] * <span class="number">3</span> / <span class="number">2</span>))</span><br><span class="line">        x = i % size[<span class="number">0</span>] * fragment_size[<span class="number">0</span>] + random.randrange(-fragment_size[<span class="number">0</span>] / <span class="number">2</span>, fragment_size[<span class="number">0</span>] / <span class="number">2</span>)</span><br><span class="line">        y = i / size[<span class="number">0</span>] * fragment_size[<span class="number">1</span>] + random.randrange(-fragment_size[<span class="number">1</span>] / <span class="number">2</span>, fragment_size[<span class="number">1</span>] / <span class="number">2</span>)</span><br><span class="line">        <span class="comment"># print x, y</span></span><br><span class="line">        image_all.paste(im, (x, y), im)</span><br><span class="line">    <span class="keyword">return</span> image_all</span><br></pre></td></tr></table></figure>
+<p>I try it like this, I know parameter <code>n</code> is tricky, it was the scale it thumbnail the large image. Maybe I’ll change it to something more clear later…</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">(filename, n, scale, iteration, path=<span class="string">'./'</span>)</span>:</span></span><br><span class="line">    <span class="comment"># 0. select an big image for mosaic</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"open %s"</span> % filename</span><br><span class="line">    im = Image.open(filename)</span><br><span class="line">    <span class="comment"># 1. process image as png to support transparency</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"process directory %s"</span> % path</span><br><span class="line">    process_directory(path)</span><br><span class="line">    <span class="comment"># 2. get a dict for path</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"get tile dict for path `%s`"</span> % path</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> open(<span class="string">'dic.txt'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            dic = p.load(f)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        dic = tile_dict(path)</span><br><span class="line">        <span class="keyword">with</span> open(<span class="string">'dic.txt'</span>, <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            p.dump(dic, f)</span><br><span class="line">    <span class="comment"># 3. thumbnail the big image for compare</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"thumbnail background for compare"</span></span><br><span class="line">    <span class="comment"># n = 30  # 原始图片缩为多少分之一</span></span><br><span class="line">    <span class="comment"># scale = 3  # 原始图片放大倍数</span></span><br><span class="line">    big_size = im.size[<span class="number">0</span>] * scale, im.size[<span class="number">1</span>] * scale</span><br><span class="line">    im_chao = Image.new(<span class="string">'RGB'</span>, big_size, <span class="number">0xffffff</span>)</span><br><span class="line">    imb_t_size = thumbnail_background(im, n)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"how may tiles: %d X %d"</span> % imb_t_size</span><br><span class="line">    <span class="keyword">print</span> <span class="string">'number of iterations: %d'</span> % iteration</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(iteration):</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'iteration: %d'</span> % (i + <span class="number">1</span>)</span><br><span class="line">        <span class="comment"># 4. get a list of smail image for mosaic</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"get pic list"</span></span><br><span class="line">        im_tiles = get_image_list(im, dic)</span><br><span class="line">        <span class="comment"># 5. paste in chaos style</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"generate final image"</span></span><br><span class="line">        im_chao = paste_chaos(im_chao, im_tiles, imb_t_size)</span><br><span class="line">    <span class="keyword">return</span> im_chao</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    im = main(<span class="string">'../mm.jpg'</span>, <span class="number">15</span>, <span class="number">5</span>, <span class="number">2</span>)</span><br><span class="line">    im.save(<span class="string">'../final3.png'</span>)</span><br><span class="line">    im.show()</span><br></pre></td></tr></table></figure>
+<h2 id="Demo">Demo</h2><p>Do you like it?</p>
+<p><img src="https://1a1rrq.sn2.livefilestore.com/y1p7DQkSgKd5dLtkOiUXpx6ACTajjZYAMtiwrPn3jkW3AzQrvwl9Ao76dCvM6bLWoa8nBKIxqQzGlXC1_ARqTVU2XJgVTkOjaCG/xxx.png?psid=1" alt="Demo"></p>
+<p><strong>Can you see it?</strong></p>
+<p><a href="https://lhtlyybox.googlecode.com/files/final3.png" target="_blank" rel="external">Demo Download(45.8M)</a></p>
+<p>More examples <a href="http://photo.renren.com/photo/306127150/album-857154918" target="_blank" rel="external">here</a>(Chinese)</p>
+<h2 id="Thanks">Thanks</h2><p>My family, It supports me.Never let me down, never pour cold water, never scold for insignificance.</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/python/2013/02/05/visualize-the-friendship-of-renren/" itemprop="url">
+                  Python小练习：可视化人人好友关系
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2013-02-05T00:00:00+08:00" content="2013-02-05">
+              2013-02-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2013/02/05/visualize-the-friendship-of-renren/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2013/02/05/visualize-the-friendship-of-renren/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="可视化人人好友关系">可视化人人好友关系</h1><hr>
+<p><strong>目录</strong></p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<hr>
+<p>受<a href="http://cos.name/2011/04/exploring-renren-social-network/" target="_blank" rel="external">R分析人人网好友推荐系统</a>和<a href="http://blog.csdn.net/lkkang/article/details/7362888" target="_blank" rel="external">用python进行人人好友分析</a>启发，完全用python的模块和方式实现了一遍，结果搞得好像一点也不Pythonic，倒好像有点继承了之前在lisp下养成的函数式风格……</p>
+<p>作为菜鸟深知代码写得不怎么样，写在这里，希望没什么基础的人都能体会到其中我所感受到的乐趣<em>Happy hacking</em>，也欢迎各路高手大牛不吝赐教。</p>
+<p>完整代码见<a href="https://github.com/reverland/scripts/blob/master/python/renren.py" target="_blank" rel="external">github/reverland/scripts/renren.py</a></p>
+<h2 id="必要条件">必要条件</h2><p><strong>For Reader:</strong></p>
+<p>读者需要有一定python基础，如果没有，不妨花半个小时看看<a href="">Python简明教程</a>。</p>
+<p><strong>For Computer:</strong></p>
+<p>我在gentoo linux下完成所有的编写测试，也推荐想尝试的朋友选择linux环境。不过只是推荐，python作为著名的跨平台语言，其代码可以没什么差别的运行在各个平台上，但你需要以下一些必备的东西：</p>
+<ul>
+<li>python 2.7 也许2.5也行，cookielib之前好像不在标准库中，而python3中则有改动。</li>
+<li>networkx 一个分析，操作，绘制网络的python模块。</li>
+<li>matplotlib 经常用来绘图的python模块</li>
+</ul>
+<p>怎么安装请自行参照官方网站说明。对后两个模块，建议使用pip安装，这货就相当于个包管理器(一条命令完成搜索下载安装所有操作并自动处理所有依赖)。</p>
+<p>最后，还有可选的开发环境：ipython，该程序提供一个功能强大的交互环境，很方便做测试调试探索各种 <em>一次性</em> 工作。</p>
+<h2 id="我们要做些什么">我们要做些什么</h2><p>从人人网上抓取好友，绘制好友之间的关系图，还可以供进一步分析(貌似没什么好分析的)。</p>
+<p>为了实现这点我们需要做到以下几个工作：</p>
+<ul>
+<li>模拟登录[^1]</li>
+<li>提取数据以合适数据结构保存</li>
+<li>制作图像并绘制</li>
+</ul>
+<h3 id="模拟登录">模拟登录</h3><p>人人的模拟登录还是比较简单的。模拟登录最困难的部分就是对要登录网站登录过程的分析。通常办法是通过抓包，用wireshark总有种杀鸡用牛刀的感觉，而且当你像作者一样天天用socks代理时会发现什么也抓不到……所以IE/Chrome/Firefox的开发工具可能更合适。这里用firebug，你可以在火狐扩展中心找到并安装它。</p>
+<p><img src="http://fmn.rrfmn.com/fmn058/20130207/1135/large_ljoh_1281000032cc125c.jpg" alt="人人登录分析"></p>
+<p>然后在抓包过程中找到用户名<a href="在CSDN事发之后人人停止明文传送密码，可以在js文件中发现密码经过加密。以后有空再研究。">^2</a>和登录时请求的服务器。</p>
+<p>不过，之前有很多人已经分析过人人的登录过程(一般不会要求验证码，除非登录过于频繁)。你所必须要做的基本上只有两件事：</p>
+<ul>
+<li>将用户名和密码POST到服务器</li>
+<li>处理cookie</li>
+</ul>
+<p>模拟登录的工具使用python的标准库中的<code>urllib</code>,<code>urllib2</code>和<code>cookielib</code>即可</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"><span class="keyword">import</span> urllib2</span><br><span class="line"><span class="keyword">import</span> cookielib</span><br></pre></td></tr></table></figure>
+<p>如果对这三个标准库不熟悉，建议花时间看看下面两篇教程。不过也许无所谓，代码可以自己解释自己:p。</p>
+<ul>
+<li><a href="http://www.voidspace.org.uk/python/articles/urllib2.shtml" target="_blank" rel="external">urllib2 the missing manual</a></li>
+<li><a href="http://www.voidspace.org.uk/python/articles/cookielib.shtml" target="_blank" rel="external">cookielib</a></li>
+</ul>
+<p>当浏览器使用POST方法请求服务器时，它将参数经过编码附加到url后传递过去:</p>
+<pre><code><span class="string">http:</span><span class="comment">//www.renren.com/ajaxLogin/login&amp;email=username&amp;password=blablabla</span>
+</code></pre><p>登录成功后，还要获取人人中用来作为用户唯一标识额uid(打开人人主页注意url就看到了)并返回，以供将来使用。将来所有的抓取都通过独一无二的uid而非可能重名的姓名。</p>
+<p>使用正则抓去uid</p>
+<pre><code><span class="preprocessor"><span class="keyword">import</span> re</span>
+</code></pre><p>我们先写登录函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">login</span><span class="params">(username, password)</span>:</span></span><br><span class="line">    <span class="string">"""log in and return uid"""</span></span><br><span class="line">    logpage = <span class="string">"http://www.renren.com/ajaxLogin/login"</span></span><br><span class="line">    data = &#123;<span class="string">'email'</span>: username, <span class="string">'password'</span>: password&#125;</span><br><span class="line">    login_data = urllib.urlencode(data)</span><br><span class="line">    cj = cookielib.CookieJar()</span><br><span class="line">    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))</span><br><span class="line">    urllib2.install_opener(opener)</span><br><span class="line">    res = opener.open(logpage, login_data)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Login now ..."</span></span><br><span class="line">    html = res.read()</span><br><span class="line">    <span class="comment">#print html</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Get uid</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Getting user id of you now"</span></span><br><span class="line">    res = urllib2.urlopen(<span class="string">"http://www.renren.com/home"</span>)</span><br><span class="line">    html = res.read()</span><br><span class="line">    <span class="comment"># print html</span></span><br><span class="line">    uid = re.search(<span class="string">"'ruid':'(\d+)'"</span>, html).group(<span class="number">1</span>)</span><br><span class="line">    <span class="comment"># print uid</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Login and got uid successfully"</span></span><br><span class="line">    <span class="keyword">return</span> uid</span><br></pre></td></tr></table></figure>
+<p>不妨在ipython中先测试下。</p>
+<h3 id="抓取数据">抓取数据</h3><p>每个人的好友都可以从页面<code>http://friend.renren.com/GetFriendList.do?curpage=0&amp;id=uid</code>获取，虽然人人已经改版，但这个页面还能用。其中curpage参数的值是页码，id参数的值是拟抓取对象的用户ID。通过循环抓取所有好友并以用户id为键姓名为值保存为字典。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getfriends</span><span class="params">(uid)</span>:</span></span><br><span class="line">    <span class="string">"""Get the uid's friends and return the dict with uid as key,name as value."""</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Get %s 's friend list"</span> % str(uid)</span><br><span class="line">    pagenum = <span class="number">0</span></span><br><span class="line">    dict1 = &#123;&#125;</span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">        targetpage = <span class="string">"http://friend.renren.com/GetFriendList.do?curpage="</span> + str(pagenum) + <span class="string">"&amp;id="</span> + str(uid)</span><br><span class="line">        res = urllib2.urlopen(targetpage)</span><br><span class="line">        html = res.read()</span><br><span class="line"></span><br><span class="line">        pattern = <span class="string">'&lt;a href="http://www\.renren\.com/profile\.do\?id=(\d+)"&gt;&lt;img src="[\S]*" alt="[\S]*[\s]\((.*)\)" /&gt;'</span></span><br><span class="line"></span><br><span class="line">        m = re.findall(pattern, html)</span><br><span class="line">        <span class="comment">#print len(m)</span></span><br><span class="line">        <span class="keyword">if</span> len(m) == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(m)):</span><br><span class="line">            no = m[i][<span class="number">0</span>]</span><br><span class="line">            uname = m[i][<span class="number">1</span>]</span><br><span class="line">            <span class="comment">#print uname, no</span></span><br><span class="line">            dict1[no] = uname</span><br><span class="line">        pagenum += <span class="number">1</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Got %s 's friends list successfully."</span> % str(uid)</span><br><span class="line">    <span class="keyword">return</span> dict1</span><br></pre></td></tr></table></figure>
+<p>我们再写个获取好友关系字典的函数，为了避免我们每次为了获取字典都要登录抓取。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getdict</span><span class="params">(uid)</span>:</span></span><br><span class="line">    <span class="string">"""cache dict of uid in the disk."""</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> open(str(uid) + <span class="string">'.txt'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            dict_uid = p.load(f)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">with</span> open(str(uid) + <span class="string">'.txt'</span>, <span class="string">'w'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            p.dump(getfriends(uid), f)</span><br><span class="line">        dict_uid = getdict(uid)</span><br><span class="line">    <span class="keyword">return</span> dict_uid</span><br></pre></td></tr></table></figure>
+<p>我们还需要一个用来判断两个人关系的函数，来判断我们好友之间的关系。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getrelations</span><span class="params">(uid1, uid2)</span>:</span></span><br><span class="line">    <span class="string">"""receive two user id, If they are friends, return 1, otherwise 0."""</span></span><br><span class="line">    dict_uid1 = getdict(uid1)</span><br><span class="line">    <span class="keyword">if</span> uid2 <span class="keyword">in</span> dict_uid1:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<h3 id="绘制图像">绘制图像</h3><p>利用以上函数判断好友关系并通过networkx创建一个相应的网络。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getgraph</span><span class="params">(username, password)</span>:</span></span><br><span class="line">    <span class="string">"""Get the Graph Object and return it.</span><br><span class="line">    You must specify a Chinese font such as `SimHei` in ~/.matplotlib/matplotlibrc"""</span></span><br><span class="line">    uid = login(username, password)</span><br><span class="line">    dict_root = getdict(uid)  <span class="comment"># Get root tree</span></span><br><span class="line"></span><br><span class="line">    G = nx.Graph()  <span class="comment"># Create a Graph object</span></span><br><span class="line">    <span class="keyword">for</span> uid1, uname1 <span class="keyword">in</span> dict_root.items():</span><br><span class="line">        <span class="comment"># Encode Chinese characters for matplotlib **IMPORTANT**</span></span><br><span class="line">        <span class="comment"># if you want to draw Chinese labels,</span></span><br><span class="line">        uname1 = unicode(uname1, <span class="string">'utf8'</span>)</span><br><span class="line">        G.add_node(uname1)</span><br><span class="line">        <span class="keyword">for</span> uid2, uname2 <span class="keyword">in</span> dict_root.items():</span><br><span class="line">            uname2 = unicode(uname2, <span class="string">'utf8'</span>)</span><br><span class="line">            <span class="comment"># Not necessary for networkx</span></span><br><span class="line">            <span class="keyword">if</span> uid2 == uid1:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">if</span> getrelations(uid1, uid2):</span><br><span class="line">                G.add_edge(uname1, uname2)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> G</span><br></pre></td></tr></table></figure>
+<p>最后是绘图函数，有很多控制图像输出的参数，可能多次调整才会得到想要的图像。在matplotlib画出的图像在窗口中也可以放大缩小选取适当范围。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">draw_graph</span><span class="params">(username, password, filename=<span class="string">'graph.txt'</span>, label_flag=True, remove_isolated=True, different_size=True, iso_level=<span class="number">10</span>, node_size=<span class="number">40</span>)</span>:</span></span><br><span class="line">    <span class="string">"""Reading data from file and draw the graph.If not exists, create the file and re-scratch data from net"""</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Generating graph..."</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> open(filename, <span class="string">'r'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            G = p.load(f)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        G = getgraph(username, password)</span><br><span class="line">        <span class="keyword">with</span> open(filename, <span class="string">'w'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            p.dump(G, f)</span><br><span class="line">    <span class="comment">#nx.draw(G)</span></span><br><span class="line">    <span class="comment"># Judge whether remove the isolated point from graph</span></span><br><span class="line">    <span class="keyword">if</span> remove_isolated <span class="keyword">is</span> <span class="keyword">True</span>:</span><br><span class="line">        H = nx.empty_graph()</span><br><span class="line">        <span class="keyword">for</span> SG <span class="keyword">in</span> nx.connected_component_subgraphs(G):</span><br><span class="line">            <span class="keyword">if</span> SG.number_of_nodes() &gt; iso_level:</span><br><span class="line">                H = nx.union(SG, H)</span><br><span class="line">        G = H</span><br><span class="line">    <span class="comment"># Ajust graph for better presentation</span></span><br><span class="line">    <span class="keyword">if</span> different_size <span class="keyword">is</span> <span class="keyword">True</span>:</span><br><span class="line">        L = nx.degree(G)</span><br><span class="line">        G.dot_size = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> k, v <span class="keyword">in</span> L.items():</span><br><span class="line">            G.dot_size[k] = v</span><br><span class="line">        node_size = [G.dot_size[v] * <span class="number">10</span> <span class="keyword">for</span> v <span class="keyword">in</span> G]</span><br><span class="line">    pos = nx.spring_layout(G, iterations=<span class="number">50</span>)</span><br><span class="line">    nx.draw_networkx_edges(G, pos, alpha=<span class="number">0.2</span>)</span><br><span class="line">    nx.draw_networkx_nodes(G, pos, node_size=node_size, node_color=<span class="string">'r'</span>, alpha=<span class="number">0.3</span>)</span><br><span class="line">    <span class="comment"># Judge whether shows label</span></span><br><span class="line">    <span class="keyword">if</span> label_flag <span class="keyword">is</span> <span class="keyword">True</span>:</span><br><span class="line">        nx.draw_networkx_labels(G, pos, alpha=<span class="number">0.5</span>)</span><br><span class="line">    <span class="comment">#nx.draw_graphviz(G)</span></span><br><span class="line">    plt.show()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> G</span><br></pre></td></tr></table></figure>
+<p>把以上函数写进一个文件比如说renren.py，在ipython中导入。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">1</span>]: <span class="keyword">from</span> renren <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">In[<span class="number">2</span>]: username = yourusername</span><br><span class="line"></span><br><span class="line">In[<span class="number">3</span>]: password = yourpassword</span><br><span class="line"></span><br><span class="line">In[<span class="number">4</span>]: draw_graph(username, password)</span><br></pre></td></tr></table></figure>
+<p><img src="http://fmn.xnpic.com/fmn057/20130207/1135/large_C753_44f6000032d8125d.jpg" alt="模糊化生成的好友关系图"></p>
+<h2 id="总结">总结</h2><p>通过图像你会发现。这些绘图软件的算法相当不错的，你会发现很明显的聚类，这一片是大学同学、这片是小学初中同学，旁边与之联系紧密的是高中同学，这一片孤立的是网友等等。</p>
+<p>也许你还会发现你的某些好友竟然相互认识。</p>
+<p>抓取下来的数据还可以留待其它研究</p>
+<p><img src="http://fmn.rrfmn.com/fmn059/20130207/1135/large_HiaW_1161000032c9125c.jpg" alt="又是横竖坐标都没的渣图"></p>
+<p>你也许会发现有的好友和你的共同好友多得超乎他人，也许发现共同好友分布比较均匀</p>
+<p>就这么多这么简单。</p>
+<p>希望你也能体会到这个乐趣横生的过程，对我来说，探索和学习的过程是相当意趣盎然的，折腾出来还相当有成就感呢。</p>
+<h2 id="What’s_more">What’s more</h2><p>如果你想让matplotlib显示中文，你需要修改matplotlibrc更改字体。但有一种更通用的办法可以不用修改配置文件。自行google。</p>
+<p>ps:这回开高亮了，没感觉和不高亮有啥大区别。感觉还是vim中的高亮漂亮啊，哪天不用pygments直接用vim converto html = =</p>
+<h2 id="FootNotes">FootNotes</h2><p>[^1]:从来没用过api，搞不懂人人api，试着创建个应用Post过去结果认证失败，也没打算申请应用……总之不会搞= =</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/python/2013/01/28/visualize-your-shell-history/" itemprop="url">
                   Visualize your shell history
                 </a>
@@ -2731,1167 +3072,6 @@ OPTIMIZERS = (optimize.brenth, optimize.brentq, optimize.ridder,
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/python/2012/10/30/" itemprop="url">
-                  斯普罗站最大风力预测
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-10-30T00:00:00+08:00" content="2012-10-30">
-              2012-10-30
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/python/2012/10/30/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/10/30//" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="斯普罗岛最大风速预测">斯普罗岛最大风速预测</h1><p>翻译自：<a href="http://scipy-lectures.github.com/intro/summary-exercises/stats-interpolate.html" target="_blank" rel="external">http://scipy-lectures.github.com/intro/summary-exercises/stats-interpolate.html</a></p>
-<p>这个练习目的在于预测每50年的最大风速，如果没有测量的话。可以获得的数据仅仅由位于丹麦的斯普罗气象站测量了21年。首先，统计步骤将给出，然后通过从scipy.interpolate模块中的函数演示。最后有兴趣的读者将被邀请用稍微不同的方法从原始数据计算结果。</p>
-<h2 id="统计方法">统计方法</h2><p>每年最大风速应该符合正态概率密度函数。然而，这个函数将并不会被估计，因为它从最大风速给出概率。这将是分位函数的角色，这个练习的目标将会是找到它。在当前模型，每五十年发生的最大风速被定义为%2上分位。</p>
-<p>根据定义，这个分位函数是累积分布函数的反函数，后者描述了一年的最大风速概率分布。在这个练习中。给定年<code>i</code>累积概率<code>p_i</code>被定义为<code>p_i = i/(N+1)</code>,其中N=21，有测量的年数。因此计算每年最大风速的累积概率将是可能的。从这些实验点，scipy.interpolate模块将在拟合分位函数时非常有用。最后这五十年的最大值将被从上%2分位数的累积概率函数中求得。</p>
-<h2 id="计算累积概率">计算累积概率</h2><p>每年的最大风力已经被计算并以numpy格式保存在文件<a href="http://scipy-lectures.github.com/_downloads/max-speeds.npy" target="_blank" rel="external">examples/max-speeds.npy</a>中，因此它们将通过numpy载入：</p>
-<pre><code>In [<span class="number">1</span>]: import numpy as np
-
-In [<span class="number">2</span>]: max_speeds = np.<span class="function"><span class="title">load</span><span class="params">(<span class="string">'max-speeds.npy'</span>)</span></span>
-
-In [<span class="number">3</span>]: years_nb = max_speeds<span class="class">.shape</span>[<span class="number">0</span>]
-</code></pre><p>从上一部分累积概率定义<code>p_i</code>，相应的值将是：</p>
-<pre><code>In [<span class="number">5</span>]: cprob = (np.arange(years_nb, dtype=np.float32) + <span class="number">1</span>) / (years_nb + <span class="number">1</span>)
-</code></pre><p>它们被假定用来拟合给定风速：</p>
-<h2 id="一元样条预测">一元样条预测</h2><p>本章中分位函数将通过使用<code>UnivariateSpline</code>类来估计，这个类可以代表源于数据点的样条。默认的行为是构建一个3级(degree)的样条，数据点可以根据它们的可靠性有不同的权重。变体有<code>InterpolateUnivariateSpline</code>和<code>LSQUnivariateSpline</code>，它们的误差检查将会改变。在需要二维样条的时候，<code>BivariateSpline</code>类一族被提供。所有这些一维和二维样条使用FITPACK Fortran子程序，这就是为何通过分别代表和估值样条的<code>splrep</code>和<code>splev</code>函数，一个低等的库存取可以使用。而且没有使用FITPACK参数的插值函数也被提供给更简单的使用(参见’interp1d’,<code>interp2d</code>,<code>barycentric_interpolate</code>等等)。</p>
-<p>对斯普罗最大风速，<code>UnivariateSpline</code>将被使用，因为3级的样条似乎拟合很正确：</p>
-<pre><code>In [<span class="number">7</span>]: from scipy<span class="class">.interpolate</span> import UnivariateSpline
-
-In [<span class="number">8</span>]: quantile_func =  <span class="function"><span class="title">UnivariateSpline</span><span class="params">(cprob,sorted_max_speeds)</span></span>
-</code></pre><p>分位函数想在将从整个概率范围求值：</p>
-<pre><code>In [<span class="number">9</span>]: nprob = np.<span class="function"><span class="title">linspace</span><span class="params">(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>e2)</span></span>
-
-In [<span class="number">10</span>]: fitted_max_speeds = <span class="function"><span class="title">quantile_func</span><span class="params">(nprob)</span></span>
-</code></pre><p>%2</p>
-<p>在目前的模型中，每五十年发生的最大风速被定义为上%2分位。结果，累积概率值将是：</p>
-<pre><code>In [<span class="number">11</span>]: fifty_prob = <span class="number">1.</span> - <span class="number">0.02</span>
-</code></pre><p>所以每五十年发生的暴风风速可被猜测，通过：</p>
-<pre><code>In [<span class="number">12</span>]: fifty_wind = <span class="function"><span class="title">quantile_func</span><span class="params">(fifty_prob)</span></span>
-
-In [<span class="number">13</span>]: fifty_wind
-Out[<span class="number">13</span>]: <span class="function"><span class="title">array</span><span class="params">(<span class="number">32.97989825386221</span>)</span></span>
-</code></pre><p>结果现在集中在一个Matplotlib图像上：</p>
-<p><img src="http://scipy-lectures.github.com/_images/plot_cumulative_wind_speed_prediction_1.png" alt="fifty-wind"></p>
-<p><a href="http://scipy-lectures.github.com/_downloads/plot_cumulative_wind_speed_prediction.py" target="_blank" rel="external">source code</a></p>
-<h2 id="Gumbell分布练习">Gumbell分布练习</h2><p>感兴趣的读者现在被邀请通过使用二十一年测量的风速来做个练习。这个测量周期是大约90分钟(原始周期大约10分钟，但是文件大小为了让练习更简单已经被减小)。数据以numpy格式存储在文件<a href="http://scipy-lectures.github.com/_downloads/sprog-windspeeds.npy" target="_blank" rel="external">sprog-windspeeds.npy</a>中。在你完成练习之前，不要看绘图源码。</p>
-<ul>
-<li>第一步将是使用numpy并绘制matplotlib条形图，找到每年最大值。</li>
-</ul>
-<p><img src="http://scipy-lectures.github.com/_images/plot_sprog_annual_maxima_1.png" alt="bar"></p>
-<p><a href="http://scipy-lectures.github.com/_downloads/plot_sprog_annual_maxima.py" target="_blank" rel="external">source code</a></p>
-<ul>
-<li>第二步是使用Gumble分布——其累积概率<code>p_i</code>被定义为<code>-log(-log(p_i))</code>，来拟合一个线性分位函数(记住你可以定义<code>UnivariateSpline</code>的级数(degree))。绘制每年最大风速与Gumble分布应该给出以下图像：</li>
-</ul>
-<p><img src="http://scipy-lectures.github.com/_images/plot_gumbell_wind_speed_prediction_1.png" alt="http://scipy-lectures.github.com/_images/plot_gumbell_wind_speed_prediction_1.png"></p>
-<p><a href="http://scipy-lectures.github.com/_downloads/plot_gumbell_wind_speed_prediction.py" target="_blank" rel="external">source code</a></p>
-<ul>
-<li>最后一步是找到每五十年发生的最大风速34.23m/s</li>
-</ul>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/python/2012/10/22/scipy/" itemprop="url">
-                  Scipy:高端科学计算
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-10-22T00:00:00+08:00" content="2012-10-22">
-              2012-10-22
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/python/2012/10/22/scipy/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/10/22/scipy/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="Scipy:高端科学计算">Scipy:高端科学计算</h1><p>作者：Adrien Chauve, Andre Espaze, Emmanuelle Gouillart, Gaël Varoquaux, Ralf Gommers</p>
-<p>翻译自：<a href="scipy-lectures.github.com/intro/scipy.html">scipy lecture notes</a></p>
-<font color="red">译者表示最后部分没怎么看懂，此文档维护中……</font>
-
-<hr>
-<p><strong>Scipy</strong></p>
-<p>scipy包包含致力于科学计算中常见问题的各个工具箱。它的不同子模块相应于不同的应用。像插值，积分，优化，图像处理，，特殊函数等等。</p>
-<p>scipy可以与其它标准科学计算程序库进行比较，比如GSL(GNU C或C++科学计算库)，或者Matlab工具箱。scipy是Python中科学计算程序的核心包;它用于有效地计算numpy矩阵，来让numpy和scipy协同工作。</p>
-<p>在实现一个程序之前，值得检查下所需的数据处理方式是否已经在scipy中存在了。作为非专业程序员，科学家总是喜欢<em>重新发明造轮子</em>，导致了充满漏洞的，未经优化的，很难分享和维护的代码。相反，Scipy程序经过优化和测试，因此应该尽可能使用。</p>
-<hr>
-<p><strong>目录</strong></p>
-<ul>
-<li>toc<br>{: toc}</li>
-</ul>
-<hr>
-<font color="red">警告：这个教程离真正的数值计算介绍很远。因为枚举scipy中不同的子模块和函数非常无聊，我们集中精力代之以几个例子来给出如何使用<code>scipy</code>进行计算的大致思想。</font>
-
-<p>scipy 由一些特定功能的子模块组成：</p>
-<table>
-<thead>
-<tr>
-<th>模块</th>
-<th>功能</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>scipy.cluster</td>
-<td>矢量量化 / K-均值</td>
-</tr>
-<tr>
-<td>scipy.constants</td>
-<td>物理和数学常数</td>
-</tr>
-<tr>
-<td>scipy.fftpack</td>
-<td>傅里叶变换</td>
-</tr>
-<tr>
-<td>scipy.integrate</td>
-<td>积分程序</td>
-</tr>
-<tr>
-<td>scipy.interpolate</td>
-<td>插值</td>
-</tr>
-<tr>
-<td>scipy.io</td>
-<td>数据输入输出</td>
-</tr>
-<tr>
-<td>scipy.linalg</td>
-<td>线性代数程序</td>
-</tr>
-<tr>
-<td>scipy.ndimage</td>
-<td>n维图像包</td>
-</tr>
-<tr>
-<td>scipy.odr</td>
-<td>正交距离回归</td>
-</tr>
-<tr>
-<td>scipy.optimize</td>
-<td>优化</td>
-</tr>
-<tr>
-<td>scipy.signal</td>
-<td>信号处理</td>
-</tr>
-<tr>
-<td>scipy.sparse</td>
-<td>稀疏矩阵</td>
-</tr>
-<tr>
-<td>scipy.spatial</td>
-<td>空间数据结构和算法</td>
-</tr>
-<tr>
-<td>scipy.special</td>
-<td>任何特殊数学函数</td>
-</tr>
-<tr>
-<td>scipy.stats</td>
-<td>统计</td>
-</tr>
-</tbody>
-</table>
-<p>它们全依赖<a href="http://docs.scipy.org/doc/numpy/reference/index.html#numpy" target="_blank" rel="external">numpy</a>,但是每个之间基本独立。导入Numpy和这些scipy模块的标准方式是：</p>
-<pre><code><span class="keyword">import</span> numpy <span class="keyword">as</span> np
-<span class="keyword">from</span> scipy <span class="keyword">import</span> stats  <span class="comment"># 其它子模块相同</span>
-</code></pre><p>主<code>scipy</code>命名空间大多包含真正的numpy函数(尝试 scipy.cos 就是 np.cos)。这些仅仅是由于历史原因，通常没有理由在你的代码中使用<code>import scipy</code></p>
-<h2 id="文件输入/输出：scipy-io">文件输入/输出：scipy.io</h2><ul>
-<li><p>导入和保存matlab文件:</p>
-<pre><code><span class="keyword">In</span> [<span class="number">1</span>]: <span class="keyword">from</span> scipy import io <span class="keyword">as</span> spio
-
-<span class="keyword">In</span> [<span class="number">3</span>]: import numpy <span class="keyword">as</span> np
-
-<span class="keyword">In</span> [<span class="number">4</span>]: a = np.ones((<span class="number">3</span>, <span class="number">3</span>))
-
-<span class="keyword">In</span> [<span class="number">5</span>]: spio.savemat(<span class="string">'file.mat'</span>, <span class="comment">{'a': a}</span>) # savemat expects a dictionary
-/usr/lib/python2.<span class="number">7</span>/site-packages/scipy/io/matlab/mio.py:<span class="number">266</span>: FutureWarning: <span class="keyword">Using</span> oned_as <span class="keyword">default</span> value (<span class="string">'column'</span>) This will change <span class="keyword">to</span> <span class="string">'row'</span> <span class="keyword">in</span> <span class="keyword">future</span> versions
-  oned_as=oned_as)
-
-<span class="keyword">In</span> [<span class="number">6</span>]: data = spio.loadmat(<span class="string">'file.mat'</span>, struct_as_record=<span class="keyword">True</span>)
-
-<span class="keyword">In</span> [<span class="number">7</span>]: data[<span class="string">'a'</span>]
-<span class="keyword">Out</span>[<span class="number">7</span>]: 
-<span class="keyword">array</span>([[ <span class="number">1</span>.,  <span class="number">1</span>.,  <span class="number">1</span>.],
-       [ <span class="number">1</span>.,  <span class="number">1</span>.,  <span class="number">1</span>.],
-       [ <span class="number">1</span>.,  <span class="number">1</span>.,  <span class="number">1</span>.]])
-</code></pre></li>
-<li><p>读取图片：</p>
-<pre><code><span class="name">In</span> [<span class="number">16</span>]: <span class="atom">from</span> <span class="atom">scipy</span> <span class="atom">import</span> <span class="atom">misc</span>
-
-<span class="name">In</span> [<span class="number">17</span>]: <span class="atom">misc</span>.<span class="atom">imread</span>(<span class="string">'scikit.png'</span>)
-<span class="name">Out</span>[<span class="number">17</span>]: 
-<span class="atom">array</span>([[[<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        ..., 
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>]],
-
-       [[<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        ..., 
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>]],
-
-       [[<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        ..., 
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>]],
-
-       ..., 
-       [[<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        ..., 
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>]],
-
-       [[<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        ..., 
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>]],
-
-       [[<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        ..., 
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
-        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>]]], <span class="atom">dtype</span>=<span class="atom">uint8</span>)
-
-<span class="name">In</span> [<span class="number">18</span>]: <span class="atom">import</span> <span class="atom">matplotlib</span>.<span class="atom">pyplot</span> <span class="atom">as</span> <span class="atom">plt</span>
-
-<span class="name">In</span> [<span class="number">19</span>]: <span class="atom">plt</span>.<span class="atom">imread</span>(<span class="string">'scikit.png'</span>)
-<span class="name">Out</span>[<span class="number">19</span>]: 
-<span class="atom">array</span>([[[ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        ..., 
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>]],
-
-       [[ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        ..., 
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>]],
-
-       [[ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        ..., 
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>]],
-
-       ..., 
-       [[ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        ..., 
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>]],
-
-       [[ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        ..., 
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>]],
-
-       [[ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        ..., 
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>],
-        [ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>]]], <span class="atom">dtype</span>=<span class="atom">float32</span>)
-</code></pre></li>
-</ul>
-<p>参见：</p>
-<ul>
-<li>载入txt文件：numpy.loadtxt()/numpy.savetxt()</li>
-<li>智能导入文本/csv文件：numpy.genfromtxt()/numpy.recfromcsv()</li>
-<li>高速，有效率但numpy特有的二进制格式：numpy.save()/numpy.load()</li>
-</ul>
-<h2 id="特殊函数：scipy-special">特殊函数：scipy.special</h2><p>特殊函数是先验函数。<a href="http://docs.scipy.org/doc/scipy/reference/special.html#scipy.special" target="_blank" rel="external">scipy.special</a>的文档字符串写得非常好，所以我们不在这里列出所有函数。常用的有：</p>
-<ul>
-<li>贝塞尔函数，如<code>scipy.special.jn()</code>(整数n阶贝塞尔函数)</li>
-<li>椭圆函数(<code>scipy.special.ellipj()</code>雅可比椭圆函数，……)</li>
-<li>伽马函数：<code>scipy.special.gamma()</code>，还要注意<code>scipy.special.gammaln</code>,这个函数给出对数坐标的伽马函数，因此有更高的数值精度。</li>
-</ul>
-<h2 id="线性代数运算：scipy-linalg">线性代数运算：scipy.linalg</h2><p><a href="http://docs.scipy.org/doc/scipy/reference/linalg.html#scipy.linalg" target="_blank" rel="external">scipy.linalg</a>模块提供标准线性代数运算，依赖于底层有效率的实现(BLAS，LAPACK)。</p>
-<ul>
-<li><p><a href="http://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.det.html#scipy.linalg.det" target="_blank" rel="external">scipy.linalg.det()</a>函数计算方阵的行列式：</p>
-<pre><code>In [<span class="number">22</span>]: from scipy import linalg
-
-In [<span class="number">23</span>]: arr = np.array([[<span class="number">1</span>, <span class="number">2</span>],
-   ....:                [<span class="number">3</span>, <span class="number">4</span>]])
-
-In [<span class="number">24</span>]: linalg.<span class="function"><span class="title">det</span><span class="params">(arr)</span></span>
-Out[<span class="number">24</span>]: -<span class="number">2.0</span>
-
-In [<span class="number">25</span>]: linalg.<span class="function"><span class="title">det</span><span class="params">(np.ones((<span class="number">3</span>,<span class="number">4</span>)</span></span>))
----------------------------------------------------------------------------
-ValueError                                Traceback (most recent call last)
-&lt;ipython-input-<span class="number">25</span>-<span class="number">375</span>ad1d49940&gt; <span class="keyword">in</span> &lt;module&gt;()
-----&gt; <span class="number">1</span> linalg.<span class="function"><span class="title">det</span><span class="params">(np.ones((<span class="number">3</span>,<span class="number">4</span>)</span></span>))
-
-/usr/lib/python2.<span class="number">7</span>/site-packages/scipy/linalg/basic<span class="class">.pyc</span> <span class="keyword">in</span> <span class="function"><span class="title">det</span><span class="params">(a, overwrite_a)</span></span>
-    <span class="number">398</span>     a1 = np.<span class="function"><span class="title">asarray_chkfinite</span><span class="params">(a)</span></span>
-    <span class="number">399</span>     <span class="keyword">if</span> <span class="function"><span class="title">len</span><span class="params">(a1.shape)</span></span> != <span class="number">2</span> or a1<span class="class">.shape</span>[<span class="number">0</span>] != a1<span class="class">.shape</span>[<span class="number">1</span>]:
---&gt; <span class="number">400</span>         raise <span class="function"><span class="title">ValueError</span><span class="params">(<span class="string">'expected square matrix'</span>)</span></span>
-    <span class="number">401</span>     overwrite_a = overwrite_a or _datacopied(a1, a)
-    <span class="number">402</span>     fdet, = <span class="function"><span class="title">get_flinalg_funcs</span><span class="params">((<span class="string">'det'</span>,)</span></span>, (a1,))
-
-ValueError: expected square matrix
-</code></pre></li>
-</ul>
-<p>py.linalg.inv()`函数计算方阵的逆：</p>
-<pre><code>In [<span class="number">26</span>]: arr = np.<span class="built_in">array</span>([[<span class="number">1</span>, <span class="number">2</span>],
-                [<span class="number">3</span>, <span class="number">4</span>]])
-
-In [<span class="number">27</span>]: iarr = linalg.inv(arr)
-
-In [<span class="number">28</span>]: iarr
-Out[<span class="number">28</span>]: 
-<span class="built_in">array</span>([[-<span class="number">2.</span> ,  <span class="number">1.</span> ],
-       [ <span class="number">1.5</span>, -<span class="number">0.5</span>]])
-
-In [<span class="number">29</span>]: np.allclose(np.dot(arr, iarr), np.eye(<span class="number">2</span>))
-Out[<span class="number">29</span>]: True
-</code></pre><p>最后计算奇异阵的逆(它的行列式为0)将会引发(raise)<code>LinAlgError</code>：</p>
-<pre><code>In [<span class="number">32</span>]: arr = np.array([[<span class="number">3</span>, <span class="number">2</span>],
-                [<span class="number">6</span>, <span class="number">4</span>]])
-
-In [<span class="number">33</span>]: linalg.<span class="function"><span class="title">inv</span><span class="params">(arr)</span></span>
----------------------------------------------------------------------------
-LinAlgError                               Traceback (most recent call last)
-&lt;ipython-input-<span class="number">33</span>-<span class="number">52</span>c04c854a80&gt; <span class="keyword">in</span> &lt;module&gt;()
-----&gt; <span class="number">1</span> linalg.<span class="function"><span class="title">inv</span><span class="params">(arr)</span></span>
-
-/usr/lib/python2.<span class="number">7</span>/site-packages/scipy/linalg/basic<span class="class">.pyc</span> <span class="keyword">in</span> <span class="function"><span class="title">inv</span><span class="params">(a, overwrite_a)</span></span>
-    <span class="number">346</span>             inv_a, info = <span class="function"><span class="title">getri</span><span class="params">(lu, piv, overwrite_lu=<span class="number">1</span>)</span></span>
-    <span class="number">347</span>     <span class="keyword">if</span> info &gt; <span class="number">0</span>:
---&gt; <span class="number">348</span>         raise <span class="function"><span class="title">LinAlgError</span><span class="params">(<span class="string">"singular matrix"</span>)</span></span>
-    <span class="number">349</span>     <span class="keyword">if</span> info &lt; <span class="number">0</span>:
-    <span class="number">350</span>         raise ValueError(<span class="string">'illegal value in %d-th argument of internal '</span>
-
-LinAlgError: singular matrix
-</code></pre><ul>
-<li><p>还有更多高级运算，如奇异值分解(SVD):</p>
-<pre><code>In [<span class="number">34</span>]: arr = np.<span class="function"><span class="title">arange</span><span class="params">(<span class="number">9</span>)</span></span>.<span class="function"><span class="title">reshape</span><span class="params">((<span class="number">3</span>, <span class="number">3</span>)</span></span>) + np.<span class="function"><span class="title">diag</span><span class="params">([<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>])</span></span>
-
-In [<span class="number">35</span>]: uarr, spec, vharr = linalg.<span class="function"><span class="title">svd</span><span class="params">(arr)</span></span>
-</code></pre><p>它的结果数组谱是：</p>
-<pre><code>In [<span class="number">36</span>]: spec
-Out[<span class="number">36</span>]: <span class="built_in">array</span>([ <span class="number">14.88982544</span>,   <span class="number">0.45294236</span>,   <span class="number">0.29654967</span>])
-</code></pre><p>原始矩阵可以由svd的输出用<code>np.dot</code>点乘重新组合得到：</p>
-<pre><code>In [<span class="number">37</span>]: sarr = np.<span class="function"><span class="title">diag</span><span class="params">(spec)</span></span>
-
-In [<span class="number">38</span>]: svd_mat = uarr.<span class="function"><span class="title">dot</span><span class="params">(sarr)</span></span>.<span class="function"><span class="title">dot</span><span class="params">(vharr)</span></span>
-
-In [<span class="number">39</span>]: np.<span class="function"><span class="title">allclose</span><span class="params">(svd_mat, arr)</span></span>
-Out[<span class="number">39</span>]: True
-</code></pre></li>
-</ul>
-<p>SVD在信号处理和统计中运用很广。许多其它标准分解(QR,LU,Cholesky,Schur)，还有线性系统的解也可以从<a href="http://docs.scipy.org/doc/scipy/reference/linalg.html#scipy.linalg" target="_blank" rel="external">scipy.linalg</a>中获得。</p>
-<h2 id="快速傅里叶变换：scipy-fftpack">快速傅里叶变换：scipy.fftpack</h2><p><a href="http://docs.scipy.org/doc/scipy/reference/fftpack.html#scipy.fftpack" target="_blank" rel="external">scipy.fftpack</a>模块用来计算快速傅里叶变换。作为示例，一个(噪声)输入信号可能像这样：</p>
-<pre><code>In [<span class="number">40</span>]: time_step = <span class="number">0.02</span>
-
-In [<span class="number">41</span>]: period = <span class="number">5</span>
-
-In [<span class="number">42</span>]: time_vec = np.arange(<span class="number">0</span>, <span class="number">20</span>, time_step)
-
-In [<span class="number">43</span>]: sig = np.<span class="built_in">sin</span>(<span class="number">2</span> * np.pi / period * time_vec) + \
-   ....: <span class="number">0.5</span> * np.random.randn(time_vec.size)
-</code></pre><p>观测者并不指导信号频率，仅仅等间隔取样信号sig。信号应该来自一个真实的函数所以傅里叶变换将是对称的。<a href="http://docs.scipy.org/doc/scipy/reference/generated/scipy.fftpack.fftfreq.html#scipy.fftpack.fftfreq" target="_blank" rel="external">scipy.fftpack.fftfreq()</a>函数将生成取样频率，<a href="http://docs.scipy.org/doc/scipy/reference/generated/scipy.fftpack.fft.html#scipy.fftpack.fft" target="_blank" rel="external">scipy.fftpack.fft()</a>将计算快速傅里叶变换：</p>
-<p>因为功率结果是对称的，仅仅需要使用谱的正值部分来找出频率：</p>
-<pre><code>In [<span class="number">48</span>]: pidxs = np.where(sample_freq &gt; <span class="number">0</span>)
-
-In [<span class="number">49</span>]: freqs = sample_fre<span class="string">q[pidxs]</span>
-
-In [<span class="number">50</span>]: power = np.<span class="keyword">abs</span>(sig_fft)[pidxs]
-</code></pre><p>信号频率可以这样被找到：</p>
-<pre><code>In [<span class="number">51</span>]: freq = freqs[power.<span class="function"><span class="title">argmax</span><span class="params">()</span></span>]
-
-In [<span class="number">52</span>]: np.<span class="function"><span class="title">allclose</span><span class="params">(freq, <span class="number">1</span>./period)</span></span>
-Out[<span class="number">52</span>]: True
-</code></pre><p>现在高频噪声将被从傅里叶变换信号中移除：</p>
-<pre><code>In [<span class="number">53</span>]: sig_fft[np.<span class="built_in">abs</span>(sample_freq) &gt; freq] = <span class="number">0</span>
-</code></pre><p>得到滤波信号，可以用<code>scipy.fftpack.ifft</code>函数计算：</p>
-<pre><code>In [<span class="number">54</span>]: main_sig = fftpack.<span class="function"><span class="title">ifft</span><span class="params">(sig_fft)</span></span>
-</code></pre><p>结果可以这样可视化：</p>
-<pre><code>In [<span class="number">55</span>]: plt.<span class="function"><span class="title">figure</span><span class="params">()</span></span>
-Out[<span class="number">55</span>]: &lt;matplotlib<span class="class">.figure</span><span class="class">.Figure</span> at <span class="number">0</span>x4a9fb50&gt;
-
-In [<span class="number">56</span>]: plt.<span class="function"><span class="title">plot</span><span class="params">(time_vec, sig)</span></span>
-Out[<span class="number">56</span>]: [&lt;matplotlib<span class="class">.lines</span><span class="class">.Line2D</span> at <span class="number">0</span>x4ad3790&gt;]
-
-In [<span class="number">57</span>]: plt.<span class="function"><span class="title">plot</span><span class="params">(time_vec, main_sig, linewidth=<span class="number">3</span>)</span></span>
-/usr/lib/python2.<span class="number">7</span>/site-packages/numpy/core/numeric<span class="class">.py</span>:<span class="number">320</span>: ComplexWarning: Casting complex values to real discards the imaginary part
-  return <span class="function"><span class="title">array</span><span class="params">(a, dtype, copy=False, order=order)</span></span>
-Out[<span class="number">57</span>]: [&lt;matplotlib<span class="class">.lines</span><span class="class">.Line2D</span> at <span class="number">0</span>x4ad3dd0&gt;]
-
-In [<span class="number">58</span>]: plt.<span class="function"><span class="title">xlabel</span><span class="params">(<span class="string">'Time [s]'</span>)</span></span>
-Out[<span class="number">58</span>]: &lt;matplotlib<span class="class">.text</span><span class="class">.Text</span> at <span class="number">0</span>x4aad050&gt;
-
-In [<span class="number">59</span>]: plt.<span class="function"><span class="title">ylabel</span><span class="params">(<span class="string">'Amplitude'</span>)</span></span>
-Out[<span class="number">59</span>]: &lt;matplotlib<span class="class">.text</span><span class="class">.Text</span> at <span class="number">0</span>x4aadbd0&gt;
-
-In [<span class="number">60</span>]: plt.<span class="function"><span class="title">show</span><span class="params">()</span></span>
-</code></pre><p><strong><a href="http://docs.scipy.org/doc/numpy/reference/routines.fft.html#numpy.fft" target="_blank" rel="external">numpy.fft</a></strong></p>
-<p>Numpy也有一个FFT实现(numpy.fft)。然而，通常scipy的应该优先使用，因为它使用了更有效率的底层实现。</p>
-<h3 id="工作示例：找到原始周期">工作示例：找到原始周期</h3><p><a href="http://scipy-lectures.github.com/plot_directive/intro/solutions/periodicity_finder.py" target="_blank" rel="external">source code</a></p>
-<p><a href="http://scipy-lectures.github.com/plot_directive/intro/solutions/periodicity_finder.py" target="_blank" rel="external">source code</a></p>
-<h3 id="工作示例：高斯图像模糊">工作示例：高斯图像模糊</h3><p>卷积：</p>
-<p>$$<br>f_1(t) = \int dt’K(t-t’)f_0(t’)<br>$$</p>
-<p>$$<br>\tilde{f_1}(\omega)=\tilde{K}(\omega)\tilde{f_0}(\omega)<br>$$</p>
-<p><strong>练习：登月图片消噪</strong></p>
-<p><img src="http://scipy-lectures.github.com/_images/moonlanding.png" alt="moonlanding.png"></p>
-<ol>
-<li>检查提供的图像moonlanding.png，该图像被周期噪声严重污染了。在这个练习中，我们旨在使用快速傅里叶变换清除噪声。</li>
-<li>用<code>plt.imread</code>加载图像。</li>
-<li>使用<code>scipy.fftpack</code>中的2-D傅里叶函数找到并绘制图像的谱线(傅里叶变换)。可视化这个谱线对你有问题吗？如果有，为什么？</li>
-<li>这个谱包含高频和低频成分。噪声是在谱线的高频部分中，所以设置一些成分为0(使用数组切片)。</li>
-<li>应用逆傅里叶变换来看最后的图像。</li>
-</ol>
-<p><img src="http://fmn.rrimg.com/fmn056/20121022/2330/p_large_PyL8_4bee00000f241263.jpg" alt="我的消除噪声实例……"></p>
-<h2 id="优化和拟合：scipy-optimize">优化和拟合：scipy.optimize</h2><p>优化是找到最小值或等式的数值解的问题。</p>
-<p><code>scipy.optimization</code>子模块提供了函数最小值(标量或多维)、曲线拟合和寻找等式的根的有用算法。</p>
-<pre><code><span class="keyword">from</span> scipy <span class="keyword">import</span> optimize
-</code></pre><p><strong>找到标量函数的最小值</strong></p>
-<p>让我们定义以下函数</p>
-<pre><code>In [<span class="number">2</span>]: <span class="function"><span class="keyword">def</span> <span class="title">f</span><span class="params">(x)</span>:</span>
-   ...:     <span class="keyword">return</span> x**<span class="number">2</span> + <span class="number">10</span> * np.sin(x)
-</code></pre><p>然后绘制它：</p>
-<pre><code>In [<span class="number">3</span>]: x = np.<span class="function"><span class="title">arange</span><span class="params">(-<span class="number">10</span>, <span class="number">10</span>, <span class="number">0.1</span>)</span></span>
-
-In [<span class="number">4</span>]: plt.<span class="function"><span class="title">plot</span><span class="params">(x, f(x)</span></span>)
-Out[<span class="number">4</span>]: [&lt;matplotlib<span class="class">.lines</span><span class="class">.Line2D</span> at <span class="number">0</span>x3e2a4d0&gt;]
-
-In [<span class="number">5</span>]: plt.<span class="function"><span class="title">show</span><span class="params">()</span></span>
-</code></pre><p><img src="http://scipy-lectures.github.com/_images/scipy_optimize_example1.png" alt="optimization"></p>
-<p>该函数在大约-1.3有个全局最小值,在3.8有个局部最小值。</p>
-<p>找到这个函数最小值一般而有效的方法是从初始点使用梯度下降法。BFGS算法<a href="[BFGS算法](http://en.wikipedia.org/wiki/BFGS_method)">^1</a>是做这个的好方法：</p>
-<pre><code>In [<span class="number">6</span>]: optimize.fmin_bfgs(f, <span class="number">0</span>)
-Optimization terminated successfully.
-         Current function value: -<span class="number">7.945823</span>
-         Iterations: <span class="number">5</span>
-         Function evaluations: <span class="number">24</span>
-         Gradient evaluations: <span class="number">8</span>
-Out[<span class="number">6</span>]: <span class="built_in">array</span>([-<span class="number">1.30644003</span>])
-</code></pre><p>这个方法一个可能的问题在于，如果函数有局部最小值，算法会因初始点不同找到这些局部最小而不是全局最小:</p>
-<pre><code>In [<span class="number">7</span>]: optimize.fmin_bfgs(f, <span class="number">3</span>, disp=<span class="number">0</span>)
-Out[<span class="number">7</span>]: <span class="built_in">array</span>([ <span class="number">3.83746663</span>])
-</code></pre><p>如果我们不知道全局最小值的邻近值来选定初始点，我们需要借助于耗费资源些的全局优化。为了找到全局最小点，最简单的算法是蛮力算法<a href="[Brute-Force方法](http://en.wikipedia.org/wiki/Brute-force_search)">^2</a>，该算法求出给定格点的每个函数值。</p>
-<pre><code>In [<span class="number">10</span>]: grid = (-<span class="number">10</span>, <span class="number">10</span>, <span class="number">0.1</span>)
-
-In [<span class="number">11</span>]: xmin_global = optimize.brute(f, (grid,))
-
-In [<span class="number">12</span>]: xmin_global
-Out[<span class="number">12</span>]: <span class="built_in">array</span>([-<span class="number">1.30641113</span>])
-</code></pre><p>对于大点的格点，<code>scipy.optimize.brute()</code>变得非常慢。<code>scipy.optimize.anneal()</code>提供了使用模拟退火的替代函数。对已知的不同类别全局优化问题存在更有效率的算法，但这已经超出scipy的范围。一些有用全局优化软件包是<a href="http://openopt.org/Welcome" target="_blank" rel="external">OpenOpt</a>、<a href="https://github.com/xuy/pyipopt" target="_blank" rel="external">IPOPT</a>、<a href="http://pagmo.sourceforge.net/pygmo/index.html" target="_blank" rel="external">PyGMO</a>和<a href="http://pyevolve.sourceforge.net/" target="_blank" rel="external">PyEvolve</a>。</p>
-<p>为了找到局部最小，我们把变量限制在<code>(0, 10)</code>之间，使用<code>scipy.optimize.fminbound()</code>:</p>
-<pre><code>In [<span class="number">13</span>]: xmin_local = optimize.fminbound(f, <span class="number">0</span>, <span class="number">10</span>)
-
-In [<span class="number">14</span>]: xmin_local
-Out[<span class="number">14</span>]: <span class="number">3.8374671194983834</span>
-</code></pre><p><strong>注意：</strong>在高级章节部分<a href="http://scipy-lectures.github.com/advanced/mathematical_optimization/index.html#mathematical-optimization" target="_blank" rel="external">数学优化：找到函数最小值</a>中有关于寻找函数最小值更详细的讨论。</p>
-<p><strong>找到标量函数的根</strong></p>
-<p>为了寻找根，例如令<code>f(x)=0</code>的点，对以上的用来示例的函数<code>f</code>我们可以使用<code>scipy.optimize.fsolve()</code>:</p>
-<pre><code>In [<span class="number">17</span>]: root = optimize.fsolve(f, <span class="number">1</span>)  <span class="preprocessor"># 我们的初始猜测是<span class="number">1</span></span>
-
-In [<span class="number">18</span>]: root
-Out[<span class="number">18</span>]: <span class="built_in">array</span>([ <span class="number">0.</span>])
-</code></pre><p>注意仅仅一个根被找到。检查f的图像在-2.5附近有第二个根。我们可以通过调整我们的初始猜测找到这一确切值：</p>
-<pre><code>In [<span class="number">19</span>]: root = optimize.fsolve(f, -<span class="number">2.5</span>)
-
-In [<span class="number">20</span>]: root
-Out[<span class="number">20</span>]: <span class="built_in">array</span>([-<span class="number">2.47948183</span>])
-</code></pre><p><strong>曲线拟合</strong></p>
-<p>假设我们有从被噪声污染的f中抽样到的数据：</p>
-<pre><code>In [<span class="number">21</span>]: xdata = np.<span class="function"><span class="title">linspace</span><span class="params">(-<span class="number">10</span>, <span class="number">10</span>, num=<span class="number">20</span>)</span></span>
-
-In [<span class="number">22</span>]: ydata = <span class="function"><span class="title">f</span><span class="params">(xdata)</span></span> + np<span class="class">.random</span><span class="class">.randn</span>(xdata.size)
-</code></pre><p>如果我们知道函数形式(当前情况是<code>x^2 + sin(x)</code>)，但是不知道幅度。我们可以通过最小二乘拟合拟合来找到幅度。首先我们定义一个用来拟合的函数：</p>
-<pre><code>In [<span class="number">23</span>]: <span class="function"><span class="keyword">def</span> <span class="title">f2</span><span class="params">(x, a, b)</span>:</span>
-   ....:     <span class="keyword">return</span> a*x**<span class="number">2</span> + b*np.sin(x)
-</code></pre><p>然后我们可以使用<code>scipy.optimize.curve_fit()</code>来找到a和b：</p>
-<pre><code>In [<span class="number">24</span>]: guess = [<span class="number">2</span>, <span class="number">2</span>]
-
-In [<span class="number">25</span>]: params, params_covariance = optimize.curve_fit(f2, xdata, ydata, guess)
-
-In [<span class="number">26</span>]: params
-Out[<span class="number">26</span>]: <span class="built_in">array</span>([  <span class="number">1.00439471</span>,  <span class="number">10.04911441</span>])
-</code></pre><p>现在我们找到了f的最小值和根并且对它使用了曲线拟合。我们将一切放在一个单独的图像中:</p>
-<p><img src="http://scipy-lectures.github.com/_images/scipy_optimize_example2.png" alt="function"></p>
-<p><strong>注意：</strong>Scipy>=0.11中提供所有最小化和根寻找算法的统一接口<code>scipy.optimize.minimize()</code>,<code>scipy.optimize.minimize_scalar()</code>和<code>scipy.optimize.root()</code>。它们允许通过method关键字方便地比较不同算法。</p>
-<p>你可以在<code>scipy.optimize</code>中找到用来解决多维问题的相同功能的算法。</p>
-<p><strong>练习：曲线拟合温度数据</strong></p>
-<p>在阿拉斯加每个月的温度上下限，从一月开始，以摄氏单位给出。</p>
-<table>
-<thead>
-<tr>
-<th>max:</th>
-<th>17,  19,  21,  28,  33,  38, 37,  37,  31,  23,  19,  18</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>min:</td>
-<td>-62, -59, -56, -46, -32, -18, -9, -13, -25, -46, -52, -58</td>
-</tr>
-</tbody>
-</table>
-<ol>
-<li>绘制这些温度限</li>
-<li>定义函数来描述最小和最大温度。提示：这个函数以一年为周期。提示：包括时间偏移。</li>
-<li>对数据使用这个函数<code>scipy.optimize.curve_fit()</code></li>
-<li>绘制结果。是否拟合合理？如果不合理，为什么？</li>
-<li>拟合精度的最大最小温度的时间偏移是否一样？</li>
-</ol>
-<p><strong>练习：2维最小化</strong></p>
-<p><a href="http://scipy-lectures.github.com/plot_directive/pyplots/scipy_optimize_sixhump.py" target="_blank" rel="external">source code</a></p>
-<p>六峰值驼背函数：</p>
-<p>$$<br>f(x,y) = (4 - 2.1x^2 + \frac{x^4}{3})x^2 + xy + (4y^2 - 4)y^2<br>$$</p>
-<p>有全局和多个局部最小。找到这个函数的全局最小。</p>
-<p>提示：</p>
-<ul>
-<li>变量应该限制在<code>-2 &lt; x &lt; 2 , -1 &lt; y &lt; 1</code>.</li>
-<li>使用<code>numpy.meshgrid()</code>和<code>plt.imshow</code>来可视地搜寻区域。</li>
-<li>使用<code>scipy.optimize.fmin_bfgs()</code>或其它多维极小化器。</li>
-</ul>
-<p>这里有多少极小值？这些点上的函数值是多少？如果初始猜测是<code>(x, y) = (0, 0)</code>会发生什么？</p>
-<p>参见总结练习<a href="http://scipy-lectures.github.com/intro/summary-exercises/optimize-fit.html#summary-exercise-optimize" target="_blank" rel="external">非线性最小二乘拟合：在点抽取地形激光雷达数据上的应用</a>，来看另一个，更高级的例子。</p>
-<h2 id="统计和随机数：_scipy-stats">统计和随机数： scipy.stats</h2><p><code>scipy.stats</code>包括统计工具和随机过程的概率过程。各个随机过程的随机数生成器可以从<code>numpy.random</code>中找到。</p>
-<h3 id="直方图和概率密度函数">直方图和概率密度函数</h3><p>给定一个随机过程的观察值，它们的直方图是随机过程的pdf(概率密度函数)的估计器：</p>
-<pre><code>In [<span class="number">1</span>]: import numpy as np
-
-In [<span class="number">2</span>]: a = np.random.normal(size=<span class="number">1000</span>)
-
-In [<span class="number">3</span>]: bins = np.arange(-<span class="number">4</span>, <span class="number">5</span>)
-
-In [<span class="number">4</span>]: bins
-Out[<span class="number">4</span>]: <span class="built_in">array</span>([-<span class="number">4</span>, -<span class="number">3</span>, -<span class="number">2</span>, -<span class="number">1</span>,  <span class="number">0</span>,  <span class="number">1</span>,  <span class="number">2</span>,  <span class="number">3</span>,  <span class="number">4</span>])
-
-In [<span class="number">5</span>]: histogram = np.histogram(a, bins=bins, normed=True)[<span class="number">0</span>]
-
-In [<span class="number">6</span>]: bins = <span class="number">0.5</span>*(bins[<span class="number">1</span>:] + bins[:-<span class="number">1</span>])
-
-In [<span class="number">7</span>]: bins
-Out[<span class="number">7</span>]: <span class="built_in">array</span>([-<span class="number">3.5</span>, -<span class="number">2.5</span>, -<span class="number">1.5</span>, -<span class="number">0.5</span>,  <span class="number">0.5</span>,  <span class="number">1.5</span>,  <span class="number">2.5</span>,  <span class="number">3.5</span>])
-
-In [<span class="number">8</span>]: from scipy import stats
-
-In [<span class="number">9</span>]: b = stats.norm.pdf(bins)  <span class="preprocessor"># norm是正态分布</span>
-
-In [<span class="number">10</span>]: import matplotlib.pyplot as plt
-
-In [<span class="number">11</span>]: plt.plot(bins, histogram)
-Out[<span class="number">11</span>]: [&lt;matplotlib.lines.Line2D at <span class="number">0x3378b10</span>&gt;]
-
-In [<span class="number">12</span>]: plt.plot(bins, b)
-Out[<span class="number">12</span>]: [&lt;matplotlib.lines.Line2D at <span class="number">0x3378fd0</span>&gt;]
-
-In [<span class="number">13</span>]: plt.show()
-</code></pre><p>如果我们知道随机过程属于给定的随机过程族，比如正态过程。我们可以对观测值进行最大似然拟合来估计基本分布参数。这里我们对观测值拟合一个正态过程：</p>
-<pre><code>In [<span class="number">14</span>]: loc, <span class="built_in">std</span> = stats.norm.fit(a)
-
-In [<span class="number">15</span>]: loc
-Out[<span class="number">15</span>]: <span class="number">0.0052651057415999758</span>
-
-In [<span class="number">16</span>]: <span class="built_in">std</span>
-Out[<span class="number">16</span>]: <span class="number">0.97945439802779732</span>
-</code></pre><p><strong>练习：概率分布</strong></p>
-<p>从参数为1的伽马分布生成1000个随机数,然后绘制这些样点的直方图。你能够在其上绘制pdf吗(应该匹配)？</p>
-<p>另外：这些分布有些有用的方法。通过阅读它们的文档字符串或使用IPython的tab补全来探索它们。你能够通过对你的随机变量使用拟合找到形状参数1吗？</p>
-<h3 id="百分位">百分位</h3><p>中位数是来观测值之下一半之上一半的值。</p>
-<pre><code><span class="tag">In</span> <span class="attr_selector">[3]</span>: <span class="tag">np</span><span class="class">.median</span>(<span class="tag">a</span>)
-<span class="tag">Out</span><span class="attr_selector">[3]</span>: <span class="tag">-0</span><span class="class">.047679175711778043</span>
-</code></pre><p>它也被叫作50百分位点，因为有50%的观测值在它之下：</p>
-<pre><code>In [<span class="number">6</span>]: stats.scoreatpercentile(a, <span class="number">50</span>)
-Out[<span class="number">6</span>]: -<span class="number">0.047679175711778043</span>
-</code></pre><p>同样我们可以计算百分之九十百分点：</p>
-<pre><code>In [<span class="number">7</span>]: stats.scoreatpercentile(a, <span class="number">90</span>)
-Out[<span class="number">7</span>]: <span class="number">1.2541592439997036</span>
-</code></pre><p>百分位是CDF的一个估计器(累积分布函数)。</p>
-<h3 id="统计检测">统计检测</h3><p>统计检测是决策指示。例如，我们有两个样本集，我们假设它们由高斯过程生成。我们可以使用<a href="http://en.wikipedia.org/wiki/Student%27s_t-test" target="_blank" rel="external">T检验</a>来决定是否两个样本值显著不同：</p>
-<pre><code>In [<span class="number">8</span>]: <span class="tag">a</span> = np<span class="class">.random</span><span class="class">.normal</span>(<span class="number">0</span>, <span class="number">1</span>, size=<span class="number">100</span>)
-
-In [<span class="number">9</span>]: <span class="tag">b</span> = np<span class="class">.random</span><span class="class">.normal</span>(<span class="number">1</span>, <span class="number">1</span>, size=<span class="number">10</span>)
-
-In [<span class="number">10</span>]: stats.<span class="function"><span class="title">ttest_ind</span><span class="params">(a, b)</span></span>
-Out[<span class="number">10</span>]: (<span class="function"><span class="title">array</span><span class="params">(-<span class="number">2.4119199601156796</span>)</span></span>, <span class="number">0.01755485116571583</span>)
-</code></pre><p>输出结果由以下部分组成：</p>
-<ul>
-<li>T统计量：它是这么一种标志，与不同两个随机过程之间成比例并且幅度和差异的显著程度有关<a href="……这解释，我真不懂。但t统计量是什么我知道……">^3</a>。</li>
-<li>p值：两个过程相同的概率。如果接近1,这两个过程是几乎完全相同的。越靠近零，两个过程越可能有不同的均值。</li>
-</ul>
-<h2 id="插值：scipy-interpolate">插值：scipy.interpolate</h2><p><code>scipy.interpolate</code>对从实验数据拟合函数来求值没有测量值存在的点非常有用。这个模块基于来自<a href="http://www.netlib.org/" target="_blank" rel="external">netlib</a>项目的<a href="http://www.netlib.org/dierckx/index.html" target="_blank" rel="external">FITPACK Fortran 子程序</a>。</p>
-<p>通过想象接近正弦函数的实验数据：</p>
-<pre><code>In [<span class="number">1</span>]: measured_time = np.linspace(<span class="number">0</span>, <span class="number">1</span>, <span class="number">10</span>)
-
-In [<span class="number">2</span>]: noise = (np.random.random(<span class="number">10</span>)*<span class="number">2</span> - <span class="number">1</span>) * <span class="number">1e-1</span>
-
-In [<span class="number">3</span>]: measures = np.<span class="built_in">sin</span>(<span class="number">2</span> * np.pi * measured_time) + noise
-</code></pre><p><code>scipy.interpolate.interp1d</code>类会构建线性插值函数：</p>
-<pre><code>In [<span class="number">4</span>]: from scipy<span class="class">.interpolate</span> import interp1d
-
-In [<span class="number">5</span>]: linear_interp = <span class="function"><span class="title">interp1d</span><span class="params">(measured_time, measures)</span></span>
-</code></pre><p>然后<code>scipy.interpolate.linear_interp</code>实例需要被用来求得感兴趣时间点的值：</p>
-<pre><code>In [<span class="number">6</span>]: computed_time = np.<span class="function"><span class="title">linspace</span><span class="params">(<span class="number">0</span>, <span class="number">1</span>, <span class="number">50</span>)</span></span>
-
-In [<span class="number">7</span>]: linear_results = <span class="function"><span class="title">linear_interp</span><span class="params">(computed_time)</span></span>
-</code></pre><p>三次插值也能通过提供可选关键字参数<code>kind</code>来选择：[^4]</p>
-<pre><code>In [<span class="number">8</span>]: cubic_interp = <span class="function"><span class="title">interp1d</span><span class="params">(measured_time, measures, kind=<span class="string">'cubic'</span>)</span></span>
-
-In [<span class="number">9</span>]: cubic_results = <span class="function"><span class="title">cubic_interp</span><span class="params">(computed_time)</span></span>
-</code></pre><p>结果现在被集合在以下Matplotlib图像中：</p>
-<p><img src="http://scipy-lectures.github.com/_images/scipy_interpolation.png" alt="interpolate"></p>
-<p><a href="http://scipy-lectures.github.com/plot_directive/pyplots/scipy_interpolation.py" target="_blank" rel="external">source code</a></p>
-<p><code>scipy.interpolate.interp2d</code>与<code>scipy.interpolate.interp1d</code>相似，但是面向二维数组。注意，对<em>interp</em>族，计算时间必须在测量时间范围内。参见<a href="http://scipy-lectures.github.com/intro/summary-exercises/stats-interpolate.html#summary-exercise-stat-interp" target="_blank" rel="external">Maximum wind speed prediction at the Sprogø station</a>的总结练习获得更高级的插值示例。</p>
-<h2 id="数值积分：scipy-integrate_Fusy,">数值积分：scipy.integrate <strong>Fusy,</strong></h2><p>最通用的积分程序是<code>scipy.integrate.quad()</code>:</p>
-<pre><code>In [<span class="number">10</span>]: from scipy.integrate import quad
-
-In [<span class="number">11</span>]: res, err = quad(np.<span class="built_in">sin</span>, <span class="number">0</span>, np.pi/<span class="number">2</span>)
-
-In [<span class="number">12</span>]: np.allclose(res, <span class="number">1</span>)
-Out[<span class="number">12</span>]: True
-
-In [<span class="number">13</span>]: np.allclose(err, <span class="number">1</span> - res)
-Out[<span class="number">13</span>]: True
-</code></pre><p>其它可用的积分方案有<code>fixed_quad</code>,<code>quadrature</code>,<code>romberg</code>。</p>
-<p><code>scipy.integrate</code>也是用来积分常微分方程(ODE)的功能程序。特别是，<code>scipy.integrate.odeint()</code>是个使用LSODA(Livermore Solver for Ordinary Differential equations with Automatic method switching for stiff and non-stiff problems)通用积分器。参见<a href="http://people.sc.fsu.edu/~jburkardt/f77_src/odepack/odepack.html" target="_blank" rel="external">ODEPACK Fortran library</a>获得更多细节。</p>
-<p><code>odeint</code>解决这种形式的一阶ODE系统：</p>
-<pre><code>``dy/<span class="tag">dt</span> = <span class="function"><span class="title">rhs</span><span class="params">(y1, y2, .., t0,...)</span></span>``
-</code></pre><p>作为简介，让我们解决ODE<code>dy/dt = -2y</code>,区间<code>t = 0..4</code>,初始条件<code>y(t=0) = 1</code>。首先函数计算导数的位置需要被定义：</p>
-<pre><code>In [<span class="number">17</span>]: <span class="function"><span class="keyword">def</span> <span class="title">calc_derivative</span><span class="params">(ypos, time, counter_arr)</span>:</span>
-   ....:     counter_arr += <span class="number">1</span>
-   ....:     <span class="keyword">return</span> -<span class="number">2</span> * ypos                                               
-   ....:     
-</code></pre><p>一个额外的参数<code>counter_arr</code>被添加，用来说明函数可能在单个时间步中被多次调用，直到解收敛。计数数组被定义成：</p>
-<pre><code>In [<span class="number">18</span>]: counter = np.<span class="function"><span class="title">zeros</span><span class="params">((<span class="number">1</span>,)</span></span>, dtype=np.uint16)            
-</code></pre><p>弹道将被计算：</p>
-<pre><code>In [<span class="number">19</span>]: from scipy.integrate import odeint                                 
-In [<span class="number">20</span>]: time_vec = np.linspace(<span class="number">0</span>, <span class="number">4</span>, <span class="number">40</span>)                                   
-In [<span class="number">21</span>]: yvec, info = odeint(calc_derivative, <span class="number">1</span>, time_vec,
-   ....: args=(counter,), full_output=Tru)
-</code></pre><p>因此导函数可以被调用40次(即时间步长数)，</p>
-<pre><code>In [<span class="number">22</span>]: counter
-Out[<span class="number">22</span>]: <span class="built_in">array</span>([<span class="number">129</span>], dtype=uint16)
-</code></pre><p>十个最初的时间点(time step)每个的累积迭代次数，可以这样获得：</p>
-<pre><code>In [<span class="link_label">23</span>]: info[<span class="link_label">'nfe'</span>][<span class="link_reference">:10</span>]
-Out[23]: array([31, 35, 43, 49, 53, 57, 59, 63, 65, 69], dtype=int32)
-</code></pre><p>注意到在第一个时间步的解需要更多的迭代。解<code>yvec</code>的轨道现在可以被画出：</p>
-<p><img src="http://scipy-lectures.github.com/_images/odeint_introduction.png" alt="ODE"></p>
-<p><a href="http://scipy-lectures.github.com/plot_directive/pyplots/odeint_introduction.py" target="_blank" rel="external">source code</a></p>
-<p>另一个使用<code>scipy.integrate.odeint()</code>的例子是一个阻尼弹簧-质点振荡器(二阶振荡)。附加在弹簧上质点的位置服从二阶常微分方程<code>y&#39;&#39; + eps wo y&#39; + wo^2 y= 0</code>。其中<code>wo^2 = k/m</code>,k是弹簧常数，m是质量，<code>eps=c/(2 m wo)</code>，c是阻尼系数。(译者：为什么不用latex……)对于这个例子，我们选择如下参数：</p>
-<pre><code>In [<span class="number">24</span>]: mass = <span class="number">0.5</span>  <span class="preprocessor"># kg</span>
-
-In [<span class="number">25</span>]: kspring = <span class="number">4</span>  <span class="preprocessor"># N/m</span>
-
-In [<span class="number">26</span>]: cviscous = <span class="number">0.4</span>  <span class="preprocessor"># N s/m</span>
-</code></pre><p>所以系统将是阻尼振荡，因为：</p>
-<pre><code>In [<span class="number">27</span>]: eps = cviscous / (<span class="number">2</span> * mass * np.<span class="built_in">sqrt</span>(kspring/mass))
-
-In [<span class="number">28</span>]: eps &lt; <span class="number">1</span>
-Out[<span class="number">28</span>]: True
-</code></pre><p>对于<code>scipy,integrate.odeint()</code>求解器，二阶方程需要被转化成一个包含向量<code>Y =y,y&#39;</code>的两个一阶方程的系统。定义<code>nu = 2 eps * wo = c / m</code>和<code>om = wo^2 = k/m</code>很方便：</p>
-<pre><code>In <span class="string">[29]</span>: nu_coef = cviscous /mass
-
-In <span class="string">[30]</span>: om_coef = kspring / mass
-</code></pre><p>因此函数将计算速度和加速度通过：</p>
-<pre><code>In [<span class="number">31</span>]: <span class="function"><span class="keyword">def</span> <span class="title">calc_deri</span><span class="params">(yvec, time, nuc, omc)</span>:</span>
-   ....:     <span class="keyword">return</span> (yvec[<span class="number">1</span>], -nuc * yvec[<span class="number">1</span>] - omc * yvec[<span class="number">0</span>])
-   ....: 
-
-In [<span class="number">32</span>]: time_vec = np.linspace(<span class="number">0</span>, <span class="number">10</span>, <span class="number">100</span>)
-
-In [<span class="number">33</span>]: yarr = odeint(calc_deri, (<span class="number">1</span>, <span class="number">0</span>), time_vec, args=(nu_coef, om_coef))
-</code></pre><p>最终的位置和速度在如下Matplotlib图像中显示：</p>
-<p><img src="http://scipy-lectures.github.com/_images/odeint_damped_spring_mass.png" alt="ode2"></p>
-<p><a href="http://scipy-lectures.github.com/plot_directive/pyplots/odeint_damped_spring_mass.py" target="_blank" rel="external">source code</a></p>
-<p>Scipy中不存在偏微分方程(PDE)求解器,一些解决PDE问题的Python软件包可以得到，像<a href="http://www.ctcms.nist.gov/fipy/" target="_blank" rel="external">fipy</a>和<a href="http://code.google.com/p/sfepy/" target="_blank" rel="external">SfePy</a></p>
-<p>(译者注:<a href="http://hyry.dip.jp:8000/pydoc/scipy_intro.html#id5" target="_blank" rel="external">Python科学计算中洛伦兹吸引子微分方程的求解</a></p>
-<h2 id="信号处理：scipy-signal">信号处理：scipy.signal</h2><pre><code>In [<span class="number">34</span>]: <span class="keyword">from</span> scipy <span class="keyword">import</span> signal
-</code></pre><ul>
-<li><p><code>scipy.signal.detrend()</code>：移除信号的线性趋势：</p>
-<pre><code>In [<span class="number">35</span>]: t = np.linspace(<span class="number">0</span>, <span class="number">5</span>, <span class="number">100</span>)
-
-In [<span class="number">36</span>]: x = t + np.random.normal(size=<span class="number">100</span>)
-
-In [<span class="number">39</span>]: import pylab <span class="keyword">as</span> pl
-
-In [<span class="number">40</span>]: pl.plot(t, x, linewidth=<span class="number">3</span>)
-Out[<span class="number">40</span>]: <span class="annotation">[&lt;matplotlib.lines.Line2D at 0x3903c90&gt;]</span>
-
-In [<span class="number">41</span>]: pl.plot(t, signal.detrend(x), linewidth=<span class="number">3</span>)
-Out[<span class="number">41</span>]: <span class="annotation">[&lt;matplotlib.lines.Line2D at 0x3b38810&gt;]</span>
-</code></pre></li>
-</ul>
-<p><img src="http://scipy-lectures.github.com/_images/demo_detrend.png" alt="detrend"></p>
-<p><a href="http://scipy-lectures.github.com/plot_directive/pyplots/demo_detrend.py" target="_blank" rel="external">source code</a></p>
-<ul>
-<li><p><code>scipy.signal.resample()</code>:使用FFT重采样n个点。</p>
-<pre><code>In [<span class="number">42</span>]: t = np.linspace(<span class="number">0</span>, <span class="number">5</span>, <span class="number">100</span>)
-
-In [<span class="number">43</span>]: x = np.sin(t)
-
-In [<span class="number">44</span>]: pl.plot(t, x, linewidth=<span class="number">3</span>)
-Out[<span class="number">44</span>]: <span class="annotation">[&lt;matplotlib.lines.Line2D at 0x3f08a90&gt;]</span>
-
-In [<span class="number">45</span>]: pl.plot(t[::<span class="number">2</span>], signal.resample(x, <span class="number">50</span>), 'ko')
-Out[<span class="number">45</span>]: <span class="annotation">[&lt;matplotlib.lines.Line2D at 0x3f12950&gt;]</span>
-</code></pre></li>
-</ul>
-<p><img src="http://scipy-lectures.github.com/_images/demo_resample.png" alt="resample"></p>
-<p><a href="http://scipy-lectures.github.com/plot_directive/pyplots/demo_resample.py" target="_blank" rel="external">source code</a></p>
-<ul>
-<li><p>Signal中有许多窗函数：scipy.signal.hamming(), scipy.signal.bartlett(), scipy.signal.blackman()…</p>
-</li>
-<li><p>Signal中有滤波器(中值滤波scipy.signal.medfilt(), 维纳滤波scipy.signal.wiener())，但是我们将在图像部分讨论。</p>
-</li>
-</ul>
-<h2 id="图像处理：scipy-ndimage">图像处理：scipy.ndimage</h2><p>scipy中致力于图像处理的子模块是<code>scipy,ndimage</code>。</p>
-<pre><code>In [<span class="number">49</span>]: <span class="keyword">from</span> scipy <span class="keyword">import</span> ndimage
-</code></pre><p>图像处理程序可以根据它们执行的操作类别来分类。</p>
-<h3 id="图像的几何变换">图像的几何变换</h3><p>改变方向，分辨率……</p>
-<pre><code>In [<span class="number">50</span>]: from scipy import misc
-
-In [<span class="number">51</span>]: lena = misc.<span class="function"><span class="title">lena</span><span class="params">()</span></span>
-
-In [<span class="number">52</span>]: shifted_lena = ndimage.<span class="function"><span class="title">shift</span><span class="params">(lena, (<span class="number">50</span>, <span class="number">50</span>)</span></span>)
-
-In [<span class="number">53</span>]: shifted_lena2 = ndimage.<span class="function"><span class="title">shift</span><span class="params">(lena, (<span class="number">50</span>, <span class="number">50</span>)</span></span>, mode=<span class="string">'nearest'</span>)
-
-In [<span class="number">54</span>]: rotated_lena = ndimage.<span class="function"><span class="title">rotate</span><span class="params">(lena, <span class="number">30</span>)</span></span>
-
-In [<span class="number">55</span>]: cropped_lena = lena[<span class="number">50</span>:-<span class="number">50</span>, <span class="number">50</span>:-<span class="number">50</span>]
-
-In [<span class="number">56</span>]: zoomed_lena = ndimage.<span class="function"><span class="title">zoom</span><span class="params">(lena, <span class="number">2</span>)</span></span>
-
-In [<span class="number">57</span>]: zoomed_lena<span class="class">.shape</span>
-Out[<span class="number">57</span>]: (<span class="number">1024</span>, <span class="number">1024</span>)
-
-In [<span class="number">63</span>]: pl.<span class="function"><span class="title">subplot</span><span class="params">(<span class="number">321</span>)</span></span>
-Out[<span class="number">63</span>]: &lt;matplotlib<span class="class">.axes</span><span class="class">.AxesSubplot</span> at <span class="number">0</span>x4c00d90&gt;
-
-In [<span class="number">64</span>]: pl.<span class="function"><span class="title">imshow</span><span class="params">(lena, cmap=cm.gray)</span></span>
-Out[<span class="number">64</span>]: &lt;matplotlib<span class="class">.image</span><span class="class">.AxesImage</span> at <span class="number">0</span>x493aad0&gt;
-
-In [<span class="number">65</span>]: pl.<span class="function"><span class="title">subplot</span><span class="params">(<span class="number">322</span>)</span></span>
-Out[<span class="number">65</span>]: &lt;matplotlib<span class="class">.axes</span><span class="class">.AxesSubplot</span> at <span class="number">0</span>x4941a10&gt;
-
-In [<span class="number">66</span>]: #等等
-</code></pre><h3 id="图像滤镜">图像滤镜</h3><pre><code>In [<span class="number">76</span>]: from scipy import misc
-
-In [<span class="number">77</span>]: lena = misc.<span class="function"><span class="title">lena</span><span class="params">()</span></span>
-
-In [<span class="number">78</span>]: import numpy as np
-
-In [<span class="number">79</span>]: noisy_lena = np.<span class="function"><span class="title">copy</span><span class="params">(lena)</span></span>.<span class="function"><span class="title">astype</span><span class="params">(np.float)</span></span>
-
-In [<span class="number">80</span>]: noisy_lena += lena.<span class="function"><span class="title">std</span><span class="params">()</span></span>*<span class="number">0.5</span>*np<span class="class">.random</span><span class="class">.standard_normal</span>(lena.shape)
-
-In [<span class="number">81</span>]: blurred_lena = ndimage.<span class="function"><span class="title">gaussian_filter</span><span class="params">(noisy_lena, sigma=<span class="number">3</span>)</span></span>
-
-In [<span class="number">82</span>]: median_lena = ndimage.<span class="function"><span class="title">median_filter</span><span class="params">(blurred_lena, size=<span class="number">5</span>)</span></span>
-
-In [<span class="number">83</span>]: from scipy import signal
-
-In [<span class="number">84</span>]: wiener_lena = signal.<span class="function"><span class="title">wiener</span><span class="params">(blurred_lena, (<span class="number">5</span>,<span class="number">5</span>)</span></span>)
-</code></pre><p>许多其它<code>scipy.ndimage.filters</code>和<code>scipy.signal</code>中的滤镜可以被应用到图像中。</p>
-<p><strong>练习</strong></p>
-<p>比较不同滤镜图像的直方图</p>
-<h3 id="数学形态学">数学形态学</h3><p>数学形态学是源于几何论的数学形态学。它具有结合结构的特点并变换几何结构。二值图(黑白图)，特别能被用该理论转换：要转换的集合是邻近的非零值像素。这个理论也被拓展到灰度图中。</p>
-<p>基本的数学形态操作使用一个<em>结构元素(structuring element)</em>来改变其它几何结构。</p>
-<p>让我们首先生成一个结构元素：</p>
-<pre><code>In [<span class="number">129</span>]: el = ndimage.generate_binary_structure(<span class="number">2</span>, <span class="number">1</span>)
-
-In [<span class="number">130</span>]: el
-Out[<span class="number">130</span>]: 
-<span class="built_in">array</span>([[False,  True, False],
-       [ True,  True,  True],
-       [False,  True, False]], dtype=<span class="keyword">bool</span>)
-
-In [<span class="number">131</span>]: el.astype(np.<span class="keyword">int</span>)
-Out[<span class="number">131</span>]: 
-<span class="built_in">array</span>([[<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>],
-       [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>],
-       [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>]])
-</code></pre><ul>
-<li><p>腐蚀</p>
-<pre><code>In [<span class="number">132</span>]: a = np.zeros((<span class="number">7</span>,<span class="number">7</span>), dtype=<span class="keyword">int</span>)
-
-In [<span class="number">133</span>]: a[<span class="number">1</span>:<span class="number">6</span>, <span class="number">2</span>:<span class="number">5</span>] = <span class="number">1</span>
-
-In [<span class="number">134</span>]: a
-Out[<span class="number">134</span>]: 
-<span class="built_in">array</span>([[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]])
-
-In [<span class="number">135</span>]: ndimage.binary_erosion(a).astype(a.dtype)
-Out[<span class="number">135</span>]: 
-<span class="built_in">array</span>([[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]])
-
-In [xxx]:<span class="preprocessor"># 腐蚀移除对象使结构更小</span>
-
-In [<span class="number">136</span>]: ndimage.binary_erosion(a, structure=np.ones((<span class="number">5</span>,<span class="number">5</span>))).astype(a.dtype)
-Out[<span class="number">136</span>]: 
-<span class="built_in">array</span>([[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]])
-</code></pre></li>
-<li><p>膨胀</p>
-<pre><code>In [<span class="number">137</span>]: a = np.zeros((<span class="number">5</span>,<span class="number">5</span>))
-
-In [<span class="number">138</span>]: a[<span class="number">2</span>, <span class="number">2</span>] = <span class="number">1</span>
-
-In [<span class="number">139</span>]: a
-Out[<span class="number">139</span>]: 
-<span class="built_in">array</span>([[ <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>],
-       [ <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>],
-       [ <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">1.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>],
-       [ <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>],
-       [ <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>]])
-
-In [<span class="number">140</span>]: ndimage.binary_dilation(a).astype(a.dtype)
-Out[<span class="number">140</span>]: 
-<span class="built_in">array</span>([[ <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>],
-       [ <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">1.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>],
-       [ <span class="number">0.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">0.</span>],
-       [ <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">1.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>],
-       [ <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>]])
-</code></pre></li>
-<li><p>开操作(opening)</p>
-<pre><code>In [<span class="number">141</span>]: a = np.zeros((<span class="number">5</span>,<span class="number">5</span>), dtype=np.<span class="keyword">int</span>)
-
-In [<span class="number">142</span>]: a[<span class="number">1</span>:<span class="number">4</span>, <span class="number">1</span>:<span class="number">4</span>] = <span class="number">1</span>; a[<span class="number">4</span>, <span class="number">4</span>] = <span class="number">1</span>
-
-In [<span class="number">143</span>]: a
-Out[<span class="number">143</span>]: 
-<span class="built_in">array</span>([[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>]])
-
-In [<span class="number">144</span>]: <span class="preprocessor"># 开操作可以移除小的对象</span>
-
-In [<span class="number">145</span>]: ndimage.binary_opening(a, structure=np.ones((<span class="number">3</span>,<span class="number">3</span>))).astype(np.<span class="keyword">int</span>)Out[<span class="number">145</span>]: 
-<span class="built_in">array</span>([[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]])
-
-In [<span class="number">146</span>]: <span class="preprocessor"># 开操作也能平滑边角</span>
-
-In [<span class="number">147</span>]: ndimage.binary_opening(a).astype(np.<span class="keyword">int</span>)
-Out[<span class="number">147</span>]: 
-<span class="built_in">array</span>([[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]])
-</code></pre></li>
-<li><p>闭操作(closing): <code>ndimage.binary_closing</code></p>
-</li>
-</ul>
-<p><strong>练习</strong></p>
-<p>查看开操作腐蚀，然后膨胀的量</p>
-<p>一个开操作移除小的结构，而一个闭操作填补小的空洞。这种操作因此可被用来“清理”图像。</p>
-<pre><code>In [<span class="number">149</span>]: <span class="tag">a</span> = np.<span class="function"><span class="title">zeros</span><span class="params">((<span class="number">50</span>, <span class="number">50</span>)</span></span>)
-
-In [<span class="number">150</span>]: <span class="tag">a</span>[<span class="number">10</span>:-<span class="number">10</span>, <span class="number">10</span>:-<span class="number">10</span>] = <span class="number">1</span>
-
-In [<span class="number">151</span>]: <span class="tag">a</span> += <span class="number">0.25</span>*np<span class="class">.random</span><span class="class">.standard_normal</span>(<span class="tag">a</span>.shape)
-
-In [<span class="number">152</span>]: <span class="attribute">mask</span> = a&gt;=<span class="number">0.5</span>
-
-In [<span class="number">153</span>]: opened_mask = ndimage.<span class="function"><span class="title">binary_opening</span><span class="params">(mask)</span></span>
-
-In [<span class="number">154</span>]: closed_mask = ndimage.<span class="function"><span class="title">binary_closing</span><span class="params">(opened_mask)</span></span>
-</code></pre><p><strong>练习</strong></p>
-<p>验证重构区域比初始区域更小。(如果闭操作在开操作之前则相反)</p>
-<p>对灰度值图像，腐蚀(或者是膨胀)相当于用被集中在所关心像素点的结构元素所覆盖像素的最小(或最大)值替代当前像素点。</p>
-<pre><code>In [<span class="number">173</span>]: a = np.zeros((<span class="number">7</span>,<span class="number">7</span>), dtype=np.<span class="keyword">int</span>)
-
-In [<span class="number">174</span>]: a[<span class="number">1</span>:<span class="number">6</span>, <span class="number">1</span>:<span class="number">6</span>] = <span class="number">3</span>
-
-In [<span class="number">175</span>]: a[<span class="number">4</span>,<span class="number">4</span>] = <span class="number">2</span>; a[<span class="number">2</span>,<span class="number">3</span>] = <span class="number">1</span>
-
-In [<span class="number">176</span>]: a
-Out[<span class="number">176</span>]: 
-<span class="built_in">array</span>([[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]])
-
-In [<span class="number">177</span>]: ndimage.grey_erosion(a, size=(<span class="number">3</span>,<span class="number">3</span>))
-Out[<span class="number">177</span>]: 
-<span class="built_in">array</span>([[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
-       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]])
-</code></pre><h3 id="图像测量">图像测量</h3><p>让我们首先生成一个漂亮的合成图像：</p>
-<pre><code>In [<span class="number">178</span>]: x, y = np.indices((<span class="number">100</span>, <span class="number">100</span>))
-
-In [<span class="number">179</span>]: sig = np.<span class="built_in">sin</span>(<span class="number">2</span>*np.pi*x/<span class="number">50.</span>)*np.<span class="built_in">sin</span>(<span class="number">2</span>*np.pi*y/<span class="number">50.</span>)*(<span class="number">1</span>+x*y/<span class="number">50.</span>**<span class="number">2</span>)**<span class="number">2</span>
-
-In [<span class="number">180</span>]: mask = sig &gt; <span class="number">1</span>
-</code></pre><p>现在我们查找图像中对象的各种信息：</p>
-<pre><code>In [<span class="number">181</span>]: labels, nb = ndimage.label(mask)
-
-In [<span class="number">182</span>]: nb
-Out[<span class="number">182</span>]: <span class="number">8</span>
-
-In [<span class="number">183</span>]: areas = ndimage.sum(mask, labels, xrange(<span class="number">1</span>, labels.max()+<span class="number">1</span>))
-
-In [<span class="number">184</span>]: areas
-Out[<span class="number">184</span>]: <span class="built_in">array</span>([ <span class="number">190.</span>,   <span class="number">45.</span>,  <span class="number">424.</span>,  <span class="number">278.</span>,  <span class="number">459.</span>,  <span class="number">190.</span>,  <span class="number">549.</span>,  <span class="number">424.</span>])
-
-In [<span class="number">185</span>]: maxima = ndimage.maximum(sig, labels, xrange(<span class="number">1</span>, labels.max()+<span class="number">1</span>))
-In [<span class="number">186</span>]: maxima
-Out[<span class="number">186</span>]: 
-<span class="built_in">array</span>([  <span class="number">1.80238238</span>,   <span class="number">1.13527605</span>,   <span class="number">5.51954079</span>,   <span class="number">2.49611818</span>,
-         <span class="number">6.71673619</span>,   <span class="number">1.80238238</span>,  <span class="number">16.76547217</span>,   <span class="number">5.51954079</span>])
-
-In [<span class="number">187</span>]: ndimage.find_objects(labels==<span class="number">4</span>)
-Out[<span class="number">187</span>]: [(slice(<span class="number">30L</span>, <span class="number">48L</span>, None), slice(<span class="number">30L</span>, <span class="number">48L</span>, None))]
-
-In [<span class="number">188</span>]: sl = ndimage.find_objects(labels==<span class="number">4</span>)
-
-In [<span class="number">189</span>]: import pylab as pl
-
-In [<span class="number">190</span>]: pl.imshow(sig[sl[<span class="number">0</span>]])  
-Out[<span class="number">190</span>]: &lt;matplotlib.image.AxesImage at <span class="number">0xb2fdcd0</span>&gt;
-</code></pre><p>参见总结练习<a href="http://scipy-lectures.github.com/intro/summary-exercises/image-processing.html#summary-exercise-image-processing" target="_blank" rel="external">Image processing application: counting bubbles and unmolten grains</a>获取更多高级示例。</p>
-<h2 id="总结练习">总结练习</h2><p>(译者：我不是很懂……)</p>
-<p>总结练习主要使用Numpy，Scipy和Matplotlib。它们提供一些现实生活中用Python计算的示例。既然基本的Numpy和scipy使用已经被介绍了，欢迎有兴趣的用户尝试这些练习。</p>
-<p>练习：</p>
-<p><a href="http://scipy-lectures.github.com/intro/summary-exercises/stats-interpolate.html" target="_blank" rel="external">斯普罗站最大风速预测</a></p>
-<p><a href="http://scipy-lectures.github.com/intro/summary-exercises/optimize-fit.html" target="_blank" rel="external">非线性最小二乘拟合：地形雷达数据的点提取</a></p>
-<p><a href="http://scipy-lectures.github.com/intro/summary-exercises/image-processing.html" target="_blank" rel="external">图像处理应用：计数气泡和未融颗粒</a></p>
-<p>建议的解：</p>
-<p><a href="http://scipy-lectures.github.com/intro/summary-exercises/answers_image_processing.html" target="_blank" rel="external">图像处理练习解的示例:玻璃中的未融颗粒</a></p>
-<h2 id="Footnotes">Footnotes</h2><p>[^4]:numpy 0.17可能会有bug</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -3938,7 +3118,7 @@ Out[<span class="number">190</span>]: &lt;matplotlib.image.AxesImage at <span cl
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">177</span>
+              <span class="site-state-item-count">179</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -3952,7 +3132,7 @@ Out[<span class="number">190</span>]: &lt;matplotlib.image.AxesImage at <span cl
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">62</span>
+              <span class="site-state-item-count">63</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

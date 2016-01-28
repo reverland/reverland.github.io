@@ -4,7 +4,7 @@
   <subtitle><![CDATA[开放、分享、自由与进步]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://reverland.org/"/>
-  <updated>2016-01-08T09:14:49.795Z</updated>
+  <updated>2016-01-15T16:30:00.753Z</updated>
   <id>http://reverland.org/</id>
   
   <author>
@@ -13,6 +13,560 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[滑雪、游泳、创业、工作与其他]]></title>
+    <link href="http://reverland.org/life/2016/01/15/bizarre-thoughts/"/>
+    <id>http://reverland.org/life/2016/01/15/bizarre-thoughts/</id>
+    <published>2016-01-15T15:54:07.000Z</published>
+    <updated>2016-01-15T16:30:00.753Z</updated>
+    <content type="html"><![CDATA[<p>晚上，看到周老板分享的微信文章中提到16年前刚刚创业的京东，文中说：</p>
+<blockquote>
+<p>1999年，25岁的刘强东其实已经显露出了一些特质，而八姐觉得，这些特质已经为后来的京东上市和做大打下了基础。</p>
+</blockquote>
+<p>然而看到这种话，第一个感觉却是，事后诸葛亮。</p>
+<p>又忽然想成王败寇只是他人的闲暇谈资，言笑之后，各自散去。</p>
+<p>1999年，能看到十六年以后吗。我想是多少机缘巧合和命运作弄，这十六年多少人的心血交织在一起，一将功成。</p>
+<p>我看到历史总在重演，一遍一遍，现在过去未来。没有什么关联吗？没有关联我怎么会想起来？</p>
+<p>1560年，势力达到巅峰的今川义元集结全国兵力准备吞并尾张地区，刚刚接替家督的织田信长面对强敌入侵，</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>晚上，看到周老板分享的微信文章中提到16年前刚刚创业的京东，文中说：</p>
+<blockquote>
+<p>1999年，25岁的刘强东其实已经显露出了一些特质，而八姐觉得，这些特质已经为后来的京东上市和做大打下了基础。</p>
+</blockquote>
+<p>然而看到这]]>
+    </summary>
+    
+      <category term="life" scheme="http://reverland.org/tags/life/"/>
+    
+      <category term="life" scheme="http://reverland.org/categories/life/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[web 微信与基于node的微信机器人实现]]></title>
+    <link href="http://reverland.org/javascript/2016/01/15/webchat-user-bot/"/>
+    <id>http://reverland.org/javascript/2016/01/15/webchat-user-bot/</id>
+    <published>2016-01-15T12:10:49.000Z</published>
+    <updated>2016-01-24T14:41:33.212Z</updated>
+    <content type="html"><![CDATA[<h2 id="协议分析">协议分析</h2><p>我使用firefox浏览器调试工具，查看浏览器通信及美化web微信javascript代码。非常好用，没出现Chromium中文乱码的问题。</p>
+<h3 id="登录">登录</h3><h4 id="获取uuid">获取uuid</h4><p>与登录有关的第一个GET请求。</p>
+<pre><code><span class="symbol">https:</span>/<span class="regexp">/login.weixin.qq.com/jslogin</span>?appid=wx782c26e4c19acffb&amp;redirect_uri=https%<span class="number">3</span>A%<span class="number">2</span>F%<span class="number">2</span>Fwx.qq.com%<span class="number">2</span>Fcgi-bin%<span class="number">2</span>Fmmwebwx-bin%<span class="number">2</span>Fwebwxnewloginpage&amp;<span class="function"><span class="keyword">fun</span>=<span class="title">new</span></span>&amp;lang=en_US&amp;_=<span class="number">1452859503801</span>
+</code></pre><p>响应</p>
+<pre><code><span class="built_in">window</span>.QRLogin.code = <span class="number">200</span>; <span class="built_in">window</span>.QRLogin.uuid = <span class="string">"gd94hc3_fg=="</span>;
+</code></pre><p>我们猜200表示OK，uuid表示什么呢，难道不是universe unique identy?</p>
+<h4 id="获取uuid对应的二维码图片">获取uuid对应的二维码图片</h4><p>接着第二个GET请求，使用上面得到的uuid请求二维码图像。</p>
+<pre><code><span class="string">https:</span><span class="comment">//login.weixin.qq.com/qrcode/gd94hc3_fg==</span>
+</code></pre><p>响应就是一个二维码图片。</p>
+<h4 id="检查二维码扫描状态">检查二维码扫描状态</h4><p>一个GET请求</p>
+<pre><code><span class="keyword">https</span>://login.weixin.qq.com/cgi-bin/mmwebwx-bin/login?loginicon=<span class="constant">true</span>&amp;<span class="built_in">uuid</span>=gd94hc3_fg==&amp;tip=<span class="number">0</span>&amp;r=-<span class="number">1160587432</span>&amp;_=<span class="number">1452859503803</span>
+</code></pre><p>这里的参数r是时间戳(<code>~Date.now()</code>)，而<code>_</code>这个是jquery强行加上防止IE缓存的参数，服务器并不使用。服务器保持连接不中断，在大概27000ms后返回：</p>
+<pre><code><span class="built_in">window</span>.code=<span class="number">408</span>;
+</code></pre><p>HTTP code 408表示连接超时。接着又一个这种请求</p>
+<pre><code><span class="keyword">https</span>://login.weixin.qq.com/cgi-bin/mmwebwx-bin/login?loginicon=<span class="constant">true</span>&amp;<span class="built_in">uuid</span>=gd94hc3_fg==&amp;tip=<span class="number">0</span>&amp;r=-<span class="number">1160614525</span>&amp;_=<span class="number">1452859503804</span>
+</code></pre><p>大概若干次后， 很久很久这个请求还是被服务器hold住没有返回。然后我再扫描时二维码失效了。。</p>
+<p>如果在移动端扫描过二维码，那么上面的请求将返回</p>
+<pre><code><span class="built_in">window</span>.code=<span class="number">201</span>;<span class="built_in">window</span>.userAvatar = <span class="string">'data:img/jpg;base64,/9j/4...'</span>
+</code></pre><p>显然，http code 201一般表示新资源被建立(created)。同时继续另一个稍有不同的新的GET请求。</p>
+<pre><code><span class="keyword">https</span>://login.weixin.qq.com/cgi-bin/mmwebwx-bin/login?loginicon=<span class="constant">true</span>&amp;<span class="built_in">uuid</span>=gfKtKTG7EQ==&amp;tip=<span class="number">0</span>&amp;r=-<span class="number">1163246522</span>&amp;_=<span class="number">1452862177016</span>
+</code></pre><p>注意，这时候tip变成0了。</p>
+<p>移动端如果不确认登录，经过27000ms左右后依然返回</p>
+<pre><code><span class="built_in">window</span>.code=<span class="number">408</span>;
+</code></pre><p>因此可以确定大概408就是状态不变超时继续的意义。接下来继续上述GET请求。</p>
+<p>一旦移动端点击确认登录，上述GET请求立马返回</p>
+<pre><code><span class="built_in">window</span>.code=<span class="number">200</span>;
+<span class="built_in">window</span>.redirect_uri=<span class="string">"https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxnewloginpage?ticket=Ac8jAIUKtSn5vBxlXAinpFXL@qrticket_0&amp;uuid=gd94hc3_fg==&amp;lang=en_US&amp;scan=1452862897"</span>;
+</code></pre><p>scan参数就是<code>Date.now()</code>。这时一个重定向页面又参数中附加上了一个ticket，看到这里，Oauth五个大字从脑海中无名升起。下面，域名就变了。</p>
+<h4 id="webwxnewloginpage">webwxnewloginpage</h4><p>接下来一个GET请求</p>
+<pre><code><span class="string">https:</span><span class="comment">//wx.qq.com/cgi-bin/mmwebwx-bin/webwxinit?r=-1163944362&amp;lang=en_US&amp;pass_ticket=KlRMZmPcELxJHikrTsq6UEuDiy%252BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI</span>
+</code></pre><p>返回这么个东西:</p>
+<pre><code><span class="tag">&lt;<span class="title">error</span>&gt;</span><span class="tag">&lt;<span class="title">ret</span>&gt;</span>0<span class="tag">&lt;/<span class="title">ret</span>&gt;</span><span class="tag">&lt;<span class="title">message</span>&gt;</span>OK<span class="tag">&lt;/<span class="title">message</span>&gt;</span><span class="tag">&lt;<span class="title">skey</span>&gt;</span>@crypt_3bb2969_5d9682fbe6794c9437337ef278f6615c<span class="tag">&lt;/<span class="title">skey</span>&gt;</span><span class="tag">&lt;<span class="title">wxsid</span>&gt;</span>L9W0ddcaijmzhYhu<span class="tag">&lt;/<span class="title">wxsid</span>&gt;</span><span class="tag">&lt;<span class="title">wxuin</span>&gt;</span>2684027137<span class="tag">&lt;/<span class="title">wxuin</span>&gt;</span><span class="tag">&lt;<span class="title">pass_ticket</span>&gt;</span>KlRMZmPcELxJHikrTsq6UEuDiy%2BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI<span class="tag">&lt;/<span class="title">pass_ticket</span>&gt;</span><span class="tag">&lt;<span class="title">isgrayscale</span>&gt;</span>1<span class="tag">&lt;/<span class="title">isgrayscale</span>&gt;</span><span class="tag">&lt;/<span class="title">error</span>&gt;</span>
+</code></pre><p>这些返回的参数</p>
+<ul>
+<li>skey: 我有点考据癖，发现<a href="http://www.feifeiboke.com/gongfang/2346.html" target="_blank" rel="external">qq空间也用这个东西</a>，维基百科说是一种一次性密码生成系统。大概这个值也是这么若干次哈希生成出来的。</li>
+<li>wxsid: weixin session id</li>
+<li>wxuin: weixin user identity number</li>
+<li>pass_ticket: 通关文牒</li>
+</ul>
+<p>同时，返回的包头里包含<code>set-cookie</code>设置了cookie来标识用户。Cookie设置了上面的</p>
+<ul>
+<li>wxsid</li>
+<li>wxuin</li>
+</ul>
+<p>另有</p>
+<ul>
+<li>wxloadtime: web微信页面加载时间。它是在计时并且不断汇报给服务器的。</li>
+<li>mm_lang: 界面语言，我还想考证下mm什么意思然而并没有考证出来</li>
+<li>webwx_data_ticket(这个域在qq.com上，其他都在wx.qq.com上)，不知道干什么用的，似乎标识用户资源信息时得用上。所有的用户资源比如图片音频什么的都在qq的域名上。（后面会讨论这个问题）</li>
+</ul>
+<p>至此，登录过程完成。获取了cookie、pass_ticket和skey。</p>
+<h3 id="基本信息获取">基本信息获取</h3><h4 id="webwxinit">webwxinit</h4><p>初始化整个webqq的信息获取。</p>
+<p>一个POST请求（sorry，我忘记和上文的passticket啊uin啊对应一致了。</p>
+<pre><code><span class="string">https:</span><span class="comment">//wx.qq.com/cgi-bin/mmwebwx-bin/webwxinit?r=-1163944362&amp;lang=en_US&amp;pass_ticket=KlRMZmPcELxJHikrTsq6UEuDiy%252BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI</span>
+</code></pre><p>post payload</p>
+<pre><code>{"<span class="attribute">BaseRequest</span>":<span class="value">{"<span class="attribute">Uin</span>":<span class="value"><span class="string">"2684027137"</span></span>,"<span class="attribute">Sid</span>":<span class="value"><span class="string">"L9W0ddcaijmzhYhu"</span></span>,"<span class="attribute">Skey</span>":<span class="value"><span class="string">"@crypt_3bb2969_5d9682fbe6794c9437337ef278f6615c"</span></span>,"<span class="attribute">DeviceID</span>":<span class="value"><span class="string">"e159973572418266"</span></span>}</span>}
+</code></pre><p>返回一个巨大的json，包含页面首次更新所需的基本信息</p>
+<ul>
+<li>BaseResponse： 标识返回是否出错</li>
+<li>Count：登录时显示的常用联系人列表中条目个数</li>
+<li>ContactList：常用联系人列表(包括特殊联系人、群和私信)</li>
+<li>SyncKey：更新Key，不太清楚是啥，似乎类似activesync的一种协议</li>
+<li>User: 自己的信息，用户uin，Username，NickName，HeadImgUrl等</li>
+<li>ClientVersion</li>
+<li>SystemTime</li>
+<li>GrayScale: 不知什么</li>
+<li>InviteStartCount: 不知什么</li>
+<li>MPSubscribeMsgCount： 这两条是有关web微信中间一栏阅读列表的</li>
+<li>MPSubscribeMsgList: 同上</li>
+<li>ClickReportInterval：点击报告间隔，似乎只是为了报告些性能信息<a href="">https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxstatreport?fun=new</a></li>
+</ul>
+<p>这个请求会在ContactList里获得常用联系人信息，接着web微信会使用这些信息来batchgetcontact获取详细群组或者个人信息（详见下文）。并且，最最关键的是Synckey，用这个key来不断跟踪web微信客户端的变化。</p>
+<h4 id="webwxgetcontact">webwxgetcontact</h4><p>获取联系人列表的GET请求。</p>
+<pre><code>https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetcontact?lang=en_US&amp;pass_ticket=KlRMZmPcELxJHikrTsq6UEuDiy%252BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI&amp;r=<span class="number">1452862903198</span>&amp;seq=0&amp;skey=@crypt_3bb<span class="number">2969_5d96</span>82fbe<span class="number">6794c94373</span>37ef<span class="number">278f6615</span>c
+</code></pre><p>返回包含联系人信息列表的JSON数据</p>
+<ul>
+<li>BaseResponse</li>
+<li>MemberCount</li>
+<li>MemberList</li>
+<li>Seq： 只见过返回0</li>
+</ul>
+<h4 id="batchgetcontact">batchgetcontact</h4><p>这是获取用户信息最重要的请求。POST请求：</p>
+<pre><code>http<span class="variable">s:</span>//wx.qq.<span class="keyword">com</span>/cgi-bin/mmwebwx-bin/webwxbatchgetcontact?<span class="built_in">type</span>=<span class="keyword">ex</span>&amp;<span class="keyword">r</span>=<span class="number">1453373586582</span>&amp;pass_ticket=cNQtWm5HAlkezd4WDrmrb6TBQYtkdHM4jaqbSWWYCT0EzIWzxBLHTu6Rb4fPw%<span class="number">252</span>Fhf
+</code></pre><p><code>type=ex</code>硬编码不知道想表达什么，r是时间戳。</p>
+<p>post data有两种，分别对应针对用户和群的查询：</p>
+<pre><code>// UserName是要查询具体信息的用户名，EncryChatRoomId是该用户所属的群用户名。不知道为什么web微信要这么设计
+{<span class="string">"BaseRequest"</span>:{<span class="string">"Uin"</span>:<span class="number">2684027137</span>,<span class="string">"Sid"</span>:<span class="string">"rnggO94JNo8B3Irp"</span>,<span class="string">"Skey"</span>:<span class="string">"@crypt_3bb2969_890811a1e096f98662389b04dac3dcb8"</span>,<span class="string">"DeviceID"</span>:<span class="string">"e559659465724952"</span>},<span class="string">"Count"</span>:<span class="number">1</span>,<span class="string">"List"</span>:[{<span class="string">"UserName"</span>:<span class="string">"@83cdf89d8ae7bf82d1fba26693b4952f"</span>,<span class="string">"EncryChatRoomId"</span>:<span class="string">"@@8432d9b1c96038e5229185af62caa626add1a6b87554eb91cc5f5b63a207c8b3"</span>}]}
+{<span class="string">"BaseRequest"</span>:{<span class="string">"Uin"</span>:<span class="number">2684027137</span>,<span class="string">"Sid"</span>:<span class="string">"rnggO94JNo8B3Irp"</span>,<span class="string">"Skey"</span>:<span class="string">"@crypt_3bb2969_890811a1e096f98662389b04dac3dcb8"</span>,<span class="string">"DeviceID"</span>:<span class="string">"e559659465724952"</span>},<span class="string">"Count"</span>:<span class="number">1</span>,<span class="string">"List"</span>:[{<span class="string">"UserName"</span>:<span class="string">"@83cdf89d8ae7bf82d1fba26693b4952f"</span>,<span class="string">"EncryChatRoomId"</span>:<span class="string">"@@8432d9b1c96038e5229185af62caa626add1a6b87554eb91cc5f5b63a207c8b3"</span>}]}
+
+// UserName是想要查询具体信息的群UserName
+{<span class="string">"BaseRequest"</span>:{<span class="string">"Uin"</span>:<span class="number">2684027137</span>,<span class="string">"Sid"</span>:<span class="string">"L9W0ddcaijmzhYhu"</span>,<span class="string">"Skey"</span>:<span class="string">"@crypt_3bb2969_5d9682fbe6794c9437337ef278f6615c"</span>,<span class="string">"DeviceID"</span>:<span class="string">"e017670883684764"</span>},<span class="string">"Count"</span>:<span class="number">2</span>,<span class="string">"List"</span>:[{<span class="string">"UserName"</span>:<span class="string">"@@9dc894837da0c2ac9932a85afb91af2d085807013562857e8b4a0ca66661ec68"</span>,<span class="string">"EncryChatRoomId"</span>:<span class="string">""</span>},{<span class="string">"UserName"</span>:<span class="string">"@@69dfa612d6bbefebbf24c323b6103680ac32c6a7b41e0862cc24f0b6f3174a08"</span>,<span class="string">"EncryChatRoomId"</span>:<span class="string">""</span>}]}
+</code></pre><p>返回典型User集合如下，上文提及的getcontact和batchgetcontact得到的都是这样：</p>
+<pre><code>{
+"<span class="attribute">Uin</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">UserName</span>": <span class="value"><span class="string">"filehelper"</span></span>,
+"<span class="attribute">NickName</span>": <span class="value"><span class="string">"文件传输助手"</span></span>,
+"<span class="attribute">HeadImgUrl</span>": <span class="value"><span class="string">"/cgi-bin/mmwebwx-bin/webwxgeticon?seq=620730115&amp;username=filehelper&amp;skey=@crypt_3bb2969_2e9301eaab7a4b13a3a893a0bb5e8dfb"</span></span>,
+"<span class="attribute">ContactFlag</span>": <span class="value"><span class="number">3</span></span>,
+"<span class="attribute">MemberCount</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">MemberList</span>": <span class="value">[]</span>,
+"<span class="attribute">RemarkName</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">HideInputBarFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Sex</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Signature</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">VerifyFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">OwnerUin</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">PYInitial</span>": <span class="value"><span class="string">"WJCSZS"</span></span>,
+"<span class="attribute">PYQuanPin</span>": <span class="value"><span class="string">"wenjianchuanshuzhushou"</span></span>,
+"<span class="attribute">RemarkPYInitial</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">RemarkPYQuanPin</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">StarFriend</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">AppAccountFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Statues</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">AttrStatus</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Province</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">City</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">Alias</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">SnsFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">UniFriend</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">DisplayName</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">ChatRoomId</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">KeyWord</span>": <span class="value"><span class="string">"fil"</span></span>,
+"<span class="attribute">EncryChatRoomId</span>": <span class="value"><span class="string">""</span>
+</span>}
+</code></pre><p>典型群信息集合</p>
+<pre><code>{
+"<span class="attribute">Uin</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">UserName</span>": <span class="value"><span class="string">"@@3376dc306923e39c2c5c43915012b1157af80fdc21f1cfb703ee720d09e13315"</span></span>,
+"<span class="attribute">NickName</span>": <span class="value"><span class="string">"BJ NodeJS Club"</span></span>,
+"<span class="attribute">HeadImgUrl</span>": <span class="value"><span class="string">"/cgi-bin/mmwebwx-bin/webwxgetheadimg?seq=639556586&amp;username=@@3376dc306923e39c2c5c43915012b1157af80fdc21f1cfb703ee720d09e13315&amp;skey="</span></span>,
+"<span class="attribute">ContactFlag</span>": <span class="value"><span class="number">3</span></span>,
+"<span class="attribute">MemberCount</span>": <span class="value"><span class="number">421</span></span>,
+"<span class="attribute">MemberList</span>": <span class="value">[{
+  "<span class="attribute">Uin</span>": <span class="value"><span class="number">0</span></span>,
+  "<span class="attribute">UserName</span>": <span class="value"><span class="string">"@eb59926a7755e31f3030a883845eb647"</span></span>,
+  "<span class="attribute">NickName</span>": <span class="value"><span class="string">"hain"</span></span>,
+  "<span class="attribute">AttrStatus</span>": <span class="value"><span class="number">98407</span></span>,
+  "<span class="attribute">PYInitial</span>": <span class="value"><span class="string">""</span></span>,
+  "<span class="attribute">PYQuanPin</span>": <span class="value"><span class="string">""</span></span>,
+  "<span class="attribute">RemarkPYInitial</span>": <span class="value"><span class="string">""</span></span>,
+  "<span class="attribute">RemarkPYQuanPin</span>": <span class="value"><span class="string">""</span></span>,
+  "<span class="attribute">MemberStatus</span>": <span class="value"><span class="number">0</span></span>,
+  "<span class="attribute">DisplayName</span>": <span class="value"><span class="string">""</span></span>,
+  "<span class="attribute">KeyWord</span>": <span class="value"><span class="string">"hai"</span>
+  </span>}
+...// 省略若干Member
+]</span>,
+"<span class="attribute">RemarkName</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">HideInputBarFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Sex</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Signature</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">VerifyFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">OwnerUin</span>": <span class="value"><span class="number">246642915</span></span>,
+"<span class="attribute">PYInitial</span>": <span class="value"><span class="string">"BJNODEJSCLUB"</span></span>,
+"<span class="attribute">PYQuanPin</span>": <span class="value"><span class="string">"BJNodeJSClub"</span></span>,
+"<span class="attribute">RemarkPYInitial</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">RemarkPYQuanPin</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">StarFriend</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">AppAccountFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Statues</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">AttrStatus</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Province</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">City</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">Alias</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">SnsFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">UniFriend</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">DisplayName</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">ChatRoomId</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">KeyWord</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">EncryChatRoomId</span>": <span class="value"><span class="string">"@9d9762417362d83c838bb54afacdac14"</span>
+</span>}
+</code></pre><p>比较有意思的是，这里群信息中的EncryChatRoomId只用来请求头像图片（参见下文），而请求中的EncryChatRoomId的值却填写的是群的UserName。</p>
+<h4 id="webwxgeticon和webwxgetheadimg">webwxgeticon和webwxgetheadimg</h4><p>用户头像获取，每个User有个对应的HeadImgUrl。都不太一样</p>
+<pre><code>// 带skey用户
+https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgeticon?seq=<span class="number">620730145</span>&amp;username=@63f002cacb7eebc558206af<span class="number">36c8758e68</span><span class="number">374063d65</span><span class="number">3e51181</span>eeb<span class="number">41a19a72339</span>9&amp;skey=@crypt_3bb<span class="number">2969_89081</span><span class="number">1a1e096</span>f<span class="number">98662389b04</span>dac3dcb8
+// skey为空的群图像，用户有时也有这种请求，不明确为何。ps: 用户信息中的HeadImgUrl也不会带skey。
+https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetheadimg?seq=<span class="number">639547833</span>&amp;username=@@<span class="number">8432d9b1</span>c<span class="number">96038e52291</span>85af62caa626add<span class="number">1a6b87554</span>eb91cc<span class="number">5f5b63a207</span>c8b3&amp;skey=
+// 带chatroomid的非好友群中用户头像， 其中chatroomid是群信息中的encrychatroomid。
+https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgeticon?seq=0&amp;username=@<span class="number">81c029b96</span>b211aed1f4da9ea8a2acea7&amp;skey=@crypt_3bb<span class="number">2969_89081</span><span class="number">1a1e096</span>f<span class="number">98662389b04</span>dac3dcb8&amp;chatroomid=@<span class="number">1d5974437</span>ca911fe<span class="number">1315d415</span>d98645ed
+</code></pre><p>似乎第一次请求会带上有值的skey，之后就不一定了不确定。</p>
+<h3 id="信息收发">信息收发</h3><h4 id="syncheck与webwxsync(长连接和消息更新)">syncheck与webwxsync(长连接和消息更新)</h4><p>基本信息获取完毕，接下来一个长GET连接，服务器可能会保持连接很久才返回，一旦断开客户断继续立即连接。这样服务器可以随时将更新的消息推送到客户端。</p>
+<pre><code>https://webpush.weixin.qq.com/cgi-bin/mmwebwx-bin/synccheck?r=<span class="number">1452862903206</span>&amp;skey=%40crypt_3bb<span class="number">2969_5d96</span>82fbe<span class="number">6794c94373</span>37ef<span class="number">278f6615</span>c&amp;sid=L9W0ddcaijmzhYhu&amp;uin=<span class="number">2684027137</span>&amp;deviceid=e<span class="number">88171850929</span>3654&amp;synckey=<span class="number">1_63954575</span><span class="number">8%7C2_63</span><span class="number">9547230%7</span>C<span class="number">3_63954668</span><span class="number">1%7C1000</span>_<span class="number">1452852659</span>&amp;_=<span class="number">1452862890152</span>
+</code></pre><p>一个典型的返回为</p>
+<pre><code>window.synccheck={<span class="string">retcode:</span><span class="string">"0"</span>,<span class="string">selector:</span><span class="string">"2"</span>}
+</code></pre><p>分析<a href="https://res.wx.qq.com/zh_CN/htmledition/v2/js/webwxApp2aeaf2.js" target="_blank" rel="external">webwx源码</a>可以看到，如果retcode不是0且selector不为0，则发出这么一个POST请求</p>
+<pre><code>https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsync?sid=L9W0ddcaijmzhYhu&amp;skey=@crypt_3bb<span class="number">2969_5d96</span>82fbe<span class="number">6794c94373</span>37ef<span class="number">278f6615</span>c&amp;lang=en_US&amp;pass_ticket=KlRMZmPcELxJHikrTsq6UEuDiy%252BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI
+</code></pre><p>请求载荷为</p>
+<pre><code>{"<span class="attribute">BaseRequest</span>":<span class="value">{"<span class="attribute">Uin</span>":<span class="value"><span class="number">2684027137</span></span>,"<span class="attribute">Sid</span>":<span class="value"><span class="string">"L9W0ddcaijmzhYhu"</span></span>,"<span class="attribute">Skey</span>":<span class="value"><span class="string">"@crypt_3bb2969_5d9682fbe6794c9437337ef278f6615c"</span></span>,"<span class="attribute">DeviceID</span>":<span class="value"><span class="string">"e431325091638023"</span></span>}</span>,"<span class="attribute">SyncKey</span>":<span class="value">{"<span class="attribute">Count</span>":<span class="value"><span class="number">4</span></span>,"<span class="attribute">List</span>":<span class="value">[{"<span class="attribute">Key</span>":<span class="value"><span class="number">1</span></span>,"<span class="attribute">Val</span>":<span class="value"><span class="number">639545758</span></span>},{"<span class="attribute">Key</span>":<span class="value"><span class="number">2</span></span>,"<span class="attribute">Val</span>":<span class="value"><span class="number">639547230</span></span>},{"<span class="attribute">Key</span>":<span class="value"><span class="number">3</span></span>,"<span class="attribute">Val</span>":<span class="value"><span class="number">639546681</span></span>},{"<span class="attribute">Key</span>":<span class="value"><span class="number">1000</span></span>,"<span class="attribute">Val</span>":<span class="value"><span class="number">1452852659</span></span>}]</span>}</span>,"<span class="attribute">rr</span>":<span class="value">-<span class="number">1163958067</span></span>}
+</code></pre><p>其中rr为<code>~Date.now()</code>。这里第一次传递的是webwxinit时得到的SyncKey。一般开始有四个键值对，不知道对应什么意义。</p>
+<p>返回为一个JSON对象，几个比较重要的属性包含</p>
+<pre><code>BaseResponse
+<span class="label">AddMsgCount:</span>新增消息数
+AddMsgList：新增消息列表
+<span class="label">ModContactCount:</span> 变更联系人数目
+<span class="label">ModContactList:</span> 变更联系人列表
+<span class="label">SyncKey:</span>新的synckey列表
+</code></pre><p>接下来，又一个syncheck请求要向服务器表示上面的webwxsync响应已经收到了，更新SyncKey。</p>
+<pre><code>https://webpush.weixin.qq.com/cgi-bin/mmwebwx-bin/synccheck?r=<span class="number">145286290698</span>6&amp;skey=%40crypt_3bb<span class="number">2969_5d96</span>82fbe<span class="number">6794c94373</span>37ef<span class="number">278f6615</span>c&amp;sid=L9W0ddcaijmzhYhu&amp;uin=<span class="number">2684027137</span>&amp;deviceid=e<span class="number">39032063125</span>8365&amp;synckey=<span class="number">1_63954575</span><span class="number">8%7C2_63</span><span class="number">9547231%7</span>C<span class="number">3_63954668</span><span class="number">1%7C11_63</span><span class="number">9547225%7</span>C<span class="number">13_639540102</span>%<span class="number">7C203_145286</span><span class="number">2598%7C100</span><span class="number">0_145285265</span>9&amp;_=<span class="number">1452862890153</span>
+</code></pre><p>若synccheck返回为（我没从源码中看出selector的意义）。</p>
+<pre><code>window.synccheck={<span class="string">retcode:</span><span class="string">"0"</span>,<span class="string">selector:</span><span class="string">"0"</span>}
+</code></pre><p>则继续发出相同请求</p>
+<p>若返回不为以上返回值，继续POST请求webwxsync</p>
+<pre><code>https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsync?sid=L9W0ddcaijmzhYhu&amp;skey=@crypt_3bb<span class="number">2969_5d96</span>82fbe<span class="number">6794c94373</span>37ef<span class="number">278f6615</span>c&amp;lang=en_US&amp;pass_ticket=KlRMZmPcELxJHikrTsq6UEuDiy%252BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI
+</code></pre><p>请求参数如下</p>
+<p>{“BaseRequest”:{“Uin”:2684027137,”Sid”:”L9W0ddcaijmzhYhu”,”Skey”:”@crypt_3bb2969_5d9682fbe6794c9437337ef278f6615c”,”DeviceID”:”e544554467912584”},”SyncKey”:{“Count”:7,”List”:[{“Key”:1,”Val”:639545758},{“Key”:2,”Val”:639547231},{“Key”:3,”Val”:639546681},{“Key”:11,”Val”:639547232},{“Key”:13,”Val”:639540102},{“Key”:203,”Val”:1452862989},{“Key”:1000,”Val”:1452852659}]},”rr”:-1164083935}</p>
+<p>这时候使用的syncKey是上次webwxsync时返回的新synckey</p>
+<p>该过程循环往复，每次都伴随着SyncKey的不断更新。通过这个机制web微信实现信息的增量更新同步。</p>
+<h4 id="消息发送">消息发送</h4><p>一个POST请求</p>
+<pre><code><span class="string">https:</span><span class="comment">//wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsg?lang=en_US&amp;pass_ticket=KlRMZmPcELxJHikrTsq6UEuDiy%252BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI</span>
+</code></pre><p>请求载荷为</p>
+<pre><code>{"<span class="attribute">BaseRequest</span>":<span class="value">{"<span class="attribute">Uin</span>":<span class="value"><span class="number">2684027137</span></span>,"<span class="attribute">Sid</span>":<span class="value"><span class="string">"L9W0ddcaijmzhYhu"</span></span>,"<span class="attribute">Skey</span>":<span class="value"><span class="string">"@crypt_3bb2969_5d9682fbe6794c9437337ef278f6615c"</span></span>,"<span class="attribute">DeviceID</span>":<span class="value"><span class="string">"e888644980385645"</span></span>}</span>,"<span class="attribute">Msg</span>":<span class="value">{"<span class="attribute">Type</span>":<span class="value"><span class="number">1</span></span>,"<span class="attribute">Content</span>":<span class="value"><span class="string">"养鸡厂233\n"</span></span>,"<span class="attribute">FromUserName</span>":<span class="value"><span class="string">"@30a777fdcc5ed46bbbf7bc695515afba9ad194cc720e006e6bb775054102636f"</span></span>,"<span class="attribute">ToUserName</span>":<span class="value"><span class="string">"@@48967eff39f174a33012bde5af8878227dd4ba8f64dd5ecf7a6495d5b979e6ac"</span></span>,"<span class="attribute">LocalID</span>":<span class="value"><span class="string">"14528638294750795"</span></span>,"<span class="attribute">ClientMsgId</span>":<span class="value"><span class="string">"14528638294750795"</span></span>}</span>}
+</code></pre><p>其中type标识了发送消息的类型，1表示文本消息。另从源码中看到， LocalID和ClientMsgId这样计算</p>
+<pre><code>(Date.<span class="function"><span class="title">now</span><span class="params">()</span></span> + Math.<span class="function"><span class="title">random</span><span class="params">()</span></span>.<span class="function"><span class="title">toFixed</span><span class="params">(<span class="number">3</span>)</span></span>).<span class="function"><span class="title">replace</span><span class="params">(<span class="string">'.'</span>, <span class="string">''</span>)</span></span>
+</code></pre><p>该请求返回一个JSON对象</p>
+<ul>
+<li>BaseResponse</li>
+<li>MsgID: 服务器返回消息id  // 微信公众平台文档中也提到可以用来排序或排重好像。</li>
+<li>LocalID: 发送时指定的本地id.</li>
+</ul>
+<h4 id="消息接收实例">消息接收实例</h4><p>一个典型收到文本信息的例子：</p>
+<pre><code><span class="string">"AddMsgCount"</span>: <span class="number">2</span>,
+<span class="string">"AddMsgList"</span>: [{
+    <span class="string">"MsgId"</span>: <span class="string">"6276659661087965644"</span>,
+    <span class="string">"FromUserName"</span>: <span class="string">"@@cd020d3254fa869dfdc88a2ef4e4e201384b909eeabcb3724463bf64c5f7a452"</span>,
+    <span class="string">"ToUserName"</span>: <span class="string">"@31908794c3035a00b386bc9ef0526ee8d95b3c426d53fb4f9466b67d7a0b5fef"</span>,
+    <span class="string">"MsgType"</span>: <span class="number">1</span>,
+    <span class="string">"Content"</span>: <span class="string">"@f88c48e531bc7de94072a206729750ff:&lt;br/&gt;好了，收工，你们聊"</span>,
+    <span class="string">"Status"</span>: <span class="number">3</span>,
+    <span class="string">"ImgStatus"</span>: <span class="number">1</span>,
+    <span class="string">"CreateTime"</span>: <span class="number">1453391337</span>,
+    <span class="string">"VoiceLength"</span>: <span class="number">0</span>,
+    <span class="string">"PlayLength"</span>: <span class="number">0</span>,
+    <span class="string">"FileName"</span>: <span class="string">""</span>,
+    <span class="string">"FileSize"</span>: <span class="string">""</span>,
+    <span class="string">"MediaId"</span>: <span class="string">""</span>,
+    <span class="string">"Url"</span>: <span class="string">""</span>,
+    <span class="string">"AppMsgType"</span>: <span class="number">0</span>,
+    <span class="string">"StatusNotifyCode"</span>: <span class="number">0</span>,
+    <span class="string">"StatusNotifyUserName"</span>: <span class="string">""</span>,
+    <span class="string">"RecommendInfo"</span>: {
+      <span class="string">"UserName"</span>: <span class="string">""</span>,
+      <span class="string">"NickName"</span>: <span class="string">""</span>,
+      <span class="string">"QQNum"</span>: <span class="number">0</span>,
+      <span class="string">"Province"</span>: <span class="string">""</span>,
+      <span class="string">"City"</span>: <span class="string">""</span>,
+      <span class="string">"Content"</span>: <span class="string">""</span>,
+      <span class="string">"Signature"</span>: <span class="string">""</span>,
+      <span class="string">"Alias"</span>: <span class="string">""</span>,
+      <span class="string">"Scene"</span>: <span class="number">0</span>,
+      <span class="string">"VerifyFlag"</span>: <span class="number">0</span>,
+      <span class="string">"AttrStatus"</span>: <span class="number">0</span>,
+      <span class="string">"Sex"</span>: <span class="number">0</span>,
+      <span class="string">"Ticket"</span>: <span class="string">""</span>,
+      <span class="string">"OpCode"</span>: <span class="number">0</span>
+      }
+    ,
+    <span class="string">"ForwardFlag"</span>: <span class="number">0</span>,
+    <span class="string">"AppInfo"</span>: {
+      <span class="string">"AppID"</span>: <span class="string">""</span>,
+      <span class="string">"Type"</span>: <span class="number">0</span>
+      }
+    ,
+    <span class="string">"HasProductId"</span>: <span class="number">0</span>,
+    <span class="string">"Ticket"</span>: <span class="string">""</span>,
+    <span class="string">"ImgHeight"</span>: <span class="number">0</span>,
+    <span class="string">"ImgWidth"</span>: <span class="number">0</span>,
+    <span class="string">"SubMsgType"</span>: <span class="number">0</span>,
+    <span class="string">"NewMsgId"</span>: <span class="number">6276659661087965644</span>
+  }
+  ,{
+    <span class="string">"MsgId"</span>: <span class="string">"1010502497825347915"</span>,
+    <span class="string">"FromUserName"</span>: <span class="string">"@c1019d5180ee2ef97a302737205b788502476a24cb1e870ac99da1aad788ac5f"</span>,
+    <span class="string">"ToUserName"</span>: <span class="string">"@31908794c3035a00b386bc9ef0526ee8d95b3c426d53fb4f9466b67d7a0b5fef"</span>,
+    <span class="string">"MsgType"</span>: <span class="number">1</span>,
+    <span class="string">"Content"</span>: <span class="string">"牛逼哄哄的啊！"</span>,
+    <span class="string">"Status"</span>: <span class="number">3</span>,
+    <span class="string">"ImgStatus"</span>: <span class="number">1</span>,
+    <span class="string">"CreateTime"</span>: <span class="number">1453391337</span>,
+    <span class="string">"VoiceLength"</span>: <span class="number">0</span>,
+    <span class="string">"PlayLength"</span>: <span class="number">0</span>,
+    <span class="string">"FileName"</span>: <span class="string">""</span>,
+    <span class="string">"FileSize"</span>: <span class="string">""</span>,
+    <span class="string">"MediaId"</span>: <span class="string">""</span>,
+    <span class="string">"Url"</span>: <span class="string">""</span>,
+    <span class="string">"AppMsgType"</span>: <span class="number">0</span>,
+    <span class="string">"StatusNotifyCode"</span>: <span class="number">0</span>,
+    <span class="string">"StatusNotifyUserName"</span>: <span class="string">""</span>,
+    <span class="string">"RecommendInfo"</span>: {
+      <span class="string">"UserName"</span>: <span class="string">""</span>,
+      <span class="string">"NickName"</span>: <span class="string">""</span>,
+      <span class="string">"QQNum"</span>: <span class="number">0</span>,
+      <span class="string">"Province"</span>: <span class="string">""</span>,
+      <span class="string">"City"</span>: <span class="string">""</span>,
+      <span class="string">"Content"</span>: <span class="string">""</span>,
+      <span class="string">"Signature"</span>: <span class="string">""</span>,
+      <span class="string">"Alias"</span>: <span class="string">""</span>,
+      <span class="string">"Scene"</span>: <span class="number">0</span>,
+      <span class="string">"VerifyFlag"</span>: <span class="number">0</span>,
+      <span class="string">"AttrStatus"</span>: <span class="number">0</span>,
+      <span class="string">"Sex"</span>: <span class="number">0</span>,
+      <span class="string">"Ticket"</span>: <span class="string">""</span>,
+      <span class="string">"OpCode"</span>: <span class="number">0</span>
+      }
+    ,
+    <span class="string">"ForwardFlag"</span>: <span class="number">0</span>,
+    <span class="string">"AppInfo"</span>: {
+      <span class="string">"AppID"</span>: <span class="string">""</span>,
+      <span class="string">"Type"</span>: <span class="number">0</span>
+      }
+    ,
+    <span class="string">"HasProductId"</span>: <span class="number">0</span>,
+    <span class="string">"Ticket"</span>: <span class="string">""</span>,
+    <span class="string">"ImgHeight"</span>: <span class="number">0</span>,
+    <span class="string">"ImgWidth"</span>: <span class="number">0</span>,
+    <span class="string">"SubMsgType"</span>: <span class="number">0</span>,
+    <span class="string">"NewMsgId"</span>: <span class="number">1010502497825347915</span>
+  }
+],
+</code></pre><p>这个例子中，可以看到群信息中包含</p>
+<pre><code><span class="string">"Content"</span>: <span class="string">"<span class="variable">@f88c48e531bc7de94072a206729750ff</span>:&lt;br/&gt;好了，收工，你们聊"</span>,
+</code></pre><p>这样的内容，而这个<br>前面的部分，实际上在微信中是标识群中发言人的UserName。因此，展示或者记录的时候需要先解析UserName到NickName或者DisplayName。这个过程Web微信通过getcontact、batchgetcontact两类请求请求数据，并且缓存起来。</p>
+<p>ModContactList中则包含变更的联系人信息，一个典型例子</p>
+<pre><code><span class="string">"ModContactCount"</span>: <span class="number">1</span>,
+<span class="string">"ModContactList"</span>: [{
+  <span class="string">"UserName"</span>: <span class="string">"@@a6dd369b835a7f6a3fc8d4f0ace3b2de80c9c097f0439955043e6b716eb007fb"</span>,
+  <span class="string">"NickName"</span>: <span class="string">""</span>,
+  <span class="string">"Sex"</span>: <span class="number">0</span>,
+  <span class="string">"HeadImgUpdateFlag"</span>: <span class="number">1</span>,
+  <span class="string">"ContactType"</span>: <span class="number">0</span>,
+  <span class="string">"Alias"</span>: <span class="string">""</span>,
+  <span class="string">"ChatRoomOwner"</span>: <span class="string">"@31908794c3035a00b386bc9ef0526ee8d95b3c426d53fb4f9466b67d7a0b5fef"</span>,
+  <span class="string">"HeadImgUrl"</span>: <span class="string">"/cgi-bin/mmwebwx-bin/webwxgetheadimg?seq=0&amp;username=@@a6dd369b835a7f6a3fc8d4f0ace3b2de80c9c097f0439955043e6b716eb007fb&amp;skey=@crypt_3bb2969_2e9301eaab7a4b13a3a893a0bb5e8dfb"</span>,
+  <span class="string">"ContactFlag"</span>: <span class="number">2</span>,
+  <span class="string">"MemberCount"</span>: <span class="number">2</span>,
+  <span class="string">"MemberList"</span>: [{
+    <span class="string">"Uin"</span>: <span class="number">236008826</span>,
+    <span class="string">"UserName"</span>: <span class="string">"@912d2268c7e87688e5c8f33003b488f3adcfd3b4d25fcb9a271550bfc18a7328"</span>,
+    <span class="string">"NickName"</span>: <span class="string">"膜法师"</span>,
+    <span class="string">"AttrStatus"</span>: <span class="number">4357</span>,
+    <span class="string">"PYInitial"</span>: <span class="string">""</span>,
+    <span class="string">"PYQuanPin"</span>: <span class="string">""</span>,
+    <span class="string">"RemarkPYInitial"</span>: <span class="string">""</span>,
+    <span class="string">"RemarkPYQuanPin"</span>: <span class="string">""</span>,
+    <span class="string">"MemberStatus"</span>: <span class="number">0</span>,
+    <span class="string">"DisplayName"</span>: <span class="string">""</span>,
+    <span class="string">"KeyWord"</span>: <span class="string">""</span>
+    }
+    ,{
+    <span class="string">"Uin"</span>: <span class="number">2684027137</span>,
+    <span class="string">"UserName"</span>: <span class="string">"@31908794c3035a00b386bc9ef0526ee8d95b3c426d53fb4f9466b67d7a0b5fef"</span>,
+    <span class="string">"NickName"</span>: <span class="string">"狂风落尽深红色绿树成荫子满枝"</span>,
+    <span class="string">"AttrStatus"</span>: <span class="number">131169</span>,
+    <span class="string">"PYInitial"</span>: <span class="string">""</span>,
+    <span class="string">"PYQuanPin"</span>: <span class="string">""</span>,
+    <span class="string">"RemarkPYInitial"</span>: <span class="string">""</span>,
+    <span class="string">"RemarkPYQuanPin"</span>: <span class="string">""</span>,
+    <span class="string">"MemberStatus"</span>: <span class="number">0</span>,
+    <span class="string">"DisplayName"</span>: <span class="string">""</span>,
+    <span class="string">"KeyWord"</span>: <span class="string">""</span>
+    }
+],
+<span class="string">"HideInputBarFlag"</span>: <span class="number">0</span>,
+<span class="string">"Signature"</span>: <span class="string">""</span>,
+<span class="string">"VerifyFlag"</span>: <span class="number">0</span>,
+<span class="string">"RemarkName"</span>: <span class="string">""</span>,
+<span class="string">"Statues"</span>: <span class="number">1</span>,
+<span class="string">"AttrStatus"</span>: <span class="number">0</span>,
+<span class="string">"Province"</span>: <span class="string">""</span>,
+<span class="string">"City"</span>: <span class="string">""</span>,
+<span class="string">"SnsFlag"</span>: <span class="number">0</span>,
+<span class="string">"KeyWord"</span>: <span class="string">""</span>
+}
+</code></pre><p>一旦ModContactList中有内容，则更新本地联系人缓存。</p>
+<p>这里只就文本消息进行了举例。实际上web微信有多种格式消息的支持。参见附录。</p>
+<h3 id="总结:一图胜千言">总结:一图胜千言</h3><p>![图]</p>
+<p>整个流程如图所示。</p>
+<p>我们应该注意到几点：</p>
+<ul>
+<li>首先，有三个服务器：第一个用来认证，返回一个ticket，并且检查ticket和uuid是否对应。第二个服务器负责登录、保持会话、更新消息、执行功能。第三个服务器仅仅保持长连接，我猜因为服务器端一直保持着每个用户的长连接来轮询，这种耗费资源的事情也确实应该分离出单独的服务器。</li>
+<li>其次，js代码都是单线程的，客户端通过保持synccheck长连接来接收服务器端的消息，并在更新状态后继续synccheck。</li>
+<li>最后，注意Synckey所起的作用，通过synckey的更新服务器知道客户端已经收到了哪些消息。</li>
+</ul>
+<h2 id="实现：又一个机器人——wechat-user-bot">实现：又一个机器人——wechat-user-bot</h2><p>在nodejs中我们可以实现完整的web微信功能。我准备做个机器人，</p>
+<p>一方面，作为将来某系统的一部分。<br>另一方面，greathoul曾经说过有些人有需求来管理微信群<br>最主要的，for fun。</p>
+<h3 id="流程控制">流程控制</h3><p>目标：在NodeJS中模拟上述流程</p>
+<h4 id="流程概要">流程概要</h4><p>正如上一章节所述。整个流程可以简化为。</p>
+<pre><code>               <span class="comment">/</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">用户操作</span>
+               <span class="comment">|</span>
+<span class="comment">登录认证</span><span class="literal">-</span><span class="literal">-</span>&gt;<span class="comment">长连接</span><span class="literal">-</span><span class="literal">-</span>&gt;<span class="comment">更新</span><span class="literal">-</span><span class="comment">\</span>
+               <span class="comment">|</span>         <span class="comment">|</span>
+               <span class="comment">\</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">/</span>
+</code></pre><p>在功能上，我们的机器人目前只完成了信息记录和聊天的功能。</p>
+<h4 id="Javascript中的流程控制">Javascript中的流程控制</h4><p>Javascript社区有四种驯服事件驱动异步编程的实践:</p>
+<ul>
+<li>callback</li>
+<li>Promise</li>
+<li>Promise + Generator</li>
+<li>Async</li>
+</ul>
+<h5 id="回调地狱(Callback_Hell)">回调地狱(Callback Hell)</h5><p>假设你要运行一个任务管理器<br>输入id后，需要依次 <em>执行</em> 针对id的task1, task2, task3, task4…<br>在js这种异步语言里会是这样…</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">taskRunner</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  task1(id, <span class="function"><span class="keyword">function</span>(<span class="params">id</span>)</span>&#123;</span><br><span class="line">    task2(id, <span class="function"><span class="keyword">function</span>(<span class="params">id</span>)</span>&#123;</span><br><span class="line">      task3(id, <span class="function"><span class="keyword">function</span>(<span class="params">id</span>)</span>&#123;</span><br><span class="line">        task4(id, <span class="function"><span class="keyword">function</span>(<span class="params">id</span>)</span>&#123;</span><br><span class="line">          ...<span class="comment">// callback hell</span></span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>what a hell. 更糟糕的是，如果其中某个任务出错了，我怎么知道哪里出错了？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">asyncOperation</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"MyError!"</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123; </span><br><span class="line">  asyncOperation();</span><br><span class="line">&#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"I cannot catch : "</span>, e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>try和catch 没有用？并不能捕获错误。那么…只能在异步回调里使用try。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">asyncOperation</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Error"</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span>(e) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"asyncOperation catch it: "</span>, e.message);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">run</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123; </span><br><span class="line">    asyncOperation();</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"I got no error"</span>, e);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>好吧，调用者又不能捕获错误了。run调用者怎么能知道发生了什么可呢。接下来其他函数怎么知道发生了什么？</p>
+<p>Nodejs社区采用一种error first的调用惯例。下一个回调可以收到err，判断，作出动作。但想象一下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">taskRunner</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  task1(id, <span class="function"><span class="keyword">function</span>(<span class="params">err, task1Output</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">    doSomething(task1Output);</span><br><span class="line">    task2(task1Output, <span class="function"><span class="keyword">function</span>(<span class="params">err, res</span>)</span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">      task3(id, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">        task4(id, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>)</span>&#123;</span><br><span class="line">          <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">          ...<span class="comment">// callback hell</span></span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看起来不好看是一回事。</p>
+<p>如果doSomething出错了，错误如何捕获？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">taskRunner</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  task1(id, <span class="function"><span class="keyword">function</span>(<span class="params">err, task1Output</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      doSomething(task1Output);</span><br><span class="line">    &#125; <span class="keyword">catch</span>(e) &#123;</span><br><span class="line">      handleError(e);</span><br><span class="line">    &#125;</span><br><span class="line">    task2(task1Output, <span class="function"><span class="keyword">function</span>(<span class="params">err, res</span>)</span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">      task3(id, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">        task4(id, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">          <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">          ...<span class="comment">// callback hell</span></span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再如果对handleError想做出错处理，再如果我们在流程中嵌入了更多的同步和异步混用的代码，他们都要处理错误…What the fuck…</p>
+<p>再也不想看这样的代码。我们的大脑并不能很好的切合这种模式。而且，如果在task3和task4之间我想加入一个task5…考虑下你的当你想git blame…<br>也许把函数分离出来会好很多, 但我感觉好不到哪里。</p>
+<h5 id="超简Promise实现">超简Promise实现</h5><p>我们想写这样的代码…</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">task1().then(task2).then(task3)...</span><br></pre></td></tr></table></figure>
+<p>我们想做这样的错误处理</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">task1().then(task2, handleError).then(task3, handleError)...</span><br><span class="line"><span class="comment">// or</span></span><br><span class="line">task1().then(task2).then(task3)....then(taskN).catch(handleError);</span><br></pre></td></tr></table></figure>
+<p>他们创造了Promise，一个许诺，一个代表未来的值。</p>
+<p>一个一秒后才到来的事物。</p>
+<p>一个神奇的设计, Promise几个标准规定了挺多，哦，也不多。不过我觉得核心的就三点:</p>
+<ol>
+<li>thenable</li>
+<li>状态与缓存</li>
+<li>能串行(Promise链)</li>
+</ol>
+<p>我们可以试着实现一个，实际Promise规范并没有规定实现方法，应该有很多实现方法。我们的方法是：</p>
+<ul>
+<li>同一个Promise可以用then注册多个回调，推入dfs中最后依次触发。</li>
+<li>then返回一个Promise实现串行，而这个Promise将接下来要then的回调注册到自己的dfs中，一旦触发则调用自己的resolve函数将返回值喂给下一个then注册的回调函数。</li>
+<li>resolve的延迟通过process.nextTick或者setTimeout(fn, 0)实现。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span>(<span class="params">f</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> cache;  <span class="comment">// 未来的 值</span></span><br><span class="line">  <span class="keyword">var</span> dfs = []; <span class="comment">// Promise链上Defferds链, deferds保存当前回调callback, 如果值到来了，传给桥Promise的resolve</span></span><br><span class="line">  <span class="comment">// 如果没解析，则添加到defferd链上，如果解析了，则调用df链上所有回调</span></span><br><span class="line">  <span class="keyword">var</span> status = <span class="string">"pending"</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">      handle(&#123;</span><br><span class="line">        callback: callback,</span><br><span class="line">        resolve: resolve</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handle</span>(<span class="params">df</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (status == <span class="string">"pending"</span>) &#123;</span><br><span class="line">      dfs.push(df);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (status == <span class="string">"fulfiled"</span>) &#123;</span><br><span class="line">      <span class="keyword">var</span> ret = df.callback(cache);</span><br><span class="line">      df.resolve(ret);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span>(<span class="params">value</span>) </span>&#123;</span><br><span class="line">    cache = value;</span><br><span class="line">    status = <span class="string">"fulfiled"</span>;</span><br><span class="line">    process.nextTick(()=&gt; &#123;</span><br><span class="line">      dfs.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">df</span>) </span>&#123;</span><br><span class="line">        handle(df);</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  f(resolve);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> p1 = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>)</span>&#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    resolve(<span class="number">15</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">p1.then(<span class="function"><span class="keyword">function</span>(<span class="params">value</span>)</span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"task 1"</span>, value); </span><br><span class="line">  <span class="keyword">return</span> value + <span class="number">1</span>;</span><br><span class="line">&#125;).then(<span class="function"><span class="keyword">function</span>(<span class="params">value</span>)</span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"task 2"</span>, value);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>当然，还有个处理reject的部分，类似如此实现错误的“冒泡”。</p>
+<p>对了，如果对new操作符有疑问, <code>new</code> 之后新的对象引用的闭包变量并不是函数中的变量，好奇怪。<code>new</code> <em>并不</em> 创建闭包。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">var</span> a = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span>(<span class="params">t</span>)</span>&#123;a = t&#125;;</span><br><span class="line">  <span class="keyword">this</span>.print=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="built_in">console</span>.log(a)&#125;&#125;</span><br><span class="line"><span class="literal">undefined</span></span><br><span class="line">&gt; x = <span class="keyword">new</span> f()</span><br><span class="line">f &#123; then: [<span class="built_in">Function</span>], print: [<span class="built_in">Function</span>] &#125;</span><br><span class="line">&gt; y = <span class="keyword">new</span> f()</span><br><span class="line">f &#123; then: [<span class="built_in">Function</span>], print: [<span class="built_in">Function</span>] &#125;</span><br><span class="line">&gt; x.then(<span class="number">5</span>)</span><br><span class="line"><span class="literal">undefined</span></span><br><span class="line">&gt; x.print()</span><br><span class="line"><span class="number">5</span></span><br><span class="line"><span class="literal">undefined</span></span><br><span class="line">&gt; y.print()</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="literal">undefined</span></span><br></pre></td></tr></table></figure>
+<p>好了，我们已经能够通过Promise成功实现异步串行。然而，还是有哪里不对劲的样子。Promise只能传递单一的值，Promise的语法非常繁复，Promise无法取消，没法用优雅的方式查看Promise链的状态。<br>详细可以看看<a href="https://github.com/getify/You-Dont-Know-JS" target="_blank" rel="external">YDKJS</a>。但我们能以更优雅的方式实现异步程序的编写和维护，处理错误，知道异步程序只被执行了一次等等。</p>
+<h5 id="超简Promise+Generator">超简Promise+Generator</h5><p>后来，generator出现了，本来这玩意儿只是设计来循环。然而，yield能双向通信暂停程序却在同一个函数作用域的神奇属性被用来结合Promise做起了流程控制。想象一下</p>
+<p>iterator可以yield出Promise，Promise resolve后可以将异步操作的结果返回iterator。</p>
+<p>假设我们啊，有个社工库，我们根据id能获取其中的用户名和密码。这是什么例子。。。<br>考虑以下逻辑…</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getInfo</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> getUser(id).then(<span class="function"><span class="keyword">function</span>(<span class="params">username</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> getPass(username).then(<span class="function"><span class="keyword">function</span>(<span class="params">password</span>)</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> &#123;username: username, password: password&#125;</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们倒是想这样, 让user和name获取并行</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">getInfo</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> user = getUser(id);</span><br><span class="line">  <span class="keyword">var</span> pass = getPass(user);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"trying: "</span>, <span class="keyword">yield</span> user, <span class="keyword">yield</span> pass);  <span class="comment">// 同时yield</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getUser</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"get username"</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">      resolve(<span class="string">"name-"</span> + id);</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getPass</span>(<span class="params">username</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"get password"</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">      resolve(<span class="string">"@us3r-"</span>);</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们实现个async函数来帮助我们完成繁复的Promise+generator过程(似乎也是简化的co)。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">async</span>(<span class="params">g</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> it = g.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">handle</span>(<span class="params">result</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (result.done)</span><br><span class="line">        <span class="keyword">return</span> result.value;</span><br><span class="line">      <span class="keyword">return</span> result.value.then(<span class="function"><span class="keyword">function</span>(<span class="params">res</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> handle(it.next(res))</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> handle(it.next())</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> find = <span class="keyword">async</span>(getInfo);</span><br><span class="line">find(<span class="string">"reverland"</span>);</span><br></pre></td></tr></table></figure>
+<p>就这么并行了。</p>
+<p>还可以串行</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">taskRunner</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> task1Output = <span class="keyword">yield</span> getUser(id);</span><br><span class="line">  <span class="keyword">var</span> task2Output = <span class="keyword">yield</span> getPass(task1Output);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"trying: "</span>, task2Output);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="Async/Await">Async/Await</h5><p>ES7中吸收了C#中async和await关键字，这样能更加优雅的书写和维护异步程序。</p>
+<p>async function taskRunner(id) {<br>  var user = await getUser(id);<br>  var pass = await getPass(user);<br>  console.log(user, pass);<br>}</p>
+<p>然而你需要一个编译器将ES7的代码编译成当前可执行的代码。</p>
+<h5 id="总结">总结</h5><p>从回调到async await经历了漫长的道路。</p>
+<p>其中，EventEmitter（观察者模式）也被用来进行异步程序的流程控制，回调注入(比如async库，如果我没理解错的话)也被用来进行流程控制。都一定程度解决了一定的问题。能力有限，不讨论了，<br>《深入浅出NodeJS》里有精彩解说。</p>
+<h4 id="WechatUserbot">WechatUserbot</h4><p>NodeJS环境中提供的网络请求、文件系统等功能喂机器人的实现提供了基础。NodeJS中并没有处理Cookie的核心库，我自己写了下发现依然出错，后来就用request了。fs主要是dump返回调试用。</p>
+<p>流程控制使用Promise，我选择了hard模式。因为写这个机器人也是加深对Promise的理解。而且随着业务的变化，各种dirtyhack开始出现。。。</p>
+<h3 id="附录">附录</h3><h4 id="API一览">API一览</h4><pre><code><span class="string">API_webwxdownloadmedia:</span> <span class="string">'https://'</span> + o + <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetmedia'</span>,
+<span class="string">API_webwxuploadmedia:</span> <span class="string">'https://'</span> + o + <span class="string">'/cgi-bin/mmwebwx-bin/webwxuploadmedia'</span>,
+<span class="string">API_webwxpreview:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxpreview'</span>,
+<span class="string">API_webwxinit:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxinit?r='</span> + ~<span class="keyword">new</span> Date,
+<span class="string">API_webwxgetcontact:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetcontact'</span>,
+<span class="string">API_webwxsync:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsync'</span>,
+<span class="string">API_webwxbatchgetcontact:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxbatchgetcontact'</span>,
+<span class="string">API_webwxgeticon:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgeticon'</span>,
+<span class="string">API_webwxsendmsg:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsendmsg'</span>,
+<span class="string">API_webwxsendmsgimg:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsendmsgimg'</span>,
+<span class="string">API_webwxsendemoticon:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsendemoticon'</span>,
+<span class="string">API_webwxsendappmsg:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsendappmsg'</span>,
+<span class="string">API_webwxgetheadimg:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetheadimg'</span>,
+<span class="string">API_webwxgetmsgimg:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetmsgimg'</span>,
+<span class="string">API_webwxgetmedia:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetmedia'</span>,
+<span class="string">API_webwxgetvideo:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetvideo'</span>,
+<span class="string">API_webwxlogout:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxlogout'</span>,
+<span class="string">API_webwxgetvoice:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetvoice'</span>,
+<span class="string">API_webwxupdatechatroom:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxupdatechatroom'</span>,
+<span class="string">API_webwxcreatechatroom:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxcreatechatroom'</span>,
+<span class="string">API_webwxstatusnotify:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxstatusnotify'</span>,
+<span class="string">API_webwxcheckurl:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxcheckurl'</span>,
+<span class="string">API_webwxverifyuser:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxverifyuser'</span>,
+<span class="string">API_webwxfeedback:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsendfeedback'</span>,
+<span class="string">API_webwxreport:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxstatreport'</span>,
+<span class="string">API_webwxsearch:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsearchcontact'</span>,
+<span class="string">API_webwxoplog:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxoplog'</span>
+</code></pre><h4 id="消息类型">消息类型</h4><p>上述webwxsync获得的AddMsgList中可能收到的各种信息。详细的信息种类列表可以参见webwx的angularjs源码。</p>
+<pre><code><span class="attribute">MSGTYPE_TEXT</span>: <span class="string">1,</span>
+<span class="attribute">MSGTYPE_IMAGE</span>: <span class="string">3,</span>
+<span class="attribute">MSGTYPE_VOICE</span>: <span class="string">34,</span>
+<span class="attribute">MSGTYPE_VIDEO</span>: <span class="string">43,</span>
+<span class="attribute">MSGTYPE_MICROVIDEO</span>: <span class="string">62,</span>
+<span class="attribute">MSGTYPE_EMOTICON</span>: <span class="string">47,</span>
+<span class="attribute">MSGTYPE_APP</span>: <span class="string">49,</span>
+<span class="attribute">MSGTYPE_VOIPMSG</span>: <span class="string">50,</span>
+<span class="attribute">MSGTYPE_VOIPNOTIFY</span>: <span class="string">52,</span>
+<span class="attribute">MSGTYPE_VOIPINVITE</span>: <span class="string">53,</span>
+<span class="attribute">MSGTYPE_LOCATION</span>: <span class="string">48,</span>
+<span class="attribute">MSGTYPE_STATUSNOTIFY</span>: <span class="string">51,</span>
+<span class="attribute">MSGTYPE_SYSNOTICE</span>: <span class="string">9999,</span>
+<span class="attribute">MSGTYPE_POSSIBLEFRIEND_MSG</span>: <span class="string">40,</span>
+<span class="attribute">MSGTYPE_VERIFYMSG</span>: <span class="string">37,</span>
+<span class="attribute">MSGTYPE_SHARECARD</span>: <span class="string">42,</span>
+<span class="attribute">MSGTYPE_SYS</span>: <span class="string">10000,</span>
+<span class="attribute">MSGTYPE_RECALLED</span>: <span class="string">10002,  // 撤销消息</span>
+</code></pre><p>不同的消息类型有不同的作用和处理方式。web微信的功能包含表情、图像消息</p>
+<h2 id="参考资料">参考资料</h2><ul>
+<li><a href="http://stackoverflow.com/questions/3687729/who-add-single-underscore-query-parameter" target="_blank" rel="external">Who Add “_” Single Underscore Query Parameter?</a></li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="协议分析">协议分析</h2><p>我使用firefox浏览器调试工具，查看浏览器通信及美化web微信javascript代码。非常好用，没出现Chromium中文乱码的问题。</p>
+<h3 id="登录">登录</h3><h4 id="获取uuid">获取uu]]>
+    </summary>
+    
+      <category term="javascript" scheme="http://reverland.org/tags/javascript/"/>
+    
+      <category term="protocol" scheme="http://reverland.org/tags/protocol/"/>
+    
+      <category term="javascript" scheme="http://reverland.org/categories/javascript/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[我的2015]]></title>
@@ -1693,125 +2247,6 @@ shuru               |&lt;---输入提示(已经输入的内容)
     <summary type="html">
     <![CDATA[<h2 id="TSCTF2015">TSCTF2015</h2><p><img src="/images/tsctf.png" alt="TSCTF2015" title="TSCTF2015"></p>
 <p>准备折腾近乎三周的TSCTF终于在昨天圆满结束，这三周来眼见到主板]]>
-    </summary>
-    
-      <category term="life" scheme="http://reverland.org/tags/life/"/>
-    
-      <category term="life" scheme="http://reverland.org/categories/life/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[17]]></title>
-    <link href="http://reverland.org/life/2015/05/17/17/"/>
-    <id>http://reverland.org/life/2015/05/17/17/</id>
-    <published>2015-05-16T16:00:00.000Z</published>
-    <updated>2015-11-15T06:01:31.559Z</updated>
-    <content type="html"><![CDATA[<blockquote>
-<p>亲爱的神，伟大的神，</p>
-<p>你可以怪我想法太过无知但我只是，人</p>
-</blockquote>
-<h2 id="一">一</h2><p>腥咸的海风吹开了记忆的闸门，想起多年前的某个夏天，真是多年前，在日照的某个离海不远的公路上，一路上都是这种味道，天空明丽的让人害怕，还有夏天毫不留情的烈日，遍目的黄绿清晰的映在视网膜上，映在记忆中。</p>
-<p>第一次吃的西瓜，竟然带着咸涩的味道，就好像多年后品尝着自己的泪水。当时只觉得新奇。</p>
-<p>那时17岁，自己是新的，世界是新的，什么都是新的。连记忆都是新鲜的。</p>
-<h2 id="二">二</h2><p>火车呼呼的向前，就像不可阻遏的时光一样，匆匆带走来不及细看的景色。似曾相识的道旁树，一颗一颗接着一颗，出现，消失，出现，消失</p>
-<p>我好像看到了它春天初芽蓬勃向上，转眼就覆盖了白雪归于寂然，前一秒郁郁葱葱，后一刻就萧萧瑟瑟。</p>
-<p>这就是我眼中的世界，</p>
-<p>这就是让人无力的无常。</p>
-<p>人生苦短。</p>
-<h2 id="三">三</h2><p>远远望见远处有一堵高大的墙，碧蓝碧蓝的。</p>
-<p>这不是我印象中的海，也是我印象中的海，只是从来没想到那堵墙看上去这么高，高不可攀，无法穿越。</p>
-<p>多年前的夏天，第一次看到大海。昏黄昏黄的大海，昏黄昏黄的沙滩，远处的渔船，昏黄雾中的落日，一并沙滩上的小螃蟹，击打在脚上打起的浪花，世界都是昏黄的。</p>
-<p>一切都是昏黄的，</p>
-<p>一切却都是崭新的。</p>
-<h2 id="四">四</h2><p>动车上有点冷，我蜷缩在列车前方最右的角落位置，听到列车上在放一首曲子。</p>
-<p>旋律是沟通阴阳的桥梁，是穿越时光的隧道，是迷魂之汤与忘情之水。</p>
-<p>是通向世界边境冷酷仙境的钥匙。</p>
-<p>我清清楚楚记得自己弹过这首歌，还能唤起那种热切的心情和执着的心境，但我想不起来它是什么。</p>
-<p>曲子随着空调的风，随着列车上嘈杂的人声，杳无踪迹。</p>
-<p>伸手抓不住，眼睁睁的面对残忍的现实。</p>
-<p>错过的，就错过吧。</p>
-<p>就好像它重来没发生过一样一样的。</p>
-<p>其实我后来想起来了，爱的罗曼史</p>
-<h2 id="五">五</h2><p>松软的沙滩是再一个能唤醒记忆的东西，脱掉谢，踏上有些滚烫的细沙的第一脚，似曾相识的感觉几乎把人击倒。</p>
-<p>某年的某个夏天，满怀欣喜和好奇的心情，准备好了泳衣，终于却没有下水。</p>
-<p>海水冰冷的感觉一如既往。</p>
-<p>你的幸福感受是什么呢？</p>
-<p>与他们一起在海滩漫步，看他们在海滩上风，看他们的身姿和头发在风中飘动。</p>
-<p>对了，我试着抓了一把沙</p>
-<p>如果抓紧，没这么容易从指缝流失</p>
-<h2 id="六">六</h2><p>今天17号，西边日出东边雨，道是无晴却有晴。匆匆地赶回这里，就是为了写下这些。</p>
-<p>然而我说不出，也不能指望有人理解。</p>
-<p>用记忆和生命体验加密的文字，再多的提示又有何用。</p>
-<p>解密出来对别人又有何意义？</p>
-<p>在小鱼船上唱着滑板鞋，随着海浪起起伏伏。</p>
-<blockquote>
-<p>我的生命像海浪一样有时高有时低，你是否告诉坚强自己度过各种时期。</p>
-</blockquote>
-]]></content>
-    <summary type="html">
-    <![CDATA[<blockquote>
-<p>亲爱的神，伟大的神，</p>
-<p>你可以怪我想法太过无知但我只是，人</p>
-</blockquote>
-<h2 id="一">一</h2><p>腥咸的海风吹开了记忆的闸门，想起多年前的某个夏天，真是多年前，在日照的某个离海不远的公路上，一路上都]]>
-    </summary>
-    
-      <category term="life" scheme="http://reverland.org/tags/life/"/>
-    
-      <category term="life" scheme="http://reverland.org/categories/life/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[难写的简历]]></title>
-    <link href="http://reverland.org/life/2015/05/10//"/>
-    <id>http://reverland.org/life/2015/05/10//</id>
-    <published>2015-05-09T16:00:00.000Z</published>
-    <updated>2015-11-15T06:01:31.559Z</updated>
-    <content type="html"><![CDATA[<p>每次写简历都感觉困难重重，半个月前某资深移动安全专家看着我简历说，你这太杂了，没有重点。面试腾讯的时候腾讯的安全面试官说真是够杂的。阿里前端简历都没提到前端的东西，我想如果有HR看到那份简历一定怀疑我投错部门了。不过，我算证实了阿里的笔试根本没人看。</p>
-<p>今天又写了大半天简历。缘起在昨天去360前端公开课，奇舞团某位大哥看我没位置让我到前面坐，我直接把月影的位置占了(ゝ∀･)。。。</p>
-<p>一直在听文博老师讲课也没注意旁边玩手机的月影的大大<em>(:з」∠)</em>…直到…月影大大给我说:</p>
-<blockquote>
-<p>小伙子我看你天资聪颖，骨骼惊奇，是个做前端的料子，今日你我有缘，给我发份简历吧。</p>
-</blockquote>
-<p>开玩笑(ง •̀_•́)ง，当然不是这么说的= =</p>
-<p>简历主要参考了以下几个地方，中文还没做。。。</p>
-<h2 id="折腾了一天没内容的简历">折腾了一天没内容的简历</h2><p>前一阵在看慕课网上<a href="http://www.imooc.com/learn/252" target="_blank" rel="external">css3实现网页平滑过渡效果</a><br>这个教程，就想这么用这个做简历得了。</p>
-<p>既然是给前端团队的简历，而且是给国内顶尖前端团队的简历，而且是直接发给月影的简历，怎么能不尽力用上前端技术。</p>
-<p>然后，忽然想到，微信发过去。。。应该是在手机上看吧。。。</p>
-<p>这么大个导航栏，不合适吧。</p>
-<p>而且按这种技术，没有导航栏没法导航。。。</p>
-<p>我想了想，前几天看到<a href="http://www.zhihu.com/question/23150301/answer/32496711" target="_blank" rel="external">Ovilia的CV</a>。。。</p>
-<p>又想了想<a href="http://ife.baidu.com/" target="_blank" rel="external">百度IFE</a>的全屏翻页效果。</p>
-<p>要么就做全屏翻页效果的。。。</p>
-<p>额，怎么实现呢，我自己用原生吧。。。算了，最近做IFE的作业闭门造车太久了。。。还是学习下别人的成果吧。</p>
-<p>我想起一个看上去很中意的页面–<a href="http://ecomfe.github.io/fontmin/en" target="_blank" rel="external">fontmin</a></p>
-<p>看看它怎么实现的。</p>
-<p>看了发现超出我知识范围太多。。。开始看前面的script里有个bdstatic的域名的js文件引用，我以为是统计就去掉了，然后发现require用不了，嗯，我也奇怪没见它引用require.js呢。</p>
-<p>有个app是百度自己的，还有copyright。。。算了我这做着玩也不干什么。。</p>
-<p>后来仔细一看一查是百度自己做的js模块加载系统。。。<a href="https://github.com/ecomfe/esl" target="_blank" rel="external">esl</a>对此。</p>
-<p>算了，我把这个引用进来吧。还用到了jquery，嗯？我是用cdn？算了下载下来吧。。。</p>
-<p>还有俩jquery插件，我大概看了看文档，一下午零基础使用jquery及其插件。。。</p>
-<p>lettering提供了对字符进行单独样式的功能。开始留着lettering想之后试试，最后懒得试验了。。。然后就把相关文件和函数删了。毕竟文件大了影响加载速度不是ლ(╹◡╹ლ)</p>
-<p>full-page这个插件真是方便额，有点像bootstrap把html按规则写好就行，规则还特别特别简单。fullpage这个插件本来还得配合它提供的css用，不过fontmin这个页面把这部分css合并到app.css里了，连js都打包到app.js里了。我猜是为了减少HTTP请求吧。</p>
-<p>app.js中放置了所有用到的全屏翻页和lettering等函数，似乎还有各种对兼容性的处理。可是它是压缩并且替换变量过的js。。。回头上github看了看没被压缩的js，除了fullpage的功能就简单的有个判断操作系统修改下载链接和lazy加载的函数，我用不上就删了。。。</p>
-<p>它的字体本来觉得不错不想改，结果发现它的英文字体都用fontmin重新做过了，只打包了需要的字符。得，我<code>npm install fontmin</code>得了。自己做了个ClearView的字体，另外把它的SentyBrush重新做出来使之包含我的名字要用到的字符。</p>
-<p>所有其它东西处理完毕之后，就是写自己的简历内容。首先想了想怎么安排html，怎么布局。然后就开始写css，看效果，到小屏幕上看效果，写媒体查询。这前一段在百度前端技术学院学到的这些基础真不是白学的。</p>
-<p>最后。。。看上去效果还不错。logo我自己做了下，反正对于一个熟练的gimp用户随手处理个图像什么的不是问题。</p>
-<p>再最后，懒得压缩css和js啥了。js我还下了个非min的好像，传网上手机看了下还不错。虽然下面有部分看不到了。。。</p>
-<p>想起来百度前端技术学院的网页在我的手机上也是看不到下面的部分，又看了看ovilia姐姐的CV发现我手机都翻不了页就心安理得的干其他事去了(┙&gt;∧&lt;)┙へ┻┻&gt;)</p>
-<p>就这样吧。</p>
-<p>有兴趣可以看看<a href="http://resume.reverland.org" target="_blank" rel="external">resume.reverland.org</a></p>
-<p>其实还是好多不会，不过还真是擅长各种quick and dirty的事情。。。</p>
-<p>还有点挺遗憾，明明fontmin在加载时会显示出loading那部分页面，为啥到我这里就不行了。。。原来html结构写错了(´・ω・｀)</p>
-<p>而且这完全没内容的简历怎么好意思发出去(╥_╥)</p>
-<p>我想也许明天用fontmin制作下需要的字体，补充下中文简历。</p>
-<p>另外，给北邮天枢CTF出了两道挺有意思的challenge，用到了web的一些奇葩特性╮(￣▽￣)╭，等比赛完了再放出来。记在这里，我怕比赛完忘了。。。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>每次写简历都感觉困难重重，半个月前某资深移动安全专家看着我简历说，你这太杂了，没有重点。面试腾讯的时候腾讯的安全面试官说真是够杂的。阿里前端简历都没提到前端的东西，我想如果有HR看到那份简历一定怀疑我投错部门了。不过，我算证实了阿里的笔试根本没人看。</p>
-<p>今天又写]]>
     </summary>
     
       <category term="life" scheme="http://reverland.org/tags/life/"/>

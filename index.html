@@ -224,6 +224,723 @@
             
               
                 
+                <a class="post-title-link" href="/life/2016/01/15/bizarre-thoughts/" itemprop="url">
+                  滑雪、游泳、创业、工作与其他
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2016-01-15T23:54:07+08:00" content="2016-01-15">
+              2016-01-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/life/" itemprop="url" rel="index">
+                    <span itemprop="name">life</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/life/2016/01/15/bizarre-thoughts/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2016/01/15/bizarre-thoughts/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>晚上，看到周老板分享的微信文章中提到16年前刚刚创业的京东，文中说：</p>
+<blockquote>
+<p>1999年，25岁的刘强东其实已经显露出了一些特质，而八姐觉得，这些特质已经为后来的京东上市和做大打下了基础。</p>
+</blockquote>
+<p>然而看到这种话，第一个感觉却是，事后诸葛亮。</p>
+<p>又忽然想成王败寇只是他人的闲暇谈资，言笑之后，各自散去。</p>
+<p>1999年，能看到十六年以后吗。我想是多少机缘巧合和命运作弄，这十六年多少人的心血交织在一起，一将功成。</p>
+<p>我看到历史总在重演，一遍一遍，现在过去未来。没有什么关联吗？没有关联我怎么会想起来？</p>
+<p>1560年，势力达到巅峰的今川义元集结全国兵力准备吞并尾张地区，刚刚接替家督的织田信长面对强敌入侵，</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/javascript/2016/01/15/webchat-user-bot/" itemprop="url">
+                  web 微信与基于node的微信机器人实现
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2016-01-15T20:10:49+08:00" content="2016-01-15">
+              2016-01-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/javascript/2016/01/15/webchat-user-bot/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="javascript/2016/01/15/webchat-user-bot/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="协议分析">协议分析</h2><p>我使用firefox浏览器调试工具，查看浏览器通信及美化web微信javascript代码。非常好用，没出现Chromium中文乱码的问题。</p>
+<h3 id="登录">登录</h3><h4 id="获取uuid">获取uuid</h4><p>与登录有关的第一个GET请求。</p>
+<pre><code><span class="symbol">https:</span>/<span class="regexp">/login.weixin.qq.com/jslogin</span>?appid=wx782c26e4c19acffb&amp;redirect_uri=https%<span class="number">3</span>A%<span class="number">2</span>F%<span class="number">2</span>Fwx.qq.com%<span class="number">2</span>Fcgi-bin%<span class="number">2</span>Fmmwebwx-bin%<span class="number">2</span>Fwebwxnewloginpage&amp;<span class="function"><span class="keyword">fun</span>=<span class="title">new</span></span>&amp;lang=en_US&amp;_=<span class="number">1452859503801</span>
+</code></pre><p>响应</p>
+<pre><code><span class="built_in">window</span>.QRLogin.code = <span class="number">200</span>; <span class="built_in">window</span>.QRLogin.uuid = <span class="string">"gd94hc3_fg=="</span>;
+</code></pre><p>我们猜200表示OK，uuid表示什么呢，难道不是universe unique identy?</p>
+<h4 id="获取uuid对应的二维码图片">获取uuid对应的二维码图片</h4><p>接着第二个GET请求，使用上面得到的uuid请求二维码图像。</p>
+<pre><code><span class="string">https:</span><span class="comment">//login.weixin.qq.com/qrcode/gd94hc3_fg==</span>
+</code></pre><p>响应就是一个二维码图片。</p>
+<h4 id="检查二维码扫描状态">检查二维码扫描状态</h4><p>一个GET请求</p>
+<pre><code><span class="keyword">https</span>://login.weixin.qq.com/cgi-bin/mmwebwx-bin/login?loginicon=<span class="constant">true</span>&amp;<span class="built_in">uuid</span>=gd94hc3_fg==&amp;tip=<span class="number">0</span>&amp;r=-<span class="number">1160587432</span>&amp;_=<span class="number">1452859503803</span>
+</code></pre><p>这里的参数r是时间戳(<code>~Date.now()</code>)，而<code>_</code>这个是jquery强行加上防止IE缓存的参数，服务器并不使用。服务器保持连接不中断，在大概27000ms后返回：</p>
+<pre><code><span class="built_in">window</span>.code=<span class="number">408</span>;
+</code></pre><p>HTTP code 408表示连接超时。接着又一个这种请求</p>
+<pre><code><span class="keyword">https</span>://login.weixin.qq.com/cgi-bin/mmwebwx-bin/login?loginicon=<span class="constant">true</span>&amp;<span class="built_in">uuid</span>=gd94hc3_fg==&amp;tip=<span class="number">0</span>&amp;r=-<span class="number">1160614525</span>&amp;_=<span class="number">1452859503804</span>
+</code></pre><p>大概若干次后， 很久很久这个请求还是被服务器hold住没有返回。然后我再扫描时二维码失效了。。</p>
+<p>如果在移动端扫描过二维码，那么上面的请求将返回</p>
+<pre><code><span class="built_in">window</span>.code=<span class="number">201</span>;<span class="built_in">window</span>.userAvatar = <span class="string">'data:img/jpg;base64,/9j/4...'</span>
+</code></pre><p>显然，http code 201一般表示新资源被建立(created)。同时继续另一个稍有不同的新的GET请求。</p>
+<pre><code><span class="keyword">https</span>://login.weixin.qq.com/cgi-bin/mmwebwx-bin/login?loginicon=<span class="constant">true</span>&amp;<span class="built_in">uuid</span>=gfKtKTG7EQ==&amp;tip=<span class="number">0</span>&amp;r=-<span class="number">1163246522</span>&amp;_=<span class="number">1452862177016</span>
+</code></pre><p>注意，这时候tip变成0了。</p>
+<p>移动端如果不确认登录，经过27000ms左右后依然返回</p>
+<pre><code><span class="built_in">window</span>.code=<span class="number">408</span>;
+</code></pre><p>因此可以确定大概408就是状态不变超时继续的意义。接下来继续上述GET请求。</p>
+<p>一旦移动端点击确认登录，上述GET请求立马返回</p>
+<pre><code><span class="built_in">window</span>.code=<span class="number">200</span>;
+<span class="built_in">window</span>.redirect_uri=<span class="string">"https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxnewloginpage?ticket=Ac8jAIUKtSn5vBxlXAinpFXL@qrticket_0&amp;uuid=gd94hc3_fg==&amp;lang=en_US&amp;scan=1452862897"</span>;
+</code></pre><p>scan参数就是<code>Date.now()</code>。这时一个重定向页面又参数中附加上了一个ticket，看到这里，Oauth五个大字从脑海中无名升起。下面，域名就变了。</p>
+<h4 id="webwxnewloginpage">webwxnewloginpage</h4><p>接下来一个GET请求</p>
+<pre><code><span class="string">https:</span><span class="comment">//wx.qq.com/cgi-bin/mmwebwx-bin/webwxinit?r=-1163944362&amp;lang=en_US&amp;pass_ticket=KlRMZmPcELxJHikrTsq6UEuDiy%252BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI</span>
+</code></pre><p>返回这么个东西:</p>
+<pre><code><span class="tag">&lt;<span class="title">error</span>&gt;</span><span class="tag">&lt;<span class="title">ret</span>&gt;</span>0<span class="tag">&lt;/<span class="title">ret</span>&gt;</span><span class="tag">&lt;<span class="title">message</span>&gt;</span>OK<span class="tag">&lt;/<span class="title">message</span>&gt;</span><span class="tag">&lt;<span class="title">skey</span>&gt;</span>@crypt_3bb2969_5d9682fbe6794c9437337ef278f6615c<span class="tag">&lt;/<span class="title">skey</span>&gt;</span><span class="tag">&lt;<span class="title">wxsid</span>&gt;</span>L9W0ddcaijmzhYhu<span class="tag">&lt;/<span class="title">wxsid</span>&gt;</span><span class="tag">&lt;<span class="title">wxuin</span>&gt;</span>2684027137<span class="tag">&lt;/<span class="title">wxuin</span>&gt;</span><span class="tag">&lt;<span class="title">pass_ticket</span>&gt;</span>KlRMZmPcELxJHikrTsq6UEuDiy%2BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI<span class="tag">&lt;/<span class="title">pass_ticket</span>&gt;</span><span class="tag">&lt;<span class="title">isgrayscale</span>&gt;</span>1<span class="tag">&lt;/<span class="title">isgrayscale</span>&gt;</span><span class="tag">&lt;/<span class="title">error</span>&gt;</span>
+</code></pre><p>这些返回的参数</p>
+<ul>
+<li>skey: 我有点考据癖，发现<a href="http://www.feifeiboke.com/gongfang/2346.html" target="_blank" rel="external">qq空间也用这个东西</a>，维基百科说是一种一次性密码生成系统。大概这个值也是这么若干次哈希生成出来的。</li>
+<li>wxsid: weixin session id</li>
+<li>wxuin: weixin user identity number</li>
+<li>pass_ticket: 通关文牒</li>
+</ul>
+<p>同时，返回的包头里包含<code>set-cookie</code>设置了cookie来标识用户。Cookie设置了上面的</p>
+<ul>
+<li>wxsid</li>
+<li>wxuin</li>
+</ul>
+<p>另有</p>
+<ul>
+<li>wxloadtime: web微信页面加载时间。它是在计时并且不断汇报给服务器的。</li>
+<li>mm_lang: 界面语言，我还想考证下mm什么意思然而并没有考证出来</li>
+<li>webwx_data_ticket(这个域在qq.com上，其他都在wx.qq.com上)，不知道干什么用的，似乎标识用户资源信息时得用上。所有的用户资源比如图片音频什么的都在qq的域名上。（后面会讨论这个问题）</li>
+</ul>
+<p>至此，登录过程完成。获取了cookie、pass_ticket和skey。</p>
+<h3 id="基本信息获取">基本信息获取</h3><h4 id="webwxinit">webwxinit</h4><p>初始化整个webqq的信息获取。</p>
+<p>一个POST请求（sorry，我忘记和上文的passticket啊uin啊对应一致了。</p>
+<pre><code><span class="string">https:</span><span class="comment">//wx.qq.com/cgi-bin/mmwebwx-bin/webwxinit?r=-1163944362&amp;lang=en_US&amp;pass_ticket=KlRMZmPcELxJHikrTsq6UEuDiy%252BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI</span>
+</code></pre><p>post payload</p>
+<pre><code>{"<span class="attribute">BaseRequest</span>":<span class="value">{"<span class="attribute">Uin</span>":<span class="value"><span class="string">"2684027137"</span></span>,"<span class="attribute">Sid</span>":<span class="value"><span class="string">"L9W0ddcaijmzhYhu"</span></span>,"<span class="attribute">Skey</span>":<span class="value"><span class="string">"@crypt_3bb2969_5d9682fbe6794c9437337ef278f6615c"</span></span>,"<span class="attribute">DeviceID</span>":<span class="value"><span class="string">"e159973572418266"</span></span>}</span>}
+</code></pre><p>返回一个巨大的json，包含页面首次更新所需的基本信息</p>
+<ul>
+<li>BaseResponse： 标识返回是否出错</li>
+<li>Count：登录时显示的常用联系人列表中条目个数</li>
+<li>ContactList：常用联系人列表(包括特殊联系人、群和私信)</li>
+<li>SyncKey：更新Key，不太清楚是啥，似乎类似activesync的一种协议</li>
+<li>User: 自己的信息，用户uin，Username，NickName，HeadImgUrl等</li>
+<li>ClientVersion</li>
+<li>SystemTime</li>
+<li>GrayScale: 不知什么</li>
+<li>InviteStartCount: 不知什么</li>
+<li>MPSubscribeMsgCount： 这两条是有关web微信中间一栏阅读列表的</li>
+<li>MPSubscribeMsgList: 同上</li>
+<li>ClickReportInterval：点击报告间隔，似乎只是为了报告些性能信息<a href="">https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxstatreport?fun=new</a></li>
+</ul>
+<p>这个请求会在ContactList里获得常用联系人信息，接着web微信会使用这些信息来batchgetcontact获取详细群组或者个人信息（详见下文）。并且，最最关键的是Synckey，用这个key来不断跟踪web微信客户端的变化。</p>
+<h4 id="webwxgetcontact">webwxgetcontact</h4><p>获取联系人列表的GET请求。</p>
+<pre><code>https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetcontact?lang=en_US&amp;pass_ticket=KlRMZmPcELxJHikrTsq6UEuDiy%252BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI&amp;r=<span class="number">1452862903198</span>&amp;seq=0&amp;skey=@crypt_3bb<span class="number">2969_5d96</span>82fbe<span class="number">6794c94373</span>37ef<span class="number">278f6615</span>c
+</code></pre><p>返回包含联系人信息列表的JSON数据</p>
+<ul>
+<li>BaseResponse</li>
+<li>MemberCount</li>
+<li>MemberList</li>
+<li>Seq： 只见过返回0</li>
+</ul>
+<h4 id="batchgetcontact">batchgetcontact</h4><p>这是获取用户信息最重要的请求。POST请求：</p>
+<pre><code>http<span class="variable">s:</span>//wx.qq.<span class="keyword">com</span>/cgi-bin/mmwebwx-bin/webwxbatchgetcontact?<span class="built_in">type</span>=<span class="keyword">ex</span>&amp;<span class="keyword">r</span>=<span class="number">1453373586582</span>&amp;pass_ticket=cNQtWm5HAlkezd4WDrmrb6TBQYtkdHM4jaqbSWWYCT0EzIWzxBLHTu6Rb4fPw%<span class="number">252</span>Fhf
+</code></pre><p><code>type=ex</code>硬编码不知道想表达什么，r是时间戳。</p>
+<p>post data有两种，分别对应针对用户和群的查询：</p>
+<pre><code>// UserName是要查询具体信息的用户名，EncryChatRoomId是该用户所属的群用户名。不知道为什么web微信要这么设计
+{<span class="string">"BaseRequest"</span>:{<span class="string">"Uin"</span>:<span class="number">2684027137</span>,<span class="string">"Sid"</span>:<span class="string">"rnggO94JNo8B3Irp"</span>,<span class="string">"Skey"</span>:<span class="string">"@crypt_3bb2969_890811a1e096f98662389b04dac3dcb8"</span>,<span class="string">"DeviceID"</span>:<span class="string">"e559659465724952"</span>},<span class="string">"Count"</span>:<span class="number">1</span>,<span class="string">"List"</span>:[{<span class="string">"UserName"</span>:<span class="string">"@83cdf89d8ae7bf82d1fba26693b4952f"</span>,<span class="string">"EncryChatRoomId"</span>:<span class="string">"@@8432d9b1c96038e5229185af62caa626add1a6b87554eb91cc5f5b63a207c8b3"</span>}]}
+{<span class="string">"BaseRequest"</span>:{<span class="string">"Uin"</span>:<span class="number">2684027137</span>,<span class="string">"Sid"</span>:<span class="string">"rnggO94JNo8B3Irp"</span>,<span class="string">"Skey"</span>:<span class="string">"@crypt_3bb2969_890811a1e096f98662389b04dac3dcb8"</span>,<span class="string">"DeviceID"</span>:<span class="string">"e559659465724952"</span>},<span class="string">"Count"</span>:<span class="number">1</span>,<span class="string">"List"</span>:[{<span class="string">"UserName"</span>:<span class="string">"@83cdf89d8ae7bf82d1fba26693b4952f"</span>,<span class="string">"EncryChatRoomId"</span>:<span class="string">"@@8432d9b1c96038e5229185af62caa626add1a6b87554eb91cc5f5b63a207c8b3"</span>}]}
+
+// UserName是想要查询具体信息的群UserName
+{<span class="string">"BaseRequest"</span>:{<span class="string">"Uin"</span>:<span class="number">2684027137</span>,<span class="string">"Sid"</span>:<span class="string">"L9W0ddcaijmzhYhu"</span>,<span class="string">"Skey"</span>:<span class="string">"@crypt_3bb2969_5d9682fbe6794c9437337ef278f6615c"</span>,<span class="string">"DeviceID"</span>:<span class="string">"e017670883684764"</span>},<span class="string">"Count"</span>:<span class="number">2</span>,<span class="string">"List"</span>:[{<span class="string">"UserName"</span>:<span class="string">"@@9dc894837da0c2ac9932a85afb91af2d085807013562857e8b4a0ca66661ec68"</span>,<span class="string">"EncryChatRoomId"</span>:<span class="string">""</span>},{<span class="string">"UserName"</span>:<span class="string">"@@69dfa612d6bbefebbf24c323b6103680ac32c6a7b41e0862cc24f0b6f3174a08"</span>,<span class="string">"EncryChatRoomId"</span>:<span class="string">""</span>}]}
+</code></pre><p>返回典型User集合如下，上文提及的getcontact和batchgetcontact得到的都是这样：</p>
+<pre><code>{
+"<span class="attribute">Uin</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">UserName</span>": <span class="value"><span class="string">"filehelper"</span></span>,
+"<span class="attribute">NickName</span>": <span class="value"><span class="string">"文件传输助手"</span></span>,
+"<span class="attribute">HeadImgUrl</span>": <span class="value"><span class="string">"/cgi-bin/mmwebwx-bin/webwxgeticon?seq=620730115&amp;username=filehelper&amp;skey=@crypt_3bb2969_2e9301eaab7a4b13a3a893a0bb5e8dfb"</span></span>,
+"<span class="attribute">ContactFlag</span>": <span class="value"><span class="number">3</span></span>,
+"<span class="attribute">MemberCount</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">MemberList</span>": <span class="value">[]</span>,
+"<span class="attribute">RemarkName</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">HideInputBarFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Sex</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Signature</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">VerifyFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">OwnerUin</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">PYInitial</span>": <span class="value"><span class="string">"WJCSZS"</span></span>,
+"<span class="attribute">PYQuanPin</span>": <span class="value"><span class="string">"wenjianchuanshuzhushou"</span></span>,
+"<span class="attribute">RemarkPYInitial</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">RemarkPYQuanPin</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">StarFriend</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">AppAccountFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Statues</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">AttrStatus</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Province</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">City</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">Alias</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">SnsFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">UniFriend</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">DisplayName</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">ChatRoomId</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">KeyWord</span>": <span class="value"><span class="string">"fil"</span></span>,
+"<span class="attribute">EncryChatRoomId</span>": <span class="value"><span class="string">""</span>
+</span>}
+</code></pre><p>典型群信息集合</p>
+<pre><code>{
+"<span class="attribute">Uin</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">UserName</span>": <span class="value"><span class="string">"@@3376dc306923e39c2c5c43915012b1157af80fdc21f1cfb703ee720d09e13315"</span></span>,
+"<span class="attribute">NickName</span>": <span class="value"><span class="string">"BJ NodeJS Club"</span></span>,
+"<span class="attribute">HeadImgUrl</span>": <span class="value"><span class="string">"/cgi-bin/mmwebwx-bin/webwxgetheadimg?seq=639556586&amp;username=@@3376dc306923e39c2c5c43915012b1157af80fdc21f1cfb703ee720d09e13315&amp;skey="</span></span>,
+"<span class="attribute">ContactFlag</span>": <span class="value"><span class="number">3</span></span>,
+"<span class="attribute">MemberCount</span>": <span class="value"><span class="number">421</span></span>,
+"<span class="attribute">MemberList</span>": <span class="value">[{
+  "<span class="attribute">Uin</span>": <span class="value"><span class="number">0</span></span>,
+  "<span class="attribute">UserName</span>": <span class="value"><span class="string">"@eb59926a7755e31f3030a883845eb647"</span></span>,
+  "<span class="attribute">NickName</span>": <span class="value"><span class="string">"hain"</span></span>,
+  "<span class="attribute">AttrStatus</span>": <span class="value"><span class="number">98407</span></span>,
+  "<span class="attribute">PYInitial</span>": <span class="value"><span class="string">""</span></span>,
+  "<span class="attribute">PYQuanPin</span>": <span class="value"><span class="string">""</span></span>,
+  "<span class="attribute">RemarkPYInitial</span>": <span class="value"><span class="string">""</span></span>,
+  "<span class="attribute">RemarkPYQuanPin</span>": <span class="value"><span class="string">""</span></span>,
+  "<span class="attribute">MemberStatus</span>": <span class="value"><span class="number">0</span></span>,
+  "<span class="attribute">DisplayName</span>": <span class="value"><span class="string">""</span></span>,
+  "<span class="attribute">KeyWord</span>": <span class="value"><span class="string">"hai"</span>
+  </span>}
+...// 省略若干Member
+]</span>,
+"<span class="attribute">RemarkName</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">HideInputBarFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Sex</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Signature</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">VerifyFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">OwnerUin</span>": <span class="value"><span class="number">246642915</span></span>,
+"<span class="attribute">PYInitial</span>": <span class="value"><span class="string">"BJNODEJSCLUB"</span></span>,
+"<span class="attribute">PYQuanPin</span>": <span class="value"><span class="string">"BJNodeJSClub"</span></span>,
+"<span class="attribute">RemarkPYInitial</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">RemarkPYQuanPin</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">StarFriend</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">AppAccountFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Statues</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">AttrStatus</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">Province</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">City</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">Alias</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">SnsFlag</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">UniFriend</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">DisplayName</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">ChatRoomId</span>": <span class="value"><span class="number">0</span></span>,
+"<span class="attribute">KeyWord</span>": <span class="value"><span class="string">""</span></span>,
+"<span class="attribute">EncryChatRoomId</span>": <span class="value"><span class="string">"@9d9762417362d83c838bb54afacdac14"</span>
+</span>}
+</code></pre><p>比较有意思的是，这里群信息中的EncryChatRoomId只用来请求头像图片（参见下文），而请求中的EncryChatRoomId的值却填写的是群的UserName。</p>
+<h4 id="webwxgeticon和webwxgetheadimg">webwxgeticon和webwxgetheadimg</h4><p>用户头像获取，每个User有个对应的HeadImgUrl。都不太一样</p>
+<pre><code>// 带skey用户
+https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgeticon?seq=<span class="number">620730145</span>&amp;username=@63f002cacb7eebc558206af<span class="number">36c8758e68</span><span class="number">374063d65</span><span class="number">3e51181</span>eeb<span class="number">41a19a72339</span>9&amp;skey=@crypt_3bb<span class="number">2969_89081</span><span class="number">1a1e096</span>f<span class="number">98662389b04</span>dac3dcb8
+// skey为空的群图像，用户有时也有这种请求，不明确为何。ps: 用户信息中的HeadImgUrl也不会带skey。
+https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetheadimg?seq=<span class="number">639547833</span>&amp;username=@@<span class="number">8432d9b1</span>c<span class="number">96038e52291</span>85af62caa626add<span class="number">1a6b87554</span>eb91cc<span class="number">5f5b63a207</span>c8b3&amp;skey=
+// 带chatroomid的非好友群中用户头像， 其中chatroomid是群信息中的encrychatroomid。
+https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgeticon?seq=0&amp;username=@<span class="number">81c029b96</span>b211aed1f4da9ea8a2acea7&amp;skey=@crypt_3bb<span class="number">2969_89081</span><span class="number">1a1e096</span>f<span class="number">98662389b04</span>dac3dcb8&amp;chatroomid=@<span class="number">1d5974437</span>ca911fe<span class="number">1315d415</span>d98645ed
+</code></pre><p>似乎第一次请求会带上有值的skey，之后就不一定了不确定。</p>
+<h3 id="信息收发">信息收发</h3><h4 id="syncheck与webwxsync(长连接和消息更新)">syncheck与webwxsync(长连接和消息更新)</h4><p>基本信息获取完毕，接下来一个长GET连接，服务器可能会保持连接很久才返回，一旦断开客户断继续立即连接。这样服务器可以随时将更新的消息推送到客户端。</p>
+<pre><code>https://webpush.weixin.qq.com/cgi-bin/mmwebwx-bin/synccheck?r=<span class="number">1452862903206</span>&amp;skey=%40crypt_3bb<span class="number">2969_5d96</span>82fbe<span class="number">6794c94373</span>37ef<span class="number">278f6615</span>c&amp;sid=L9W0ddcaijmzhYhu&amp;uin=<span class="number">2684027137</span>&amp;deviceid=e<span class="number">88171850929</span>3654&amp;synckey=<span class="number">1_63954575</span><span class="number">8%7C2_63</span><span class="number">9547230%7</span>C<span class="number">3_63954668</span><span class="number">1%7C1000</span>_<span class="number">1452852659</span>&amp;_=<span class="number">1452862890152</span>
+</code></pre><p>一个典型的返回为</p>
+<pre><code>window.synccheck={<span class="string">retcode:</span><span class="string">"0"</span>,<span class="string">selector:</span><span class="string">"2"</span>}
+</code></pre><p>分析<a href="https://res.wx.qq.com/zh_CN/htmledition/v2/js/webwxApp2aeaf2.js" target="_blank" rel="external">webwx源码</a>可以看到，如果retcode不是0且selector不为0，则发出这么一个POST请求</p>
+<pre><code>https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsync?sid=L9W0ddcaijmzhYhu&amp;skey=@crypt_3bb<span class="number">2969_5d96</span>82fbe<span class="number">6794c94373</span>37ef<span class="number">278f6615</span>c&amp;lang=en_US&amp;pass_ticket=KlRMZmPcELxJHikrTsq6UEuDiy%252BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI
+</code></pre><p>请求载荷为</p>
+<pre><code>{"<span class="attribute">BaseRequest</span>":<span class="value">{"<span class="attribute">Uin</span>":<span class="value"><span class="number">2684027137</span></span>,"<span class="attribute">Sid</span>":<span class="value"><span class="string">"L9W0ddcaijmzhYhu"</span></span>,"<span class="attribute">Skey</span>":<span class="value"><span class="string">"@crypt_3bb2969_5d9682fbe6794c9437337ef278f6615c"</span></span>,"<span class="attribute">DeviceID</span>":<span class="value"><span class="string">"e431325091638023"</span></span>}</span>,"<span class="attribute">SyncKey</span>":<span class="value">{"<span class="attribute">Count</span>":<span class="value"><span class="number">4</span></span>,"<span class="attribute">List</span>":<span class="value">[{"<span class="attribute">Key</span>":<span class="value"><span class="number">1</span></span>,"<span class="attribute">Val</span>":<span class="value"><span class="number">639545758</span></span>},{"<span class="attribute">Key</span>":<span class="value"><span class="number">2</span></span>,"<span class="attribute">Val</span>":<span class="value"><span class="number">639547230</span></span>},{"<span class="attribute">Key</span>":<span class="value"><span class="number">3</span></span>,"<span class="attribute">Val</span>":<span class="value"><span class="number">639546681</span></span>},{"<span class="attribute">Key</span>":<span class="value"><span class="number">1000</span></span>,"<span class="attribute">Val</span>":<span class="value"><span class="number">1452852659</span></span>}]</span>}</span>,"<span class="attribute">rr</span>":<span class="value">-<span class="number">1163958067</span></span>}
+</code></pre><p>其中rr为<code>~Date.now()</code>。这里第一次传递的是webwxinit时得到的SyncKey。一般开始有四个键值对，不知道对应什么意义。</p>
+<p>返回为一个JSON对象，几个比较重要的属性包含</p>
+<pre><code>BaseResponse
+<span class="label">AddMsgCount:</span>新增消息数
+AddMsgList：新增消息列表
+<span class="label">ModContactCount:</span> 变更联系人数目
+<span class="label">ModContactList:</span> 变更联系人列表
+<span class="label">SyncKey:</span>新的synckey列表
+</code></pre><p>接下来，又一个syncheck请求要向服务器表示上面的webwxsync响应已经收到了，更新SyncKey。</p>
+<pre><code>https://webpush.weixin.qq.com/cgi-bin/mmwebwx-bin/synccheck?r=<span class="number">145286290698</span>6&amp;skey=%40crypt_3bb<span class="number">2969_5d96</span>82fbe<span class="number">6794c94373</span>37ef<span class="number">278f6615</span>c&amp;sid=L9W0ddcaijmzhYhu&amp;uin=<span class="number">2684027137</span>&amp;deviceid=e<span class="number">39032063125</span>8365&amp;synckey=<span class="number">1_63954575</span><span class="number">8%7C2_63</span><span class="number">9547231%7</span>C<span class="number">3_63954668</span><span class="number">1%7C11_63</span><span class="number">9547225%7</span>C<span class="number">13_639540102</span>%<span class="number">7C203_145286</span><span class="number">2598%7C100</span><span class="number">0_145285265</span>9&amp;_=<span class="number">1452862890153</span>
+</code></pre><p>若synccheck返回为（我没从源码中看出selector的意义）。</p>
+<pre><code>window.synccheck={<span class="string">retcode:</span><span class="string">"0"</span>,<span class="string">selector:</span><span class="string">"0"</span>}
+</code></pre><p>则继续发出相同请求</p>
+<p>若返回不为以上返回值，继续POST请求webwxsync</p>
+<pre><code>https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsync?sid=L9W0ddcaijmzhYhu&amp;skey=@crypt_3bb<span class="number">2969_5d96</span>82fbe<span class="number">6794c94373</span>37ef<span class="number">278f6615</span>c&amp;lang=en_US&amp;pass_ticket=KlRMZmPcELxJHikrTsq6UEuDiy%252BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI
+</code></pre><p>请求参数如下</p>
+<p>{“BaseRequest”:{“Uin”:2684027137,”Sid”:”L9W0ddcaijmzhYhu”,”Skey”:”@crypt_3bb2969_5d9682fbe6794c9437337ef278f6615c”,”DeviceID”:”e544554467912584”},”SyncKey”:{“Count”:7,”List”:[{“Key”:1,”Val”:639545758},{“Key”:2,”Val”:639547231},{“Key”:3,”Val”:639546681},{“Key”:11,”Val”:639547232},{“Key”:13,”Val”:639540102},{“Key”:203,”Val”:1452862989},{“Key”:1000,”Val”:1452852659}]},”rr”:-1164083935}</p>
+<p>这时候使用的syncKey是上次webwxsync时返回的新synckey</p>
+<p>该过程循环往复，每次都伴随着SyncKey的不断更新。通过这个机制web微信实现信息的增量更新同步。</p>
+<h4 id="消息发送">消息发送</h4><p>一个POST请求</p>
+<pre><code><span class="string">https:</span><span class="comment">//wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsg?lang=en_US&amp;pass_ticket=KlRMZmPcELxJHikrTsq6UEuDiy%252BZn1wFQ1VoeVAHUls82tXXB4L89ePbSghP6ICI</span>
+</code></pre><p>请求载荷为</p>
+<pre><code>{"<span class="attribute">BaseRequest</span>":<span class="value">{"<span class="attribute">Uin</span>":<span class="value"><span class="number">2684027137</span></span>,"<span class="attribute">Sid</span>":<span class="value"><span class="string">"L9W0ddcaijmzhYhu"</span></span>,"<span class="attribute">Skey</span>":<span class="value"><span class="string">"@crypt_3bb2969_5d9682fbe6794c9437337ef278f6615c"</span></span>,"<span class="attribute">DeviceID</span>":<span class="value"><span class="string">"e888644980385645"</span></span>}</span>,"<span class="attribute">Msg</span>":<span class="value">{"<span class="attribute">Type</span>":<span class="value"><span class="number">1</span></span>,"<span class="attribute">Content</span>":<span class="value"><span class="string">"养鸡厂233\n"</span></span>,"<span class="attribute">FromUserName</span>":<span class="value"><span class="string">"@30a777fdcc5ed46bbbf7bc695515afba9ad194cc720e006e6bb775054102636f"</span></span>,"<span class="attribute">ToUserName</span>":<span class="value"><span class="string">"@@48967eff39f174a33012bde5af8878227dd4ba8f64dd5ecf7a6495d5b979e6ac"</span></span>,"<span class="attribute">LocalID</span>":<span class="value"><span class="string">"14528638294750795"</span></span>,"<span class="attribute">ClientMsgId</span>":<span class="value"><span class="string">"14528638294750795"</span></span>}</span>}
+</code></pre><p>其中type标识了发送消息的类型，1表示文本消息。另从源码中看到， LocalID和ClientMsgId这样计算</p>
+<pre><code>(Date.<span class="function"><span class="title">now</span><span class="params">()</span></span> + Math.<span class="function"><span class="title">random</span><span class="params">()</span></span>.<span class="function"><span class="title">toFixed</span><span class="params">(<span class="number">3</span>)</span></span>).<span class="function"><span class="title">replace</span><span class="params">(<span class="string">'.'</span>, <span class="string">''</span>)</span></span>
+</code></pre><p>该请求返回一个JSON对象</p>
+<ul>
+<li>BaseResponse</li>
+<li>MsgID: 服务器返回消息id  // 微信公众平台文档中也提到可以用来排序或排重好像。</li>
+<li>LocalID: 发送时指定的本地id.</li>
+</ul>
+<h4 id="消息接收实例">消息接收实例</h4><p>一个典型收到文本信息的例子：</p>
+<pre><code><span class="string">"AddMsgCount"</span>: <span class="number">2</span>,
+<span class="string">"AddMsgList"</span>: [{
+    <span class="string">"MsgId"</span>: <span class="string">"6276659661087965644"</span>,
+    <span class="string">"FromUserName"</span>: <span class="string">"@@cd020d3254fa869dfdc88a2ef4e4e201384b909eeabcb3724463bf64c5f7a452"</span>,
+    <span class="string">"ToUserName"</span>: <span class="string">"@31908794c3035a00b386bc9ef0526ee8d95b3c426d53fb4f9466b67d7a0b5fef"</span>,
+    <span class="string">"MsgType"</span>: <span class="number">1</span>,
+    <span class="string">"Content"</span>: <span class="string">"@f88c48e531bc7de94072a206729750ff:&lt;br/&gt;好了，收工，你们聊"</span>,
+    <span class="string">"Status"</span>: <span class="number">3</span>,
+    <span class="string">"ImgStatus"</span>: <span class="number">1</span>,
+    <span class="string">"CreateTime"</span>: <span class="number">1453391337</span>,
+    <span class="string">"VoiceLength"</span>: <span class="number">0</span>,
+    <span class="string">"PlayLength"</span>: <span class="number">0</span>,
+    <span class="string">"FileName"</span>: <span class="string">""</span>,
+    <span class="string">"FileSize"</span>: <span class="string">""</span>,
+    <span class="string">"MediaId"</span>: <span class="string">""</span>,
+    <span class="string">"Url"</span>: <span class="string">""</span>,
+    <span class="string">"AppMsgType"</span>: <span class="number">0</span>,
+    <span class="string">"StatusNotifyCode"</span>: <span class="number">0</span>,
+    <span class="string">"StatusNotifyUserName"</span>: <span class="string">""</span>,
+    <span class="string">"RecommendInfo"</span>: {
+      <span class="string">"UserName"</span>: <span class="string">""</span>,
+      <span class="string">"NickName"</span>: <span class="string">""</span>,
+      <span class="string">"QQNum"</span>: <span class="number">0</span>,
+      <span class="string">"Province"</span>: <span class="string">""</span>,
+      <span class="string">"City"</span>: <span class="string">""</span>,
+      <span class="string">"Content"</span>: <span class="string">""</span>,
+      <span class="string">"Signature"</span>: <span class="string">""</span>,
+      <span class="string">"Alias"</span>: <span class="string">""</span>,
+      <span class="string">"Scene"</span>: <span class="number">0</span>,
+      <span class="string">"VerifyFlag"</span>: <span class="number">0</span>,
+      <span class="string">"AttrStatus"</span>: <span class="number">0</span>,
+      <span class="string">"Sex"</span>: <span class="number">0</span>,
+      <span class="string">"Ticket"</span>: <span class="string">""</span>,
+      <span class="string">"OpCode"</span>: <span class="number">0</span>
+      }
+    ,
+    <span class="string">"ForwardFlag"</span>: <span class="number">0</span>,
+    <span class="string">"AppInfo"</span>: {
+      <span class="string">"AppID"</span>: <span class="string">""</span>,
+      <span class="string">"Type"</span>: <span class="number">0</span>
+      }
+    ,
+    <span class="string">"HasProductId"</span>: <span class="number">0</span>,
+    <span class="string">"Ticket"</span>: <span class="string">""</span>,
+    <span class="string">"ImgHeight"</span>: <span class="number">0</span>,
+    <span class="string">"ImgWidth"</span>: <span class="number">0</span>,
+    <span class="string">"SubMsgType"</span>: <span class="number">0</span>,
+    <span class="string">"NewMsgId"</span>: <span class="number">6276659661087965644</span>
+  }
+  ,{
+    <span class="string">"MsgId"</span>: <span class="string">"1010502497825347915"</span>,
+    <span class="string">"FromUserName"</span>: <span class="string">"@c1019d5180ee2ef97a302737205b788502476a24cb1e870ac99da1aad788ac5f"</span>,
+    <span class="string">"ToUserName"</span>: <span class="string">"@31908794c3035a00b386bc9ef0526ee8d95b3c426d53fb4f9466b67d7a0b5fef"</span>,
+    <span class="string">"MsgType"</span>: <span class="number">1</span>,
+    <span class="string">"Content"</span>: <span class="string">"牛逼哄哄的啊！"</span>,
+    <span class="string">"Status"</span>: <span class="number">3</span>,
+    <span class="string">"ImgStatus"</span>: <span class="number">1</span>,
+    <span class="string">"CreateTime"</span>: <span class="number">1453391337</span>,
+    <span class="string">"VoiceLength"</span>: <span class="number">0</span>,
+    <span class="string">"PlayLength"</span>: <span class="number">0</span>,
+    <span class="string">"FileName"</span>: <span class="string">""</span>,
+    <span class="string">"FileSize"</span>: <span class="string">""</span>,
+    <span class="string">"MediaId"</span>: <span class="string">""</span>,
+    <span class="string">"Url"</span>: <span class="string">""</span>,
+    <span class="string">"AppMsgType"</span>: <span class="number">0</span>,
+    <span class="string">"StatusNotifyCode"</span>: <span class="number">0</span>,
+    <span class="string">"StatusNotifyUserName"</span>: <span class="string">""</span>,
+    <span class="string">"RecommendInfo"</span>: {
+      <span class="string">"UserName"</span>: <span class="string">""</span>,
+      <span class="string">"NickName"</span>: <span class="string">""</span>,
+      <span class="string">"QQNum"</span>: <span class="number">0</span>,
+      <span class="string">"Province"</span>: <span class="string">""</span>,
+      <span class="string">"City"</span>: <span class="string">""</span>,
+      <span class="string">"Content"</span>: <span class="string">""</span>,
+      <span class="string">"Signature"</span>: <span class="string">""</span>,
+      <span class="string">"Alias"</span>: <span class="string">""</span>,
+      <span class="string">"Scene"</span>: <span class="number">0</span>,
+      <span class="string">"VerifyFlag"</span>: <span class="number">0</span>,
+      <span class="string">"AttrStatus"</span>: <span class="number">0</span>,
+      <span class="string">"Sex"</span>: <span class="number">0</span>,
+      <span class="string">"Ticket"</span>: <span class="string">""</span>,
+      <span class="string">"OpCode"</span>: <span class="number">0</span>
+      }
+    ,
+    <span class="string">"ForwardFlag"</span>: <span class="number">0</span>,
+    <span class="string">"AppInfo"</span>: {
+      <span class="string">"AppID"</span>: <span class="string">""</span>,
+      <span class="string">"Type"</span>: <span class="number">0</span>
+      }
+    ,
+    <span class="string">"HasProductId"</span>: <span class="number">0</span>,
+    <span class="string">"Ticket"</span>: <span class="string">""</span>,
+    <span class="string">"ImgHeight"</span>: <span class="number">0</span>,
+    <span class="string">"ImgWidth"</span>: <span class="number">0</span>,
+    <span class="string">"SubMsgType"</span>: <span class="number">0</span>,
+    <span class="string">"NewMsgId"</span>: <span class="number">1010502497825347915</span>
+  }
+],
+</code></pre><p>这个例子中，可以看到群信息中包含</p>
+<pre><code><span class="string">"Content"</span>: <span class="string">"<span class="variable">@f88c48e531bc7de94072a206729750ff</span>:&lt;br/&gt;好了，收工，你们聊"</span>,
+</code></pre><p>这样的内容，而这个<br>前面的部分，实际上在微信中是标识群中发言人的UserName。因此，展示或者记录的时候需要先解析UserName到NickName或者DisplayName。这个过程Web微信通过getcontact、batchgetcontact两类请求请求数据，并且缓存起来。</p>
+<p>ModContactList中则包含变更的联系人信息，一个典型例子</p>
+<pre><code><span class="string">"ModContactCount"</span>: <span class="number">1</span>,
+<span class="string">"ModContactList"</span>: [{
+  <span class="string">"UserName"</span>: <span class="string">"@@a6dd369b835a7f6a3fc8d4f0ace3b2de80c9c097f0439955043e6b716eb007fb"</span>,
+  <span class="string">"NickName"</span>: <span class="string">""</span>,
+  <span class="string">"Sex"</span>: <span class="number">0</span>,
+  <span class="string">"HeadImgUpdateFlag"</span>: <span class="number">1</span>,
+  <span class="string">"ContactType"</span>: <span class="number">0</span>,
+  <span class="string">"Alias"</span>: <span class="string">""</span>,
+  <span class="string">"ChatRoomOwner"</span>: <span class="string">"@31908794c3035a00b386bc9ef0526ee8d95b3c426d53fb4f9466b67d7a0b5fef"</span>,
+  <span class="string">"HeadImgUrl"</span>: <span class="string">"/cgi-bin/mmwebwx-bin/webwxgetheadimg?seq=0&amp;username=@@a6dd369b835a7f6a3fc8d4f0ace3b2de80c9c097f0439955043e6b716eb007fb&amp;skey=@crypt_3bb2969_2e9301eaab7a4b13a3a893a0bb5e8dfb"</span>,
+  <span class="string">"ContactFlag"</span>: <span class="number">2</span>,
+  <span class="string">"MemberCount"</span>: <span class="number">2</span>,
+  <span class="string">"MemberList"</span>: [{
+    <span class="string">"Uin"</span>: <span class="number">236008826</span>,
+    <span class="string">"UserName"</span>: <span class="string">"@912d2268c7e87688e5c8f33003b488f3adcfd3b4d25fcb9a271550bfc18a7328"</span>,
+    <span class="string">"NickName"</span>: <span class="string">"膜法师"</span>,
+    <span class="string">"AttrStatus"</span>: <span class="number">4357</span>,
+    <span class="string">"PYInitial"</span>: <span class="string">""</span>,
+    <span class="string">"PYQuanPin"</span>: <span class="string">""</span>,
+    <span class="string">"RemarkPYInitial"</span>: <span class="string">""</span>,
+    <span class="string">"RemarkPYQuanPin"</span>: <span class="string">""</span>,
+    <span class="string">"MemberStatus"</span>: <span class="number">0</span>,
+    <span class="string">"DisplayName"</span>: <span class="string">""</span>,
+    <span class="string">"KeyWord"</span>: <span class="string">""</span>
+    }
+    ,{
+    <span class="string">"Uin"</span>: <span class="number">2684027137</span>,
+    <span class="string">"UserName"</span>: <span class="string">"@31908794c3035a00b386bc9ef0526ee8d95b3c426d53fb4f9466b67d7a0b5fef"</span>,
+    <span class="string">"NickName"</span>: <span class="string">"狂风落尽深红色绿树成荫子满枝"</span>,
+    <span class="string">"AttrStatus"</span>: <span class="number">131169</span>,
+    <span class="string">"PYInitial"</span>: <span class="string">""</span>,
+    <span class="string">"PYQuanPin"</span>: <span class="string">""</span>,
+    <span class="string">"RemarkPYInitial"</span>: <span class="string">""</span>,
+    <span class="string">"RemarkPYQuanPin"</span>: <span class="string">""</span>,
+    <span class="string">"MemberStatus"</span>: <span class="number">0</span>,
+    <span class="string">"DisplayName"</span>: <span class="string">""</span>,
+    <span class="string">"KeyWord"</span>: <span class="string">""</span>
+    }
+],
+<span class="string">"HideInputBarFlag"</span>: <span class="number">0</span>,
+<span class="string">"Signature"</span>: <span class="string">""</span>,
+<span class="string">"VerifyFlag"</span>: <span class="number">0</span>,
+<span class="string">"RemarkName"</span>: <span class="string">""</span>,
+<span class="string">"Statues"</span>: <span class="number">1</span>,
+<span class="string">"AttrStatus"</span>: <span class="number">0</span>,
+<span class="string">"Province"</span>: <span class="string">""</span>,
+<span class="string">"City"</span>: <span class="string">""</span>,
+<span class="string">"SnsFlag"</span>: <span class="number">0</span>,
+<span class="string">"KeyWord"</span>: <span class="string">""</span>
+}
+</code></pre><p>一旦ModContactList中有内容，则更新本地联系人缓存。</p>
+<p>这里只就文本消息进行了举例。实际上web微信有多种格式消息的支持。参见附录。</p>
+<h3 id="总结:一图胜千言">总结:一图胜千言</h3><p>![图]</p>
+<p>整个流程如图所示。</p>
+<p>我们应该注意到几点：</p>
+<ul>
+<li>首先，有三个服务器：第一个用来认证，返回一个ticket，并且检查ticket和uuid是否对应。第二个服务器负责登录、保持会话、更新消息、执行功能。第三个服务器仅仅保持长连接，我猜因为服务器端一直保持着每个用户的长连接来轮询，这种耗费资源的事情也确实应该分离出单独的服务器。</li>
+<li>其次，js代码都是单线程的，客户端通过保持synccheck长连接来接收服务器端的消息，并在更新状态后继续synccheck。</li>
+<li>最后，注意Synckey所起的作用，通过synckey的更新服务器知道客户端已经收到了哪些消息。</li>
+</ul>
+<h2 id="实现：又一个机器人——wechat-user-bot">实现：又一个机器人——wechat-user-bot</h2><p>在nodejs中我们可以实现完整的web微信功能。我准备做个机器人，</p>
+<p>一方面，作为将来某系统的一部分。<br>另一方面，greathoul曾经说过有些人有需求来管理微信群<br>最主要的，for fun。</p>
+<h3 id="流程控制">流程控制</h3><p>目标：在NodeJS中模拟上述流程</p>
+<h4 id="流程概要">流程概要</h4><p>正如上一章节所述。整个流程可以简化为。</p>
+<pre><code>               <span class="comment">/</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">用户操作</span>
+               <span class="comment">|</span>
+<span class="comment">登录认证</span><span class="literal">-</span><span class="literal">-</span>&gt;<span class="comment">长连接</span><span class="literal">-</span><span class="literal">-</span>&gt;<span class="comment">更新</span><span class="literal">-</span><span class="comment">\</span>
+               <span class="comment">|</span>         <span class="comment">|</span>
+               <span class="comment">\</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">/</span>
+</code></pre><p>在功能上，我们的机器人目前只完成了信息记录和聊天的功能。</p>
+<h4 id="Javascript中的流程控制">Javascript中的流程控制</h4><p>Javascript社区有四种驯服事件驱动异步编程的实践:</p>
+<ul>
+<li>callback</li>
+<li>Promise</li>
+<li>Promise + Generator</li>
+<li>Async</li>
+</ul>
+<h5 id="回调地狱(Callback_Hell)">回调地狱(Callback Hell)</h5><p>假设你要运行一个任务管理器<br>输入id后，需要依次 <em>执行</em> 针对id的task1, task2, task3, task4…<br>在js这种异步语言里会是这样…</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">taskRunner</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  task1(id, <span class="function"><span class="keyword">function</span>(<span class="params">id</span>)</span>&#123;</span><br><span class="line">    task2(id, <span class="function"><span class="keyword">function</span>(<span class="params">id</span>)</span>&#123;</span><br><span class="line">      task3(id, <span class="function"><span class="keyword">function</span>(<span class="params">id</span>)</span>&#123;</span><br><span class="line">        task4(id, <span class="function"><span class="keyword">function</span>(<span class="params">id</span>)</span>&#123;</span><br><span class="line">          ...<span class="comment">// callback hell</span></span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>what a hell. 更糟糕的是，如果其中某个任务出错了，我怎么知道哪里出错了？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">asyncOperation</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"MyError!"</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123; </span><br><span class="line">  asyncOperation();</span><br><span class="line">&#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"I cannot catch : "</span>, e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>try和catch 没有用？并不能捕获错误。那么…只能在异步回调里使用try。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">asyncOperation</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Error"</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span>(e) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">"asyncOperation catch it: "</span>, e.message);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">run</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123; </span><br><span class="line">    asyncOperation();</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"I got no error"</span>, e);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>好吧，调用者又不能捕获错误了。run调用者怎么能知道发生了什么可呢。接下来其他函数怎么知道发生了什么？</p>
+<p>Nodejs社区采用一种error first的调用惯例。下一个回调可以收到err，判断，作出动作。但想象一下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">taskRunner</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  task1(id, <span class="function"><span class="keyword">function</span>(<span class="params">err, task1Output</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">    doSomething(task1Output);</span><br><span class="line">    task2(task1Output, <span class="function"><span class="keyword">function</span>(<span class="params">err, res</span>)</span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">      task3(id, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">        task4(id, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>)</span>&#123;</span><br><span class="line">          <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">          ...<span class="comment">// callback hell</span></span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看起来不好看是一回事。</p>
+<p>如果doSomething出错了，错误如何捕获？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">taskRunner</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  task1(id, <span class="function"><span class="keyword">function</span>(<span class="params">err, task1Output</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      doSomething(task1Output);</span><br><span class="line">    &#125; <span class="keyword">catch</span>(e) &#123;</span><br><span class="line">      handleError(e);</span><br><span class="line">    &#125;</span><br><span class="line">    task2(task1Output, <span class="function"><span class="keyword">function</span>(<span class="params">err, res</span>)</span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">      task3(id, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">        task4(id, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">          <span class="keyword">if</span> (err) handleError(err);</span><br><span class="line">          ...<span class="comment">// callback hell</span></span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再如果对handleError想做出错处理，再如果我们在流程中嵌入了更多的同步和异步混用的代码，他们都要处理错误…What the fuck…</p>
+<p>再也不想看这样的代码。我们的大脑并不能很好的切合这种模式。而且，如果在task3和task4之间我想加入一个task5…考虑下你的当你想git blame…<br>也许把函数分离出来会好很多, 但我感觉好不到哪里。</p>
+<h5 id="超简Promise实现">超简Promise实现</h5><p>我们想写这样的代码…</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">task1().then(task2).then(task3)...</span><br></pre></td></tr></table></figure>
+<p>我们想做这样的错误处理</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">task1().then(task2, handleError).then(task3, handleError)...</span><br><span class="line"><span class="comment">// or</span></span><br><span class="line">task1().then(task2).then(task3)....then(taskN).catch(handleError);</span><br></pre></td></tr></table></figure>
+<p>他们创造了Promise，一个许诺，一个代表未来的值。</p>
+<p>一个一秒后才到来的事物。</p>
+<p>一个神奇的设计, Promise几个标准规定了挺多，哦，也不多。不过我觉得核心的就三点:</p>
+<ol>
+<li>thenable</li>
+<li>状态与缓存</li>
+<li>能串行(Promise链)</li>
+</ol>
+<p>我们可以试着实现一个，实际Promise规范并没有规定实现方法，应该有很多实现方法。我们的方法是：</p>
+<ul>
+<li>同一个Promise可以用then注册多个回调，推入dfs中最后依次触发。</li>
+<li>then返回一个Promise实现串行，而这个Promise将接下来要then的回调注册到自己的dfs中，一旦触发则调用自己的resolve函数将返回值喂给下一个then注册的回调函数。</li>
+<li>resolve的延迟通过process.nextTick或者setTimeout(fn, 0)实现。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span>(<span class="params">f</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> cache;  <span class="comment">// 未来的 值</span></span><br><span class="line">  <span class="keyword">var</span> dfs = []; <span class="comment">// Promise链上Defferds链, deferds保存当前回调callback, 如果值到来了，传给桥Promise的resolve</span></span><br><span class="line">  <span class="comment">// 如果没解析，则添加到defferd链上，如果解析了，则调用df链上所有回调</span></span><br><span class="line">  <span class="keyword">var</span> status = <span class="string">"pending"</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">      handle(&#123;</span><br><span class="line">        callback: callback,</span><br><span class="line">        resolve: resolve</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handle</span>(<span class="params">df</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (status == <span class="string">"pending"</span>) &#123;</span><br><span class="line">      dfs.push(df);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (status == <span class="string">"fulfiled"</span>) &#123;</span><br><span class="line">      <span class="keyword">var</span> ret = df.callback(cache);</span><br><span class="line">      df.resolve(ret);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span>(<span class="params">value</span>) </span>&#123;</span><br><span class="line">    cache = value;</span><br><span class="line">    status = <span class="string">"fulfiled"</span>;</span><br><span class="line">    process.nextTick(()=&gt; &#123;</span><br><span class="line">      dfs.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">df</span>) </span>&#123;</span><br><span class="line">        handle(df);</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  f(resolve);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> p1 = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>)</span>&#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    resolve(<span class="number">15</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">p1.then(<span class="function"><span class="keyword">function</span>(<span class="params">value</span>)</span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"task 1"</span>, value); </span><br><span class="line">  <span class="keyword">return</span> value + <span class="number">1</span>;</span><br><span class="line">&#125;).then(<span class="function"><span class="keyword">function</span>(<span class="params">value</span>)</span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"task 2"</span>, value);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>当然，还有个处理reject的部分，类似如此实现错误的“冒泡”。</p>
+<p>对了，如果对new操作符有疑问, <code>new</code> 之后新的对象引用的闭包变量并不是函数中的变量，好奇怪。<code>new</code> <em>并不</em> 创建闭包。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">var</span> a = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span>(<span class="params">t</span>)</span>&#123;a = t&#125;;</span><br><span class="line">  <span class="keyword">this</span>.print=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="built_in">console</span>.log(a)&#125;&#125;</span><br><span class="line"><span class="literal">undefined</span></span><br><span class="line">&gt; x = <span class="keyword">new</span> f()</span><br><span class="line">f &#123; then: [<span class="built_in">Function</span>], print: [<span class="built_in">Function</span>] &#125;</span><br><span class="line">&gt; y = <span class="keyword">new</span> f()</span><br><span class="line">f &#123; then: [<span class="built_in">Function</span>], print: [<span class="built_in">Function</span>] &#125;</span><br><span class="line">&gt; x.then(<span class="number">5</span>)</span><br><span class="line"><span class="literal">undefined</span></span><br><span class="line">&gt; x.print()</span><br><span class="line"><span class="number">5</span></span><br><span class="line"><span class="literal">undefined</span></span><br><span class="line">&gt; y.print()</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="literal">undefined</span></span><br></pre></td></tr></table></figure>
+<p>好了，我们已经能够通过Promise成功实现异步串行。然而，还是有哪里不对劲的样子。Promise只能传递单一的值，Promise的语法非常繁复，Promise无法取消，没法用优雅的方式查看Promise链的状态。<br>详细可以看看<a href="https://github.com/getify/You-Dont-Know-JS" target="_blank" rel="external">YDKJS</a>。但我们能以更优雅的方式实现异步程序的编写和维护，处理错误，知道异步程序只被执行了一次等等。</p>
+<h5 id="超简Promise+Generator">超简Promise+Generator</h5><p>后来，generator出现了，本来这玩意儿只是设计来循环。然而，yield能双向通信暂停程序却在同一个函数作用域的神奇属性被用来结合Promise做起了流程控制。想象一下</p>
+<p>iterator可以yield出Promise，Promise resolve后可以将异步操作的结果返回iterator。</p>
+<p>假设我们啊，有个社工库，我们根据id能获取其中的用户名和密码。这是什么例子。。。<br>考虑以下逻辑…</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getInfo</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> getUser(id).then(<span class="function"><span class="keyword">function</span>(<span class="params">username</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> getPass(username).then(<span class="function"><span class="keyword">function</span>(<span class="params">password</span>)</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> &#123;username: username, password: password&#125;</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们倒是想这样, 让user和name获取并行</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">getInfo</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> user = getUser(id);</span><br><span class="line">  <span class="keyword">var</span> pass = getPass(user);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"trying: "</span>, <span class="keyword">yield</span> user, <span class="keyword">yield</span> pass);  <span class="comment">// 同时yield</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getUser</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"get username"</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">      resolve(<span class="string">"name-"</span> + id);</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getPass</span>(<span class="params">username</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"get password"</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">      resolve(<span class="string">"@us3r-"</span>);</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们实现个async函数来帮助我们完成繁复的Promise+generator过程(似乎也是简化的co)。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">async</span>(<span class="params">g</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> it = g.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">handle</span>(<span class="params">result</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (result.done)</span><br><span class="line">        <span class="keyword">return</span> result.value;</span><br><span class="line">      <span class="keyword">return</span> result.value.then(<span class="function"><span class="keyword">function</span>(<span class="params">res</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> handle(it.next(res))</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> handle(it.next())</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> find = <span class="keyword">async</span>(getInfo);</span><br><span class="line">find(<span class="string">"reverland"</span>);</span><br></pre></td></tr></table></figure>
+<p>就这么并行了。</p>
+<p>还可以串行</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">taskRunner</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> task1Output = <span class="keyword">yield</span> getUser(id);</span><br><span class="line">  <span class="keyword">var</span> task2Output = <span class="keyword">yield</span> getPass(task1Output);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"trying: "</span>, task2Output);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="Async/Await">Async/Await</h5><p>ES7中吸收了C#中async和await关键字，这样能更加优雅的书写和维护异步程序。</p>
+<p>async function taskRunner(id) {<br>  var user = await getUser(id);<br>  var pass = await getPass(user);<br>  console.log(user, pass);<br>}</p>
+<p>然而你需要一个编译器将ES7的代码编译成当前可执行的代码。</p>
+<h5 id="总结">总结</h5><p>从回调到async await经历了漫长的道路。</p>
+<p>其中，EventEmitter（观察者模式）也被用来进行异步程序的流程控制，回调注入(比如async库，如果我没理解错的话)也被用来进行流程控制。都一定程度解决了一定的问题。能力有限，不讨论了，<br>《深入浅出NodeJS》里有精彩解说。</p>
+<h4 id="WechatUserbot">WechatUserbot</h4><p>NodeJS环境中提供的网络请求、文件系统等功能喂机器人的实现提供了基础。NodeJS中并没有处理Cookie的核心库，我自己写了下发现依然出错，后来就用request了。fs主要是dump返回调试用。</p>
+<p>流程控制使用Promise，我选择了hard模式。因为写这个机器人也是加深对Promise的理解。而且随着业务的变化，各种dirtyhack开始出现。。。</p>
+<h3 id="附录">附录</h3><h4 id="API一览">API一览</h4><pre><code><span class="string">API_webwxdownloadmedia:</span> <span class="string">'https://'</span> + o + <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetmedia'</span>,
+<span class="string">API_webwxuploadmedia:</span> <span class="string">'https://'</span> + o + <span class="string">'/cgi-bin/mmwebwx-bin/webwxuploadmedia'</span>,
+<span class="string">API_webwxpreview:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxpreview'</span>,
+<span class="string">API_webwxinit:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxinit?r='</span> + ~<span class="keyword">new</span> Date,
+<span class="string">API_webwxgetcontact:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetcontact'</span>,
+<span class="string">API_webwxsync:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsync'</span>,
+<span class="string">API_webwxbatchgetcontact:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxbatchgetcontact'</span>,
+<span class="string">API_webwxgeticon:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgeticon'</span>,
+<span class="string">API_webwxsendmsg:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsendmsg'</span>,
+<span class="string">API_webwxsendmsgimg:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsendmsgimg'</span>,
+<span class="string">API_webwxsendemoticon:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsendemoticon'</span>,
+<span class="string">API_webwxsendappmsg:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsendappmsg'</span>,
+<span class="string">API_webwxgetheadimg:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetheadimg'</span>,
+<span class="string">API_webwxgetmsgimg:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetmsgimg'</span>,
+<span class="string">API_webwxgetmedia:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetmedia'</span>,
+<span class="string">API_webwxgetvideo:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetvideo'</span>,
+<span class="string">API_webwxlogout:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxlogout'</span>,
+<span class="string">API_webwxgetvoice:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetvoice'</span>,
+<span class="string">API_webwxupdatechatroom:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxupdatechatroom'</span>,
+<span class="string">API_webwxcreatechatroom:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxcreatechatroom'</span>,
+<span class="string">API_webwxstatusnotify:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxstatusnotify'</span>,
+<span class="string">API_webwxcheckurl:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxcheckurl'</span>,
+<span class="string">API_webwxverifyuser:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxverifyuser'</span>,
+<span class="string">API_webwxfeedback:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsendfeedback'</span>,
+<span class="string">API_webwxreport:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxstatreport'</span>,
+<span class="string">API_webwxsearch:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxsearchcontact'</span>,
+<span class="string">API_webwxoplog:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxoplog'</span>
+</code></pre><h4 id="消息类型">消息类型</h4><p>上述webwxsync获得的AddMsgList中可能收到的各种信息。详细的信息种类列表可以参见webwx的angularjs源码。</p>
+<pre><code><span class="attribute">MSGTYPE_TEXT</span>: <span class="string">1,</span>
+<span class="attribute">MSGTYPE_IMAGE</span>: <span class="string">3,</span>
+<span class="attribute">MSGTYPE_VOICE</span>: <span class="string">34,</span>
+<span class="attribute">MSGTYPE_VIDEO</span>: <span class="string">43,</span>
+<span class="attribute">MSGTYPE_MICROVIDEO</span>: <span class="string">62,</span>
+<span class="attribute">MSGTYPE_EMOTICON</span>: <span class="string">47,</span>
+<span class="attribute">MSGTYPE_APP</span>: <span class="string">49,</span>
+<span class="attribute">MSGTYPE_VOIPMSG</span>: <span class="string">50,</span>
+<span class="attribute">MSGTYPE_VOIPNOTIFY</span>: <span class="string">52,</span>
+<span class="attribute">MSGTYPE_VOIPINVITE</span>: <span class="string">53,</span>
+<span class="attribute">MSGTYPE_LOCATION</span>: <span class="string">48,</span>
+<span class="attribute">MSGTYPE_STATUSNOTIFY</span>: <span class="string">51,</span>
+<span class="attribute">MSGTYPE_SYSNOTICE</span>: <span class="string">9999,</span>
+<span class="attribute">MSGTYPE_POSSIBLEFRIEND_MSG</span>: <span class="string">40,</span>
+<span class="attribute">MSGTYPE_VERIFYMSG</span>: <span class="string">37,</span>
+<span class="attribute">MSGTYPE_SHARECARD</span>: <span class="string">42,</span>
+<span class="attribute">MSGTYPE_SYS</span>: <span class="string">10000,</span>
+<span class="attribute">MSGTYPE_RECALLED</span>: <span class="string">10002,  // 撤销消息</span>
+</code></pre><p>不同的消息类型有不同的作用和处理方式。web微信的功能包含表情、图像消息</p>
+<h2 id="参考资料">参考资料</h2><ul>
+<li><a href="http://stackoverflow.com/questions/3687729/who-add-single-underscore-query-parameter" target="_blank" rel="external">Who Add “_” Single Underscore Query Parameter?</a></li>
+</ul>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/life/2016/01/02/2015-summary-and-prospect/" itemprop="url">
                   我的2015
                 </a>
@@ -1728,343 +2445,6 @@ shuru               |&lt;---输入提示(已经输入的内容)
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/javascript/2015/11/21/the-es6-features-i-use-these-days/" itemprop="url">
-                  The ES6 features I use these days
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-11-21T23:27:27+08:00" content="2015-11-21">
-              2015-11-21
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index">
-                    <span itemprop="name">javascript</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/javascript/2015/11/21/the-es6-features-i-use-these-days/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="javascript/2015/11/21/the-es6-features-i-use-these-days/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="ES6">ES6</h2><p>ES6标准，也称ES2015。在2015年6月正式批准，这是javascript语言标准从2009年首次大版本更新。</p>
-<p>这个版本带来了很多新东西，说是新东西，估计基本读者也都见过。比如python中常用的Destructuring assignment、模块导入、generator和map与set，java中的WeakHashMap、Proxy，在coffeescript中常用的class关键字与子类、模板字符串和剩余参数与默认参数等等。处处都已经有了ES6的影子。</p>
-<p>最近做了几件事：</p>
-<ol>
-<li>把nltk中wordnet corpus reader的python代码看了看，依葫芦画瓢画了个纯javascript版。</li>
-<li>热情地把<a href="http://eloquentjavascript.net/" target="_blank" rel="external">Eloquent Javascript</a>的项目和练习复习一遍，然后继续接着往下看。</li>
-</ol>
-<p>对此，有了两个新认识：</p>
-<ol>
-<li>Python是门强大的语言。特别是前几天在python中看到async关键字之后…</li>
-<li>javascript是门强大的语言但并不简单，ES6让它更强大也更好用更简单</li>
-</ol>
-<p>这时候发现有几个地方用ES6特性非常方便。</p>
-<p>本文不会解释这些特性是什么，所以，如果是查资料查到这里，略过吧。</p>
-<h2 id="Generator">Generator</h2><p>在<a href="https://github.com/nltk/nltk/blob/develop/nltk/corpus/reader/wordnet.py" target="_blank" rel="external">nltk wordnet corpus</a>中，对wordnet data文件进行逐行解析的时候，这样处理一行内容：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">_iter = iter(line.split())</span><br><span class="line">_next_token = <span class="keyword">lambda</span>: next(_iter)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line"></span><br><span class="line">    <span class="comment"># get the lemma and part-of-speech</span></span><br><span class="line">    lemma = _next_token()</span><br><span class="line">    pos = _next_token()</span><br><span class="line">    <span class="comment"># get the number of synsets for this lemma</span></span><br><span class="line">    n_synsets = int(_next_token())</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
-<p>显然，对每一行，首先生成一个iterator，这个iterator返回这一行用空格分隔的每一个单词。好在ES6中也支持generator/iterator了，对应如下。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> token = util.getIterator(line.split(<span class="regexp">/\s+/</span>).filter(v=&gt;v!==<span class="string">''</span>));</span><br><span class="line"><span class="comment">// or let token = line.split(/\s+/).filter(v=&gt;v!=='')[Symbol.iterator]();</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="comment">// lemma and pos</span></span><br><span class="line">  lemma = token.next().value;</span><br><span class="line">  pos = token.next().value;</span><br><span class="line">  <span class="comment">// get how many synsets for this lemma</span></span><br><span class="line">  nSynsets = <span class="built_in">parseInt</span>(token.next().value);</span><br><span class="line">  assert(nSynsets &gt; <span class="number">0</span>);</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
-<p>其中，<code>getIterator</code>定义为一个generator函数，调用这个函数则生成对应的generator，下面的<code>for...of</code>用到了<a href="http://devdocs.io/javascript/global\_objects/symbol/iterator" target="_blank" rel="external"><code>array</code>对象本身就有一个generator函数</a>的特性。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">util.getIterator = <span class="function"><span class="keyword">function</span> *(<span class="params">array</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> value <span class="keyword">of</span> array) &#123;</span><br><span class="line">    <span class="keyword">yield</span> value;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>nltk中生成ngram的方法的js实现</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">ngrams</span>(<span class="params">sequence, n</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// Sadly, you cant use arrow function as generator here.</span></span><br><span class="line">  <span class="keyword">let</span>  g = (<span class="function"><span class="keyword">function</span> *(<span class="params">sequence</span>)</span>&#123;<span class="keyword">yield</span> *sequence&#125;)(sequence);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> history = [];</span><br><span class="line">  <span class="keyword">while</span> (n &gt; <span class="number">1</span>) &#123;</span><br><span class="line">    history.push(g.next().value);</span><br><span class="line">    n--;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> item <span class="keyword">of</span> g) &#123;</span><br><span class="line">    history.push(item);</span><br><span class="line">    <span class="comment">// look out here.</span></span><br><span class="line">    <span class="comment">// yield history; will yield reference.</span></span><br><span class="line">    <span class="keyword">yield</span> <span class="built_in">Array</span>.from(history);</span><br><span class="line">    history.shift();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Collections">Collections</h2><p>当我尝试用js实现<a href="http://www.matrix67.com/blog/archives/5044" target="_blank" rel="external">matrix67几年前在其博客讲到的新词发现算法</a>时，需要把一个穷举一个序列的所有分割可能。我这样实现的。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">splitSet</span>(<span class="params">s</span>) </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> *<span class="title">_splitAll</span>(<span class="params">s</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (s.length == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">yield</span> s;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; s.length; i++) &#123;</span><br><span class="line">      <span class="keyword">let</span> left = s.substr(<span class="number">0</span>, i);</span><br><span class="line">      <span class="keyword">let</span> right = s.substr(i);</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> wl <span class="keyword">of</span> _splitAll(left)) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> wr <span class="keyword">of</span> _splitAll(right)) &#123;</span><br><span class="line">          <span class="keyword">yield</span> wl + <span class="string">" "</span> + wr;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">let</span> set = [];</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> w <span class="keyword">of</span> _splitAll(s))&#123;</span><br><span class="line">    set.push(w);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> set;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>想得很好，通过将序列分为左右两部分递归简化处理。结果发现同一分割出现了多词。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#62; splitSet(&#34;abc&#34;)&#10;[ &#39;abc&#39;, &#39;a bc&#39;, &#39;a b c&#39;, &#39;ab c&#39;, &#39;a b c&#39; ]</span><br></pre></td></tr></table></figure>
-<p>相同的结果需要排除，这时候ES6中的<code>Set</code>就很方便了…</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> set = <span class="keyword">new</span> <span class="built_in">Set</span>();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> w <span class="keyword">of</span> _splitAll(s))&#123;</span><br><span class="line">  set.add(w);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> set;</span><br></pre></td></tr></table></figure>
-<h2 id="Promise">Promise</h2><p>事实上，任何能使用Promise+Generator的地方我都会用，当然ES7中有了async和await关键字。比如在<a href="https://greasyfork.org/en/scripts/12758-youdaodict" target="_blank" rel="external">youdaodict Userscript</a>中实现调用audio API来播放有道mp3音频文件<a href="stackoverflow.com/questions/28554022/how-can-i-play-sound-with-a-greasemonkey-script-in-firefox-when-theres-a-conte">实现跨域发音的函数</a>.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">play</span>(<span class="params">word</span>) </span>&#123;</span><br><span class="line">  <span class="comment">//console.log("[DEBUG] PLAYOUND")</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">playSound</span>(<span class="params">buffer</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> source = context.createBufferSource();</span><br><span class="line">    source.buffer = buffer;</span><br><span class="line">    source.connect(context.destination);</span><br><span class="line">    source.start(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> context = <span class="keyword">new</span> AudioContext()</span><br><span class="line">  <span class="keyword">var</span> soundUrl = <span class="string">`https://dict.youdao.com/dictvoice?type=2&amp;audio=<span class="subst">$&#123;word&#125;</span>`</span></span><br><span class="line">  <span class="keyword">var</span> p = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> ret = GM_xmlhttpRequest(&#123;</span><br><span class="line">      method: <span class="string">"GET"</span>,</span><br><span class="line">      url: soundUrl,</span><br><span class="line">      responseType: <span class="string">'arraybuffer'</span>,</span><br><span class="line">      onload: <span class="function"><span class="keyword">function</span>(<span class="params">res</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          context.decodeAudioData(res.response, <span class="function"><span class="keyword">function</span>(<span class="params">buffer</span>) </span>&#123;</span><br><span class="line">            resolve(buffer);</span><br><span class="line">          &#125;)</span><br><span class="line">        &#125; <span class="keyword">catch</span>(e) &#123;</span><br><span class="line">          reject(e);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">  p.then(playSound, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(e);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>一般的观点是，凡是关系到异步返回值的时候，都应该尽量使用Promise，保证<a href="https://github.com/getify/You-Dont-Know-JS/blob/master/async%20&amp;%20performance/ch3.md" target="_blank" rel="external">回调只被执行一次、更好的错误处理、更明晰的流程结构</a>。</p>
-<p>Promise和Generator现在常作为将来ES7中<code>async/await</code>的过渡。比如著名的<code>co</code>模块，以下是一个简化<code>co</code>实现</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">co</span>(<span class="params">g</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> it = g.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">handle</span>(<span class="params">result</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (result.done)</span><br><span class="line">        <span class="keyword">return</span> result.value;</span><br><span class="line">      <span class="keyword">return</span> result.value.then(<span class="function"><span class="keyword">function</span>(<span class="params">res</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> handle(it.next(res))</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> handle(it.next())</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>简单来说，就是对<code>generator</code>中每个<code>yield</code>出一个promise时，检查这个promise是否已经完成，<br>完成就返回值。没有就在该promise上注册回调让其把完成后的值传回<code>generator</code>并等待<code>generator</code>再返回下一个Promise。</p>
-<p>好绕是不是?我跑题了抱歉。</p>
-<h2 id="Template_String">Template String</h2><p>其实上面的例子已经用到这个特性了。再举个例子，Coffeescript中可以这样写正则：</p>
-<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">OPERATOR = <span class="regexp">/// ^ (</span><br><span class="line">  ?: [-=]&gt;             <span class="comment"># function</span></span><br><span class="line">   | [-+*/%&lt;&gt;&amp;|^!?=]=  <span class="comment"># compound assign / compare</span></span><br><span class="line">   | &gt;&gt;&gt;=?             <span class="comment"># zero-fill right shift</span></span><br><span class="line">   | ([-+:])\1         <span class="comment"># doubles</span></span><br><span class="line">   | ([&amp;|&lt;&gt;])\2=?      <span class="comment"># logic / shift</span></span><br><span class="line">   | \?\.              <span class="comment"># soak access</span></span><br><span class="line">   | \.&#123;2,3&#125;           <span class="comment"># range or splat</span></span><br><span class="line">) ///</span></span><br></pre></td></tr></table></figure>
-<p>非常方便不是？虽然我开始是在<a href="www.nltk.org/book/ch03.html">nltk</a>中看到了这个功能，</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">text = <span class="string">'That U.S.A. poster-print costs $12.40...'</span></span><br><span class="line">pattern = <span class="string">r'''(?x)    # set flag to allow verbose regexps</span><br><span class="line">    ([A-Z]\.)+        # abbreviations, e.g. U.S.A.</span><br><span class="line">  | \w+(-\w+)*        # words with optional internal hyphens</span><br><span class="line">  | \$?\d+(\.\d+)?%?  # currency and percentages, e.g. $12.40, 82%</span><br><span class="line">  | \.\.\.            # ellipsis</span><br><span class="line">  | [][.,;"'?():-_`]  # these are separate tokens;</span><br><span class="line">'''</span></span><br><span class="line">nltk.regexp_tokenize(text, pattern)</span><br><span class="line">[<span class="string">'That'</span>, <span class="string">'U.S.A.'</span>, <span class="string">'poster-print'</span>, <span class="string">'costs'</span>, <span class="string">'$12.40'</span>, <span class="string">'...'</span>]</span><br></pre></td></tr></table></figure>
-<p>想了想如何在js中自己实现，忽然想到了template string这个特性。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">r</span>(<span class="params">strings</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> returnS;</span><br><span class="line">  <span class="comment">// remove all space;</span></span><br><span class="line">  returnS = strings[<span class="number">0</span>];</span><br><span class="line">  <span class="keyword">let</span> comment = <span class="regexp">/\/\/.*\n/g</span>;</span><br><span class="line">  returnS = returnS.replace(comment, <span class="string">""</span>);</span><br><span class="line">  returnS = returnS.replace(<span class="regexp">/\s+/g</span>,<span class="string">""</span>);</span><br><span class="line">  <span class="keyword">return</span> returnS;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">r<span class="string">`</span><br><span class="line">    ([A-Z]\.)+        // abbreviations, e.g. U.S.A.</span><br><span class="line">  | \w+(-\w+)*        // words with optional internal hyphens</span><br><span class="line">  | \$?\d+(\.\d+)?%?  // currency and percentages, e.g. $12.40, 82%</span><br><span class="line">  | \.\.\.            // ellipsis</span><br><span class="line">  | [][.,;"'?():-_\`] // these are separate tokens; includes ], [</span><br><span class="line">`</span></span><br></pre></td></tr></table></figure>
-<p>这里用到了<a href="http://devdocs.io/javascript/template_strings" target="_blank" rel="external">Tagged template strings</a>的特性。</p>
-<p>另外，如果是多行连续文本时也应该使用template string。</p>
-<h2 id="class">class</h2><p>从本质上讲，javascript中的所有面向对象机制都是建构在原型链上的，但class这种语法糖也能比较方便。在coffeescript中我觉得那种浓烈ruby风的写法更合心意一些，<code>class</code>关键字总有些不怎么顺手的地方，比如 <em>设置类静态变量</em> 和有争议的 <em>mixin</em> 。参照nltk wordnet corpus reader类的时候也简单实践了下class关键字、继承等的使用。简单使用还是挺顺手的。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Synset</span> <span class="keyword">extends</span> <span class="title">_WordNetObject</span> </span>&#123;</span><br><span class="line">  <span class="comment">/* lemma.pos.number to get a synset */</span></span><br><span class="line">  constructor() &#123;</span><br><span class="line">    <span class="keyword">super</span>();</span><br><span class="line">    <span class="comment">// initialized by the Reader</span></span><br><span class="line">    <span class="keyword">this</span>._name = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">this</span>._offset = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">this</span>._lexname = <span class="literal">null</span>; <span class="comment">// lexicographer file e.g. noun.animal</span></span><br><span class="line">    <span class="keyword">this</span>._pos = <span class="literal">null</span>;</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
-<h2 id="destructuring_assign">destructuring assign</h2><p>这是，非常好用的语法糖。终于可以</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[a, b] = [<span class="number">1</span>, <span class="number">2</span>];</span><br></pre></td></tr></table></figure>
-<h2 id="Spread_Operator">Spread Operator</h2><p>各种语法糖，处理rest parameter时省心很多，而且返回的是一个真正的Array对象。比较有意思的一个例子是，有次见有人讨论如何把<code>Math.min</code>应用到数组上。他说到javascript高级程序设计上的例子：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">min</span>(<span class="params">array</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Math</span>.min.apply(<span class="built_in">Math</span>, array);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>认为应该把<code>this</code>绑定到<code>null</code>而不是<code>Math</code>，于是我才知道<code>apply</code>时还是要小心不要污染全局变量空间。。。不过这个例子，我去翻了下<a href="https://github.com/v8/v8/blob/44c44521ae11859478b42004f57ea93df52526ee/src/js/math.js#L110-135" target="_blank" rel="external">v8的math.js</a>和<a href="https://github.com/ricardoquesada/Spidermonkey/blob/master/js/src/jsmath.cpp#L593-L616" target="_blank" rel="external">spidermonkey的Math实现</a>，都不关this什么事，所以，我觉得，爱绑定啥都行。。。</p>
-<p>关键在于，有了spread operator之后</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Math</span>.min(...array);</span><br></pre></td></tr></table></figure>
-<p>就行了。这些类似的应用场景很多的，比如打印数组中每个成员</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(...array);</span><br></pre></td></tr></table></figure>
-<p>少写多少代码：）</p>
-<h2 id="Arrow_Function">Arrow Function</h2><p>在前面的例子中你应该已经见到过，箭头函数让书写匿名函数(lambda)变得异常方便(少打很多字)，除了不能用箭头函数写一个generator这个设定有些意外。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(v=&gt;v+<span class="number">1</span>)(<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
-<p>另外，箭头函数的this是提前绑定到所在词法作用域内的(和调用者无关、apply等指定的<code>this</code>都无关)，有兴趣的同学大概可以去看看v8和SpiderMonkey怎么实现的。</p>
-<h2 id="Proxy">Proxy</h2><p>差点忘了这个，因为，目前，截至到本文发稿，v8并不支持标准中的新特性(<code>--harmony_proxies</code>开启的是已废弃的Proxy API)，所以node也不支持。firefox倒是支持非常好哈哈。</p>
-<p>在python中，标准库中有个较<code>defaultdict</code>的东西。有什么作用看看下面的例子就知道了。事实上，nltk wordnet corpus reader生成映射的时候很依赖这个功能。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">In [3]: from collections import defaultdict</span><br><span class="line"></span><br><span class="line">In [4]: expanded_dict = defaultdict(dict)</span><br><span class="line"></span><br><span class="line">In [5]: expanded_dict['a']['b'] = 1</span><br><span class="line"></span><br><span class="line">In [6]: expanded_dict</span><br><span class="line">Out[6]: defaultdict(&lt;type 'dict'&gt;, &#123;'a': &#123;'b': 1&#125;&#125;)</span><br><span class="line"></span><br><span class="line">In [7]: dict['a']['b']</span><br><span class="line">---------------------------------------------------------------------------</span><br><span class="line">TypeError                                 Traceback (most recent call last)</span><br><span class="line">&lt;ipython-input-7-07dd2e624242&gt; in &lt;module&gt;()</span><br><span class="line">----&gt; 1 dict['a']['b']</span><br><span class="line"></span><br><span class="line">TypeError: 'type' object has no attribute '__getitem__'</span><br></pre></td></tr></table></figure>
-<p>显然我们不想让不存在的东西报错，我们也不想每次都写个if语句判断是吧。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> dct[<span class="string">'a'</span>]:</span><br><span class="line">    dct[<span class="string">'a'</span>] = &#123;&#125;</span><br><span class="line">dct[<span class="string">'a'</span>][<span class="string">'b'</span>] = <span class="number">1</span></span><br></pre></td></tr></table></figure>
-<p>如果你知道<code>dct</code>中有哪些键当然也能全首先赋成字典，但是，很多情况下你并不知道有哪些键，还得依靠if来判断。<code>defaultdict</code>优雅的解决了这个问题。</p>
-<p>遗憾的是，javascript中没有这种东西。忽然想到了<a href="https://hacks.mozilla.org/2015/07/es6-in-depth-proxies-and-reflect/" target="_blank" rel="external">ES6 in Depth: Proxies</a>中的例子，想到可以依靠这个特性自己实现一个<code>defaultdict</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Defaultdict</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  handler = &#123;</span><br><span class="line">    get: <span class="function"><span class="keyword">function</span> (<span class="params">target, prop, receiver</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (!(prop <span class="keyword">in</span> target)) &#123;</span><br><span class="line">        target[prop] = &#123;&#125;;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> target[prop];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">var</span> p = <span class="keyword">new</span> <span class="built_in">Proxy</span>(<span class="keyword">this</span>, handler);</span><br><span class="line">  <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> expandedDct = <span class="keyword">new</span> Defaultdict();</span><br><span class="line">expandedDct.a.b = <span class="number">1</span>;</span><br><span class="line">expandedDct.c.d = <span class="number">2</span>;</span><br><span class="line"><span class="built_in">console</span>.log(expandedDct.a.b)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">Object</span>.keys(expandedDct));</span><br></pre></td></tr></table></figure>
-<p>目前只有firefox支持标准的Proxy API。当然V8/node中可以polyfill出来，请自行github。</p>
-<p>用<code>Proxy</code>可以结合<code>Map</code>来实现<code>Map</code>版本的DefaultMap哈哈。</p>
-<p></p><p style="color:red">PS: 浏览器调试工具会调用一些方法。比如，你新建一个<code>expandedDct</code>之后，如果在firebug中想用<code>.</code>来查看变量，会对其调用很多方法。。。结果就是<code>expandedDct</code>多了很多firebug探查对象属性用到的函数名。。。我在这个问题上纠结了几乎两个小时没明白为啥多了这些奇怪的键而且一会儿有一会儿没。切切注意！！</p><p></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#62; Object.keys(expandedDct)&#10;[&#34;a&#34;, &#34;c&#34;, &#34;length&#34;, &#34;fullPath&#34;, &#34;fileSize&#34;, &#34;header&#34;, &#34;body&#34;, &#34;getSourceLink&#34;]</span><br></pre></td></tr></table></figure>
-<h2 id="总结">总结</h2><p>以上，就是最近感觉比较有意思的一些ES6特性，就这样吧。</p>
-<p>Have fun！</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/web/2015/11/18/notes-on-migrating-from-jeykll-to-hexo/" itemprop="url">
-                  从Jekyll迁移到Hexo
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-11-18T00:00:00+08:00" content="2015-11-18">
-              2015-11-18
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/web/" itemprop="url" rel="index">
-                    <span itemprop="name">web</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/web/2015/11/18/notes-on-migrating-from-jeykll-to-hexo/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="web/2015/11/18/notes-on-migrating-from-jeykll-to-hexo/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>上周，我将博客从jekyll平台迁移到hexo下。</p>
-<h2 id="缘起">缘起</h2><p>不为什么。本来不想换，奈何不能成功在ubuntu 14.10上用rvm成功编译<code>ruby 2.1+</code>，连续几次过热自动关机后，就默默装上了基于node的hexo。</p>
-<h2 id="迁移记录">迁移记录</h2><p>对jekyll，日志源文件都在<code>_posts/</code>目录下。而hexo则在<code>sources/_posts/</code>下。两者支持的都是带metadata的markdown文件。(当然，我还有一些用textile标记的文件。)简单来说，只要把相应的markdown文件迁移到hexo对应的位置就行。</p>
-<p>但在迁移碰到了几个问题：</p>
-<ol>
-<li>修正permalink</li>
-<li>语法高亮部分修改</li>
-<li>特殊字符escape</li>
-<li>textile文件</li>
-</ol>
-<h3 id="与jekyll之前配置一致的url结构和文件命名方式">与jekyll之前配置一致的url结构和文件命名方式</h3><p>以前，我用jeykll时，每个文件名字如下：</p>
-<pre><code><span class="number">2012</span>-<span class="number">11</span>-<span class="number">19</span>-<span class="keyword">this</span>-is-a-post.md
-</code></pre><p>对应的url为</p>
-<pre><code><span class="string">http:</span><span class="comment">//reverland.org/2012/11/19/this-is-a-post/</span>
-</code></pre><p>或者可以是</p>
-<pre><code><span class="string">http:</span><span class="comment">//reverland.org/2012/11/19/this-is-a-post</span>
-<span class="string">http:</span><span class="comment">//reverland.org/2012/11/19/this-is-a-post/index.html</span>
-</code></pre><p>首先，要把hexo也改成这样的，在<code>_config.yml</code>中：</p>
-<pre><code><span class="symbol">new_post_name:</span> <span class="symbol">:year-</span><span class="symbol">:month-</span><span class="symbol">:day-</span><span class="symbol">:title</span>.md <span class="comment"># File name of new posts</span>
-<span class="symbol">permalink:</span> <span class="symbol">:category/</span><span class="symbol">:year/</span><span class="symbol">:month/</span><span class="symbol">:day/</span><span class="symbol">:title/</span>
-</code></pre><p>但，还是有问题，具体可以参照<a href="https://github.com/hexojs/hexo/issues/1589" target="_blank" rel="external">我提的issue</a>，hexo如果看你的文件名是这样：</p>
-<pre><code><span class="number">2014</span>-<span class="number">06</span>-<span class="number">12</span>-.md
-</code></pre><p>会生成这样的url</p>
-<pre><code><span class="number">2015</span>/<span class="number">11</span>/<span class="number">13</span>/<span class="number">2014</span>-<span class="number">06</span>-<span class="number">12.</span>html
-</code></pre><p>显然这不是我们想要的。</p>
-<p>我们通过将<a href="https://github.com/hexojs/hexo-util/blob/cb685f19ecb5ba9ee48109049b21a21cd3da7dee/lib/permalink.js#L28" target="_blank" rel="external"><code>node_modules/hexo-util/lib/permalink.js</code>第28行</a>由</p>
-<pre><code><span class="keyword">return</span> <span class="string">'(.+?)'</span>;
-</code></pre><p>更改为</p>
-<pre><code><span class="keyword">return</span> <span class="string">'(.*?)'</span>;
-</code></pre><p>可以实现以前的jekyll风格。</p>
-<p>如果你现在用的是hexo版本<code>3.1.0</code>，如果文件是：</p>
-<p>可能会遇到生成这种url链接：</p>
-<pre><code><span class="label">http:</span>//reverland<span class="preprocessor">.org</span>/<span class="number">2014</span>/<span class="number">06</span>/<span class="number">12</span>//index.html
-<span class="label">http:</span>//reverland<span class="preprocessor">.org</span>/<span class="number">2014</span>/<span class="number">06</span>/<span class="number">12</span>//
-</code></pre><p>在github中hexo已经不会有这个问题了，可以参见 <a href="https://github.com/hexojs/hexo/blob/d035d19ccd221f6815634c2d6d2aaa59b959839f/lib/plugins/helper/url_for.js#L30" target="_blank" rel="external">hexo/helper/url_for</a>的</p>
-<pre><code><span class="function"><span class="keyword">return</span> path.<span class="title">replace</span><span class="params">(/\/{<span class="number">2</span>,}/g, <span class="string">'/'</span>)</span></span>;
-</code></pre><p>来进行修改，如果你用的不是git版本的hexo。</p>
-<p>我之后还碰到个问题，hexo中的分类是大小写敏感的，jekyll也是，但jekyll在url中会统一变成小写而hexo则不会，这竟然造成了我迁移后的一些链接失效。修正方法也很简单，通过<code>sed</code>将所有大写的<code>category</code>项都替换成对应的小写版本。</p>
-<pre><code><span class="title">sed</span> -i <span class="string">'s/^category: Life/category: life/g'</span> source/_posts/<span class="regexp">*.md</span>  <span class="comment"># 我只有Life分类莫名写成了大写</span>
-</code></pre><p>这样，确保了和jekyll之前所有链接一致，然而，发现还是有disqus的评论消失了，检查链接并没有差异，暂时不知为什么。如果有谁能指教下请告诉我。</p>
-<h3 id="语法高亮修改">语法高亮修改</h3><p>jekyll中，除了我用四个空格作为编码块区域缩进设定，还广泛使用了jekyll所特有的记法进行代码高亮。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;% highlight python %&#125;</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sum</span><span class="params">(a, b)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#123;% endhighlight %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% highlight cl%&#125;</span><br><span class="line">(cdr,</span><br><span class="line">  (add,</span><br><span class="line">    <span class="number">1</span>, <span class="number">1</span>))</span><br><span class="line">&#123;% endhighlight %&#125;</span><br></pre></td></tr></table></figure>
-<p>另外，我的每个文件里还有些jekyll特定命令来加入统计和评论什么的。这是当年从<a href="http://blog.skydark.info/" target="_blank" rel="external">Skydark</a>那里画虎不成留下的各种dirty　hack的结果。</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% include JB/setup %&#125;</span><br></pre></td></tr></table></figure>
-<p>可以这样转换掉</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]highlight[[:space:]]\(.*\)[[:space:]]*%\&#125;/```\1/g'</span> <span class="built_in">source</span>/_posts/*.md  <span class="comment"># 注意有空格和没空格</span></span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]endhighlight[[:space:]]%\&#125;/```/g'</span> <span class="built_in">source</span>/_posts/*.md</span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]include JB\/setup[[:space:]]%\&#125;//g source/_posts/*.md'</span></span><br></pre></td></tr></table></figure>
-<h3 id="特殊字符escape">特殊字符escape</h3><p>接着有些特殊的文件会解析报错，因为hexo<a href="https://hexo.io/docs/troubleshooting.html#Escape_Contents" target="_blank" rel="external">用nunjunks来渲染</a>，如果文本中有<code>{&#123; }}</code>或者<code>{&#37; %}</code>会出错。我发现如果是缩进四格的代码标记或者<code>&#96;</code>会出错，但如果用另一种标记法<code> &#96;&#96;&#96;</code>则没关系。</p>
-<p>实在不行，我们可以用<a href="http://www.ascii.cl/htmlcodes.htm" target="_blank" rel="external">html实体编码</a>。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#60;code&#62;&#38;#97;&#38;#98;&#38;#99;&#60;/code&#62;</span><br></pre></td></tr></table></figure>
-<h3 id="textile文件">textile文件</h3><p>我试着用pandoc转换了下，发现几个问题：</p>
-<ol>
-<li>会将metadata错误地转换</li>
-<li>莫名的在行或特殊符号后面加反斜杠</li>
-<li>不能很好处理jekyll的代码高亮标记法</li>
-</ol>
-<p>我写了些脚本辅助手工更改为markdown格式。话说这些sed代码还都是之前尝试往pelican上迁移时写的辅助脚本，虽然从来没有迁移到pelican平台上。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 删除和转换jeykll特定标记</span></span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]include JB\/setup[[:space:]]%\&#125;//g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]highlight[[:space:]]\(.*\)[[:space:]]*%\&#125;/```\1/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]endhighlight[[:space:]]%\&#125;/```/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line"></span><br><span class="line"><span class="comment"># textile标记到markdown的转换</span></span><br><span class="line"><span class="comment"># 列表</span></span><br><span class="line">sed -i <span class="string">'s/^* /- /g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^# /- /g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line"><span class="comment"># 标题</span></span><br><span class="line">sed -i <span class="string">'s/^h1./#/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^h2./##/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^h3./###/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^h4./####/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^h5./#####/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line"><span class="comment"># 脚注</span></span><br><span class="line">sed -i <span class="string">'s/^fn\([[:digit:]]\)\./[\^\1]:/g'</span> <span class="built_in">source</span>/*.textile</span><br><span class="line">sed -i <span class="string">'s/\[\([[:digit:]]*\)\]/[\^\1]/g'</span> <span class="built_in">source</span>/*.textile</span><br><span class="line"><span class="comment"># 默认的markdown解析并不支持脚注</span></span><br><span class="line"><span class="comment"># 如果需要，参考这里替换默认markdown解析，https://github.com/celsomiranda/hexo-renderer-markdown-it　</span></span><br><span class="line"><span class="comment"># 可惜这个引擎中，```块就不能正常解析&#123;&#123; &#125;&#125;这种东西了</span></span><br><span class="line"><span class="comment"># 不知道那个pandoc后端的怎样。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接</span></span><br><span class="line">sed -i <span class="string">'s/"\([^"]*\)"\([h|\/].*\)/[\1](\2)/g'</span> <span class="built_in">source</span>/*.textile</span><br><span class="line">sed -i <span class="string">'s/"\([^"]*\)"\([^h\/].*\)/[\1][\2]/g'</span> <span class="built_in">source</span>/*.textile</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 最后把后缀改了，hexo不会处理后缀是textile的文件</span></span><br><span class="line"><span class="keyword">for</span> file <span class="keyword">in</span> <span class="built_in">source</span>/_posts/*.textile; <span class="keyword">do</span></span><br><span class="line">cp <span class="variable">$file</span> <span class="built_in">source</span>/_posts/`basename <span class="variable">$file</span> .textile`.md</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-<p>当然，最好脚本辅助，手工确认。</p>
-<p>另外，有这么个东西<a href="https://github.com/wzpan/hexo-renderer-pandoc" target="_blank" rel="external">hexo render pandoc</a>来替换hexo的渲染引擎，就能顺便支持textile。值得一试和研究，也许里头就用到对文档元数据或者跳过指定行数的转换吧。没有细看。话说，还看到<a href="http://codefalling.com/2015/11/15/new-version-of-hexo-renderer-org/" target="_blank" rel="external">@CodeFalling</a>使用emacs来做org渲染后端，hexo的灵活性可见一斑。</p>
-<h2 id="feed">feed</h2><p>默认的hexo竟然不像jekyll一样有feed生成支持！不过有<a href="https://github.com/hexojs/hexo-generator-feed" target="_blank" rel="external">hexo-generator-feed</a>这个插件来实现。具体参照文档就好。</p>
-<h2 id="添加友情链接、分类页、标签页">添加友情链接、分类页、标签页</h2><p>根据<a href="http://theme-next.iissnan.com/theme-settings.html" target="_blank" rel="external">根据Next主题的文档来就好</a>。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2111,7 +2491,7 @@ shuru               |&lt;---输入提示(已经输入的内容)
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">177</span>
+              <span class="site-state-item-count">179</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -2125,7 +2505,7 @@ shuru               |&lt;---输入提示(已经输入的内容)
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">62</span>
+              <span class="site-state-item-count">63</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

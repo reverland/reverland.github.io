@@ -224,6 +224,1173 @@
             
               
                 
+                <a class="post-title-link" href="/python/2012/08/22/numpy/" itemprop="url">
+                  试验性NumPy教程(译)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-08-22T00:00:00+08:00" content="2012-08-22">
+              2012-08-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2012/08/22/numpy/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/08/22/numpy/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="试验性的Numpy教程">试验性的Numpy教程</h1><p>原文来自<a href="http://scipy.org/Tentative_NumPy_Tutorial" target="_blank" rel="external">Tentative NumPy Tutorial</a></p>
+<p><strong>目录</strong></p>
+<ul>
+<li>toc<br>{: toc }</li>
+</ul>
+<hr>
+<h2 id="先决条件">先决条件</h2><p>在阅读这个教程之前，你多少需要知道点python。如果你想重新回忆下，请看看<a href="http://docs.python.org/tut/" target="_blank" rel="external">Python Tutorial</a>.</p>
+<p>如果你想要运行教程中的示例，你至少需要在你的电脑上安装了以下一些软件:</p>
+<ul>
+<li><a href="http://www.python.org/" target="_blank" rel="external">Python</a></li>
+<li><a href="http://numpy.scipy.org/" target="_blank" rel="external">NumPy</a></li>
+</ul>
+<p>这些是可能对你有帮助的:</p>
+<ul>
+<li><a href="http://ipython.scipy.org/" target="_blank" rel="external">ipython</a>是一个净强化的交互Python Shell，对探索NumPy的特性非常方便。</li>
+<li><a href="http://matplotlib.sourceforge.net/" target="_blank" rel="external">matplotlib</a>将允许你绘图</li>
+<li><a href="http://scipy.org/" target="_blank" rel="external">Scipy</a>在NumPy的基础上提供了很多科学模块</li>
+</ul>
+<h2 id="基础篇">基础篇</h2><p>NumPy的主要对象是同种元素的多维数组。这是一个所有的元素都是一种类型、通过一个正整数元组索引的元素表格(通常是元素是数字)。在NumPy中维度(dimensions)叫做轴(axes)，轴的个数叫做秩(rank)。</p>
+<p>例如，在3D空间一个点的坐标<code>[1, 2, 3]</code>是一个秩为1的数组，因为它只有一个轴。那个轴长度为3.又例如，在以下例子中，数组的秩为2(它有两个维度).第一个维度长度为2,第二个维度长度为3.</p>
+<pre><code>[[ <span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>],
+ [ <span class="number">0.</span>, <span class="number">1.</span>, <span class="number">2.</span>]]
+</code></pre><p>NumPy的数组类被称作<em>ndarray</em>。通常被称作数组。注意numpy.array和标准Python库类array.array并不相同，后者只处理一维数组和提供少量功能。更多重要ndarray对象属性有：</p>
+<ul>
+<li><p>ndarray.ndim</p>
+<p>数组轴的个数，在python的世界中，轴的个数被称作秩</p>
+</li>
+<li><p>ndarray.shape</p>
+<p>数组的维度。这是一个指示数组在每个维度上大小的整数元组。例如一个n排m列的矩阵，它的shape属性将是(2,3),这个元组的长度显然是秩，即维度或者ndim属性</p>
+</li>
+<li><p>ndarray.size</p>
+<p>数组元素的总个数，等于shape属性中元组元素的乘积。</p>
+</li>
+<li><p>ndarray.dtype</p>
+<p>一个用来描述数组中元素类型的对象，可以通过创造或指定dtype使用标准Python类型。另外NumPy提供它自己的数据类型。</p>
+</li>
+<li><p>ndarray.itemsize</p>
+<p>数组中每个元素的字节大小。例如，一个元素类型为float64的数组itemsiz属性值为8(=64/8),又如，一个元素类型为complex32的数组item属性为4(=32/8).</p>
+</li>
+<li><p>ndarray.data</p>
+<p>包含实际数组元素的缓冲区，通常我们不需要使用这个属性，因为我们总是通过索引来使用数组中的元素。</p>
+</li>
+</ul>
+<h3 id="一个例子^1">一个例子<a href="在python的交互环境或ipython中">^1</a></h3><pre><code><span class="prompt">&gt;&gt;</span>&gt; from numpy  import *
+&gt;&gt;&gt; a = arange(<span class="number">15</span>).reshape(<span class="number">3</span>, <span class="number">5</span>)
+<span class="prompt">&gt;&gt;</span>&gt; a
+array([[ <span class="number">0</span>,  <span class="number">1</span>,  <span class="number">2</span>,  <span class="number">3</span>,  <span class="number">4</span>],
+       [ <span class="number">5</span>,  <span class="number">6</span>,  <span class="number">7</span>,  <span class="number">8</span>,  <span class="number">9</span>],
+       [<span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>]])
+<span class="prompt">&gt;&gt;</span>&gt; a.shape
+(<span class="number">3</span>, <span class="number">5</span>)
+<span class="prompt">&gt;&gt;</span>&gt; a.ndim
+<span class="number">2</span>
+<span class="prompt">&gt;&gt;</span>&gt; a.dtype.name
+<span class="string">'int32'</span>
+<span class="prompt">&gt;&gt;</span>&gt; a.itemsize
+<span class="number">4</span>
+<span class="prompt">&gt;&gt;</span>&gt; a.size
+<span class="number">15</span>
+<span class="prompt">&gt;&gt;</span>&gt; type(a)
+numpy.ndarray
+<span class="prompt">&gt;&gt;</span>&gt; b = array([<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>])
+<span class="prompt">&gt;&gt;</span>&gt; b
+array([<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>])
+<span class="prompt">&gt;&gt;</span>&gt; type(b)
+numpy.ndarray
+</code></pre><h3 id="创建数组">创建数组</h3><p>有好几种创建数组的方法。</p>
+<p>例如，你可以使用<code>array</code>函数从常规的Python列表和元组创造数组。所创建的数组类型由原序列中的元素类型推导而来。</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from numpy  import *
+&gt;&gt;&gt; a = array( [<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>] )
+<span class="prompt">&gt;&gt;</span>&gt; a
+array([<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
+<span class="prompt">&gt;&gt;</span>&gt; a.dtype
+dtype(<span class="string">'int32'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; b = array([<span class="number">1.2</span>, <span class="number">3.5</span>, <span class="number">5.1</span>])
+<span class="prompt">&gt;&gt;</span>&gt; b.dtype
+dtype(<span class="string">'float64'</span>) 
+</code></pre><p>一个常见的错误包括用多个数值参数调用<code>array</code>而不是提供一个由数值组成的列表作为一个参数。</p>
+<pre><code>&gt;&gt;&gt; a = <span class="built_in">array</span>(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>)    <span class="preprocessor"># WRONG</span>
+
+&gt;&gt;&gt; a = <span class="built_in">array</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])  <span class="preprocessor"># RIGHT</span>
+</code></pre><p>数组将序列包含序列转化成二维的数组，序列包含序列包含序列转化成三维数组等等。</p>
+<pre><code>&gt;&gt;&gt; b = <span class="built_in">array</span>( [ (<span class="number">1.5</span>,<span class="number">2</span>,<span class="number">3</span>), (<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>) ] )
+&gt;&gt;&gt; <span class="function">b
+<span class="title">array</span><span class="params">([[ <span class="number">1.5</span>,  <span class="number">2.</span> ,  <span class="number">3.</span> ],
+       [ <span class="number">4.</span> ,  <span class="number">5.</span> ,  <span class="number">6.</span> ]])</span></span>
+</code></pre><p>数组类型可以在创建时显示指定</p>
+<pre><code>&gt;&gt;&gt; c = <span class="built_in">array</span>( [ [<span class="number">1</span>,<span class="number">2</span>], [<span class="number">3</span>,<span class="number">4</span>] ], dtype=<span class="keyword">complex</span> )
+&gt;&gt;&gt; <span class="function">c
+<span class="title">array</span><span class="params">([[ <span class="number">1.</span>+<span class="number">0.</span>j,  <span class="number">2.</span>+<span class="number">0.</span>j],
+       [ <span class="number">3.</span>+<span class="number">0.</span>j,  <span class="number">4.</span>+<span class="number">0.</span>j]])</span></span>
+</code></pre><p>通常，数组的元素开始都是未知的，但是它的大小已知。因此，NumPy提供了一些使用占位符创建数组的函数。这最小化了扩展数组的需要和高昂的运算代价。</p>
+<p>函数<code>function</code>创建一个全是0的数组，函数<code>ones</code>创建一个全1的数组，函数<code>empty</code>创建一个内容随机并且依赖与内存状态的数组。默认创建的数组类型(dtype)都是float64。</p>
+<pre><code>&gt;&gt;&gt; zeros( (<span class="number">3</span>,<span class="number">4</span>) )
+<span class="built_in">array</span>([[<span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>],
+       [<span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>],
+       [<span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>,  <span class="number">0.</span>]])
+&gt;&gt;&gt; ones( (<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>), dtype=int16 )                <span class="preprocessor"># dtype can also be specified</span>
+<span class="built_in">array</span>([[[ <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>],
+        [ <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>],
+        [ <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>]],
+       [[ <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>],
+        [ <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>],
+        [ <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>]]], dtype=int16)
+&gt;&gt;&gt; empty( (<span class="number">2</span>,<span class="number">3</span>) )
+<span class="built_in">array</span>([[  <span class="number">3.73603959e-262</span>,   <span class="number">6.02658058e-154</span>,   <span class="number">6.55490914e-260</span>],
+       [  <span class="number">5.30498948e-313</span>,   <span class="number">3.14673309e-307</span>,   <span class="number">1.00000000e+000</span>]])
+</code></pre><p>为了创建一个数列，NumPy提供一个类似arange的函数返回数组而不是列表:</p>
+<pre><code>&gt;&gt;&gt; arange( <span class="number">10</span>, <span class="number">30</span>, <span class="number">5</span> )
+<span class="built_in">array</span>([<span class="number">10</span>, <span class="number">15</span>, <span class="number">20</span>, <span class="number">25</span>])
+&gt;&gt;&gt; arange( <span class="number">0</span>, <span class="number">2</span>, <span class="number">0.3</span> )                 <span class="preprocessor"># it accepts float arguments</span>
+<span class="built_in">array</span>([ <span class="number">0.</span> ,  <span class="number">0.3</span>,  <span class="number">0.6</span>,  <span class="number">0.9</span>,  <span class="number">1.2</span>,  <span class="number">1.5</span>,  <span class="number">1.8</span>])
+</code></pre><p>当<code>arange</code>使用浮点数参数时，由于有限的浮点数精度，通常无法预测获得的元素个数。因此，最好使用函数<code>linspace</code>去接收我们想要的元素个数来代替用range来指定步长。</p>
+<p>其它函数array, zeros, zeros_like, ones, ones_like, empty, empty_like, arange, linspace, rand, randn, fromfunction, fromfile参考：<a href="http://scipy.org/Numpy_Example_List" target="_blank" rel="external">NumPy示例</a></p>
+<h3 id="打印数组">打印数组</h3><p>当你打印一个数组，NumPy以类似嵌套列表的形式显示它，但是呈以下布局：</p>
+<ul>
+<li>最后的轴从左到右打印</li>
+<li>次后的轴从顶向下打印</li>
+<li>剩下的轴从顶向下打印，每个切片通过一个空行与下一个隔开</li>
+</ul>
+<p>一维数组被打印成行，二维数组成矩阵，三维数组成矩阵列表。</p>
+<pre><code>&gt;&gt;&gt; a = arange(<span class="number">6</span>)                         <span class="preprocessor"># <span class="number">1</span>d array</span>
+&gt;&gt;&gt; print a
+[<span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span>]
+&gt;&gt;&gt;
+&gt;&gt;&gt; b = arange(<span class="number">12</span>).reshape(<span class="number">4</span>,<span class="number">3</span>)           <span class="preprocessor"># <span class="number">2</span>d array</span>
+&gt;&gt;&gt; print b
+[[ <span class="number">0</span>  <span class="number">1</span>  <span class="number">2</span>]
+ [ <span class="number">3</span>  <span class="number">4</span>  <span class="number">5</span>]
+ [ <span class="number">6</span>  <span class="number">7</span>  <span class="number">8</span>]
+ [ <span class="number">9</span> <span class="number">10</span> <span class="number">11</span>]]
+&gt;&gt;&gt;
+&gt;&gt;&gt; c = arange(<span class="number">24</span>).reshape(<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>)         <span class="preprocessor"># <span class="number">3</span>d array</span>
+&gt;&gt;&gt; print c
+[[[ <span class="number">0</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>]
+  [ <span class="number">4</span>  <span class="number">5</span>  <span class="number">6</span>  <span class="number">7</span>]
+  [ <span class="number">8</span>  <span class="number">9</span> <span class="number">10</span> <span class="number">11</span>]]
+
+ [[<span class="number">12</span> <span class="number">13</span> <span class="number">14</span> <span class="number">15</span>]
+  [<span class="number">16</span> <span class="number">17</span> <span class="number">18</span> <span class="number">19</span>]
+  [<span class="number">20</span> <span class="number">21</span> <span class="number">22</span> <span class="number">23</span>]]]
+</code></pre><p>查看形状操作一节获得有关reshape的更多细节</p>
+<p>如果一个数组用来打印太大了，NumPy自动省略中间部分而只打印角落</p>
+<pre><code>&gt;&gt;&gt; print <span class="function">arange</span>(10000)
+<span class="attr_selector">[   0    1    2 ..., 9997 9998 9999]</span>
+&gt;&gt;&gt;
+&gt;&gt;&gt; print <span class="function">arange</span>(10000)<span class="class">.reshape</span>(100,100)
+<span class="attr_selector">[[   0    1    2 ...,   97   98   99]</span>
+ <span class="attr_selector">[ 100  101  102 ...,  197  198  199]</span>
+ <span class="attr_selector">[ 200  201  202 ...,  297  298  299]</span>
+ ...,
+ <span class="attr_selector">[9700 9701 9702 ..., 9797 9798 9799]</span>
+ <span class="attr_selector">[9800 9801 9802 ..., 9897 9898 9899]</span>
+ <span class="attr_selector">[9900 9901 9902 ..., 9997 9998 9999]</span>]
+</code></pre><p>禁用NumPy的这种行为并强制打印整个数组，你可以设置printoptions参数来更改打印选项。</p>
+<pre><code>&gt;&gt;&gt; <span class="function"><span class="title">set_printoptions</span><span class="params">(threshold=<span class="string">'nan'</span>)</span></span>
+</code></pre><h3 id="基本运算">基本运算</h3><p>数组的算术运算是按元素的。新的数组被创建并且被结果填充。</p>
+<pre><code>&gt;&gt;&gt; <span class="tag">a</span> = <span class="function"><span class="title">array</span><span class="params">( [<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>] )</span></span>
+&gt;&gt;&gt; <span class="tag">b</span> = <span class="function"><span class="title">arange</span><span class="params">( <span class="number">4</span> )</span></span>
+&gt;&gt;&gt; <span class="tag">b</span>
+<span class="function"><span class="title">array</span><span class="params">([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</span></span>
+&gt;&gt;&gt; c = a-<span class="tag">b</span>
+&gt;&gt;&gt; c
+<span class="function"><span class="title">array</span><span class="params">([<span class="number">20</span>, <span class="number">29</span>, <span class="number">38</span>, <span class="number">47</span>])</span></span>
+&gt;&gt;&gt; b**<span class="number">2</span>
+<span class="function"><span class="title">array</span><span class="params">([<span class="number">0</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">9</span>])</span></span>
+&gt;&gt;&gt; <span class="number">10</span>*<span class="function"><span class="title">sin</span><span class="params">(a)</span></span>
+<span class="function"><span class="title">array</span><span class="params">([ <span class="number">9.12945251</span>, -<span class="number">9.88031624</span>,  <span class="number">7.4511316</span> , -<span class="number">2.62374854</span>])</span></span>
+&gt;&gt;&gt; a&lt;<span class="number">35</span>
+<span class="function"><span class="title">array</span><span class="params">([True, True, False, False], dtype=bool)</span></span>
+</code></pre><p>不像许多矩阵语言，NumPy中的乘法运算符<code>*</code>指示按元素计算，矩阵乘法可以使用<code>dot</code>函数或创建矩阵对象实现(参见教程中的矩阵章节)</p>
+<pre><code>&gt;&gt;&gt; A = <span class="built_in">array</span>( [[<span class="number">1</span>,<span class="number">1</span>],
+...             [<span class="number">0</span>,<span class="number">1</span>]] )
+&gt;&gt;&gt; B = <span class="built_in">array</span>( [[<span class="number">2</span>,<span class="number">0</span>],
+...             [<span class="number">3</span>,<span class="number">4</span>]] )
+&gt;&gt;&gt; A*B                         <span class="preprocessor"># elementwise product</span>
+<span class="built_in">array</span>([[<span class="number">2</span>, <span class="number">0</span>],
+       [<span class="number">0</span>, <span class="number">4</span>]])
+&gt;&gt;&gt; dot(A,B)                    <span class="preprocessor"># matrix product</span>
+<span class="built_in">array</span>([[<span class="number">5</span>, <span class="number">4</span>],
+       [<span class="number">3</span>, <span class="number">4</span>]])
+</code></pre><p>有些操作符像<code>+=</code>和<code>*=</code>被用来更改已存在数组而不创建一个新的数组。</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; a = ones((<span class="number">2</span>,<span class="number">3</span>), dtype=int)
+<span class="prompt">&gt;&gt;</span>&gt; b = random.random((<span class="number">2</span>,<span class="number">3</span>))
+<span class="prompt">&gt;&gt;</span>&gt; a *= <span class="number">3</span>
+<span class="prompt">&gt;&gt;</span>&gt; a
+array([[<span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>],
+       [<span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>]])
+<span class="prompt">&gt;&gt;</span>&gt; b += a
+<span class="prompt">&gt;&gt;</span>&gt; b
+array([[ <span class="number">3.69092703</span>,  <span class="number">3.8324276</span> ,  <span class="number">3.0114541</span> ],
+       [ <span class="number">3.18679111</span>,  <span class="number">3.3039349</span> ,  <span class="number">3.37600289</span>]])
+<span class="prompt">&gt;&gt;</span>&gt; a += b                                  <span class="comment"># b is converted to integer type</span>
+<span class="prompt">&gt;&gt;</span>&gt; a
+array([[<span class="number">6</span>, <span class="number">6</span>, <span class="number">6</span>],
+       [<span class="number">6</span>, <span class="number">6</span>, <span class="number">6</span>]])
+</code></pre><p>当运算的是不同类型的数组时，结果数组和更普遍和精确的已知(这种行为叫做upcast)。</p>
+<pre><code>&gt;&gt;&gt; <span class="tag">a</span> = <span class="function"><span class="title">ones</span><span class="params">(<span class="number">3</span>, dtype=int32)</span></span>
+&gt;&gt;&gt; <span class="tag">b</span> = <span class="function"><span class="title">linspace</span><span class="params">(<span class="number">0</span>,pi,<span class="number">3</span>)</span></span>
+&gt;&gt;&gt; <span class="tag">b</span><span class="class">.dtype</span><span class="class">.name</span>
+<span class="string">'float64'</span>
+&gt;&gt;&gt; c = a+<span class="tag">b</span>
+&gt;&gt;&gt; c
+<span class="function"><span class="title">array</span><span class="params">([ <span class="number">1</span>.        ,  <span class="number">2.57079633</span>,  <span class="number">4.14159265</span>])</span></span>
+&gt;&gt;&gt; c<span class="class">.dtype</span><span class="class">.name</span>
+<span class="string">'float64'</span>
+&gt;&gt;&gt; d = <span class="function"><span class="title">exp</span><span class="params">(c*<span class="number">1</span>j)</span></span>
+&gt;&gt;&gt; d
+array([ <span class="number">0.54030231</span>+<span class="number">0.84147098</span>j, -<span class="number">0.84147098</span>+<span class="number">0.54030231</span>j,
+       -<span class="number">0.54030231</span>-<span class="number">0.84147098</span>j])
+&gt;&gt;&gt; d<span class="class">.dtype</span><span class="class">.name</span>
+<span class="string">'complex128'</span>
+</code></pre><p>许多非数组运算，如计算数组所有元素之和，被作为ndarray类的方法实现</p>
+<pre><code>&gt;&gt;&gt; <span class="tag">a</span> = random.<span class="function"><span class="title">random</span><span class="params">((<span class="number">2</span>,<span class="number">3</span>)</span></span>)
+&gt;&gt;&gt; <span class="tag">a</span>
+array([[ <span class="number">0.6903007</span> ,  <span class="number">0.39168346</span>,  <span class="number">0.16524769</span>],
+       [ <span class="number">0.48819875</span>,  <span class="number">0.77188505</span>,  <span class="number">0.94792155</span>]])
+&gt;&gt;&gt; <span class="tag">a</span>.<span class="function"><span class="title">sum</span><span class="params">()</span></span>
+<span class="number">3.4552372100521485</span>
+&gt;&gt;&gt; <span class="tag">a</span>.<span class="function"><span class="title">min</span><span class="params">()</span></span>
+<span class="number">0.16524768654743593</span>
+&gt;&gt;&gt; <span class="tag">a</span>.<span class="function"><span class="title">max</span><span class="params">()</span></span>
+<span class="number">0.9479215542670073</span>
+</code></pre><p>这些运算默认应用到数组好像它就是一个数字组成的列表，无关数组的形状。然而，指定<code>axis</code>参数你可以吧运算应用到数组指定的轴上：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; b = arange(<span class="number">12</span>).reshape(<span class="number">3</span>,<span class="number">4</span>)
+<span class="prompt">&gt;&gt;</span>&gt; b
+array([[ <span class="number">0</span>,  <span class="number">1</span>,  <span class="number">2</span>,  <span class="number">3</span>],
+       [ <span class="number">4</span>,  <span class="number">5</span>,  <span class="number">6</span>,  <span class="number">7</span>],
+       [ <span class="number">8</span>,  <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>]])
+<span class="prompt">&gt;&gt;</span>&gt;
+&gt;&gt;&gt; b.sum(axis=<span class="number">0</span>)                            <span class="comment"># sum of each column</span>
+array([<span class="number">12</span>, <span class="number">15</span>, <span class="number">18</span>, <span class="number">21</span>])
+<span class="prompt">&gt;&gt;</span>&gt;
+&gt;&gt;&gt; b.min(axis=<span class="number">1</span>)                            <span class="comment"># min of each row</span>
+array([<span class="number">0</span>, <span class="number">4</span>, <span class="number">8</span>])
+<span class="prompt">&gt;&gt;</span>&gt;
+&gt;&gt;&gt; b.cumsum(axis=<span class="number">1</span>)                         <span class="comment"># cumulative sum along each row</span>
+array([[ <span class="number">0</span>,  <span class="number">1</span>,  <span class="number">3</span>,  <span class="number">6</span>],
+       [ <span class="number">4</span>,  <span class="number">9</span>, <span class="number">15</span>, <span class="number">22</span>],
+       [ <span class="number">8</span>, <span class="number">17</span>, <span class="number">27</span>, <span class="number">38</span>]])
+</code></pre><h3 id="通用函数(ufunc)">通用函数(ufunc)</h3><p>NumPy提供常见的数学函数如<code>sin</code>,<code>cos</code>和<code>exp</code>。在NumPy中，这些叫作“通用函数”(ufunc)。在NumPy里这些函数作用按数组的元素运算，产生一个数组作为输出。</p>
+<pre><code>&gt;&gt;&gt; B = <span class="function"><span class="title">arange</span><span class="params">(<span class="number">3</span>)</span></span>
+&gt;&gt;&gt; B
+<span class="function"><span class="title">array</span><span class="params">([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>])</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">exp</span><span class="params">(B)</span></span>
+<span class="function"><span class="title">array</span><span class="params">([ <span class="number">1</span>.        ,  <span class="number">2.71828183</span>,  <span class="number">7.3890561</span> ])</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">sqrt</span><span class="params">(B)</span></span>
+<span class="function"><span class="title">array</span><span class="params">([ <span class="number">0</span>.        ,  <span class="number">1</span>.        ,  <span class="number">1.41421356</span>])</span></span>
+&gt;&gt;&gt; C = <span class="function"><span class="title">array</span><span class="params">([<span class="number">2</span>., -<span class="number">1</span>., <span class="number">4</span>.])</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">add</span><span class="params">(B, C)</span></span>
+<span class="function"><span class="title">array</span><span class="params">([ <span class="number">2</span>.,  <span class="number">0</span>.,  <span class="number">6</span>.])</span></span>
+</code></pre><p>更多函数all, alltrue, any, apply along axis, argmax, argmin, argsort, average, bincount, ceil, clip, conj, conjugate, corrcoef, cov, cross, cumprod, cumsum, diff, dot, floor, inner, inv, lexsort, max, maximum, mean, median, min, minimum, nonzero, outer, prod, re, round, sometrue, sort, std, sum, trace, transpose, var, vdot, vectorize, where 参见:<a href="http://scipy.org/Numpy_Example_List" target="_blank" rel="external">NumPy示例</a></p>
+<h3 id="索引，切片和迭代">索引，切片和迭代</h3><p><em>一维</em>数组可以被索引、切片和迭代，就像<a href="http://docs.python.org/tutorial/introduction.html#SECTION005140000000000000000" target="_blank" rel="external">列表</a>和其它Python序列。</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; a = arange(<span class="number">10</span>)**<span class="number">3</span>
+<span class="prompt">&gt;&gt;</span>&gt; a
+array([  <span class="number">0</span>,   <span class="number">1</span>,   <span class="number">8</span>,  <span class="number">27</span>,  <span class="number">64</span>, <span class="number">125</span>, <span class="number">216</span>, <span class="number">343</span>, <span class="number">512</span>, <span class="number">729</span>])
+<span class="prompt">&gt;&gt;</span>&gt; a[<span class="number">2</span>]
+<span class="number">8</span>
+<span class="prompt">&gt;&gt;</span>&gt; a[<span class="number">2</span><span class="symbol">:</span><span class="number">5</span>]
+array([ <span class="number">8</span>, <span class="number">27</span>, <span class="number">64</span>])
+<span class="prompt">&gt;&gt;</span>&gt; a[<span class="symbol">:</span><span class="number">6</span><span class="symbol">:</span><span class="number">2</span>] = -<span class="number">1000</span>    <span class="comment"># equivalent to a[0:6:2] = -1000; from start to position 6, exclusive, set every 2nd element to -1000</span>
+<span class="prompt">&gt;&gt;</span>&gt; a
+array([-<span class="number">1000</span>,     <span class="number">1</span>, -<span class="number">1000</span>,    <span class="number">27</span>, -<span class="number">1000</span>,   <span class="number">125</span>,   <span class="number">216</span>,   <span class="number">343</span>,   <span class="number">512</span>,   <span class="number">729</span>])
+<span class="prompt">&gt;&gt;</span>&gt; a[ <span class="symbol">:</span> <span class="symbol">:-</span><span class="number">1</span>]                                 <span class="comment"># reversed a</span>
+array([  <span class="number">729</span>,   <span class="number">512</span>,   <span class="number">343</span>,   <span class="number">216</span>,   <span class="number">125</span>, -<span class="number">1000</span>,    <span class="number">27</span>, -<span class="number">1000</span>,     <span class="number">1</span>, -<span class="number">1000</span>])
+<span class="prompt">&gt;&gt;</span>&gt; for i in <span class="symbol">a:</span>
+...         print i**(<span class="number">1</span>/<span class="number">3</span>.),
+...
+nan <span class="number">1.0</span> nan <span class="number">3.0</span> nan <span class="number">5.0</span> <span class="number">6.0</span> <span class="number">7.0</span> <span class="number">8.0</span> <span class="number">9.0</span>
+</code></pre><p><em>多维</em>数组可以每个轴有一个索引。这些索引由一个逗号分割的元组给出。</p>
+<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">f</span><span class="params">(x,y)</span>:</span>
+<span class="prompt">... </span>        <span class="keyword">return</span> <span class="number">10</span>*x+y
+...
+<span class="prompt">&gt;&gt;&gt; </span>b = fromfunction(f,(<span class="number">5</span>,<span class="number">4</span>),dtype=int)
+<span class="prompt">&gt;&gt;&gt; </span>b
+array([[ <span class="number">0</span>,  <span class="number">1</span>,  <span class="number">2</span>,  <span class="number">3</span>],
+       [<span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>],
+       [<span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>],
+       [<span class="number">30</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>],
+       [<span class="number">40</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">43</span>]])
+<span class="prompt">&gt;&gt;&gt; </span>b[<span class="number">2</span>,<span class="number">3</span>]
+<span class="number">23</span>
+<span class="prompt">&gt;&gt;&gt; </span>b[<span class="number">0</span>:<span class="number">5</span>, <span class="number">1</span>]                       <span class="comment"># each row in the second column of b</span>
+array([ <span class="number">1</span>, <span class="number">11</span>, <span class="number">21</span>, <span class="number">31</span>, <span class="number">41</span>])
+<span class="prompt">&gt;&gt;&gt; </span>b[ : ,<span class="number">1</span>]                        <span class="comment"># equivalent to the previous example</span>
+array([ <span class="number">1</span>, <span class="number">11</span>, <span class="number">21</span>, <span class="number">31</span>, <span class="number">41</span>])
+<span class="prompt">&gt;&gt;&gt; </span>b[<span class="number">1</span>:<span class="number">3</span>, : ]                      <span class="comment"># each column in the second and third row of b</span>
+array([[<span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>],
+       [<span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>]])
+</code></pre><p>当少于轴数的索引被提供时，确失的索引被认为是整个切片：</p>
+<pre><code>&gt;&gt;&gt; b[-<span class="number">1</span>]                                  <span class="preprocessor"># the last row. Equivalent to b[-<span class="number">1</span>,:]</span>
+<span class="built_in">array</span>([<span class="number">40</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">43</span>])
+</code></pre><p><code>b[i]</code>中括号中的表达式被当作<code>i</code>和一系列<code>:</code>，来代表剩下的轴。NumPy也允许你使用“点”像<code>b[i,...]</code>。</p>
+<p><em>点</em>(…)代表许多产生一个完整的索引元组必要的分号。如果x是秩为5的数组(即它有5个轴)，那么:</p>
+<ul>
+<li>x[1,2,…] 等同于 x[1,2,:,:,:],</li>
+<li>x[…,3] 等同于 x[:,:,:,:,3]</li>
+<li>x[4,…,5,:] 等同 x[4,:,:,5,:]. </li>
+</ul>
+<pre><code>&lt;!--￼<span class="number">0</span>--&gt;
+&gt;&gt;&gt; c = <span class="built_in">array</span>( [ [[  <span class="number">0</span>,  <span class="number">1</span>,  <span class="number">2</span>],      <span class="preprocessor"># a <span class="number">3</span>D array (two stacked <span class="number">2</span>D arrays)</span>
+...               [ <span class="number">10</span>, <span class="number">12</span>, <span class="number">13</span>]],
+...
+...              [[<span class="number">100</span>,<span class="number">101</span>,<span class="number">102</span>],
+...               [<span class="number">110</span>,<span class="number">112</span>,<span class="number">113</span>]] ] )
+&gt;&gt;&gt; c.shape
+(<span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>)
+&gt;&gt;&gt; c[<span class="number">1</span>,...]                          <span class="preprocessor"># same as c[<span class="number">1</span>,:,:] or c[<span class="number">1</span>]</span>
+<span class="built_in">array</span>([[<span class="number">100</span>, <span class="number">101</span>, <span class="number">102</span>],
+       [<span class="number">110</span>, <span class="number">112</span>, <span class="number">113</span>]])
+&gt;&gt;&gt; c[...,<span class="number">2</span>]                          <span class="preprocessor"># same as c[:,:,<span class="number">2</span>]</span>
+<span class="built_in">array</span>([[  <span class="number">2</span>,  <span class="number">13</span>],
+       [<span class="number">102</span>, <span class="number">113</span>]])
+```
+</code></pre><p><em>迭代</em>多维数组是就第一个轴而言的:<a href="0轴">^2</a></p>
+<pre><code>&gt;&gt;&gt; <span class="keyword">for</span> row in b:
+...         print row
+...
+[<span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span>]
+[<span class="number">10</span> <span class="number">11</span> <span class="number">12</span> <span class="number">13</span>]
+[<span class="number">20</span> <span class="number">21</span> <span class="number">22</span> <span class="number">23</span>]
+[<span class="number">30</span> <span class="number">31</span> <span class="number">32</span> <span class="number">33</span>]
+[<span class="number">40</span> <span class="number">41</span> <span class="number">42</span> <span class="number">43</span>]
+</code></pre><p>然而，如果一个人想对每个数组中元素进行运算，我们可以使用flat属性，该属性是数组元素的一个迭代器:</p>
+<pre><code>&gt;&gt;&gt; <span class="keyword">for</span> element in b.flat:
+...         print element,
+...
+<span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">10</span> <span class="number">11</span> <span class="number">12</span> <span class="number">13</span> <span class="number">20</span> <span class="number">21</span> <span class="number">22</span> <span class="number">23</span> <span class="number">30</span> <span class="number">31</span> <span class="number">32</span> <span class="number">33</span> <span class="number">40</span> <span class="number">41</span> <span class="number">42</span> <span class="number">43</span>
+</code></pre><p>更多[], …, newaxis, ndenumerate, indices, index exp 参考<a href="http://scipy.org/Numpy_Example_List" target="_blank" rel="external">NumPy示例</a></p>
+<h2 id="形状操作">形状操作</h2><h3 id="更改数组的形状">更改数组的形状</h3><p>一个数组的形状由它每个轴上的元素个数给出：</p>
+<pre><code>&gt;&gt;&gt; <span class="tag">a</span> = <span class="function"><span class="title">floor</span><span class="params">(<span class="number">10</span>*random.random((<span class="number">3</span>,<span class="number">4</span>)</span></span>))
+&gt;&gt;&gt; <span class="tag">a</span>
+array([[ <span class="number">7</span>.,  <span class="number">5</span>.,  <span class="number">9</span>.,  <span class="number">3</span>.],
+       [ <span class="number">7</span>.,  <span class="number">2</span>.,  <span class="number">7</span>.,  <span class="number">8</span>.],
+       [ <span class="number">6</span>.,  <span class="number">8</span>.,  <span class="number">3</span>.,  <span class="number">2</span>.]])
+&gt;&gt;&gt; <span class="tag">a</span><span class="class">.shape</span>
+(<span class="number">3</span>, <span class="number">4</span>)
+</code></pre><p>一个数组的形状可以被多种命令修改：</p>
+<pre><code>&gt;&gt;&gt; a.ravel() <span class="preprocessor"># flatten the array</span>
+<span class="built_in">array</span>([ <span class="number">7.</span>,  <span class="number">5.</span>,  <span class="number">9.</span>,  <span class="number">3.</span>,  <span class="number">7.</span>,  <span class="number">2.</span>,  <span class="number">7.</span>,  <span class="number">8.</span>,  <span class="number">6.</span>,  <span class="number">8.</span>,  <span class="number">3.</span>,  <span class="number">2.</span>])
+&gt;&gt;&gt; a.shape = (<span class="number">6</span>, <span class="number">2</span>)
+&gt;&gt;&gt; a.transpose()
+<span class="built_in">array</span>([[ <span class="number">7.</span>,  <span class="number">9.</span>,  <span class="number">7.</span>,  <span class="number">7.</span>,  <span class="number">6.</span>,  <span class="number">3.</span>],
+       [ <span class="number">5.</span>,  <span class="number">3.</span>,  <span class="number">2.</span>,  <span class="number">8.</span>,  <span class="number">8.</span>,  <span class="number">2.</span>]])
+</code></pre><p>由<code>ravel()</code>展平的数组元素的顺序通常是“C风格”的，就是说，最右边的索引变化得最快，所以元素a[0,0]之后是a[0,1]。如果数组被改变形状(reshape)成其它形状，数组仍然是“C风格”的。NumPy通常创建一个以这个顺序保存数据的数组，所以<code>ravel()</code>将总是不需要复制它的参数<a href="即self，它自己">^3</a>。但是如果数组是通过切片其它数组或有不同寻常的选项时，它可能需要被复制。函数<code>reshape()</code>和<code>ravel()</code>还可以被同过一些可选参数构建成FORTRAN风格的数组，即最左边的索引变化最快。</p>
+<p><code>reshape</code>函数改变参数形状并返回它，而<code>resize</code>函数改变数组自身。</p>
+<pre><code>&gt;&gt;&gt; a
+array(<span class="comment">[<span class="comment">[ 7.,  5.]</span>,
+       <span class="comment">[ 9.,  3.]</span>,
+       <span class="comment">[ 7.,  2.]</span>,
+       <span class="comment">[ 7.,  8.]</span>,
+       <span class="comment">[ 6.,  8.]</span>,
+       <span class="comment">[ 3.,  2.]</span>]</span>)
+&gt;&gt;&gt; a.resize((2,6))
+&gt;&gt;&gt; a
+array(<span class="comment">[<span class="comment">[ 7.,  5.,  9.,  3.,  7.,  2.]</span>,
+       <span class="comment">[ 7.,  8.,  6.,  8.,  3.,  2.]</span>]</span>)
+</code></pre><p>如果在改变形状操作中一个维度被给做-1，其维度将自动被计算</p>
+<p>更多 shape, reshape, resize, ravel 参考<a href="http://scipy.org/Numpy_Example_List" target="_blank" rel="external">NumPy示例</a></p>
+<h3 id="组合(stack)不同的数组">组合(stack)不同的数组</h3><p>几种方法可以沿不同轴将数组堆叠在一起：</p>
+<pre><code>&gt;&gt;&gt; a = floor(<span class="number">10</span>*random.random((<span class="number">2</span>,<span class="number">2</span>)))
+&gt;&gt;&gt; a
+array(<span class="string">[[ 1.,  1.],
+       [ 5.,  8.]]</span>)
+&gt;&gt;&gt; b = floor(<span class="number">10</span>*random.random((<span class="number">2</span>,<span class="number">2</span>)))
+&gt;&gt;&gt; b
+array(<span class="string">[[ 3.,  3.],
+       [ 6.,  0.]]</span>)
+&gt;&gt;&gt; vstack((a,b))
+array(<span class="string">[[ 1.,  1.],
+       [ 5.,  8.],
+       [ 3.,  3.],
+       [ 6.,  0.]]</span>)
+&gt;&gt;&gt; hstack((a,b))
+array(<span class="string">[[ 1.,  1.,  3.,  3.],
+       [ 5.,  8.,  6.,  0.]]</span>)
+</code></pre><p>函数<code>column_stack</code>以列将一维数组合成二维数组，它等同与<code>vstack</code>对一维数组。</p>
+<pre><code>&gt;&gt;&gt; column_stack((a,b))   <span class="preprocessor"># With <span class="number">2</span>D arrays</span>
+<span class="built_in">array</span>([[ <span class="number">1.</span>,  <span class="number">1.</span>,  <span class="number">3.</span>,  <span class="number">3.</span>],
+       [ <span class="number">5.</span>,  <span class="number">8.</span>,  <span class="number">6.</span>,  <span class="number">0.</span>]])
+&gt;&gt;&gt; a=<span class="built_in">array</span>([<span class="number">4.</span>,<span class="number">2.</span>])
+&gt;&gt;&gt; b=<span class="built_in">array</span>([<span class="number">2.</span>,<span class="number">8.</span>])
+&gt;&gt;&gt; a[:,newaxis]  <span class="preprocessor"># This allows to have a <span class="number">2</span>D columns vector</span>
+<span class="built_in">array</span>([[ <span class="number">4.</span>],
+       [ <span class="number">2.</span>]])
+&gt;&gt;&gt; column_stack((a[:,newaxis],b[:,newaxis]))
+<span class="built_in">array</span>([[ <span class="number">4.</span>,  <span class="number">2.</span>],
+       [ <span class="number">2.</span>,  <span class="number">8.</span>]])
+&gt;&gt;&gt; vstack((a[:,newaxis],b[:,newaxis])) <span class="preprocessor"># The behavior of vstack is different</span>
+<span class="built_in">array</span>([[ <span class="number">4.</span>],
+       [ <span class="number">2.</span>],
+       [ <span class="number">2.</span>],
+       [ <span class="number">8.</span>]])
+</code></pre><p><code>row_stack</code>函数，另一方面，将一维数组以行组合成二维数组。</p>
+<p>对那些维度比二维更高的数组，<code>hstack</code>沿着第二个轴组合，<code>vstack</code>沿着第一个轴组合,<code>concatenate</code>允许可选参数给出组合时沿着的轴。</p>
+<p><em>Note</em></p>
+<p>在复杂情况下，<code>r_[]</code>和<code>c_[]</code>对创建沿着一个方向组合的数很有用，它们允许范围符号(“:”):</p>
+<pre><code>&gt;&gt;&gt; r_[<span class="number">1</span>:<span class="number">4</span>,<span class="number">0</span>,<span class="number">4</span>]
+<span class="built_in">array</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">4</span>])
+</code></pre><p>当使用数组作为参数时，<code>r_</code>和<code>c_</code>的默认行为和<code>vstack</code>和<code>hstack</code>很像，但是允许可选的参数给出组合所沿着的轴的代号。</p>
+<p>更多函数hstack , vstack, column_stack , row_stack , concatenate , c_ , r_<br>参见<a href="http://scipy.org/Numpy_Example_List" target="_blank" rel="external">NumPy示例</a>.</p>
+<h3 id="将一个数组分割(split)成几个小数组">将一个数组分割(split)成几个小数组</h3><p>使用<code>hsplit</code>你能将数组沿着它的水平轴分割，或者指定返回相同形状数组的个数，或者指定在哪些列后发生分割:</p>
+<pre><code>&gt;&gt;&gt; a = floor(<span class="number">10</span>*random.random((<span class="number">2</span>,<span class="number">12</span>)))
+&gt;&gt;&gt; a
+array(<span class="string">[[ 8.,  8.,  3.,  9.,  0.,  4.,  3.,  0.,  0.,  6.,  4.,  4.],
+       [ 0.,  3.,  2.,  9.,  6.,  0.,  4.,  5.,  7.,  5.,  1.,  4.]]</span>)
+&gt;&gt;&gt; hsplit(a,<span class="number">3</span>)   # Split a into <span class="number">3</span>
+[array(<span class="string">[[ 8.,  8.,  3.,  9.],
+       [ 0.,  3.,  2.,  9.]]</span>), array(<span class="string">[[ 0.,  4.,  3.,  0.],
+       [ 6.,  0.,  4.,  5.]]</span>), array(<span class="string">[[ 0.,  6.,  4.,  4.],
+       [ 7.,  5.,  1.,  4.]]</span>)]
+&gt;&gt;&gt; hsplit(a,(<span class="number">3</span>,<span class="number">4</span>))   # Split a after the third <span class="keyword">and</span> the fourth column
+[array(<span class="string">[[ 8.,  8.,  3.],
+       [ 0.,  3.,  2.]]</span>), array(<span class="string">[[ 9.],
+       [ 9.]]</span>), array(<span class="string">[[ 0.,  4.,  3.,  0.,  0.,  6.,  4.,  4.],
+       [ 6.,  0.,  4.,  5.,  7.,  5.,  1.,  4.]]</span>)]
+</code></pre><p><code>vsplit</code>沿着纵向的轴分割，<code>array split</code>允许指定沿哪个轴分割。</p>
+<h2 id="复制和视图">复制和视图</h2><p>当运算和处理数组时，它们的数据有时被拷贝到新的数组有时不是。这通常是新手的困惑之源。这有三种情况:</p>
+<h3 id="完全不拷贝">完全不拷贝</h3><p>简单的赋值不拷贝数组对象或它们的数据。</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; a = arange(<span class="number">12</span>)
+<span class="prompt">&gt;&gt;</span>&gt; b = a            <span class="comment"># no new object is created</span>
+<span class="prompt">&gt;&gt;</span>&gt; b is a           <span class="comment"># a and b are two names for the same ndarray object</span>
+<span class="constant">True</span>
+<span class="prompt">&gt;&gt;</span>&gt; b.shape = <span class="number">3</span>,<span class="number">4</span>    <span class="comment"># changes the shape of a</span>
+<span class="prompt">&gt;&gt;</span>&gt; a.shape
+(<span class="number">3</span>, <span class="number">4</span>)
+</code></pre><p>Python 传递不定对象作为参考<a href="形参">^4</a>，所以函数调用不拷贝数组。</p>
+<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">f</span><span class="params">(x)</span>:</span>
+<span class="prompt">... </span>    <span class="keyword">print</span> id(x)
+...
+<span class="prompt">&gt;&gt;&gt; </span>id(a)                           <span class="comment"># id is a unique identifier of an object</span>
+<span class="number">148293216</span>
+<span class="prompt">&gt;&gt;&gt; </span>f(a)
+<span class="number">148293216</span>
+</code></pre><h3 id="视图(view)和浅复制">视图(view)和浅复制</h3><p>不同的数组对象分享同一个数据。视图方法创造一个新的数组对象指向同一数据。</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; c = a.view()
+<span class="prompt">&gt;&gt;</span>&gt; c is a
+<span class="constant">False</span>
+<span class="prompt">&gt;&gt;</span>&gt; c.base is a                        <span class="comment"># c is a view of the data owned by a</span>
+<span class="constant">True</span>
+<span class="prompt">&gt;&gt;</span>&gt; c.flags.owndata
+<span class="constant">False</span>
+<span class="prompt">&gt;&gt;</span>&gt;
+&gt;&gt;&gt; c.shape = <span class="number">2</span>,<span class="number">6</span>                      <span class="comment"># a's shape doesn't change</span>
+<span class="prompt">&gt;&gt;</span>&gt; a.shape
+(<span class="number">3</span>, <span class="number">4</span>)
+<span class="prompt">&gt;&gt;</span>&gt; c[<span class="number">0</span>,<span class="number">4</span>] = <span class="number">1234</span>                      <span class="comment"># a's data changes</span>
+<span class="prompt">&gt;&gt;</span>&gt; a
+array([[   <span class="number">0</span>,    <span class="number">1</span>,    <span class="number">2</span>,    <span class="number">3</span>],
+       [<span class="number">1234</span>,    <span class="number">5</span>,    <span class="number">6</span>,    <span class="number">7</span>],
+       [   <span class="number">8</span>,    <span class="number">9</span>,   <span class="number">10</span>,   <span class="number">11</span>]])
+</code></pre><p>切片数组返回它的一个视图：</p>
+<pre><code>&gt;&gt;&gt; s = a[ : , <span class="number">1</span>:<span class="number">3</span>]     <span class="preprocessor"># spaces added for clarity; could also be written <span class="string">"s = a[:,1:3]"</span></span>
+&gt;&gt;&gt; s[:] = <span class="number">10</span>           <span class="preprocessor"># s[:] is a view of s. Note the difference between s=<span class="number">10</span> and s[:]=<span class="number">10</span></span>
+&gt;&gt;&gt; <span class="function">a
+<span class="title">array</span><span class="params">([[   <span class="number">0</span>,   <span class="number">10</span>,   <span class="number">10</span>,    <span class="number">3</span>],
+       [<span class="number">1234</span>,   <span class="number">10</span>,   <span class="number">10</span>,    <span class="number">7</span>],
+       [   <span class="number">8</span>,   <span class="number">10</span>,   <span class="number">10</span>,   <span class="number">11</span>]])</span></span>
+</code></pre><h2 id="深复制">深复制</h2><p>这个复制方法完全复制数组和它的数据。</p>
+<pre><code>&gt;&gt;&gt; d = a.copy()                          # a <span class="keyword">new</span> array <span class="class"><span class="keyword">object</span> <span class="keyword"><span class="keyword">with</span></span> <span class="title">new</span> <span class="title">data</span> <span class="title">is</span> <span class="title">created</span>
+</span>&gt;&gt;&gt; d is a
+<span class="type">False</span>
+&gt;&gt;&gt; d.base is a                           # d doesn<span class="symbol">'t</span> share anything <span class="keyword">with</span> a
+<span class="type">False</span>
+&gt;&gt;&gt; d[<span class="number">0</span>,<span class="number">0</span>] = <span class="number">9999</span>
+&gt;&gt;&gt; a
+array([[   <span class="number">0</span>,   <span class="number">10</span>,   <span class="number">10</span>,    <span class="number">3</span>],
+       [<span class="number">1234</span>,   <span class="number">10</span>,   <span class="number">10</span>,    <span class="number">7</span>],
+       [   <span class="number">8</span>,   <span class="number">10</span>,   <span class="number">10</span>,   <span class="number">11</span>]])
+</code></pre><h3 id="函数和方法(method)总览">函数和方法(method)总览</h3><p>这是个NumPy函数和方法分类排列目录。这些名字链接到<a href="http://scipy.org/Numpy_Example_List" target="_blank" rel="external">NumPy示例</a>,你可以看到这些函数起作用。<a href="0轴">^5</a></p>
+<p><em>创建数组</em></p>
+<pre><code>arange, array, copy, empty, empty_like, <span class="built_in">eye</span>, fromfile, fromfunction, identity, <span class="built_in">linspace</span>, <span class="built_in">logspace</span>, mgrid, ogrid, <span class="built_in">ones</span>, ones_like, r , <span class="built_in">zeros</span>, zeros_like 
+</code></pre><p><em>转化</em></p>
+<pre><code>astype, atleast <span class="number">1</span>d, atleast <span class="number">2</span>d, atleast <span class="number">3</span>d, mat 
+</code></pre><p><em>操作</em></p>
+<pre><code>array <span class="built_in">split</span>, column stack, concatenate, diagonal, <span class="keyword">dsplit</span>, dstack, hsplit, hstack, item, newaxis, ravel, <span class="built_in">repeat</span>, reshape, <span class="keyword">resize</span>, squeeze, swapaxes, take, transpose, <span class="keyword">vsplit</span>, vstack 
+</code></pre><p><em>询问</em></p>
+<pre><code><span class="built_in">all</span>, <span class="built_in">any</span>, nonzero, <span class="keyword">where</span> 
+</code></pre><p><em>排序</em></p>
+<pre><code>argmax, argmin, argsort, <span class="built_in">max</span>, <span class="built_in">min</span>, <span class="keyword">ptp</span>, searchsorted, <span class="built_in">sort</span> 
+</code></pre><p><em>运算</em></p>
+<pre><code>choose, compress, <span class="built_in">cumprod</span>, cumsum, inner, fill, <span class="built_in">imag</span>, <span class="built_in">prod</span>, put, putmask, real, <span class="built_in">sum</span> 
+</code></pre><p><em>基本统计</em></p>
+<pre><code><span class="built_in">cov</span>, mean, std, <span class="built_in">var</span> 
+</code></pre><p><em>基本线性代数</em></p>
+<pre><code><span class="built_in">cross</span>, <span class="built_in">dot</span>, outer, svd, vdot
+</code></pre><h2 id="进阶">进阶</h2><h3 id="广播法则(rule)">广播法则(rule)</h3><p>广播法则能使通用函数有意义地处理不具有相同形状的输入。</p>
+<p>广播第一法则是，如果所有的输入数组维度不都相同，一个“1”将被重复地添加在维度较小的数组上直至所有的数组拥有一样的维度。</p>
+<p>广播第二法则确定长度为1的数组沿着特殊的方向表现地好像它有沿着那个方向最大形状的大小。对数组来说，沿着那个维度的数组元素的值理应相同。</p>
+<p>应用广播法则之后，所有数组的大小必须匹配。更多细节可以从这个<a href="http://scipy.org/EricsBroadcastingDoc" target="_blank" rel="external">文档</a>找到。</p>
+<h2 id="花哨的索引和索引技巧">花哨的索引和索引技巧</h2><p>NumPy比普通Python序列提供更多的索引功能。除了索引整数和切片，正如我们之前看到的，数组可以被整数数组和布尔数组索引。</p>
+<h3 id="通过数组索引">通过数组索引</h3><pre><code>&gt;&gt;&gt; a = arange(<span class="number">12</span>)**<span class="number">2</span>                          <span class="preprocessor"># the first <span class="number">12</span> square numbers</span>
+&gt;&gt;&gt; i = <span class="built_in">array</span>( [ <span class="number">1</span>,<span class="number">1</span>,<span class="number">3</span>,<span class="number">8</span>,<span class="number">5</span> ] )                 <span class="preprocessor"># an array of indices</span>
+&gt;&gt;&gt; a[i]                                       <span class="preprocessor"># the elements of a at the positions i</span>
+<span class="built_in">array</span>([ <span class="number">1</span>,  <span class="number">1</span>,  <span class="number">9</span>, <span class="number">64</span>, <span class="number">25</span>])
+&gt;&gt;&gt;
+&gt;&gt;&gt; j = <span class="built_in">array</span>( [ [ <span class="number">3</span>, <span class="number">4</span>], [ <span class="number">9</span>, <span class="number">7</span> ] ] )         <span class="preprocessor"># a bidimensional array of indices</span>
+&gt;&gt;&gt; a[j]                                       <span class="preprocessor"># the same shape as j</span>
+<span class="built_in">array</span>([[ <span class="number">9</span>, <span class="number">16</span>],
+       [<span class="number">81</span>, <span class="number">49</span>]])
+</code></pre><p>当被索引数组a是多维的时，每一个唯一的索引数列指向a的第一维<a href="0轴">^5</a>。以下示例通过将图片标签用调色版转换成色彩图像展示了这种行为。</p>
+<pre><code>&gt;&gt;&gt; palette = <span class="built_in">array</span>( [ [<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>],                <span class="preprocessor"># black</span>
+...                    [<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>],              <span class="preprocessor"># red</span>
+...                    [<span class="number">0</span>,<span class="number">255</span>,<span class="number">0</span>],              <span class="preprocessor"># green</span>
+...                    [<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>],              <span class="preprocessor"># blue</span>
+...                    [<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>] ] )       <span class="preprocessor"># white</span>
+&gt;&gt;&gt; image = <span class="built_in">array</span>( [ [ <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span> ],           <span class="preprocessor"># each value corresponds to a color in the palette</span>
+...                  [ <span class="number">0</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">0</span> ]  ] )
+&gt;&gt;&gt; palette[image]                            <span class="preprocessor"># the (<span class="number">2</span>,<span class="number">4</span>,<span class="number">3</span>) color image</span>
+<span class="built_in">array</span>([[[  <span class="number">0</span>,   <span class="number">0</span>,   <span class="number">0</span>],
+        [<span class="number">255</span>,   <span class="number">0</span>,   <span class="number">0</span>],
+        [  <span class="number">0</span>, <span class="number">255</span>,   <span class="number">0</span>],
+        [  <span class="number">0</span>,   <span class="number">0</span>,   <span class="number">0</span>]],
+       [[  <span class="number">0</span>,   <span class="number">0</span>,   <span class="number">0</span>],
+        [  <span class="number">0</span>,   <span class="number">0</span>, <span class="number">255</span>],
+        [<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>],
+        [  <span class="number">0</span>,   <span class="number">0</span>,   <span class="number">0</span>]]])
+</code></pre><p>我们也可以给出不不止一维的索引，每一维的索引数组必须有相同的形状。</p>
+<pre><code>&gt;&gt;&gt; a = arange(<span class="number">12</span>).reshape(<span class="number">3</span>,<span class="number">4</span>)
+&gt;&gt;&gt; a
+array(<span class="string">[[ 0,  1,  2,  3],
+       [ 4,  5,  6,  7],
+       [ 8,  9, 10, 11]]</span>)
+&gt;&gt;&gt; i = array( [ [<span class="number">0</span>,<span class="number">1</span>],                        # indices <span class="keyword">for</span> the first dim of a
+...              [<span class="number">1</span>,<span class="number">2</span>] ] )
+&gt;&gt;&gt; j = array( [ [<span class="number">2</span>,<span class="number">1</span>],                        # indices <span class="keyword">for</span> the second dim
+...              [<span class="number">3</span>,<span class="number">3</span>] ] )
+&gt;&gt;&gt;
+&gt;&gt;&gt; a[i,j]                                     # i <span class="keyword">and</span> j must have equal shape
+array(<span class="string">[[ 2,  5],
+       [ 7, 11]]</span>)
+&gt;&gt;&gt;
+&gt;&gt;&gt; a[i,<span class="number">2</span>]
+array(<span class="string">[[ 2,  6],
+       [ 6, 10]]</span>)
+&gt;&gt;&gt;
+&gt;&gt;&gt; a[:,j]                                     # i.e., a[ : , j]
+array(<span class="string">[[[ 2,  1],
+        [ 3,  3]]</span>,
+       <span class="string">[[ 6,  5],
+        [ 7,  7]]</span>,
+       <span class="string">[[10,  9],
+        [11, 11]]</span>])
+</code></pre><p>自然，我们可以把i和j放到序列中(比如说列表)然后通过list索引。</p>
+<pre><code>&gt;&gt;&gt; l = [i,j]
+&gt;&gt;&gt; a[l]                                       <span class="preprocessor"># equivalent to a[i,j]</span>
+<span class="built_in">array</span>([[ <span class="number">2</span>,  <span class="number">5</span>],
+       [ <span class="number">7</span>, <span class="number">11</span>]])
+</code></pre><p>然而，我们不能把i和j放在一个数组中，因为这个数组将被解释成索引a的第一维。</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; s = array( [i,j] )
+<span class="prompt">&gt;&gt;</span>&gt; a[s]                                       <span class="comment"># not what we want</span>
+---------------------------------------------------------------------------
+<span class="constant">IndexError</span>                                <span class="constant">Traceback</span> (most recent call last)
+&lt;ipython-input-<span class="number">100</span>-b912f631cc75&gt; <span class="keyword">in</span> &lt;<span class="class"><span class="keyword">module</span>&gt;()</span>
+----&gt; <span class="number">1</span> a[s]
+
+<span class="constant">IndexError</span><span class="symbol">:</span> index (<span class="number">3</span>) out of range (<span class="number">0</span>&lt;=index&lt;<span class="number">2</span>) <span class="keyword">in</span> dimension <span class="number">0</span>
+<span class="prompt">&gt;&gt;</span>&gt;
+&gt;&gt;&gt; a[tuple(s)]                                <span class="comment"># same as a[i,j]</span>
+array([[ <span class="number">2</span>,  <span class="number">5</span>],
+       [ <span class="number">7</span>, <span class="number">11</span>]])
+</code></pre><p>另一个常用的数组索引用法是搜索时间序列最大值<a href="我也不知道在翻译什么了……">^6</a>。</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; time = linspace(<span class="number">20</span>, <span class="number">145</span>, <span class="number">5</span>)                 <span class="comment"># time scale</span>
+<span class="prompt">&gt;&gt;</span>&gt; data = sin(arange(<span class="number">20</span>)).reshape(<span class="number">5</span>,<span class="number">4</span>)         <span class="comment"># 4 time-dependent series</span>
+<span class="prompt">&gt;&gt;</span>&gt; time
+array([  <span class="number">20</span>.  ,   <span class="number">51.25</span>,   <span class="number">82.5</span> ,  <span class="number">113.75</span>,  <span class="number">145</span>.  ])
+<span class="prompt">&gt;&gt;</span>&gt; data
+array([[ <span class="number">0</span>.        ,  <span class="number">0</span>.<span class="number">84147098</span>,  <span class="number">0</span>.<span class="number">90929743</span>,  <span class="number">0</span>.<span class="number">14112001</span>],
+       [-<span class="number">0</span>.<span class="number">7568025</span> , -<span class="number">0</span>.<span class="number">95892427</span>, -<span class="number">0</span>.<span class="number">2794155</span> ,  <span class="number">0</span>.<span class="number">6569866</span> ],
+       [ <span class="number">0</span>.<span class="number">98935825</span>,  <span class="number">0</span>.<span class="number">41211849</span>, -<span class="number">0</span>.<span class="number">54402111</span>, -<span class="number">0</span>.<span class="number">99999021</span>],
+       [-<span class="number">0</span>.<span class="number">53657292</span>,  <span class="number">0</span>.<span class="number">42016704</span>,  <span class="number">0</span>.<span class="number">99060736</span>,  <span class="number">0</span>.<span class="number">65028784</span>],
+       [-<span class="number">0</span>.<span class="number">28790332</span>, -<span class="number">0</span>.<span class="number">96139749</span>, -<span class="number">0</span>.<span class="number">75098725</span>,  <span class="number">0</span>.<span class="number">14987721</span>]])
+<span class="prompt">&gt;&gt;</span>&gt;
+&gt;&gt;&gt; ind = data.argmax(axis=<span class="number">0</span>)                   <span class="comment"># index of the maxima for each series</span>
+<span class="prompt">&gt;&gt;</span>&gt; ind
+array([<span class="number">2</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">1</span>])
+<span class="prompt">&gt;&gt;</span>&gt;
+&gt;&gt;&gt; time_max = time[ ind]                       <span class="comment"># times corresponding to the maxima</span>
+<span class="prompt">&gt;&gt;</span>&gt;
+&gt;&gt;&gt; data_max = data[ind, xrange(data.shape[<span class="number">1</span>])] <span class="comment"># =&gt; data[ind[0],0], data[ind[1],1]...</span>
+<span class="prompt">&gt;&gt;</span>&gt;
+&gt;&gt;&gt; time_max
+array([  <span class="number">82.5</span> ,   <span class="number">20</span>.  ,  <span class="number">113.75</span>,   <span class="number">51.25</span>])
+<span class="prompt">&gt;&gt;</span>&gt; data_max
+array([ <span class="number">0</span>.<span class="number">98935825</span>,  <span class="number">0</span>.<span class="number">84147098</span>,  <span class="number">0</span>.<span class="number">99060736</span>,  <span class="number">0</span>.<span class="number">6569866</span> ])
+<span class="prompt">&gt;&gt;</span>&gt;
+&gt;&gt;&gt; all(data_max == data.max(axis=<span class="number">0</span>))
+<span class="constant">True</span>
+</code></pre><p>你也可以使用数组索引作为目标来赋值：</p>
+<pre><code>&gt;&gt;&gt; <span class="tag">a</span> = <span class="function"><span class="title">arange</span><span class="params">(<span class="number">5</span>)</span></span>
+&gt;&gt;&gt; <span class="tag">a</span>
+<span class="function"><span class="title">array</span><span class="params">([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])</span></span>
+&gt;&gt;&gt; <span class="tag">a</span>[[<span class="number">1</span>,<span class="number">3</span>,<span class="number">4</span>]] = <span class="number">0</span>
+&gt;&gt;&gt; <span class="tag">a</span>
+<span class="function"><span class="title">array</span><span class="params">([<span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>])</span></span>
+</code></pre><p>然而，当一个索引列表包含重复时，赋值被多次完成，保留最后的值：</p>
+<pre><code>&gt;&gt;&gt; a = arange(<span class="number">5</span>)
+&gt;&gt;&gt; a[[<span class="number">0</span>,<span class="number">0</span>,<span class="number">2</span>]]=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]
+&gt;&gt;&gt; <span class="function">a
+<span class="title">array</span><span class="params">([<span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">4</span>])</span></span>
+</code></pre><p>这足够合理，但是小心如果你想用Python的<code>+=</code>结构，可能结果并非你所期望：</p>
+<pre><code>&gt;&gt;&gt; <span class="tag">a</span> = <span class="function"><span class="title">arange</span><span class="params">(<span class="number">5</span>)</span></span>
+&gt;&gt;&gt; <span class="tag">a</span>[[<span class="number">0</span>,<span class="number">0</span>,<span class="number">2</span>]]+=<span class="number">1</span>
+&gt;&gt;&gt; <span class="tag">a</span>
+<span class="function"><span class="title">array</span><span class="params">([<span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">4</span>])</span></span>
+</code></pre><p>即使0在索引列表中出现两次，索引为0的元素仅仅增加一次。这是因为Python要求<code>a+=1</code>和<code>a=a+1</code>等同。</p>
+<h3 id="通过布尔数组索引">通过布尔数组索引</h3><p>当我们使用整数数组索引数组时，我们提供一个索引列表去选择。通过布尔数组索引的方法是不同的我们显式地选择数组中我们想要和不想要的元素。</p>
+<p>我们能想到的使用布尔数组的索引最自然方式就是使用和原数组一样形状的布尔数组。</p>
+<pre><code><span class="prompt">&gt;&gt;&gt; </span>a = arange(<span class="number">12</span>).reshape(<span class="number">3</span>,<span class="number">4</span>)
+<span class="prompt">&gt;&gt;&gt; </span>b = a &gt; <span class="number">4</span>
+<span class="prompt">&gt;&gt;&gt; </span>b                                          <span class="comment"># b is a boolean with a's shape</span>
+array([[<span class="keyword">False</span>, <span class="keyword">False</span>, <span class="keyword">False</span>, <span class="keyword">False</span>],
+       [<span class="keyword">False</span>, <span class="keyword">True</span>, <span class="keyword">True</span>, <span class="keyword">True</span>],
+       [<span class="keyword">True</span>, <span class="keyword">True</span>, <span class="keyword">True</span>, <span class="keyword">True</span>]], dtype=bool)
+<span class="prompt">&gt;&gt;&gt; </span>a[b]                                       <span class="comment"># 1d array with the selected elements</span>
+array([ <span class="number">5</span>,  <span class="number">6</span>,  <span class="number">7</span>,  <span class="number">8</span>,  <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>])
+</code></pre><p>这个属性在赋值时非常有用：</p>
+<pre><code>&gt;&gt;&gt; a[b] = <span class="number">0</span>                                   <span class="preprocessor"># All elements of <span class="string">'a'</span> higher than <span class="number">4</span> become <span class="number">0</span></span>
+&gt;&gt;&gt; <span class="function">a
+<span class="title">array</span><span class="params">([[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],
+       [<span class="number">4</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],
+       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]])</span></span>
+</code></pre><p>你可以参考<a href="http://scipy.org/Tentative_NumPy_Tutorial/Mandelbrot_Set_Example" target="_blank" rel="external">曼德博集合示例</a>看看如何使用布尔索引来生成曼德博集合的图像。</p>
+<p>第二种通过布尔来索引的方法更近似于整数索引；对数组的每个维度我们给一个一维布尔数组来选择我们想要的切片。</p>
+<pre><code>&gt;&gt;&gt; a = arange(<span class="number">12</span>).reshape(<span class="number">3</span>,<span class="number">4</span>)
+&gt;&gt;&gt; b1 = <span class="built_in">array</span>([False,True,True])             <span class="preprocessor"># first dim selection</span>
+&gt;&gt;&gt; b2 = <span class="built_in">array</span>([True,False,True,False])       <span class="preprocessor"># second dim selection</span>
+&gt;&gt;&gt;
+&gt;&gt;&gt; a[b1,:]                                   <span class="preprocessor"># selecting rows</span>
+<span class="built_in">array</span>([[ <span class="number">4</span>,  <span class="number">5</span>,  <span class="number">6</span>,  <span class="number">7</span>],
+       [ <span class="number">8</span>,  <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>]])
+&gt;&gt;&gt;
+&gt;&gt;&gt; a[b1]                                     <span class="preprocessor"># same thing</span>
+<span class="built_in">array</span>([[ <span class="number">4</span>,  <span class="number">5</span>,  <span class="number">6</span>,  <span class="number">7</span>],
+       [ <span class="number">8</span>,  <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>]])
+&gt;&gt;&gt;
+&gt;&gt;&gt; a[:,b2]                                   <span class="preprocessor"># selecting columns</span>
+<span class="built_in">array</span>([[ <span class="number">0</span>,  <span class="number">2</span>],
+       [ <span class="number">4</span>,  <span class="number">6</span>],
+       [ <span class="number">8</span>, <span class="number">10</span>]])
+&gt;&gt;&gt;
+&gt;&gt;&gt; a[b1,b2]                                  <span class="preprocessor"># a weird thing to do</span>
+<span class="built_in">array</span>([ <span class="number">4</span>, <span class="number">10</span>])
+</code></pre><p>注意一维数组的长度必须和你想要切片的维度或轴的长度一致，在之前的例子中，b1是一个秩为1长度为三的数组(a的行数)，b2(长度为4)与a的第二秩(列)相一致。<a href="上面最后一个例子，b1和b2中的true个数必须一致">^7</a></p>
+<h3 id="ix_()函数">ix_()函数</h3><p><code>ix_</code>函数可以为了获得<a href="http://zh.wikipedia.org/wiki/%E5%A4%9A%E5%85%83%E7%BB%84" target="_blank" rel="external">多元组</a>的结果而用来结合不同向量。例如，如果你想要用所有向量a、b和c元素组成的三元组来计算<code>a+b*c</code>：</p>
+<pre><code>&gt;&gt;&gt; a = array([<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>])
+&gt;&gt;&gt; b = array([<span class="number">8</span>,<span class="number">5</span>,<span class="number">4</span>])
+&gt;&gt;&gt; c = array([<span class="number">5</span>,<span class="number">4</span>,<span class="number">6</span>,<span class="number">8</span>,<span class="number">3</span>])
+&gt;&gt;&gt; ax,bx,cx = ix_(a,b,c)
+&gt;&gt;&gt; ax
+array(<span class="string">[[[2]]</span>,
+
+       <span class="string">[[3]]</span>,
+
+       <span class="string">[[4]]</span>,
+
+       <span class="string">[[5]]</span>])
+&gt;&gt;&gt; bx
+array(<span class="string">[[[8],
+        [5],
+        [4]]</span>])
+&gt;&gt;&gt; cx
+array(<span class="string">[[[5, 4, 6, 8, 3]]</span>])
+&gt;&gt;&gt; ax.shape, bx.shape, cx.shape
+((<span class="number">4</span>, <span class="number">1</span>, <span class="number">1</span>), (<span class="number">1</span>, <span class="number">3</span>, <span class="number">1</span>), (<span class="number">1</span>, <span class="number">1</span>, <span class="number">5</span>))
+&gt;&gt;&gt; result = ax+bx*cx
+&gt;&gt;&gt; result
+array(<span class="string">[[[42, 34, 50, 66, 26],
+        [27, 22, 32, 42, 17],
+        [22, 18, 26, 34, 14]]</span>,
+       <span class="string">[[43, 35, 51, 67, 27],
+        [28, 23, 33, 43, 18],
+        [23, 19, 27, 35, 15]]</span>,
+       <span class="string">[[44, 36, 52, 68, 28],
+        [29, 24, 34, 44, 19],
+        [24, 20, 28, 36, 16]]</span>,
+       <span class="string">[[45, 37, 53, 69, 29],
+        [30, 25, 35, 45, 20],
+        [25, 21, 29, 37, 17]]</span>])
+&gt;&gt;&gt; result[<span class="number">3</span>,<span class="number">2</span>,<span class="number">4</span>]
+<span class="number">17</span>
+&gt;&gt;&gt; a[<span class="number">3</span>]+b[<span class="number">2</span>]*c[<span class="number">4</span>]
+<span class="number">17</span>
+</code></pre><p>你也可以实行如下简化：</p>
+<pre><code><span class="function"><span class="keyword">def</span> <span class="title">ufunc_reduce</span><span class="params">(ufct, *vectors)</span>:</span>
+    vs = ix_(*vectors)
+    r = ufct.identity
+    <span class="keyword">for</span> v <span class="keyword">in</span> vs:
+        r = ufct(r,v)
+    <span class="keyword">return</span> r
+</code></pre><p>然后这样使用它：</p>
+<pre><code>&gt;&gt;&gt; ufunc_reduce(add,a,b,c)
+<span class="built_in">array</span>([[[<span class="number">15</span>, <span class="number">14</span>, <span class="number">16</span>, <span class="number">18</span>, <span class="number">13</span>],
+        [<span class="number">12</span>, <span class="number">11</span>, <span class="number">13</span>, <span class="number">15</span>, <span class="number">10</span>],
+        [<span class="number">11</span>, <span class="number">10</span>, <span class="number">12</span>, <span class="number">14</span>,  <span class="number">9</span>]],
+       [[<span class="number">16</span>, <span class="number">15</span>, <span class="number">17</span>, <span class="number">19</span>, <span class="number">14</span>],
+        [<span class="number">13</span>, <span class="number">12</span>, <span class="number">14</span>, <span class="number">16</span>, <span class="number">11</span>],
+        [<span class="number">12</span>, <span class="number">11</span>, <span class="number">13</span>, <span class="number">15</span>, <span class="number">10</span>]],
+       [[<span class="number">17</span>, <span class="number">16</span>, <span class="number">18</span>, <span class="number">20</span>, <span class="number">15</span>],
+        [<span class="number">14</span>, <span class="number">13</span>, <span class="number">15</span>, <span class="number">17</span>, <span class="number">12</span>],
+        [<span class="number">13</span>, <span class="number">12</span>, <span class="number">14</span>, <span class="number">16</span>, <span class="number">11</span>]],
+       [[<span class="number">18</span>, <span class="number">17</span>, <span class="number">19</span>, <span class="number">21</span>, <span class="number">16</span>],
+        [<span class="number">15</span>, <span class="number">14</span>, <span class="number">16</span>, <span class="number">18</span>, <span class="number">13</span>],
+        [<span class="number">14</span>, <span class="number">13</span>, <span class="number">15</span>, <span class="number">17</span>, <span class="number">12</span>]]])
+</code></pre><p>这个reduce与ufunc.reduce(比如说add.reduce)相比的优势在于它利用了广播法则，避免了创建一个输出大小乘以向量个数的参数数组。<a href="我不怎么明白……总之避免创建一个很大的数组。">^8</a></p>
+<h3 id="用字符串索引">用字符串索引</h3><p>参见<a href="http://www.scipy.org/RecordArrays" target="_blank" rel="external">RecordArray</a>。</p>
+<h2 id="线性代数">线性代数</h2><p>继续前进，基本线性代数包含在这里。</p>
+<h3 id="简单数组运算">简单数组运算</h3><p>参考numpy文件夹中的linalg.py获得更多信息</p>
+<pre><code>&gt;&gt;&gt; from numpy import *
+&gt;&gt;&gt; from numpy.linalg import *
+
+&gt;&gt;&gt; a = array(<span class="string">[[1.0, 2.0], [3.0, 4.0]]</span>)
+&gt;&gt;&gt; <span class="built_in">print</span> a
+<span class="string">[[ 1.  2.]
+ [ 3.  4.]]</span>
+
+&gt;&gt;&gt; a.transpose()
+array(<span class="string">[[ 1.,  3.],
+       [ 2.,  4.]]</span>)
+
+&gt;&gt;&gt; inv(a)
+array(<span class="string">[[-2. ,  1. ],
+       [ 1.5, -0.5]]</span>)
+
+&gt;&gt;&gt; u = eye(<span class="number">2</span>) # unit <span class="number">2</span>x2 matrix; <span class="string">"eye"</span> represents <span class="string">"I"</span>
+&gt;&gt;&gt; u
+array(<span class="string">[[ 1.,  0.],
+       [ 0.,  1.]]</span>)
+&gt;&gt;&gt; j = array(<span class="string">[[0.0, -1.0], [1.0, 0.0]]</span>)
+
+&gt;&gt;&gt; dot (j, j) # matrix product
+array(<span class="string">[[-1.,  0.],
+       [ 0., -1.]]</span>)
+
+&gt;&gt;&gt; trace(u)  # trace
+ <span class="number">2.0</span>
+
+&gt;&gt;&gt; y = array(<span class="string">[[5.], [7.]]</span>)
+&gt;&gt;&gt; solve(a, y)
+array(<span class="string">[[-3.],
+       [ 4.]]</span>)
+
+&gt;&gt;&gt; eig(j)
+(array([ <span class="number">0.</span>+<span class="number">1.</span>j,  <span class="number">0.</span>-<span class="number">1.</span>j]),
+array(<span class="string">[[ 0.70710678+0.j,  0.70710678+0.j],
+       [ 0.00000000-0.70710678j,  0.00000000+0.70710678j]]</span>))
+Parameters:
+    square matrix
+
+Returns
+    The eigenvalues, each repeated according to its multiplicity.
+
+    The normalized (unit <span class="string">"length"</span>) eigenvectors, such that the
+    column ``v[:,i]`` is the eigenvector corresponding to the
+    eigenvalue ``w[i]`` .
+</code></pre><h3 id="矩阵类">矩阵类</h3><p>这是一个关于矩阵类的简短介绍。</p>
+<pre><code>&gt;&gt;&gt; A = matrix(<span class="string">'1.0 2.0; 3.0 4.0'</span>)
+&gt;&gt;&gt; A
+<span class="string">[[ 1.  2.]
+ [ 3.  4.]]</span>
+&gt;&gt;&gt; <span class="built_in">type</span>(A)  # file where class is defined
+&lt;class <span class="string">'numpy.matrixlib.defmatrix.matrix'</span>&gt;
+
+&gt;&gt;&gt; A.T  # transpose
+<span class="string">[[ 1.  3.]
+ [ 2.  4.]]</span>
+
+&gt;&gt;&gt; X = matrix(<span class="string">'5.0 7.0'</span>)
+&gt;&gt;&gt; Y = X.T
+&gt;&gt;&gt; Y
+<span class="string">[[5.]
+ [7.]]</span>
+
+&gt;&gt;&gt; <span class="built_in">print</span> A*Y  # matrix multiplication
+<span class="string">[[19.]
+ [43.]]</span>
+
+&gt;&gt;&gt; <span class="built_in">print</span> A.I  # inverse
+<span class="string">[[-2.   1. ]
+ [ 1.5 -0.5]]</span>
+
+&gt;&gt;&gt; solve(A, Y)  # solving linear equation
+matrix(<span class="string">[[-3.],
+        [ 4.]]</span>)
+</code></pre><h3 id="索引：比较矩阵和二维数组">索引：比较矩阵和二维数组</h3><p>注意NumPy中数组和矩阵有些重要的区别。NumPy提供了两个基本的对象：一个N维数组对象和一个通用函数对象。其它对象都是建构在它们之上的。特别的，矩阵是继承自NumPy数组对象的二维数组对象。对数组和矩阵，索引都必须包含合适的一个或多个这些组合：整数标量、省略号(ellipses)、整数列表;布尔值，整数或布尔值构成的元组，和一个一维整数或布尔值数组。矩阵可以被用作矩阵的索引，但是通常需要数组、列表或者其它形式来完成这个任务。</p>
+<p>像平常在Python中一样，索引是从0开始的。传统上我们用矩形的行和列表示一个二维数组或矩阵，其中沿着0轴的方向被穿过的称作行，沿着1轴的方向被穿过的是列。<a href="水平是1轴，垂直是0轴。">^9</a></p>
+<p>让我们创建数组和矩阵用来切片：</p>
+<pre><code>&gt;&gt;&gt; A = <span class="function"><span class="title">arange</span><span class="params">(<span class="number">12</span>)</span></span>
+&gt;&gt;&gt; A
+<span class="function"><span class="title">array</span><span class="params">([ <span class="number">0</span>,  <span class="number">1</span>,  <span class="number">2</span>,  <span class="number">3</span>,  <span class="number">4</span>,  <span class="number">5</span>,  <span class="number">6</span>,  <span class="number">7</span>,  <span class="number">8</span>,  <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>])</span></span>
+&gt;&gt;&gt; A<span class="class">.shape</span> = (<span class="number">3</span>,<span class="number">4</span>)
+&gt;&gt;&gt; M = <span class="function"><span class="title">mat</span><span class="params">(A.copy()</span></span>)
+&gt;&gt;&gt; print <span class="function"><span class="title">type</span><span class="params">(A)</span></span>,<span class="string">"  "</span>,<span class="function"><span class="title">type</span><span class="params">(M)</span></span>
+&lt;type <span class="string">'numpy.ndarray'</span>&gt;    &lt;class <span class="string">'numpy.core.defmatrix.matrix'</span>&gt;
+&gt;&gt;&gt; print A
+[[ <span class="number">0</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>]
+ [ <span class="number">4</span>  <span class="number">5</span>  <span class="number">6</span>  <span class="number">7</span>]
+ [ <span class="number">8</span>  <span class="number">9</span> <span class="number">10</span> <span class="number">11</span>]]
+&gt;&gt;&gt; print M
+[[ <span class="number">0</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>]
+ [ <span class="number">4</span>  <span class="number">5</span>  <span class="number">6</span>  <span class="number">7</span>]
+ [ <span class="number">8</span>  <span class="number">9</span> <span class="number">10</span> <span class="number">11</span>]]
+</code></pre><p>现在，让我们简单的切几片。基本的切片使用切片对象或整数。例如，<code>A[:]</code>和<code>M[:]</code>的求值将表现得和Python索引很相似。然而要注意很重要的一点就是NumPy切片数组<em>不</em>创建数据的副本;切片提供统一数据的视图。</p>
+<pre><code>&gt;&gt;&gt; print A[:]; print A[:].shape
+[[ <span class="number">0</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>]
+ [ <span class="number">4</span>  <span class="number">5</span>  <span class="number">6</span>  <span class="number">7</span>]
+ [ <span class="number">8</span>  <span class="number">9</span> <span class="number">10</span> <span class="number">11</span>]]
+(<span class="number">3</span>, <span class="number">4</span>)
+&gt;&gt;&gt; print M[:]; print M[:].shape
+[[ <span class="number">0</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>]
+ [ <span class="number">4</span>  <span class="number">5</span>  <span class="number">6</span>  <span class="number">7</span>]
+ [ <span class="number">8</span>  <span class="number">9</span> <span class="number">10</span> <span class="number">11</span>]]
+(<span class="number">3</span>, <span class="number">4</span>)
+</code></pre><p>现在有些和Python索引不同的了：你可以同时使用逗号分割索引来沿着多个轴索引。</p>
+<pre><code>&gt;&gt;&gt; print A[:,<span class="number">1</span>]; print A[:,<span class="number">1</span>].shape
+[<span class="number">1</span> <span class="number">5</span> <span class="number">9</span>]
+(<span class="number">3</span>,)
+&gt;&gt;&gt; print M[:,<span class="number">1</span>]; print M[:,<span class="number">1</span>].shape
+[[<span class="number">1</span>]
+ [<span class="number">5</span>]
+ [<span class="number">9</span>]]
+(<span class="number">3</span>, <span class="number">1</span>)
+</code></pre><p>注意最后两个结果的不同。对二维数组使用一个冒号产生一个一维数组，然而矩阵产生了一个二维矩阵。<a href="`type(M[:,1])`和`type(A[:,1])`你可以看到是这样。">^10</a>例如，一个<code>M[2,:]</code>切片产生了一个形状为(1,4)的矩阵，相比之下，一个数组的切片总是产生一个最低可能维度<a href="什么叫尽可能低的维度？不懂。">^11</a>的数组。例如，如果C是一个三维数组，<code>C[...,1]</code>产生一个二维的数组而<code>C[1,:,1]</code>产生一个一维数组。从这时开始，如果相应的矩阵切片结果是相同的话，我们将只展示数组切片的结果。</p>
+<p>假如我们想要一个数组的第一列和第三列，一种方法是使用列表切片：</p>
+<pre><code>&gt;&gt;&gt; A[:,[<span class="number">1</span>,<span class="number">3</span>]]
+<span class="built_in">array</span>([[ <span class="number">1</span>,  <span class="number">3</span>],
+       [ <span class="number">5</span>,  <span class="number">7</span>],
+       [ <span class="number">9</span>, <span class="number">11</span>]])
+</code></pre><p>稍微复杂点的方法是使用<code>take()</code>方法(method):</p>
+<pre><code>&gt;&gt;&gt; A[:,].take([<span class="number">1</span>,<span class="number">3</span>],axis=<span class="number">1</span>)
+<span class="built_in">array</span>([[ <span class="number">1</span>,  <span class="number">3</span>],
+       [ <span class="number">5</span>,  <span class="number">7</span>],
+       [ <span class="number">9</span>, <span class="number">11</span>]])
+</code></pre><p>如果我们想跳过第一行，我们可以这样：</p>
+<pre><code>&gt;&gt;&gt; A[<span class="number">1</span>:,].take([<span class="number">1</span>,<span class="number">3</span>],axis=<span class="number">1</span>)
+<span class="built_in">array</span>([[ <span class="number">5</span>,  <span class="number">7</span>],
+       [ <span class="number">9</span>, <span class="number">11</span>]])
+</code></pre><p>或者我们仅仅使用<code>A[1:,[1,3]]</code>。还有一种方法是通过矩阵向量积(叉积)。</p>
+<pre><code>&gt;&gt;&gt; A[ix_((<span class="number">1</span>,<span class="number">2</span>),(<span class="number">1</span>,<span class="number">3</span>))]
+<span class="built_in">array</span>([[ <span class="number">5</span>,  <span class="number">7</span>],
+       [ <span class="number">9</span>, <span class="number">11</span>]])
+</code></pre><p>为了读者的方便，再次写下之前的矩阵：</p>
+<pre><code>&gt;&gt;&gt; print A
+[[ <span class="number">0</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>]
+ [ <span class="number">4</span>  <span class="number">5</span>  <span class="number">6</span>  <span class="number">7</span>]
+ [ <span class="number">8</span>  <span class="number">9</span> <span class="number">10</span> <span class="number">11</span>]]
+</code></pre><p>现在让我们做些更复杂的。比如说我们想要保留第一行大于1的列。一种方法是创建布尔索引：</p>
+<pre><code>&gt;&gt;&gt; A[<span class="number">0</span>,:]&gt;<span class="number">1</span>
+<span class="built_in">array</span>([False, False, True, True], dtype=<span class="keyword">bool</span>)
+&gt;&gt;&gt; A[:,A[<span class="number">0</span>,:]&gt;<span class="number">1</span>]
+<span class="built_in">array</span>([[ <span class="number">2</span>,  <span class="number">3</span>],
+       [ <span class="number">6</span>,  <span class="number">7</span>],
+       [<span class="number">10</span>, <span class="number">11</span>]])
+</code></pre><p>就是我们想要的！但是索引矩阵没这么方便。</p>
+<pre><code>&gt;&gt;&gt; M[<span class="number">0</span>,:]&gt;<span class="number">1</span>
+matrix(<span class="string">[[False, False, True, True]]</span>, dtype=bool)
+&gt;&gt;&gt; M[:,M[<span class="number">0</span>,:]&gt;<span class="number">1</span>]
+matrix(<span class="string">[[2, 3]]</span>)
+</code></pre><p>这个过程的问题是用“矩阵切片”来切片产生一个矩阵<a href="用矩阵切片">^12</a>，但是矩阵有个方便的<code>A</code>属性，它的值是数组呈现的。所以我们仅仅做以下替代：</p>
+<pre><code>&gt;&gt;&gt; M[:,M.A[<span class="number">0</span>,:]&gt;<span class="number">1</span>]
+matrix([[ <span class="number">2</span>,  <span class="number">3</span>],
+        [ <span class="number">6</span>,  <span class="number">7</span>],
+        [<span class="number">10</span>, <span class="number">11</span>]])
+</code></pre><p>如果我们想要在矩阵两个方向有条件地切片，我们必须稍微调整策略，代之以：</p>
+<pre><code>&gt;&gt;&gt; A[A[:,<span class="number">0</span>]&gt;<span class="number">2</span>,A[<span class="number">0</span>,:]&gt;<span class="number">1</span>]
+<span class="built_in">array</span>([ <span class="number">6</span>, <span class="number">11</span>])
+&gt;&gt;&gt; M[M.A[:,<span class="number">0</span>]&gt;<span class="number">2</span>,M.A[<span class="number">0</span>,:]&gt;<span class="number">1</span>]
+matrix([[ <span class="number">6</span>, <span class="number">11</span>]])
+</code></pre><p>我们需要使用向量积<code>ix_</code>:</p>
+<pre><code>&gt;&gt;&gt; A[ix_(A[:,<span class="number">0</span>]&gt;<span class="number">2</span>,A[<span class="number">0</span>,:]&gt;<span class="number">1</span>)]
+<span class="built_in">array</span>([[ <span class="number">6</span>,  <span class="number">7</span>],
+       [<span class="number">10</span>, <span class="number">11</span>]])
+&gt;&gt;&gt; M[ix_(M.A[:,<span class="number">0</span>]&gt;<span class="number">2</span>,M.A[<span class="number">0</span>,:]&gt;<span class="number">1</span>)]
+matrix([[ <span class="number">6</span>,  <span class="number">7</span>],
+        [<span class="number">10</span>, <span class="number">11</span>]])
+</code></pre><h2 id="技巧和提示">技巧和提示</h2><p>下面我们给出简短和有用的提示。</p>
+<h3 id="“自动”改变形状">“自动”改变形状</h3><p>更改数组的维度，你可以省略一个尺寸，它将被自动推导出来。</p>
+<pre><code>&gt;&gt;&gt; a = arange(<span class="number">30</span>)
+&gt;&gt;&gt; a.shape = <span class="number">2</span>,-<span class="number">1</span>,<span class="number">3</span>  <span class="preprocessor"># -<span class="number">1</span> means <span class="string">"whatever is needed"</span></span>
+&gt;&gt;&gt; a.shape
+(<span class="number">2</span>, <span class="number">5</span>, <span class="number">3</span>)
+&gt;&gt;&gt; <span class="function">a
+<span class="title">array</span><span class="params">([[[ <span class="number">0</span>,  <span class="number">1</span>,  <span class="number">2</span>],
+        [ <span class="number">3</span>,  <span class="number">4</span>,  <span class="number">5</span>],
+        [ <span class="number">6</span>,  <span class="number">7</span>,  <span class="number">8</span>],
+        [ <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>],
+        [<span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>]],
+       [[<span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>],
+        [<span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>],
+        [<span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>],
+        [<span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>],
+        [<span class="number">27</span>, <span class="number">28</span>, <span class="number">29</span>]]])</span></span>
+</code></pre><h3 id="向量组合(stacking)">向量组合(stacking)</h3><p>我们如何用两个相同尺寸的行向量列表构建一个二维数组？在MATLAB中这非常简单：如果x和y是两个相同长度的向量，你仅仅需要做<code>m=[x;y]</code>。在NumPy中这个过程通过函数<code>column_stack</code>、<code>dstack</code>、<code>hstack</code>和<code>vstack</code>来完成，取决于你想要在那个维度上组合。例如：</p>
+<pre><code>x = arange(<span class="number">0</span>,<span class="number">10</span>,<span class="number">2</span>)                     <span class="preprocessor"># x=([<span class="number">0</span>,<span class="number">2</span>,<span class="number">4</span>,<span class="number">6</span>,<span class="number">8</span>])</span>
+y = arange(<span class="number">5</span>)                          <span class="preprocessor"># y=([<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span>
+m = vstack([x,y])                      <span class="preprocessor"># m=([[<span class="number">0</span>,<span class="number">2</span>,<span class="number">4</span>,<span class="number">6</span>,<span class="number">8</span>],</span>
+                                       <span class="preprocessor">#     [<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>]])</span>
+xy = hstack([x,y])                     <span class="preprocessor"># xy =([<span class="number">0</span>,<span class="number">2</span>,<span class="number">4</span>,<span class="number">6</span>,<span class="number">8</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span>
+</code></pre><p>二维以上这些函数背后的逻辑会很奇怪。</p>
+<p>参考<a href="http://scipy.org/NumPy_for_Matlab_Users" target="_blank" rel="external">写个Matlab用户的NumPy指南</a>并且在这里添加你的新发现: )</p>
+<h3 id="直方图(histogram)">直方图(histogram)</h3><p>NumPy中<code>histogram</code>函数应用到一个数组返回一对变量：直方图数组和箱式向量。注意：<code>matplotlib</code>也有一个用来建立直方图的函数(叫作<code>hist</code>,正如matlab中一样)与NumPy中的不同。主要的差别是<code>pylab.hist</code>自动绘制直方图，而<code>numpy.histogram</code>仅仅产生数据。</p>
+<pre><code>import numpy
+import pylab
+<span class="preprocessor"># Build a vector of <span class="number">10000</span> normal deviates with variance <span class="number">0.5</span>^<span class="number">2</span> and mean <span class="number">2</span></span>
+mu, sigma = <span class="number">2</span>, <span class="number">0.5</span>
+v = numpy.random.normal(mu,sigma,<span class="number">10000</span>)
+<span class="preprocessor"># Plot a normalized histogram with <span class="number">50</span> bins</span>
+pylab.hist(v, bins=<span class="number">50</span>, normed=<span class="number">1</span>)       <span class="preprocessor"># matplotlib version (plot)</span>
+pylab.show()
+<span class="preprocessor"># Compute the histogram with numpy and then plot it</span>
+(n, bins) = numpy.histogram(v, bins=<span class="number">50</span>, normed=True)  <span class="preprocessor"># NumPy version (no plot)</span>
+pylab.plot(<span class="number">.5</span>*(bins[<span class="number">1</span>:]+bins[:-<span class="number">1</span>]), n)
+pylab.show()
+</code></pre><h2 id="参考文献">参考文献</h2><ul>
+<li>The <a href="http://docs.python.org/tut/tut.html" target="_blank" rel="external">Python tutorial</a>.</li>
+<li>The <a href="http://scipy.org/Numpy_Example_List" target="_blank" rel="external">Numpy Example List</a>.</li>
+<li>The nonexistent <a href="http://scipy.org/NumPy_Tutorial" target="_blank" rel="external">NumPy Tutorial</a> at scipy.org, where we can find the old Numeric documentation.</li>
+<li>The <a href="http://www.tramy.us/" target="_blank" rel="external">Guide to NumPy</a> book.</li>
+<li>The <a href="http://scipy.org/SciPy_Tutorial" target="_blank" rel="external">SciPy Tutorial</a> and a <a href="http://www.rexx.com/~dkuhlman/scipy_course_01.html" target="_blank" rel="external">SciPy course online</a></li>
+<li><a href="http://scipy.org/NumPy_for_Matlab_Users" target="_blank" rel="external">NumPy for Matlab Users</a>.</li>
+<li>A <a href="http://mathesaurus.sf.net/" target="_blank" rel="external">matlab, R, IDL, NumPy/SciPy dictionary</a>. </li>
+</ul>
+<hr>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/life/2012/08/17/to-be-an-epicurean/" itemprop="url">
+                  To Be An Epicurean
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-08-17T00:00:00+08:00" content="2012-08-17">
+              2012-08-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/life/" itemprop="url" rel="index">
+                    <span itemprop="name">life</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/life/2012/08/17/to-be-an-epicurean/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2012/08/17/to-be-an-epicurean/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p><strong>胡言乱语，请随意喷。</strong></p>
+<h2 id="起">起</h2><p>晚上我正对着一堆python的东西不知所措时，室友自习回来，怒斥着考研太难过，表示不想考了。瞬间我们寝室便从四人考研将要沦落到我一个人了，这不是什么问题，也就是将来一个人困难更多些而已。然后他补充了一句：人活了为了什么？不就是为了爽吗？</p>
+<p>我忽然感觉语塞，不知如何应答。说不出有什么问题，但心中拼命有个声音在问着：是吗是吗是这样吗？</p>
+<p>感觉不对劲，很不对劲。</p>
+<p>我不是一个反享乐主义者，事实上，我觉得每一个人都应该尽力享受他们的生命。若干月前我在图书馆看到一本享乐主义手册，书中虽然罗列了史上臭名昭著的享乐主义者，但极力鼓励人们享受自己的生活，过一个轻松愉快的人生。</p>
+<p>但总感觉有哪里不对劲，但又理不清究竟是哪里不对。</p>
+<h2 id="承">承</h2><p>于是心神不宁地去操场跑步，仰头看着久违的美丽星空。矛盾在心中一直萦绕，这无关紧要的问题为什么让我如此心神不宁？</p>
+<p>我也许不是个纯粹的享乐主义者，甚至在很多方面我都倾向于苦修主义者，希望借以磨砺自己的意志。</p>
+<p>但我只是跟他人方向不同罢了，互联网和文字使那些与自我时空千里之遥的思想在我心之土壤生根发芽，比周边的人更多塑造了我。我只是把自己的执迷不悟和强烈的欲望发泄在了我因此所感兴趣的领域上——数学、艺术、计算机。但我依然在他人不关心的方面贪嗔痴怪，不觉不慧。</p>
+<p>我寻找、追寻、计划、妄想，依然也是使我感觉更“爽”，像在技术上的成就感、hack的乐趣，艺术的美和数学的美和精致。</p>
+<p>既然我亦如是，到底哪里感觉不对劲？</p>
+<h2 id="转">转</h2><p>我凝视天空，为城市光污染而星光黯淡的星空扼腕，</p>
+<p>忽然寒颤，忽然明白</p>
+<p>我怕那些极端的享乐主义者，怕他们的“爽”硬要强加在自己头上。</p>
+<p>怕自己的信念与执着被自以为是的享乐主义者们扼杀。</p>
+<p>怕众人只看见自己所见。</p>
+<p>怕抬头再没了那份好奇的冲动，</p>
+<p>探索的精神与好奇心。</p>
+<p>虽然也勉强算是一个epicurean，</p>
+<p>但有比那更得吾心的</p>
+<p>我无法想象上千年来我们都酒池肉林</p>
+<p>还以为我们看到的就如同所看到的世界</p>
+<p>还以为自己是万物中心的世界</p>
+<p>总之，我痛恨醉生梦死的世界和止步不前的死水。</p>
+<p>然而我依然还是个享乐主义者。</p>
+<h2 id="合">合</h2><p>我思索整个开源社区，没有利益支持却如何发展起来</p>
+<p>我思索这些年来让我着迷的东西</p>
+<p>思索那些明明让我疲乏而孤独的东西怎么能让我夜以继日的迷恋其中。</p>
+<p>思索那些为某种信念忘我的人</p>
+<p>思索那些为了某种乐趣迷失到另一个世界的人</p>
+<p>他们选择了怎样的人生。世人又怎么看他们。</p>
+<p>其实所有的人都是享乐主义者，但又如此不同</p>
+<p>享乐主义不只是食色。这世界神赐给人类的乐趣如此之多</p>
+<p>以致生命如此之精彩</p>
+<p>我只是希望，不同的人、不同信念的人、不同乐趣的人</p>
+<p>把目光从自身移向更广阔的宇宙，更多理解和包容。</p>
+<p>我所言所为</p>
+<p>未必能改变世界，只是撒下思想的种子。</p>
+<p>如若有缘，它会在合适的地方于合适的时间生根发芽，</p>
+<p>甚至结成硕果，繁育成林。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/life/2012/08/15/galgame/" itemprop="url">
                   GALGAME
                 </a>
@@ -1386,293 +2553,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/lisp/2012/07/02/webdice-of-doom/" itemprop="url">
-                  基于web的Dice of Doom
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-07-02T00:00:00+08:00" content="2012-07-02">
-              2012-07-02
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/lisp/" itemprop="url" rel="index">
-                    <span itemprop="name">lisp</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/lisp/2012/07/02/webdice-of-doom/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/07/02/webdice-of-doom/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="基于web的Dice_of_Doom游戏">基于web的Dice of Doom游戏</h1><p>眼看最后两章了,虽然AI那里云山雾罩,然而看到web又精神为之一震,真是看得高潮迭起啊。作者也很给力，直接用html5来编写web应用，把svg直接嵌入到html中。可惜作者用的是firefox3.7 alpha，为了在我的archlinux x86_64的firefox12上运行良好，还是多废了些心机。这章看着很爽。</p>
-<h2 id="绘制游戏元素">绘制游戏元素</h2><p>毋庸置疑，所有游戏界面要用svg画出来，于是我们之前写得 <a href="/lisp/2012/06/16/dsl/">svg库</a> 要派上用场了。什么？已经没有了？那么从该书主页上下载<a href="http://landoflisp.com/source.html" target="_blank" rel="external">svg.lisp</a>.</p>
-<p>由于要创建个基于web的应用程序，之前的<a href="/lisp/2012/05/12/web-server-written-in-lisp/">webserver</a>也需要加载。</p>
-<p>当然还有我们的游戏新引擎<a href="/lisp/2012/06/29/dice-of-doom-v2/">Dice of Doom v2</a></p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(cd &#34;~/Documents/lisp&#34;) &#10;(load &#34;dice_of_doom_v2&#34;)&#10;(load &#34;webserver&#34;)&#10;(load &#34;svg.lisp&#34;)</span><br></pre></td></tr></table></figure>
-<p>然后需要先设定一些常数</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defparameter *board-width* 900);&#38754;&#26495;&#23485;&#24230;&#10;(defparameter *board-height* 500);&#38754;&#26495;&#39640;&#24230;&#10;(defparameter *board-scale* 64);&#38754;&#26495;&#32553;&#25918;&#27604;&#20363;&#10;(defparameter *top-offset* 3);&#20004;&#25694;&#36215;&#26469;&#30340;&#39600;&#23376;&#30456;&#23545;&#20301;&#31227;&#10;(defparameter *dice-scale* 40);&#39600;&#23376;&#32553;&#25918;&#27604;&#20363;&#10;(defparameter *dot-size* 0.05);&#39600;&#23376;&#19978;&#28857;&#30340;&#22823;&#23567;</span><br></pre></td></tr></table></figure>
-<p>接下来画骰子</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun draw-die-svg (x y col)&#10;  (labels ((calc-pt (pt)&#10;             (cons (+ x (* *dice-scale* (car pt)))&#10;                   (+ y (* *dice-scale* (cdr pt)))))&#10;           (f (pol col)&#10;             (polygon (mapcar #&#39;calc-pt pol) col)))&#10;    (f &#39;((0 . -1) (-0.6 . -0.75) (0 . -0.5) (0.6 . -0.75))&#10;       (brightness col 40))&#10;    (f &#39;((0 . -0.5) (-0.6 . -0.75) (-0.6 . 0) (0 . 0.25))&#10;       col)&#10;    (f &#39;((0 . -0.5) (0.6 . -0.75) (0.6 . 0) (0 . 0.25))&#10;       (brightness col -40))&#10;    (mapc (lambda (x y)&#10;            (polygon (mapcar (lambda (xx yy)&#10;                               (calc-pt (cons (+ x (* xx *dot-size*))&#10;                                              (+ y (* yy *dot-size*)))))&#10;                             &#39;(-1 -1 1 1)&#10;                             &#39;(-1 1 1 -1))&#10;                     &#39;(255 255 255)))&#10;          &#39;(-0.05 0.125 0.3 -0.3 -0.125 0.05 0.2 0.2 0.45 0.45 -0.45 -0.2)&#10;          &#39;(-0.875 -0.80 -0.725 -0.775 -0.70 -0.625 -0.35 -0.05 -0.45 -0.15 -0.45 -0.05))))&#10;;(with-open-file (*standard-output* &#34;die.svg&#34; :direction :output :if-exists :supersede) (svg 100 100 (draw-die-svg 50 50 &#39;(255 0 0))))</span><br></pre></td></tr></table></figure>
-<p>再画一小块面板</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun draw-tile-svg (x y pos hex xx yy col chosen-tile)&#10;  (loop for z below 2&#10;        do (polygon (mapcar (lambda (pt)&#10;                              (cons (+ xx (* *board-scale* (car pt)))&#10;                                    (+ yy (* *board-scale*&#10;                                             (+ (cdr pt) (* (- 1 z) 0.1))))))&#10;                            &#39;((-1 . -0.2) (0 . -0.5) (1 . -0.2)&#10;                                          (1 . 0.2) (0 . 0.5) (-1 . 0.2)))&#10;                    (if (eql pos chosen-tile)&#10;                      (brightness col 100)&#10;                      col)))&#10;  (loop for z below (second hex)&#10;        do (draw-die-svg (+ xx&#10;                            (* *dice-scale*&#10;                               0.3&#10;                               (if (oddp (+ x y z))&#10;                                 -0.3&#10;                                 0.3)))&#10;                         (- yy (* *dice-scale* z 0.8)) col)))&#10;&#10;;(with-open-file (*standard-output* &#34;tile.svg&#34; :direction :output) (svg 300 300 (draw-tile-svg 0 0 0 &#39;(0 3) 100 150 &#39;(255 0 0) nil)))</span><br></pre></td></tr></table></figure>
-<p>接下来是整个面板</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Draw the Board&#10;(defparameter *die-colors* &#39;((255 63 63) (63 63 255)))&#10;(defun draw-board-svg (board chosen-tile legal-tiles)&#10;  (loop for y below *board-size*&#10;        do (loop for x below *board-size*&#10;                 for pos = (+ x (* *board-size* y))&#10;                 for hex = (aref board pos)&#10;                 for xx = (* *board-scale* (+ (* 2 x) (- *board-size* y)))&#10;                 for yy = (* *board-scale* (+ (* y 0.7) *top-offset*))&#10;                 for col = (brightness (nth (first hex) *die-colors*)&#10;                                       (* -15 (- *board-size* y)))&#10;                 do (if (member pos legal-tiles)&#10;                      (tag g ()&#10;                        (tag a (&#34;xlink:href&#34; (make-game-link pos))&#10;                          (draw-tile-svg x y pos hex xx yy col chosen-tile)))&#10;                      (draw-tile-svg x y pos hex xx yy col chosen-tile)))))&#10;(defun make-game-link (pos)&#10;  (format nil &#34;/game.html?chosen=~a&#34; pos))&#10;;(with-open-file (*standard-output* &#34;board.svg&#34; :direction :output :if-exists :supersede) (svg *board-width* *board-height* (draw-board-svg (gen-board) nil nil)))</span><br></pre></td></tr></table></figure>
-<p>这有个问题，之前我们svg宏不是像上文中那样定义的，svg宏需要稍加修改，具体参见本书的<a href="http://landoflisp.com/errata.html" target="_blank" rel="external">errata</a></p>
-<h2 id="建立Web服务器">建立Web服务器</h2><p>先写游戏的驱动</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defparameter *cur-game-tree* nil);&#21021;&#22987;&#21270;&#24403;&#21069;&#28216;&#25103;&#26641;&#10;(defparameter *from-tile* nil);&#36873;&#25321;&#30340;&#19968;&#29255;&#38754;&#26495;&#10;&#10;(defun dod-request-handler (path header params)&#10;  (if (equal path &#34;game.html&#34;)&#10;    (progn (princ &#34;HTTP/1.1 200 OK&#10;&#10;                  &#60;!doctype html&#62;&#10;                  &#60;html&#62;&#60;head&#62;&#60;/head&#62;&#60;body&#62;&#34;)&#10;           (tag center ()&#10;             (princ &#34;Welcome to DICE OF DOOM!&#34;)&#10;             (tag br ())&#10;             (let ((chosen (assoc &#39;chosen params)))&#10;               (when (or (not *cur-game-tree*) (not chosen))&#10;                 (setf chosen nil)&#10;                 (web-initialize))&#10;               (cond ((lazy-null (caddr *cur-game-tree*))&#10;                      (web-announce-winner (cadr *cur-game-tree*)))&#10;                     ((zerop (car *cur-game-tree*))&#10;                      (web-handle-human&#10;                        (when chosen&#10;                          (read-from-string (cdr chosen)))))&#10;                     (t (web-handle-computer))))&#10;             (tag br ())&#10;             (draw-dod-page *cur-game-tree* *from-tile*))&#10;           (princ &#34;&#60;/body&#62;&#60;/html&#62;&#34;)) &#10;    (princ &#34;Sorry... I don&#39;t know that page.&#34;)))</span><br></pre></td></tr></table></figure>
-<p>在这里我稍作修改，更改了服务器返回给浏览器的信息，使它更加符合标准能在firefox12中运行正常。</p>
-<p>我们只做了一个超级简化的服务器，功能弱爆了，但作者许诺能在最后一章很轻易的扩展。之后我们处理些基于webserver的函数</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun web-initialize ()&#10;  (setf *from-tile* nil)&#10;  (setf *cur-game-tree* (game-tree (gen-board) 0 0 t)))&#10;;&#23459;&#24067;&#32988;&#32773;web version&#10;(defun web-announce-winner (board)&#10;  (fresh-line)&#10;  (let ((w (winners board)))&#10;    (if (&#62; (length w ) 1)&#10;      (format t &#34;The game is a tie between ~a&#34; (mapcar #&#39;player-letter w))&#10;      (format t &#34;The winner is ~a&#34; (player-letter (car w)))))&#10;  (tag a (href &#34;game.html&#34;)&#10;    (princ &#34; play again&#34;)))&#10;;&#22788;&#29702;&#20154;&#31867;&#29609;&#23478;&#10;(defun web-handle-human (pos)&#10;  (cond ((not pos) (princ &#34;Please choose a hex to move from:&#34;))&#10;        ((eq pos &#39;pass) (setf *cur-game-tree*&#10;                              (cadr (lazy-car (caddr *cur-game-tree*))))&#10;                        (princ &#34;Your reinforcements have been placed.&#34;)&#10;                        (tag a (href (make-game-link nil))&#10;                          (princ &#34;continue&#34;)))&#10;        ((not *from-tile*) (setf *from-tile* pos)&#10;                           (princ &#34;Now choose a destination:&#34;))&#10;        ((eq pos *from-tile*) (setf *from-tile* nil)&#10;                              (princ &#34;Move cancelled.&#34;))&#10;        (t (setf *cur-game-tree*&#10;                 (cadr (lazy-find-if (lambda (move)&#10;                                       (equal (car move)&#10;                                              (list *from-tile* pos)))&#10;                                     (caddr *cur-game-tree*))))&#10;           (setf *from-tile* nil)&#10;           (princ &#34;You may now &#34;)&#10;           (tag a (href (make-game-link &#39;pass))&#10;             (princ &#34;pass&#34;))&#10;           (princ &#34; or make another move:&#34;))))&#10;;&#22788;&#29702;&#35745;&#31639;&#26426;&#29609;&#23478;&#10;(defun web-handle-computer ()&#10;  (setf *cur-game-tree* (handle-computer *cur-game-tree*))&#10;  (princ &#34;The computer has moved. &#34;)&#10;  (tag script ()&#10;    (princ&#10;      &#34;window.setTimeout(&#39;window.location=\&#34;game.html?chosen=NIL\&#34;&#39;,3000)&#34;)));javascript&#65292;&#25913;&#25104;3&#31186;&#20102;&#65292;&#24863;&#35273;5&#31186;&#22312;&#25105;&#36825;&#37324;&#22826;&#24930;&#20102;</span><br></pre></td></tr></table></figure>
-<p>然后在html中绘制svg游戏面板时有些tweak，首先是svg，你遵照之前errata提到的修正svg宏后才能正常显示，否则只显示一小块或完全看不到时可别吃惊。另外是作者定义两次点击同一片游戏面板代表取消，但它的legal-tile（合法面板）中却没有包含本身，以致于不能正常取消选中。我做了如下修改，把当前选中的游戏面板添加进合法面板中。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;caXXXXXXXdr&#8230;&#8230;&#20197;&#21518;&#25105;&#35201;&#29992;firstsecond&#25913;&#20889;&#10;(defun draw-dod-page (tree selected-tile)&#10;  (svg *board-width* ;svg&#35201;&#26356;&#25913;&#65281;&#65281;&#10;       *board-height* &#10;       (draw-board-svg (cadr tree)&#10;                       selected-tile&#10;                       (cons selected-tile;what I add &#10;                             (take-all (if selected-tile&#10;                                   (lazy-mapcar&#10;                                     (lambda (move)&#10;                                       (when (eql (caar move)&#10;                                                  selected-tile)&#10;                                         (cadar move)))&#10;                                     (caddr tree))&#10;                                   (lazy-mapcar #&#39;caar (caddr tree))))))))</span><br></pre></td></tr></table></figure>
-<p>然后很显然，enjoy我们基于网络的游戏吧</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(serve #&#39;dod-request-handler)</span><br></pre></td></tr></table></figure>
-<hr>
-
-<h2 id="游戏截图">游戏截图</h2><p>截个图看看效果</p>
-<p><img src="http://fmn.rrimg.com/fmn064/20120702/1345/p_large_vHyz_01a000007c271262.jpg!" alt=""></p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/lisp/2012/06/29/dice-of-doom-v2/" itemprop="url">
-                  Dice of Doom v2
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-06-29T00:00:00+08:00" content="2012-06-29">
-              2012-06-29
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/lisp/" itemprop="url" rel="index">
-                    <span itemprop="name">lisp</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/lisp/2012/06/29/dice-of-doom-v2/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/06/29/dice-of-doom-v2/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="Dice_of_Doom_v2">Dice of Doom v2</h1><p>我已经不怎么看得懂在讲什么了，所以胡言乱语请见谅,有几个问题:</p>
-<h1 id="记不起之前的游戏树什么样了，我又懒得回头去看。是不是某种决策树？">记不起之前的游戏树什么样了，我又懒得回头去看。是不是某种决策树？</h1><h1 id="不停的函数接着函数扩展看起来很方便，但又要求你时刻记得之前实现的细节，以实现正确的改进">不停的函数接着函数扩展看起来很方便，但又要求你时刻记得之前实现的细节，以实现正确的改进</h1><h1 id="作者的编程风格，以后还是按htdp里说的玩去吧，起码不会像现在这样晕。">作者的编程风格，以后还是按htdp里说的玩去吧，起码不会像现在这样晕。</h1><h1 id="英语还是障碍啊，有时候看完一大段文字后不知道在讲什么，囧了。">英语还是障碍啊，有时候看完一大段文字后不知道在讲什么，囧了。</h1><h2 id="Dice_of_Doom_v2-1">Dice of Doom v2</h2><p>首先加载之前我们完成的 <a href="/lisp/2012/05/23/dice-of-doom/">Dice of Doom</a> 源码和为惰性求值所实现的一系列库文件。没有的话就从land of lisp网站上下载吧，话说这本书真贵要40刀左右，豆瓣上竟然380元人民币……</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(load &#34;dice_of_doom_v1.lisp&#34;)&#10;(load &#34;lazy.lisp&#34;)</span><br></pre></td></tr></table></figure>
-<p>然后先把游戏board扩大到4x4。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defparameter *board-size* 4)&#10;(defparameter *board-hexnum* (* *board-size* *board-size*))</span><br></pre></td></tr></table></figure>
-<p>下面把Dice of Doom游戏全面lazy化吧</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun add-passing-move (board player spare-dice first-move moves)&#10;  (if first-move&#10;    moves&#10;    (lazy-cons (list nil&#10;                     (game-tree (add-new-dice board player&#10;                                              (1- spare-dice))&#10;                                (mod (1+ player) *num-players*)&#10;                                0&#10;                                t))&#10;               moves)))&#10;(defun attacking-moves (board cur-player spare-dice)&#10;  (labels ((player (pos)&#10;             (car (aref board pos)))&#10;           (dice (pos)&#10;             (cadr (aref board pos))))&#10;    (lazy-mapcan&#10;      (lambda (src)&#10;        (if (eq (player src) cur-player)&#10;          (lazy-mapcan&#10;            (lambda (dst)&#10;              (if (and (not (eq (player dst)&#10;                                cur-player))&#10;                       (&#62; (dice src) (dice dst)))&#10;                (make-lazy&#10;                  (list (list (list src dst)&#10;                              (game-tree (board-attack board&#10;                                                       cur-player&#10;                                                       src&#10;                                                       dst&#10;                                                       (dice src))&#10;                                         cur-player&#10;                                         (+ spare-dice (dice dst))&#10;                                         nil))))&#10;                (lazy-nil)))&#10;            (make-lazy (neighbors src)))&#10;          (lazy-nil)))&#10;      (make-lazy (loop for n below *board-hexnum*&#10;                       collect n)))))</span><br></pre></td></tr></table></figure>
-<p>注意lazy-mapcan要求被创建的列表是惰性的，现在你知道htdp标明每个函数输入输出的习惯多好了吧……</p>
-<p>lazy化handle-human函数和play-vs-human函数</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun handle-human (tree)&#10;  (fresh-line)&#10;  (princ &#34;choose your move:&#34;)&#10;  (let ((moves (caddr tree)))&#10;    (labels ((print-moves (moves n)&#10;               (unless (lazy-null moves)&#10;                 (let* ((move (lazy-car moves))&#10;                        (action (car move)))&#10;                   (fresh-line)&#10;                   (format t &#34;~a. &#34; n)&#10;                   (if action&#10;                     (format t &#34;~a -&#62; ~a&#34; (car action) (cadr action))&#10;                     (princ &#34;end turn&#34;)))&#10;                 (print-moves (lazy-cdr moves) (1+ n)))))&#10;      (print-moves moves 1))&#10;    (fresh-line)&#10;    (cadr (lazy-nth (1- (read)) moves))))&#10;(defun play-vs-human (tree)&#10;  (print-info tree)&#10;  (if (not (lazy-null (caddr tree)))&#10;    (play-vs-human (handle-human tree))&#10;    (announce-winner (cadr tree))))</span><br></pre></td></tr></table></figure>
-<p>现在你可以试试人人对战了，速度不错。</p>
-<h2 id="让AI运行在更大的游戏区域">让AI运行在更大的游戏区域</h2><p>对AI的惰性化之前，我们先做一些修剪的工作，这是对AI决策树/游戏树算法的优化[1]。</p>
-<p>我们现在的AI很尽职尽责的搜索计算所有的可能的结果。但在大的游戏面板中这样很累，为了在效率上取得平衡，限制AI的考虑决策树深度</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun limit-tree-depth (tree depth)&#10;  (list (car tree)&#10;        (cadr tree)&#10;        (if (zerop depth)&#10;          (lazy-nil)&#10;          (lazy-mapcar (lambda (move)&#10;                         (list (car move)&#10;                               (limit-tree-depth (cadr move) (1- depth))))&#10;                       (caddr tree)))))&#10;(defparameter *ai-level* 4)&#10;(defun handle-computer (tree)&#10;  (let ((ratings (get-ratings (limit-tree-depth tree *ai-level*)&#10;                              (car tree))))&#10;    (cadr (lazy-nth (position (apply #&#39;max ratings) ratings)&#10;                    (caddr tree)))))&#10;(defun play-vs-computer (tree)&#10;  (print-info tree)&#10;  (cond ((lazy-null (caddr tree)) (announce-winner (cadr tree)))&#10;        ((zerop (car tree)) (play-vs-computer (handle-human tree)))&#10;        (t (play-vs-computer (handle-computer tree)))))</span><br></pre></td></tr></table></figure>
-<p>我没看懂……已经深深迷失在car cadr caddr的海洋之中，总之它限制了AI的思考深度，让它把评分限制在4步之内。[2]</p>
-<h3 id="启发算法[3]">启发算法[3]</h3><p>让AI只思考较少的深度来实现投入和产出的统一。</p>
-<p>让我们用更复杂的启发算法来重新对游戏面板评分:对一个自己的地盘，如果附近有比自己强大的敌人则评分1,否则则评分2。若该地盘属于对手则评分为-1</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun score-board (board player)&#10;  (loop for hex across board&#10;        for pos from 0&#10;        sum (if (eq (car hex) player)&#10;              (if (threatened pos board)&#10;                1&#10;                2)&#10;              -1)))&#10;;&#38468;&#36817;&#26377;&#26356;&#22810;&#39600;&#23376;&#30340;&#20301;&#32622;&#26377;&#23041;&#32961;&#10;(defun threatened (pos board)&#10;  (let* ((hex (aref board pos))&#10;         (player (car hex))&#10;         (dice (cadr hex)))&#10;    (loop for n in (neighbors pos)&#10;          do (let* ((nhex (aref board n))&#10;                    (nplayer (car nhex))&#10;                    (ndice (cadr nhex)))&#10;               (when (and (not (eq player nplayer)) (&#62; ndice dice))&#10;                 (return t))))))</span><br></pre></td></tr></table></figure>
-<p>有意思的是，关于启发式作者这么说：在开发这个例子时，我模拟了使用不同版本score-board的各种对手，这个版本效果很好，开发启发式算法不是什么科学。囧～</p>
-<p>惰性化get-ratings和rate-position函数</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun get-ratings (tree player)&#10;  (take-all (lazy-mapcar (lambda (move)&#10;                           (rate-position (cadr move) player))&#10;                         (caddr tree))))&#10;(defun rate-position (tree player)&#10;  (let ((moves (caddr tree)))&#10;    (if (not (lazy-null moves))&#10;      (apply (if (eq (car tree) player)&#10;               #&#39;max&#10;               #&#39;min)&#10;             (get-ratings tree player))&#10;      (score-board (cadr tree) player))))</span><br></pre></td></tr></table></figure>
-<p>现在可以试试和计算机过招了。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(play-vs-computer (game-tree (gen-board) 0 0 t))</span><br></pre></td></tr></table></figure>
-<p>据说先行者有优势，计算机大概有3/4的几率获胜。</p>
-<h3 id="alpha-beta_算法[4]">alpha-beta 算法[4]</h3><p> @此部分不只所云，请见谅。@</p>
-<p>AI实际上执行一种深度优先搜索。</p>
-<p>alpha-beta算法是把已知的一定更差的子树从决策树中剪掉的算法，熟称剪枝算法。</p>
-<p>本游戏中游戏树的顶端上是最大最小算法，非顶端上是score-board评分……</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun ab-get-ratings-max (tree player upper-limit lower-limit)&#10;  (labels ((f (moves lower-limit)&#10;             (unless (lazy-null moves)&#10;               (let ((x (ab-rate-position (cadr (lazy-car moves))&#10;                                          player&#10;                                          upper-limit&#10;                                          lower-limit)))&#10;                 (if (&#62;= x upper-limit)&#10;                   (list x)&#10;                   (cons x (f (lazy-cdr moves) (max x lower-limit))))))))&#10;    (f (caddr tree) lower-limit)))&#10;&#10;(defun ab-get-ratings-min (tree player upper-limit lower-limit)&#10;  (labels ((f (moves upper-limit)&#10;             (unless (lazy-null moves)&#10;               (let ((x (ab-rate-position (cadr (lazy-car moves))&#10;                                          player&#10;                                          upper-limit&#10;                                          lower-limit)))&#10;                 (if (&#60;= x lower-limit)&#10;                   (list x)&#10;                   (cons x (f (lazy-cdr moves) (min x upper-limit))))))))&#10;    (f (caddr tree) upper-limit)))&#10;&#10;(defun ab-rate-position (tree player upper-limit lower-limit)&#10;  (let ((moves (caddr tree)))&#10;    (if (not (lazy-null moves))&#10;      (if (eq (car tree) player)&#10;        (apply #&#39;max (ab-get-ratings-max tree&#10;                                         player&#10;                                         upper-limit&#10;                                         lower-limit))&#10;        (apply #&#39;min (ab-get-ratings-min tree&#10;                                         player&#10;                                         upper-limit&#10;                                         lower-limit)))&#10;      (score-board (cadr tree) player))))</span><br></pre></td></tr></table></figure>
-<p>这三个函数怎么实现及实现什么……不知道，深感自己英语不行啊，大段大段看完不知道在讲什么，哪天有兴致了对照对弈程序基本技术再看吧……I am confused now.[6]</p>
-<p>改进我们的handle-computer函数</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun handle-computer (tree)&#10;  (let ((ratings (ab-get-ratings-max (limit-tree-depth tree *ai-level*)&#10;                                     (car tree)&#10;                                     most-positive-fixnum&#10;                                     most-negative-fixnum)))&#10;    (cadr (lazy-nth (position (apply #&#39;max ratings) ratings) (caddr tree)))))</span><br></pre></td></tr></table></figure>
-<p>现在把游戏面板扩大到5x5</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defparameter *board-size* 5)&#10;(defparameter *board-hexnum* (* *board-size* *board-size*))</span><br></pre></td></tr></table></figure>
-<p>由于我们记忆化的原因，之前的4x4面板会被缓存。为了修正这个问题重新定义neighbors函数即可。</p>
-<p>实验新的经过改进的游戏</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(play-vs-computer (game-tree (gen-board) 0 0 t))</span><br></pre></td></tr></table></figure>
-<h2 id="小结">小结</h2><p>本章我们使用惰性求值方法改进我们的游戏，同时通过一些优化限制AI引擎搜索的决策树数目，我们学到了以下几点：</p>
-<ul>
-<li>惰性列表使你有可能使用无穷的列表和数据结构，并且很有效率</li>
-<li>一旦你有了lazy宏和force函数，你就可以基于此创造更复杂的惰性列表库</li>
-<li>启发性算法是不完美的算法，通过一些创造性的想法可以显著提高代码的性能。在我们的例子中我们使用启发式的算法来为游戏树的顶端评分。</li>
-<li>一旦我们把游戏转化为惰性树，为了限制AI思考的移动的深度我们可以优雅地[5]修剪游戏树。</li>
-<li>Alpha-beta算法让我们更多地优化了性能，通过修剪不会影响AI最后所思考的移动的评分。</li>
-</ul>
-<hr>
-
-<h2 id="Footnotes">Footnotes</h2><p>[^4]: 参见 “<a href="http://en.wikipedia.org/wiki/Alpha-beta_pruning&quot;:http://en.wikipedia.org/wiki/Alpha-beta_pruning" target="_blank" rel="external">http://en.wikipedia.org/wiki/Alpha-beta_pruning&quot;:http://en.wikipedia.org/wiki/Alpha-beta_pruning</a></p>
-<p>[^6]: 可以先看看 “alpha-beta剪枝算法”:<a href="http://www.xqbase.com/computer/search_alphabeta.htm" target="_blank" rel="external">http://www.xqbase.com/computer/search_alphabeta.htm</a></p>
-<hr>
-
-<h2 id="废话">废话</h2><p>说实话，看不懂了，愈发的看不懂。生命中某种虚空感强烈的袭来，明知自己做的是“没有意义”，也没有人在意的的东西，可我就是关心那些。</p>
-<p>有时候真是不想理人，与很多人不怎么谈得来，我不喜欢到头来毫无建树的胡扯，也不喜欢扯不喜欢的东西。可有时无话可说无人可诉，人与人的差别就是这么大，不知何时。</p>
-<p>有时侯如此疯狂，讨厌别人的干扰，不能容忍自己浪费生命。在他人眼里我不也是在浪费生命？我不知道，安慰我的人永远安慰我，另一个部分人永远看不起我。</p>
-<p>我应该追求哪个世界与人生？一边是迷人的，我不知道余生还有多长，不想放手错过它，但它只在我的梦中。一条在横亘在这个世界，我却没有一丝爱意。</p>
-<p>也许一切都是宿命。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1719,7 +2599,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">177</span>
+              <span class="site-state-item-count">179</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1733,7 +2613,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">62</span>
+              <span class="site-state-item-count">63</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
