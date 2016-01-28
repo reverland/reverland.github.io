@@ -808,7 +808,7 @@ https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgeticon?seq=0&amp;username=@<span cla
 <li>如果出现回复串号是怎么回事？</li>
 </ul>
 <p>可能由于Js的异步造成有些东西不是按你想的顺序进入发送队列的，也可能由于异步你被js的闭包作用域坑了。</p>
-<h3 id="附录">附录</h3><h4 id="AngularJS_web微信客户端">AngularJS web微信客户端</h4><p>请使用firefox（当然chromium都行）访问web 微信页面，ctrl-alt-i打开开发者工具，<br>选择debugger一栏，找到你觉得是webwxapp的那个js文件，点击<code>{}</code>按钮美化压缩后的代码。</p>
+<h3 id="附录">附录</h3><h4 id="AngularJS_web微信客户端">AngularJS web微信客户端</h4><p>请使用firefox（当然chromium都行）访问web 微信页面，ctrl-alt-i打开开发者工具，<br>选择debugger一栏，找到你觉得是webwxapp的那个js文件(可能是webwxApp2aeaf2.js)，点击<code>{}</code>按钮美化压缩后的代码。</p>
 <h4 id="API一览">API一览</h4><pre><code><span class="string">API_webwxdownloadmedia:</span> <span class="string">'https://'</span> + o + <span class="string">'/cgi-bin/mmwebwx-bin/webwxgetmedia'</span>,
 <span class="string">API_webwxuploadmedia:</span> <span class="string">'https://'</span> + o + <span class="string">'/cgi-bin/mmwebwx-bin/webwxuploadmedia'</span>,
 <span class="string">API_webwxpreview:</span> <span class="string">'/cgi-bin/mmwebwx-bin/webwxpreview'</span>,
@@ -856,8 +856,23 @@ https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgeticon?seq=0&amp;username=@<span cla
 <span class="attribute">MSGTYPE_SYS</span>: <span class="string">10000,</span>
 <span class="attribute">MSGTYPE_RECALLED</span>: <span class="string">10002,  // 撤销消息</span>
 </code></pre><p>不同的消息类型有不同的作用和处理方式。web微信的功能包含表情、图像消息</p>
+<h4 id="不同的web微信域名">不同的web微信域名</h4><p>微信一路发展，结果有些现在看上去难以理解的东西。早期的微信用户可以直接通过qq注册，而现在已经不行。</p>
+<p>对此，web微信竟然采取了不同的域名来兼容各种用户。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="comment">// 3105行左右</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> e = location.host,</span><br><span class="line">  t = <span class="string">'weixin.qq.com'</span>,</span><br><span class="line">  o = <span class="string">'file.wx.qq.com'</span>,</span><br><span class="line">  n = <span class="string">'webpush.weixin.qq.com'</span>;</span><br><span class="line">  e.indexOf(<span class="string">'wx2.qq.com'</span>) &gt; - <span class="number">1</span> ? (t = <span class="string">'weixin.qq.com'</span>, o = <span class="string">'file2.wx.qq.com'</span>, n = <span class="string">'webpush2.weixin.qq.com'</span>)  : e.indexOf(<span class="string">'qq.com'</span>) &gt; - <span class="number">1</span> ? (t = <span class="string">'weixin.qq.com'</span>, o = <span class="string">'file.wx.qq.com'</span>, n = <span class="string">'webpush.weixin.qq.com'</span>)  : e.indexOf(<span class="string">'web1.wechat.com'</span>) &gt; - <span class="number">1</span> ? (t = <span class="string">'wechat.com'</span>, o = <span class="string">'file1.wechat.com'</span>, n = <span class="string">'webpush1.wechat.com'</span>)  : e.indexOf(<span class="string">'web2.wechat.com'</span>) &gt; - <span class="number">1</span> ? (t = <span class="string">'wechat.com'</span>, o = <span class="string">'file2.wechat.com'</span>, n = <span class="string">'webpush2.wechat.com'</span>)  : e.indexOf(<span class="string">'wechat.com'</span>) &gt; - <span class="number">1</span> ? (t = <span class="string">'wechat.com'</span>, o = <span class="string">'file.wechat.com'</span>, n = <span class="string">'webpush.wechat.com'</span>)  : e.indexOf(<span class="string">'web1.wechatapp.com'</span>) &gt; - <span class="number">1</span> ? (t = <span class="string">'wechatapp.com'</span>, o = <span class="string">'file1.wechatapp.com'</span>, n = <span class="string">'webpush1.wechatapp.com'</span>)  : (t = <span class="string">'wechatapp.com'</span>, o = <span class="string">'file.wechatapp.com'</span>, n = <span class="string">'webpush.wechatapp.com'</span>);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>一大堆域名。。不过似乎没有太大区别。非通过qq注册的微信用户使用wechat-user-bot暂时也没问题。</p>
 <h2 id="参考资料">参考资料</h2><ul>
 <li><a href="http://stackoverflow.com/questions/3687729/who-add-single-underscore-query-parameter" target="_blank" rel="external">Who Add “_” Single Underscore Query Parameter?</a></li>
+<li><a href="http://www.blogjava.net/yongboy/archive/2014/03/05/410636.html" target="_blank" rel="external">微信协议简单调研笔记</a></li>
+<li><a href="https://github.com/xiangzhai/qwx" target="_blank" rel="external">qwx by xiangzhai</a></li>
+<li><a href="https://github.com/LeMasque/uProxy_wechat/blob/master/wechat.js" target="_blank" rel="external">uproxy-wechat</a></li>
+</ul>
+<p>如果你喜欢python3 的asyncio</p>
+<ul>
+<li><a href="https://github.com/lyyyuna/wechat_robot" target="_blank" rel="external">wechat_robot with python 3.5 asyncio by lyyyuna</a></li>
+</ul>
+<p>如果你对微信机器人的作用感兴趣</p>
+<ul>
+<li><a href="http://wxrobot.53ws.cn/logout" target="_blank" rel="external">lu4kd0y开发的似乎是开发给微商用的微信云机器人(请自行判断安全性)</a></li>
 </ul>
 
             
@@ -2717,7 +2732,7 @@ shuru               |&lt;---输入提示(已经输入的内容)
               </span>
             
               <span class="links-of-author-item">
-                <a href="http://www.suzibin.cn/" target="_blank">doug</a>
+                <a href="http://www.d0u9.xyz/" target="_blank">doug</a>
               </span>
             
               <span class="links-of-author-item">
