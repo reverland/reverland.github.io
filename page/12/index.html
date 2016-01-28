@@ -224,172 +224,6 @@
             
               
                 
-                <a class="post-title-link" href="/python/2013/02/19/yet-another-photomosaic-generator/" itemprop="url">
-                  Yet Another PhotoMosaic Generator
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2013-02-19T00:00:00+08:00" content="2013-02-19">
-              2013-02-19
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/python/2013/02/19/yet-another-photomosaic-generator/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2013/02/19/yet-another-photomosaic-generator/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="Yet_Another_PhotoMosaic_Generator">Yet Another PhotoMosaic Generator</h1><p>Update: Mon 25 Feb 2013 11:38:47 AM CST add classic style. More refer to <a href="https://github.com/reverland/scripts/blob/master/python/yapmg.py" target="_blank" rel="external">github</a></p>
-<blockquote>
-<p>Python是面向对象的？没有对象面向毛对象。</p>
-<p>——Anonymous</p>
-</blockquote>
-<p>Several weeks ago, I saw a poster of presidential campaign for Obama, in which Obama’s portrait was made up of many voter’s photos. It really attracted me, somedays later, I want to make one myself.</p>
-<p>The completed code host <a href="http://github.com/reverland/scripts/blob/master/python/yapmg.py" target="_blank" rel="external">here</a>. It is much more functional than object-oriented…</p>
-<h2 id="Search_the_Internet">Search the Internet</h2><p>First of all, I searched the Google to find out how others achieve it, then I found many interesting implement and post on it.Along with them, there are pretty demos around.One of the demo of <a href="http://www.fmedda.com/en/mosaic/chaos" target="_blank" rel="external">Foto-Mosaik-Edda</a> striked me.It declaims as follows in their site:</p>
-<blockquote>
-<p>The Chaos Mosaic Picture is a new form of photo mosaic which can, at present, only be created by Foto-Mosaik-Edda.</p>
-</blockquote>
-<p><img src="http://www.fmedda.com/sites/default/files/pic/mosaic_chaos.png" alt="Chaos Mosaic Picture"></p>
-<p>Uhm…Foto-Mosaic-Edda is an open-source project that really impressive.But it was an C# project. Linux users don’t like it however.I don’t like <code>mono</code>.</p>
-<p>I searched other open-source implement on photomosaic. I get some simple programs only use gray photos, and some complex ones can make beautiful classic photomosaic(like metapixel, even chaos style which it calls collage style), But none has as beautiful demos as Foto-Mosaic-Edda.(metapixel really amazing, it is robust and quickly.)</p>
-<p>However, I saw many enthusiastic people write one themselves, it really looks interesting for me. I’ve used PIL for processing images when I tried to decode captchas several days ago, so I believe with the help of PIL, someone can achieve photomosaic simply.</p>
-<p>So I just read the documentation of PIL, then start my hack.</p>
-<h2 id="Write_My_Own_PhotoMosaic_Generator">Write My Own PhotoMosaic Generator</h2><p>It’s not hard, however, what you should do is clear and simple:</p>
-<ul>
-<li>analyse the image to be made mosaic, get a dict in which position as key and color as value.</li>
-<li>use a bunch of images to get a dict, in which image name as key and colors as value.</li>
-<li>thumbnail bunches of images and paste it in the right position, so that the big image looks like it consists of many small one.</li>
-</ul>
-<p>I’d like to got the chaos style, so some other requirements:</p>
-<ul>
-<li>frame and shadow for small images</li>
-<li>random paste small images onto large one</li>
-</ul>
-<p>Now, let’s go.</p>
-<h3 id="Frame,_Shadow_and_Rotate">Frame, Shadow and Rotate</h3><p>first add frame, shadow to small images</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_frame</span><span class="params">(image)</span>:</span></span><br><span class="line">    <span class="string">'''Add frame for image.'''</span></span><br><span class="line">    im = ImageOps.expand(image, border=int(<span class="number">0.01</span> * max(image.size)), fill=<span class="number">0xffffff</span>)</span><br><span class="line">    <span class="keyword">return</span> im</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">drop_shadow</span><span class="params">(image, offset, border=<span class="number">0</span>, shadow_color=<span class="number">0x444444</span>)</span>:</span></span><br><span class="line">    <span class="string">"""Add shadows for image"""</span></span><br><span class="line">    <span class="comment"># Caclulate size</span></span><br><span class="line">    fullWidth = image.size[<span class="number">0</span>] + abs(offset[<span class="number">0</span>]) + <span class="number">2</span> * border</span><br><span class="line">    fullHeight = image.size[<span class="number">1</span>] + abs(offset[<span class="number">1</span>]) + <span class="number">2</span> * border</span><br><span class="line">    <span class="comment"># Create shadow, hardcode color</span></span><br><span class="line">    shadow = Image.new(<span class="string">'RGBA'</span>, (fullWidth, fullHeight), (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>))</span><br><span class="line">    <span class="comment"># Place the shadow, with required offset</span></span><br><span class="line">    shadowLeft = border + max(offset[<span class="number">0</span>], <span class="number">0</span>)  <span class="comment"># if &lt;0, push the rest of the image right</span></span><br><span class="line">    shadowTop = border + max(offset[<span class="number">1</span>], <span class="number">0</span>)  <span class="comment"># if &lt;0, push the rest of the image down</span></span><br><span class="line">    shadow.paste(shadow_color, [shadowLeft, shadowTop, shadowLeft + image.size[<span class="number">0</span>], shadowTop + image.size[<span class="number">1</span>]])</span><br><span class="line">    shadow_mask = shadow.convert(<span class="string">"L"</span>)</span><br><span class="line">     <span class="comment"># Paste the original image on top of the shadow</span></span><br><span class="line">    imgLeft = border - min(offset[<span class="number">0</span>], <span class="number">0</span>)  <span class="comment"># if the shadow offset was &lt;0, push right</span></span><br><span class="line">    imgTop = border - min(offset[<span class="number">1</span>], <span class="number">0</span>)  <span class="comment"># if the shadow offset was &lt;0, push down</span></span><br><span class="line">    shadow.putalpha(shadow_mask)</span><br><span class="line">    shadow.paste(image, (imgLeft, imgTop))</span><br><span class="line">    <span class="keyword">return</span> shadow</span><br></pre></td></tr></table></figure>
-<p>Then a function to rotate images.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">rotate_image</span><span class="params">(image, degree)</span>:</span></span><br><span class="line">    <span class="string">'''Rotate images for specific degree. Expand to show all'''</span></span><br><span class="line">    <span class="keyword">if</span> image.mode != <span class="string">'RGBA'</span>:</span><br><span class="line">        image = image.convert(<span class="string">'RGBA'</span>)</span><br><span class="line">    im = image.rotate(degree, expand=<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> im</span><br></pre></td></tr></table></figure>
-<p>‘RGBA’ mode is to support transparency. What’s matter here is that jpeg/jpg does not support transparency. So you can’t get transparency shadows and rotate pictures if you just use jpg/jpeg images.So, write a function to process images with jpg/jpeg format, transpose it into png.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">process_image</span><span class="params">(filename, newname)</span>:</span></span><br><span class="line">    <span class="string">'''convert image to png to support transparency'''</span></span><br><span class="line">    <span class="keyword">if</span> filename.split(<span class="string">'.'</span>)[-<span class="number">1</span>] != <span class="string">'png'</span>:</span><br><span class="line">        im = Image.open(filename)</span><br><span class="line">        im.save(newname + <span class="string">'.png'</span>)</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"processing image file %s"</span> % filename</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">process_directory</span><span class="params">(path)</span>:</span></span><br><span class="line">    os.chdir(path)</span><br><span class="line">    count = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> filename <span class="keyword">in</span> os.listdir(path):</span><br><span class="line">        ext = filename.split(<span class="string">'.'</span>)[-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">if</span> ext == <span class="string">'jpeg'</span> <span class="keyword">or</span> ext == <span class="string">'jpg'</span>:</span><br><span class="line">            process_image(filename, str(count))</span><br><span class="line">            os.remove(filename)</span><br><span class="line">            count += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
-<p>Really poor work… But it works for me: )</p>
-<p>We have to thumnail bunches of images, It’s easy to thumbnail with PIL:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">thumbnail</span><span class="params">(im, size)</span>:</span></span><br><span class="line">    <span class="string">"""thumnail the image"""</span></span><br><span class="line">    im.thumbnail(size, Image.ANTIALIAS)</span><br><span class="line">    <span class="keyword">return</span> im</span><br></pre></td></tr></table></figure>
-<p>Let’s have a fun with them. To get heaps of images randomly on the desktop, I hardcoded these parameters to get my photos work, you HAVE TO find yours:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Just for fun</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">chao_image</span><span class="params">(path, size=<span class="params">(<span class="number">800</span>, <span class="number">800</span>)</span>, thumbnail_size=<span class="params">(<span class="number">50</span>, <span class="number">50</span>)</span>, shadow_offset=<span class="params">(<span class="number">10</span>, <span class="number">10</span>)</span>, backgroud_color=<span class="number">0xffffff</span>)</span>:</span></span><br><span class="line">    image_all = Image.new(<span class="string">'RGB'</span>, size, backgroud_color)</span><br><span class="line">    <span class="keyword">for</span> image <span class="keyword">in</span> os.listdir(path):</span><br><span class="line">        <span class="keyword">if</span> image.split(<span class="string">'.'</span>)[-<span class="number">1</span>] == <span class="string">'png'</span>:</span><br><span class="line">            im = Image.open(image)</span><br><span class="line">            degree = random.randint(-<span class="number">30</span>, <span class="number">30</span>)</span><br><span class="line">            im = thumbnail(rotate_image(drop_shadow(add_frame(im), shadow_offset), degree), thumbnail_size)</span><br><span class="line">            image_all.paste(im, (random.randint(-thumbnail_size[<span class="number">0</span>], size[<span class="number">0</span>]), random.randint(-thumbnail_size[<span class="number">1</span>], size[<span class="number">1</span>])), im)</span><br><span class="line">    <span class="keyword">return</span> image_all</span><br></pre></td></tr></table></figure>
-<h2 id="Calculate_Images_And_Compare">Calculate Images And Compare</h2><p>Get average colors of an image</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">average_image</span><span class="params">(im)</span>:</span></span><br><span class="line">    <span class="string">"""return average (r,g,b) for image"""</span></span><br><span class="line">    color_vector = [int(x) <span class="keyword">for</span> x <span class="keyword">in</span> ImageStat.Stat(im).mean]</span><br><span class="line">    <span class="keyword">return</span> color_vector</span><br></pre></td></tr></table></figure>
-<p>to compare images? Compare the (r,g,b) value of them.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">compare_vectors</span><span class="params">(v1, v2)</span>:</span></span><br><span class="line">    <span class="string">"""compare image1 and image2, return relations"""</span></span><br><span class="line">    <span class="keyword">if</span> len(v1) == len(v2):</span><br><span class="line">        distance = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> xrange(len(v1)):</span><br><span class="line">            distance += (v1[i] - v2[i]) ** <span class="number">2</span></span><br><span class="line">        <span class="keyword">return</span> distance</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"vector not match in dimensions"</span></span><br></pre></td></tr></table></figure>
-<p>I just use distance in (R, G, B) space to calculate similarity, someone advice compare in other space, you can change it just like the example in PIL’s documentation:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># May not useful</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">rgb2xyz</span><span class="params">(im)</span>:</span></span><br><span class="line">    <span class="string">"""rgb to xyz"""</span></span><br><span class="line">    rgb2xyz = (<span class="number">0.412453</span>, <span class="number">0.357580</span>, <span class="number">0.180423</span>, <span class="number">0</span>, <span class="number">0.212671</span>, <span class="number">0.715160</span>, <span class="number">0.072169</span>, <span class="number">0</span>, <span class="number">0.019334</span>, <span class="number">0.119193</span>, <span class="number">0.950227</span>, <span class="number">0</span>)</span><br><span class="line">    out = im.convert(<span class="string">"RGB"</span>, rgb2xyz)</span><br><span class="line">    <span class="keyword">return</span> out</span><br></pre></td></tr></table></figure>
-<p>But I find many implements just use R,G,B, and it works well.</p>
-<p>Next, get a dict of image in current path, in which filename as key, average (R,G,B) colors as value.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">tile_dict</span><span class="params">(path)</span>:</span></span><br><span class="line">    <span class="string">"""Return list of average (R,G,B) for image in this path as dict."""</span></span><br><span class="line">    dic = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> image <span class="keyword">in</span> os.listdir(path):</span><br><span class="line">        <span class="keyword">if</span> image.split(<span class="string">'.'</span>)[-<span class="number">1</span>] == <span class="string">'png'</span>:</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                im = Image.open(image)</span><br><span class="line">            <span class="keyword">except</span>:</span><br><span class="line">                <span class="keyword">print</span> <span class="string">"image file %s cannot open"</span> % image</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">if</span> im.mode != <span class="string">'RGB'</span>:</span><br><span class="line">                im = im.convert(<span class="string">'RGB'</span>)</span><br><span class="line">            dic[image] = average_image(im)</span><br><span class="line">    <span class="keyword">return</span> dic</span><br></pre></td></tr></table></figure>
-<p>We don’t need to calculate every pixel of the large picture, just thumbnail it to get a nearest color of different regions.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">thumbnail_background</span><span class="params">(im, scale)</span>:</span></span><br><span class="line">    <span class="string">"""thumbnail backgroud image"""</span></span><br><span class="line">    newsize = im.size[<span class="number">0</span>] / scale, im.size[<span class="number">1</span>] / scale</span><br><span class="line">    im.thumbnail(newsize)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">'thumbnail size and the number of tiles %d X %d'</span> % im.size</span><br><span class="line">    <span class="keyword">return</span> im.size</span><br></pre></td></tr></table></figure>
-<p>For every pixel in the thumbnailed large image, find most similar small image filenames.(top ten):</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">find_similar</span><span class="params">(lst, dic)</span>:</span></span><br><span class="line">    <span class="string">"""for lst([R, G, B], Calculate which key-value in dic has the most similarity.Return first 10)"""</span></span><br><span class="line">    similar = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> k, v <span class="keyword">in</span> dic.items():</span><br><span class="line">        similar[k] = compare_vectors(v, lst)</span><br><span class="line">        <span class="comment"># if len(v) != len(lst):</span></span><br><span class="line">        <span class="comment">#     print v, len(v), lst, len(lst)</span></span><br><span class="line">    similar = [(v, k) <span class="keyword">for</span> k, v <span class="keyword">in</span> similar.items()]  <span class="comment"># Not good, lost the same Score</span></span><br><span class="line">    similar.sort()</span><br><span class="line">    <span class="keyword">return</span> similar[:<span class="number">10</span>]</span><br></pre></td></tr></table></figure>
-<p>Poor hack, but it really works…</p>
-<h2 id="Final_Work">Final Work</h2><p>Now it’s the final magic.</p>
-<p>Get the small image in order, the order imply where it should be. Then rotate, add shadows and frames for small images, finally paste it onto the large one randomly in the right position:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_image_list</span><span class="params">(im, dic)</span>:</span></span><br><span class="line">    <span class="string">"""receive a thumbnail image and a dict of image to be mosaic, return tiles(filename) in order(as a list)"""</span></span><br><span class="line">    lst = list(im.getdata())</span><br><span class="line">    tiles = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(lst)):</span><br><span class="line">        <span class="comment">#print find_similar(lst[i], dic)[random.randrange(10)][1]</span></span><br><span class="line">        tiles.append(find_similar(lst[i], dic)[random.randrange(<span class="number">10</span>)][<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> tiles</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">paste_chaos</span><span class="params">(image, tiles, size, shadow_off_set=<span class="params">(<span class="number">30</span>, <span class="number">30</span>)</span>)</span>:</span></span><br><span class="line">    <span class="string">"""size is thumbnail of backgroud size that is how many tiles per line and row"""</span></span><br><span class="line">    <span class="comment"># image_all = Image.new('RGB', image.size, 0xffffff)</span></span><br><span class="line">    image_all = image</span><br><span class="line">    lst = range(len(tiles))</span><br><span class="line">    random.shuffle(lst)</span><br><span class="line">    fragment_size = (image.size[<span class="number">0</span>] / size[<span class="number">0</span>], image.size[<span class="number">1</span>] / size[<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">print</span> <span class="string">'tiles size %d X %d'</span> % fragment_size</span><br><span class="line">    <span class="keyword">print</span> <span class="string">'number of tiles one iteration: %d'</span> % len(lst)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> lst:</span><br><span class="line">        im = Image.open(tiles[i])</span><br><span class="line">        degree = random.randint(-<span class="number">20</span>, <span class="number">20</span>)</span><br><span class="line">        im = thumbnail(rotate_image(drop_shadow(add_frame(im), shadow_off_set), degree), (fragment_size[<span class="number">0</span>] * <span class="number">3</span> / <span class="number">2</span>, fragment_size[<span class="number">1</span>] * <span class="number">3</span> / <span class="number">2</span>))</span><br><span class="line">        x = i % size[<span class="number">0</span>] * fragment_size[<span class="number">0</span>] + random.randrange(-fragment_size[<span class="number">0</span>] / <span class="number">2</span>, fragment_size[<span class="number">0</span>] / <span class="number">2</span>)</span><br><span class="line">        y = i / size[<span class="number">0</span>] * fragment_size[<span class="number">1</span>] + random.randrange(-fragment_size[<span class="number">1</span>] / <span class="number">2</span>, fragment_size[<span class="number">1</span>] / <span class="number">2</span>)</span><br><span class="line">        <span class="comment"># print x, y</span></span><br><span class="line">        image_all.paste(im, (x, y), im)</span><br><span class="line">    <span class="keyword">return</span> image_all</span><br></pre></td></tr></table></figure>
-<p>I try it like this, I know parameter <code>n</code> is tricky, it was the scale it thumbnail the large image. Maybe I’ll change it to something more clear later…</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">(filename, n, scale, iteration, path=<span class="string">'./'</span>)</span>:</span></span><br><span class="line">    <span class="comment"># 0. select an big image for mosaic</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"open %s"</span> % filename</span><br><span class="line">    im = Image.open(filename)</span><br><span class="line">    <span class="comment"># 1. process image as png to support transparency</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"process directory %s"</span> % path</span><br><span class="line">    process_directory(path)</span><br><span class="line">    <span class="comment"># 2. get a dict for path</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"get tile dict for path `%s`"</span> % path</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> open(<span class="string">'dic.txt'</span>, <span class="string">'r'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            dic = p.load(f)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        dic = tile_dict(path)</span><br><span class="line">        <span class="keyword">with</span> open(<span class="string">'dic.txt'</span>, <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            p.dump(dic, f)</span><br><span class="line">    <span class="comment"># 3. thumbnail the big image for compare</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"thumbnail background for compare"</span></span><br><span class="line">    <span class="comment"># n = 30  # 原始图片缩为多少分之一</span></span><br><span class="line">    <span class="comment"># scale = 3  # 原始图片放大倍数</span></span><br><span class="line">    big_size = im.size[<span class="number">0</span>] * scale, im.size[<span class="number">1</span>] * scale</span><br><span class="line">    im_chao = Image.new(<span class="string">'RGB'</span>, big_size, <span class="number">0xffffff</span>)</span><br><span class="line">    imb_t_size = thumbnail_background(im, n)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"how may tiles: %d X %d"</span> % imb_t_size</span><br><span class="line">    <span class="keyword">print</span> <span class="string">'number of iterations: %d'</span> % iteration</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(iteration):</span><br><span class="line">        <span class="keyword">print</span> <span class="string">'iteration: %d'</span> % (i + <span class="number">1</span>)</span><br><span class="line">        <span class="comment"># 4. get a list of smail image for mosaic</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"get pic list"</span></span><br><span class="line">        im_tiles = get_image_list(im, dic)</span><br><span class="line">        <span class="comment"># 5. paste in chaos style</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"generate final image"</span></span><br><span class="line">        im_chao = paste_chaos(im_chao, im_tiles, imb_t_size)</span><br><span class="line">    <span class="keyword">return</span> im_chao</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    im = main(<span class="string">'../mm.jpg'</span>, <span class="number">15</span>, <span class="number">5</span>, <span class="number">2</span>)</span><br><span class="line">    im.save(<span class="string">'../final3.png'</span>)</span><br><span class="line">    im.show()</span><br></pre></td></tr></table></figure>
-<h2 id="Demo">Demo</h2><p>Do you like it?</p>
-<p><img src="https://1a1rrq.sn2.livefilestore.com/y1p7DQkSgKd5dLtkOiUXpx6ACTajjZYAMtiwrPn3jkW3AzQrvwl9Ao76dCvM6bLWoa8nBKIxqQzGlXC1_ARqTVU2XJgVTkOjaCG/xxx.png?psid=1" alt="Demo"></p>
-<p><strong>Can you see it?</strong></p>
-<p><a href="https://lhtlyybox.googlecode.com/files/final3.png" target="_blank" rel="external">Demo Download(45.8M)</a></p>
-<p>More examples <a href="http://photo.renren.com/photo/306127150/album-857154918" target="_blank" rel="external">here</a>(Chinese)</p>
-<h2 id="Thanks">Thanks</h2><p>My family, It supports me.Never let me down, never pour cold water, never scold for insignificance.</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/python/2013/02/05/visualize-the-friendship-of-renren/" itemprop="url">
                   Python小练习：可视化人人好友关系
                 </a>
@@ -3072,6 +2906,155 @@ OPTIMIZERS = (optimize.brenth, optimize.brentq, optimize.ridder,
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/python/2012/10/30/" itemprop="url">
+                  斯普罗站最大风力预测
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-10-30T00:00:00+08:00" content="2012-10-30">
+              2012-10-30
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2012/10/30/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/10/30//" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="斯普罗岛最大风速预测">斯普罗岛最大风速预测</h1><p>翻译自：<a href="http://scipy-lectures.github.com/intro/summary-exercises/stats-interpolate.html" target="_blank" rel="external">http://scipy-lectures.github.com/intro/summary-exercises/stats-interpolate.html</a></p>
+<p>这个练习目的在于预测每50年的最大风速，如果没有测量的话。可以获得的数据仅仅由位于丹麦的斯普罗气象站测量了21年。首先，统计步骤将给出，然后通过从scipy.interpolate模块中的函数演示。最后有兴趣的读者将被邀请用稍微不同的方法从原始数据计算结果。</p>
+<h2 id="统计方法">统计方法</h2><p>每年最大风速应该符合正态概率密度函数。然而，这个函数将并不会被估计，因为它从最大风速给出概率。这将是分位函数的角色，这个练习的目标将会是找到它。在当前模型，每五十年发生的最大风速被定义为%2上分位。</p>
+<p>根据定义，这个分位函数是累积分布函数的反函数，后者描述了一年的最大风速概率分布。在这个练习中。给定年<code>i</code>累积概率<code>p_i</code>被定义为<code>p_i = i/(N+1)</code>,其中N=21，有测量的年数。因此计算每年最大风速的累积概率将是可能的。从这些实验点，scipy.interpolate模块将在拟合分位函数时非常有用。最后这五十年的最大值将被从上%2分位数的累积概率函数中求得。</p>
+<h2 id="计算累积概率">计算累积概率</h2><p>每年的最大风力已经被计算并以numpy格式保存在文件<a href="http://scipy-lectures.github.com/_downloads/max-speeds.npy" target="_blank" rel="external">examples/max-speeds.npy</a>中，因此它们将通过numpy载入：</p>
+<pre><code>In [<span class="number">1</span>]: import numpy as np
+
+In [<span class="number">2</span>]: max_speeds = np.<span class="function"><span class="title">load</span><span class="params">(<span class="string">'max-speeds.npy'</span>)</span></span>
+
+In [<span class="number">3</span>]: years_nb = max_speeds<span class="class">.shape</span>[<span class="number">0</span>]
+</code></pre><p>从上一部分累积概率定义<code>p_i</code>，相应的值将是：</p>
+<pre><code>In [<span class="number">5</span>]: cprob = (np.arange(years_nb, dtype=np.float32) + <span class="number">1</span>) / (years_nb + <span class="number">1</span>)
+</code></pre><p>它们被假定用来拟合给定风速：</p>
+<h2 id="一元样条预测">一元样条预测</h2><p>本章中分位函数将通过使用<code>UnivariateSpline</code>类来估计，这个类可以代表源于数据点的样条。默认的行为是构建一个3级(degree)的样条，数据点可以根据它们的可靠性有不同的权重。变体有<code>InterpolateUnivariateSpline</code>和<code>LSQUnivariateSpline</code>，它们的误差检查将会改变。在需要二维样条的时候，<code>BivariateSpline</code>类一族被提供。所有这些一维和二维样条使用FITPACK Fortran子程序，这就是为何通过分别代表和估值样条的<code>splrep</code>和<code>splev</code>函数，一个低等的库存取可以使用。而且没有使用FITPACK参数的插值函数也被提供给更简单的使用(参见’interp1d’,<code>interp2d</code>,<code>barycentric_interpolate</code>等等)。</p>
+<p>对斯普罗最大风速，<code>UnivariateSpline</code>将被使用，因为3级的样条似乎拟合很正确：</p>
+<pre><code>In [<span class="number">7</span>]: from scipy<span class="class">.interpolate</span> import UnivariateSpline
+
+In [<span class="number">8</span>]: quantile_func =  <span class="function"><span class="title">UnivariateSpline</span><span class="params">(cprob,sorted_max_speeds)</span></span>
+</code></pre><p>分位函数想在将从整个概率范围求值：</p>
+<pre><code>In [<span class="number">9</span>]: nprob = np.<span class="function"><span class="title">linspace</span><span class="params">(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>e2)</span></span>
+
+In [<span class="number">10</span>]: fitted_max_speeds = <span class="function"><span class="title">quantile_func</span><span class="params">(nprob)</span></span>
+</code></pre><p>%2</p>
+<p>在目前的模型中，每五十年发生的最大风速被定义为上%2分位。结果，累积概率值将是：</p>
+<pre><code>In [<span class="number">11</span>]: fifty_prob = <span class="number">1.</span> - <span class="number">0.02</span>
+</code></pre><p>所以每五十年发生的暴风风速可被猜测，通过：</p>
+<pre><code>In [<span class="number">12</span>]: fifty_wind = <span class="function"><span class="title">quantile_func</span><span class="params">(fifty_prob)</span></span>
+
+In [<span class="number">13</span>]: fifty_wind
+Out[<span class="number">13</span>]: <span class="function"><span class="title">array</span><span class="params">(<span class="number">32.97989825386221</span>)</span></span>
+</code></pre><p>结果现在集中在一个Matplotlib图像上：</p>
+<p><img src="http://scipy-lectures.github.com/_images/plot_cumulative_wind_speed_prediction_1.png" alt="fifty-wind"></p>
+<p><a href="http://scipy-lectures.github.com/_downloads/plot_cumulative_wind_speed_prediction.py" target="_blank" rel="external">source code</a></p>
+<h2 id="Gumbell分布练习">Gumbell分布练习</h2><p>感兴趣的读者现在被邀请通过使用二十一年测量的风速来做个练习。这个测量周期是大约90分钟(原始周期大约10分钟，但是文件大小为了让练习更简单已经被减小)。数据以numpy格式存储在文件<a href="http://scipy-lectures.github.com/_downloads/sprog-windspeeds.npy" target="_blank" rel="external">sprog-windspeeds.npy</a>中。在你完成练习之前，不要看绘图源码。</p>
+<ul>
+<li>第一步将是使用numpy并绘制matplotlib条形图，找到每年最大值。</li>
+</ul>
+<p><img src="http://scipy-lectures.github.com/_images/plot_sprog_annual_maxima_1.png" alt="bar"></p>
+<p><a href="http://scipy-lectures.github.com/_downloads/plot_sprog_annual_maxima.py" target="_blank" rel="external">source code</a></p>
+<ul>
+<li>第二步是使用Gumble分布——其累积概率<code>p_i</code>被定义为<code>-log(-log(p_i))</code>，来拟合一个线性分位函数(记住你可以定义<code>UnivariateSpline</code>的级数(degree))。绘制每年最大风速与Gumble分布应该给出以下图像：</li>
+</ul>
+<p><img src="http://scipy-lectures.github.com/_images/plot_gumbell_wind_speed_prediction_1.png" alt="http://scipy-lectures.github.com/_images/plot_gumbell_wind_speed_prediction_1.png"></p>
+<p><a href="http://scipy-lectures.github.com/_downloads/plot_gumbell_wind_speed_prediction.py" target="_blank" rel="external">source code</a></p>
+<ul>
+<li>最后一步是找到每五十年发生的最大风速34.23m/s</li>
+</ul>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
 
   </section>
 
@@ -3118,7 +3101,7 @@ OPTIMIZERS = (optimize.brenth, optimize.brentq, optimize.ridder,
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">179</span>
+              <span class="site-state-item-count">178</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
