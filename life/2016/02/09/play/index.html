@@ -1,0 +1,849 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="life," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Reverland的行知阁" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/default_avatar.jpg?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="dotcloud悄无声息的远去了。我收到让转移应用的邮件才知道公司已经破产。
+就在几天前，往dotcloud上部署微信机器人时还饶有兴趣瞎折腾了一下。当时发在cnodejs上
+昨天，看到dotcloud提供一个secure shell，忽然脑洞大开，我觉得又可以花式Tunnel了。
+123456┌─[reverland@reverland-R478-R429] - [~] - [2016-01-2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次瞎逼折腾">
+<meta property="og:url" content="http://reverland.org/life/2016/02/09/play/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="dotcloud悄无声息的远去了。我收到让转移应用的邮件才知道公司已经破产。
+就在几天前，往dotcloud上部署微信机器人时还饶有兴趣瞎折腾了一下。当时发在cnodejs上
+昨天，看到dotcloud提供一个secure shell，忽然脑洞大开，我觉得又可以花式Tunnel了。
+123456┌─[reverland@reverland-R478-R429] - [~] - [2016-01-2">
+<meta property="og:updated_time" content="2016-02-19T07:50:09.313Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次瞎逼折腾">
+<meta name="twitter:description" content="dotcloud悄无声息的远去了。我收到让转移应用的邮件才知道公司已经破产。
+就在几天前，往dotcloud上部署微信机器人时还饶有兴趣瞎折腾了一下。当时发在cnodejs上
+昨天，看到dotcloud提供一个secure shell，忽然脑洞大开，我觉得又可以花式Tunnel了。
+123456┌─[reverland@reverland-R478-R429] - [~] - [2016-01-2">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: '',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> 记一次瞎逼折腾 | Reverland的行知阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Reverland的行知阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">开放、分享、自由与进步</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                记一次瞎逼折腾
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2016-02-09T13:01:25+08:00" content="2016-02-09">
+              2016-02-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/life/" itemprop="url" rel="index">
+                    <span itemprop="name">life</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/life/2016/02/09/play/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2016/02/09/play/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>dotcloud悄无声息的远去了。我收到让转移应用的邮件才知道公司已经破产。</p>
+<p>就在几天前，往dotcloud上部署微信机器人时还饶有兴趣瞎折腾了一下。当时发在<a href="https://cnodejs.org/topic/56a310f28dcd3e826233708a" target="_blank" rel="external">cnodejs上</a></p>
+<p>昨天，看到dotcloud<a href="https://www.dotcloud.com/dev-center/platform-documentation#secure-shell-ssh" target="_blank" rel="external">提供一个secure shell</a>，忽然脑洞大开，我觉得又可以花式Tunnel了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~] - [<span class="number">2016</span>-<span class="number">01</span>-<span class="number">23</span> <span class="number">11</span>:<span class="number">55</span>:<span class="number">29</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;&gt; <span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$HOME</span>/.local/bin</span><br><span class="line">┌─[reverland@reverland-R478-R429] - [~] - [<span class="number">2016</span>-<span class="number">01</span>-<span class="number">23</span> <span class="number">11</span>:<span class="number">55</span>:<span class="number">34</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;&gt; dcapp wechat/default run bash</span><br><span class="line">Connecting...</span><br><span class="line">[wechat/default]:~$</span><br></pre></td></tr></table></figure>
+<p>好奇，我能不用dcapp直接连接吗？什么原理？</p>
+<p>于是翻了翻下载到dotcloudng的源码，开源软件就是好啊就是好。看到里头有个<a href="https://github.com/cloudControl/cctrl/blob/c9e015920f52ca971d9dd6640f26b504d055f973/cctrl/app.py#L1162" target="_blank" rel="external">ssh命令</a></p>
+<pre><code>cmd = <span class="function"><span class="title">ssh_cmd</span><span class="params">(host_name, <span class="string">'delete-cache'</span>, deployment_name)</span></span>
+</code></pre><p>于是打印了一下，发现就是普通的ssh连接。于是抱着试试看的心理连了一次，还真可以。。</p>
+<pre><code>ssh -t -<span class="tag">p</span> <span class="number">2222</span> -- wechat-default@sshforwarder<span class="class">.dotcloudapp</span><span class="class">.com</span> TOKEN=t9Nd9ECasAgSD9UsYfcFwgysAF4bCL bash
+</code></pre><p>翻翻源码没什么问题。但是，<code>--</code>是啥？，token又是啥？</p>
+<p><code>--</code>很快查到，为了防止bash解析后面的内容。<a href="https://github.com/cloudControl/cctrl/blob/c9e015920f52ca971d9dd6640f26b504d055f973/cctrl/app.py#L126" target="_blank" rel="external">但token呢？</a></p>
+<pre><code>env = '<span class="keyword">TOKEN</span>={<span class="keyword">token</span>}'.<span class="keyword">format</span>(<span class="keyword">token</span>=self.api.get_token()['<span class="keyword">token</span>'])
+</code></pre><p>搜索了下没找到，cctrl引用了cclib，看到<a href="https://github.com/cloudControl/pycclib/blob/d7688352abc1a2e71e8d5fbdac806e6ea9f68680/pycclib/cclib.py#L188" target="_blank" rel="external">get_token</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">def get_token(self):&#10;    &#34;&#34;&#34;&#10;        We use get_token to get the token.&#10;    &#34;&#34;&#34;&#10;    return self._token</span><br></pre></td></tr></table></figure>
+<p>那又是哪里设置了token呢？一眼看到上面的<code>set\_token</code>。。。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">set_token</span><span class="params">(self, token)</span>:</span></span><br><span class="line">        <span class="string">"""</span><br><span class="line">            We use set_token to set the token.</span><br><span class="line">        """</span></span><br><span class="line">        self._token = token</span><br></pre></td></tr></table></figure>
+<p><a href="https://github.com/cloudControl/pycclib/blob/d7688352abc1a2e71e8d5fbdac806e6ea9f68680/pycclib/cclib.py#L97" target="_blank" rel="external">检查set_token是在api init的时候</a></p>
+<p>看看Api类，就抱着试试看的心理用试验了下。。。然而401？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> getSshToken = <span class="keyword">new</span> <span class="built_in">Promise</span>((resolve, reject) =&gt; &#123;</span><br><span class="line">  <span class="keyword">var</span> req = https.request(&#123;</span><br><span class="line">    method: <span class="string">'POST'</span>,</span><br><span class="line">    path: <span class="string">'/token/'</span>,</span><br><span class="line">    hostname: <span class="string">'api.dotcloudapp.com'</span>,</span><br><span class="line">    headers: &#123;</span><br><span class="line">      <span class="string">'User-Agent'</span>: <span class="string">'pycclib/1.6.2'</span>,</span><br><span class="line">      <span class="string">'Content-Type'</span>: <span class="string">'application/x-www-form-urlencoded'</span>,</span><br><span class="line">      <span class="string">'Content-length'</span>: <span class="number">0</span>,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, (res)=&gt; &#123;</span><br><span class="line">		resolve(res);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  req.end();</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>我在想要不要把mitmproxy打开看看呢。忽然在文件中赫然看到个DEBUG标志，于是打开，清晰看到几次请求。发现第一次请求是不带任何参数的，就是401，在header中返回了一个sshtoken。紧接着第二次请求。这次http header中Authorization中多了一些东西：</p>
+<pre><code>ccssh signature=rqsolg<span class="regexp">/L43mTokqnwVCgfGpCxxxxxxxxxxxxxvsdv6HxXiyXkmEAg6kKvOHSjFhCprq2AuDQbU2Z7DHUcryu9bVRmBQvNOd2xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/</span><span class="number">92</span>uN4C6aUkXqCmlp16G0VC2qqE<span class="regexp">/QrEuvO72OXeMC8tL4RrU3Qn7tRzablDo2sNaCXkXMcjMtqM+DpuzqbOHZnn7lEwynbCPOtRGaGYnVRQtxxxxxxxxxxxufi6oxomKGk/</span><span class="number">6</span>ch8C7yjEE9hfbbqFcXBZQw==,fingerprint=<span class="string">c6:</span><span class="string">xx:</span><span class="number">92</span>:<span class="number">8</span><span class="string">a:</span><span class="number">86</span>:<span class="string">xx:</span><span class="number">6</span><span class="string">b:</span><span class="string">af:</span><span class="string">fe:</span><span class="string">xx:</span><span class="number">19</span>:<span class="number">62</span>:<span class="number">1</span><span class="string">b:</span><span class="string">xx:</span><span class="number">2</span><span class="string">b:</span>f0,sshtoken=unBVe7F36pCfVhtZEmPCaT,email=xxx<span class="annotation">@linuxer</span>.me
+</code></pre><p>虽然公钥和数据签名也没什么影响，还是打上码= =</p>
+<p>sshtoken是第一步在response header中www-authenticate中给的，其他的呢。</p>
+<p>email很显然。。fingerprint，我自己的太熟悉了。。signature是啥？</p>
+<p>看了下源码，发现是<a href="https://github.com/cloudControl/cctrl/blob/c9e015920f52ca971d9dd6640f26b504d055f973/cctrl/keyhelpers.py#L212" target="_blank" rel="external">这个函数生成的signature</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">signature = sign_token(key_path, fingerprint, sshtoken)</span><br></pre></td></tr></table></figure>
+<p>数据签名函数简化如下，把错误处理去掉了，还懒得管缩进。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">def sign_token(key_path, fingerprint, data):&#10;    # from agent&#10;    pkey = get_key_from_agent(fingerprint)&#10;        # paramiko is inconsistent here in that the agent&#39;s key&#10;        # returns Message objects for &#39;sign_ssh_data&#39; whereas RSAKey&#10;        # objects returns byte strings.&#10;        # Workaround: cast both return values to string and build a&#10;        # new Message object&#10;        s = str(pkey.sign_ssh_data(data))&#10;        m = Message(s)&#10;        m.rewind()&#10;       m.get_string() # == &#39;ssh-rsa&#39;:&#10;        return base64.b64encode(m.get_string())</span><br></pre></td></tr></table></figure>
+<p>于是自己查看文档试验了一下，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">┌─[reverland@reverland-R478-R429] - [~/tmp/dcwall] - [<span class="number">2016</span>-<span class="number">01</span>-<span class="number">23</span> <span class="number">01</span>:<span class="number">05</span>:<span class="number">51</span>]</span><br><span class="line">└─[<span class="number">0</span>] &lt;&gt; ssh -v -t -p <span class="number">2222</span> -- wechat-default@sshforwarder.dotcloudapp.com TOKEN=tv8NczygRPK6cgp78azgXyKKrX9KPN bash </span><br><span class="line">OpenSSH_6.<span class="number">6.1</span>, OpenSSL <span class="number">1.0</span>.<span class="number">1</span>f <span class="number">6</span> Jan <span class="number">2014</span></span><br><span class="line">debug1: Reading configuration data /home/reverland/.ssh/config</span><br><span class="line">debug1: Reading configuration data /etc/ssh/ssh_config</span><br><span class="line">debug1: /etc/ssh/ssh_config line <span class="number">19</span>: Applying options <span class="keyword">for</span> *</span><br><span class="line">debug1: Connecting to sshforwarder.dotcloudapp.com [<span class="number">130.211</span>.<span class="number">165.15</span>] port <span class="number">2222</span>.</span><br><span class="line">debug1: fd <span class="number">3</span> clearing O_NONBLOCK</span><br><span class="line">debug1: Connection established.</span><br><span class="line">debug1: identity file /home/reverland/.ssh/id_rsa <span class="built_in">type</span> <span class="number">1</span></span><br><span class="line">debug1: identity file /home/reverland/.ssh/id_rsa-cert <span class="built_in">type</span> -<span class="number">1</span></span><br><span class="line">debug1: identity file /home/reverland/.ssh/id_dsa <span class="built_in">type</span> <span class="number">2</span></span><br><span class="line">debug1: identity file /home/reverland/.ssh/id_dsa-cert <span class="built_in">type</span> -<span class="number">1</span></span><br><span class="line">debug1: identity file /home/reverland/.ssh/id_ecdsa <span class="built_in">type</span> -<span class="number">1</span></span><br><span class="line">debug1: identity file /home/reverland/.ssh/id_ecdsa-cert <span class="built_in">type</span> -<span class="number">1</span></span><br><span class="line">debug1: identity file /home/reverland/.ssh/id_ed25519 <span class="built_in">type</span> -<span class="number">1</span></span><br><span class="line">debug1: identity file /home/reverland/.ssh/id_ed25519-cert <span class="built_in">type</span> -<span class="number">1</span></span><br><span class="line">debug1: Enabling compatibility mode <span class="keyword">for</span> protocol <span class="number">2.0</span></span><br><span class="line">debug1: Local version string SSH-<span class="number">2.0</span>-OpenSSH_6.<span class="number">6.1</span>p1 Ubuntu-<span class="number">2</span>ubuntu2.<span class="number">4</span></span><br><span class="line">debug1: Remote protocol version <span class="number">2.0</span>, remote software version Twisted</span><br><span class="line">debug1: no match: Twisted</span><br><span class="line">debug1: SSH2_MSG_KEXINIT sent</span><br><span class="line">debug1: SSH2_MSG_KEXINIT received</span><br><span class="line">debug1: kex: server-&gt;client aes128-ctr hmac-md5 none</span><br><span class="line">debug1: kex: client-&gt;server aes128-ctr hmac-md5 none</span><br><span class="line">debug1: SSH2_MSG_KEX_DH_GEX_REQUEST(<span class="number">1024</span>&lt;<span class="number">3072</span>&lt;<span class="number">8192</span>) sent</span><br><span class="line">debug1: expecting SSH2_MSG_KEX_DH_GEX_GROUP</span><br><span class="line">debug1: SSH2_MSG_KEX_DH_GEX_INIT sent</span><br><span class="line">debug1: expecting SSH2_MSG_KEX_DH_GEX_REPLY</span><br><span class="line">debug1: Server host key: RSA <span class="number">5</span>a:<span class="number">83</span>:<span class="number">13</span>:<span class="number">7</span>c:d7:a1:cb:<span class="number">7</span>c:ec:<span class="number">29</span>:<span class="number">99</span>:<span class="number">91</span>:e4:bc:<span class="number">9</span>d:<span class="number">01</span></span><br><span class="line">debug1: Host <span class="string">'[sshforwarder.dotcloudapp.com]:2222'</span> is known and matches the RSA host key.</span><br><span class="line">debug1: Found key <span class="keyword">in</span> /home/reverland/.ssh/known_hosts:<span class="number">3689</span></span><br><span class="line">debug1: ssh_rsa_verify: signature correct</span><br><span class="line">debug1: SSH2_MSG_NEWKEYS sent</span><br><span class="line">debug1: expecting SSH2_MSG_NEWKEYS</span><br><span class="line">debug1: SSH2_MSG_NEWKEYS received</span><br><span class="line">debug1: SSH2_MSG_SERVICE_REQUEST sent</span><br><span class="line">debug1: SSH2_MSG_SERVICE_ACCEPT received</span><br><span class="line">debug1: Authentications that can <span class="built_in">continue</span>: publickey</span><br><span class="line">debug1: Next authentication method: publickey</span><br><span class="line">debug1: Offering DSA public key: /home/reverland/.ssh/id_dsa</span><br><span class="line">debug1: Authentications that can <span class="built_in">continue</span>: publickey</span><br><span class="line">debug1: Offering RSA public key: /home/reverland/.ssh/id_rsa</span><br><span class="line">debug1: Server accepts key: pkalg ssh-rsa blen <span class="number">279</span></span><br><span class="line">debug1: Authentication succeeded (publickey).</span><br><span class="line">Authenticated to sshforwarder.dotcloudapp.com ([<span class="number">130.211</span>.<span class="number">165.15</span>]:<span class="number">2222</span>).</span><br><span class="line">debug1: channel <span class="number">0</span>: new [client-session]</span><br><span class="line">debug1: Entering interactive session.</span><br><span class="line">debug1: Sending environment.</span><br><span class="line">debug1: Sending env LC_IDENTIFICATION = zh_CN.UTF-<span class="number">8</span></span><br><span class="line">debug1: Sending env LC_TIME = zh_CN.UTF-<span class="number">8</span></span><br><span class="line">debug1: Sending env LC_NUMERIC = zh_CN.UTF-<span class="number">8</span></span><br><span class="line">debug1: Sending env LC_PAPER = zh_CN.UTF-<span class="number">8</span></span><br><span class="line">debug1: Sending env LC_MEASUREMENT = zh_CN.UTF-<span class="number">8</span></span><br><span class="line">debug1: Sending env LC_ADDRESS = zh_CN.UTF-<span class="number">8</span></span><br><span class="line">debug1: Sending env LC_MONETARY = zh_CN.UTF-<span class="number">8</span></span><br><span class="line">debug1: Sending env LANG = en_US.UTF-<span class="number">8</span></span><br><span class="line">debug1: Sending env LC_NAME = zh_CN.UTF-<span class="number">8</span></span><br><span class="line">debug1: Sending env LC_TELEPHONE = zh_CN.UTF-<span class="number">8</span></span><br><span class="line">debug1: Sending env LC_CTYPE = en_US.UTF-<span class="number">8</span></span><br><span class="line">debug1: Sending <span class="built_in">command</span>: TOKEN=tv8NczygRPK6cgp78azgXyKKrX9KPN bash</span><br><span class="line">Connecting...</span><br><span class="line">[wechat/default]:~$</span><br></pre></td></tr></table></figure>
+<p>想了想这个认证过程。</p>
+<ul>
+<li>https请求服务器，得到sshtoken</li>
+<li>用私钥给sshtoken的sha1哈希签名，连同公钥fingerprint，email，sshtoken一并发送给服务器</li>
+<li>（这一步是我猜的）服务器验证fingerprint身份（之前dcuser时应该已经密码认证传过公钥，待验证），服务器使用客户公钥解密签名，将解密得到的哈希和sshtoken的sha1哈希进行对比，实现身份验证和sshtoken 验证。返回再下一步ssh连接时要传递的token</li>
+<li>客户端ssh连接forward.dotcloudapp.com，认证通过后，服务器端需要检查Token的值来启动程序实例。为什么要检查呢？我猜，因为dotcloud免费用户控制只能运行一个Worker实例。。。</li>
+</ul>
+<p>于是，自己实现了下这个过程。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> exec = <span class="built_in">require</span>(<span class="string">'child_process'</span>).exec;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> https = <span class="built_in">require</span>(<span class="string">'https'</span>);</span><br><span class="line"><span class="keyword">var</span> EMAIL = <span class="string">'sa@linuxer.me'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> getSshToken = <span class="keyword">new</span> <span class="built_in">Promise</span>((resolve, reject) =&gt; &#123;</span><br><span class="line">  <span class="keyword">var</span> req = https.request(&#123;</span><br><span class="line">    method: <span class="string">'POST'</span>,</span><br><span class="line">    path: <span class="string">'/token/'</span>,</span><br><span class="line">    hostname: <span class="string">'api.dotcloudapp.com'</span>,</span><br><span class="line">    headers: &#123;</span><br><span class="line">      <span class="string">'User-Agent'</span>: <span class="string">'pycclib/1.6.2'</span>,</span><br><span class="line">      <span class="string">'Content-Type'</span>: <span class="string">'application/x-www-form-urlencoded'</span>,</span><br><span class="line">      <span class="string">'Content-length'</span>: <span class="number">0</span>,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, (res)=&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="string">'www-authenticate'</span> <span class="keyword">in</span> res.headers) &#123;</span><br><span class="line">      <span class="comment">//console.log(res.headers['www-authenticate']);</span></span><br><span class="line">      <span class="keyword">var</span> result = <span class="regexp">/sshtoken=(.+)$/mg</span>.exec(res.headers[<span class="string">'www-authenticate'</span>])</span><br><span class="line">      <span class="keyword">if</span> (!result) &#123;</span><br><span class="line">        reject(<span class="string">"fail to get ssh token"</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">var</span> sshtoken = result[<span class="number">1</span>];</span><br><span class="line">      resolve(sshtoken);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  req.end();</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getAuth</span>(<span class="params">sshtoken</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> p1 = getSignature(sshtoken);</span><br><span class="line">  <span class="keyword">var</span> p2 = getFingerPrint();</span><br><span class="line">  <span class="keyword">var</span> p3 = <span class="built_in">Promise</span>.all([p1, p2]).then((k)=&gt;&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>((resolve, reject)=&gt;&#123;</span><br><span class="line">      <span class="keyword">var</span> authorization = <span class="string">'ccssh '</span>;</span><br><span class="line">      authorization += (<span class="string">'signature='</span> + k[<span class="number">0</span>] + <span class="string">','</span>);</span><br><span class="line">      authorization += (<span class="string">'fingerprint='</span> + k[<span class="number">1</span>] + <span class="string">','</span>);</span><br><span class="line">      authorization += (<span class="string">'sshtoken='</span> + sshtoken + <span class="string">','</span>);</span><br><span class="line">      authorization += (<span class="string">'email='</span> + EMAIL);</span><br><span class="line">      <span class="built_in">console</span>.log(authorization);</span><br><span class="line">      resolve(authorization);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> p3;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getSignature</span>(<span class="params">sshtoken</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>((resolve, reject)=&gt;&#123;</span><br><span class="line">    <span class="keyword">var</span> cmd = <span class="string">'echo -ne "'</span> + sshtoken + <span class="string">'" | openssl sha1 -binary | openssl pkeyutl -sign -inkey ~/.ssh/id_rsa -pkeyopt digest:sha1'</span>;</span><br><span class="line">    <span class="comment">//console.log(cmd);</span></span><br><span class="line">    exec(cmd,</span><br><span class="line">         <span class="comment">// 以下两个参数非常重要</span></span><br><span class="line">         &#123;</span><br><span class="line">           encoding: <span class="string">'binary'</span>,</span><br><span class="line">           shell: <span class="string">'/bin/bash'</span>,</span><br><span class="line">         &#125;,</span><br><span class="line">         (error, stdout, stderr) =&gt; &#123;</span><br><span class="line">           <span class="keyword">if</span> (error) &#123;</span><br><span class="line">             reject(error);</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">// 注意要binary而不是utf8</span></span><br><span class="line">           resolve(<span class="keyword">new</span> Buffer(stdout, <span class="string">'binary'</span>).toString(<span class="string">'base64'</span>));</span><br><span class="line">         &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getFingerPrint</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>((resolve, reject)=&gt;&#123;</span><br><span class="line">    exec(<span class="string">'ssh-keygen -lf ~/.ssh/id_rsa.pub'</span>, (error, stdout, stderr) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        reject(error);</span><br><span class="line">      &#125;</span><br><span class="line">      resolve(stdout.toString().split(<span class="string">' '</span>)[<span class="number">1</span>]);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getToken</span>(<span class="params">authorization</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">var</span> p = <span class="keyword">new</span> <span class="built_in">Promise</span>((resolve, reject)=&gt;&#123;</span><br><span class="line">    <span class="keyword">var</span> req = https.request(&#123;</span><br><span class="line">      method: <span class="string">'POST'</span>,</span><br><span class="line">      path: <span class="string">'/token/'</span>,</span><br><span class="line">      hostname: <span class="string">'api.dotcloudapp.com'</span>,</span><br><span class="line">      headers: &#123;</span><br><span class="line">        <span class="string">'User-Agent'</span>: <span class="string">'pycclib/1.6.2'</span>,</span><br><span class="line">        <span class="string">'Content-Type'</span>: <span class="string">'application/x-www-form-urlencoded'</span>,</span><br><span class="line">        <span class="string">'Content-length'</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="string">'Authorization'</span>: authorization,</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;, (res)=&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (res.statusCode != <span class="number">200</span>) &#123;</span><br><span class="line">        reject(<span class="string">"fail to get token"</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">var</span> data = <span class="string">''</span>;</span><br><span class="line">      res.on(<span class="string">'data'</span>, (chunk)=&gt;&#123;</span><br><span class="line">        data += chunk;</span><br><span class="line">      &#125;);</span><br><span class="line">      res.on(<span class="string">'end'</span>, ()=&gt;&#123;</span><br><span class="line">        resolve(data);</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    req.end();</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getSshToken.then(getAuth).then(getToken).then(<span class="built_in">console</span>.log).catch(<span class="built_in">console</span>.error);</span><br></pre></td></tr></table></figure>
+<p>一点也不顺利：</p>
+<p>我用的v5.0.0，看了看<a href="https://nodejs.org/docs/v5.0.0/api/child_process.html#child_process_child_process_exec_command_options_callback" target="_blank" rel="external">文档里赫然写着stderror是Buffer好么</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">callback Function called with the output when process terminates</span><br><span class="line"></span><br><span class="line">    error Error</span><br><span class="line">    stdout Buffer</span><br><span class="line">    stderr Buffer</span><br><span class="line">`</span><br></pre></td></tr></table></figure>
+<p><em style="color:red;">然而实际上怎么是String…..是我理解不对么？<em></em></em></p>
+<p>其次，echo在/bin/sh和/bin/bash中不是一回事，一个是内置命令，一个是单独程序。。。</p>
+<p>再次，深刻体会到该binary的时候一定得binary，字符串在我这里只能utf-8。。再Buffer后完全不是之前的binary数据。被坑得半死不活。</p>
+<p>最后，Cheers</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[wechat/default]:~$ curl https://twitter.com | md5sum</span><br><span class="line">  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current</span><br><span class="line">                                 Dload  Upload   Total   Spent    Left  Speed</span><br><span class="line"><span class="number">100</span> <span class="number">70740</span>  <span class="number">100</span> <span class="number">70740</span>    <span class="number">0</span>     <span class="number">0</span>   <span class="number">219</span>k      <span class="number">0</span> --:--:-- --:--:-- --:--:--  <span class="number">262</span>k</span><br><span class="line"><span class="number">9</span>f9f288dbfb5fbf379244ed9a75f7ebf  -</span><br></pre></td></tr></table></figure>
+<p>不过tunnel还是没成功，不过也不是为了tunnel不是。</p>
+<h2 id="总结">总结</h2><p>Just for fun！</p>
+<p>学习下dotcloud的cli认证原理</p>
+<p>不知道heroku是不是类似的认证方式</p>
+<p>我要好好研究下ssh forward原理。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/life/" rel="tag">#life</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/javascript/2016/01/15/webchat-user-bot/" rel="next" title="web 微信与基于node的微信机器人实现">
+                <i class="fa fa-chevron-left"></i> web 微信与基于node的微信机器人实现
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      </div>
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">179</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/reverland" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://reverland.bitbucket.org/" target="_blank">曾经的的vimwiki</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://liutos.github.com/" target="_blank">Liutos</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.phoenixlzx.com/" target="_blank">凤凰君</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://gndrive.org/" target="_blank">高达数字实验室</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.cherrot.com/" target="_blank">Cherrot</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://xwyam.github.com/" target="_blank">xw_y_am</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://ishell.me" target="_blank">小东</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.kochiya.me/" target="_blank">AS酱</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.skydark.info/" target="_blank">skydark</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://thorb.cn/" target="_blank">thorb</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.d0u9.xyz/" target="_blank">doug</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://armsword.com/" target="_blank">armsword</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://lilydjwg.is-programmer.com/" target="_blank">仙子</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://lazymind.me/" target="_blank">mapleray</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://gaohaoyang.github.io" target="_blank">HYG</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">1.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2011 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'reverlandblog';
+      var disqus_identifier = 'life/2016/02/09/play/';
+      var disqus_title = '记一次瞎逼折腾';
+      var disqus_url = 'http://reverland.org/life/2016/02/09/play/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+</body>
+</html>
