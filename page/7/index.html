@@ -224,6 +224,196 @@
             
               
                 
+                <a class="post-title-link" href="/machine-learning/2014/06/02/" itemprop="url">
+                  实现一个反向传播人工神经网络
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2014-06-02T00:00:00+08:00" content="2014-06-02">
+              2014-06-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/machine-learning/" itemprop="url" rel="index">
+                    <span itemprop="name">machine learning</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/machine-learning/2014/06/02/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="machine-learning/2014/06/02//" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="为何实现一个BP神经网络？">为何实现一个BP神经网络？</h1><blockquote>
+<p>“What I cannot create, I do not understand”</p>
+<p>— Richard Feynman,  February 1988</p>
+</blockquote>
+<hr>
+<h2 id="实现一个BP神经网络的7个步骤">实现一个BP神经网络的7个步骤</h2><ol>
+<li>选择神经网络 <em>结构</em></li>
+<li><em>随机</em> 初始化权重</li>
+<li>实现 <em>前向传播</em> </li>
+<li>实现 <em>成本函数</em> $J(\Theta)$</li>
+<li>实现反向传播算法并计算 <em>偏微分</em> $\frac{\partial}{\partial<br>\Theta_{jk}^{(i)}}J(\Theta)$</li>
+<li>使用 <em>梯度检查</em> 并在检查后关闭</li>
+<li>使用梯度下降或其它优化算法和反向传播来 <em>优化</em> $\Theta$ 的函数 $J(\Theta)$</li>
+</ol>
+<hr>
+<h2 id="数据集">数据集</h2><p>我们选取著名的鸢尾花数据集作为神经网络作用的对象，首先先观察下数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">2</span>]:</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> datasets</span><br><span class="line">iris = datasets.load_iris()</span><br><span class="line"><span class="comment"># random it</span></span><br><span class="line">perm = np.random.permutation(iris.target.size)</span><br><span class="line">iris.data = iris.data[perm]</span><br><span class="line">iris.target = iris.target[perm]</span><br><span class="line"><span class="keyword">print</span> iris.data.shape</span><br><span class="line"><span class="keyword">print</span> iris.target.shape </span><br><span class="line">np.unique(iris.target)</span><br><span class="line"><span class="comment">#print iris</span></span><br><span class="line">Out[<span class="number">2</span>]:</span><br><span class="line">    (<span class="number">150</span>, <span class="number">4</span>)</span><br><span class="line">    (<span class="number">150</span>,)</span><br><span class="line"></span><br><span class="line">    array([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>])</span><br></pre></td></tr></table></figure>
+<p>可见，鸢尾花数据集有四个特征，分为三种类别，总共150个条数据。</p>
+<hr>
+<h1 id="选择人工神经网络结构">选择人工神经网络结构</h1><p><img src="/images/nn.png" alt="神经网络架构图"></p>
+<hr>
+<h1 id="随机初始化权重">随机初始化权重</h1><h2 id="网络权重随机初始化">网络权重随机初始化</h2><p> 初始化 $\Theta_{ij}^{(l)}$ 为  $[-\epsilon, \epsilon]$ 之间的随机值。</p>
+<p> 初始化函数可定义如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">3</span>]:</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">random_init</span><span class="params">(input_layer_size, hidden_layer_size, classes, init_epsilon=<span class="number">0.12</span>)</span>:</span></span><br><span class="line">    Theta_1 = np.random.rand(hidden_layer_size, input_layer_size + <span class="number">1</span>) * <span class="number">2</span> * init_epsilon -init_epsilon</span><br><span class="line">    Theta_2 = np.random.rand(classes, hidden_layer_size + <span class="number">1</span>) * <span class="number">2</span> * init_epsilon -init_epsilon</span><br><span class="line">    <span class="keyword">return</span> (Theta_1, Theta_2)</span><br></pre></td></tr></table></figure>
+<hr>
+<h1 id="实现前向传播">实现前向传播</h1><p>每一层都以此为公式计算下一层：</p>
+<p>$$<br>G_{\theta^{(l)}(X)} = \frac{1}{1 + e^{-X(\Theta^{(l)})^T}}<br>$$</p>
+<p>注意添加偏差项。</p>
+<hr>
+<h3 id="前向传播函数定义如下">前向传播函数定义如下</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">4</span>]:</span><br><span class="line"><span class="comment"># 先定义一个sigmoid函数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">g</span><span class="params">(theta, X)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> / (<span class="number">1</span> + np.e ** (-np.dot(X, np.transpose(theta))))</span><br><span class="line"><span class="comment"># 前向传播函数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">predict</span><span class="params">(Theta_1, Theta_2, X)</span>:</span></span><br><span class="line">    h = g(Theta_1, np.hstack((np.ones((X.shape[<span class="number">0</span>], <span class="number">1</span>)), X)))</span><br><span class="line">    o = g(Theta_2, np.hstack((np.ones((h.shape[<span class="number">0</span>], <span class="number">1</span>)), h)))</span><br><span class="line">    <span class="keyword">return</span> o</span><br></pre></td></tr></table></figure>
+<hr>
+<h1 id="实现成本函数">实现成本函数</h1><h2 id="成本函数的数学表示">成本函数的数学表示</h2><p>$$<br>J(\Theta) = -\frac{1}{m}[\sum<em>{i=1}^m<br>\sum</em>{k=1}^Ky<em>k^{(i)}\log(h</em>\Theta(x^{(i)}))_k + (1 -<br>y<em>k^{(i)})\log(1-h</em>\Theta(x^{(i)}))<em>k)] + \frac{\lambda}{2m}\sum</em>{l=1}^{L-1}\sum<br>_{i=1}^{s<em>l}\sum</em>{j=1}^{s<em>{l+1}}(\Theta</em>{ji}^{(l)})^2<br>$$</p>
+<p>$K$是输出层单元个数, $L$是层数，我们这里是三， $s_l$ 是层 $l$ 中单元数。</p>
+<hr>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">5</span>]:</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">costfunction</span><span class="params">(nn_param, input_layer_size, hidden_layer_size, classes, X, y, lamb_da)</span>:</span></span><br><span class="line">    Theta_1 = nn_param[:hidden_layer_size * (input_layer_size + <span class="number">1</span>)].reshape((hidden_layer_size, (input_layer_size + <span class="number">1</span>)))</span><br><span class="line">    Theta_2 = nn_param[hidden_layer_size * (input_layer_size + <span class="number">1</span>):].reshape((classes, (hidden_layer_size + <span class="number">1</span>)))</span><br><span class="line">    m = X.shape[<span class="number">0</span>]</span><br><span class="line">    <span class="comment"># recode y</span></span><br><span class="line">    y_recoded = np.eye(classes)[y,:]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># print y_recoded</span></span><br><span class="line">    <span class="comment"># calculate regularator</span></span><br><span class="line">    regularator = (np.sum(Theta_1**<span class="number">2</span>) + np.sum(Theta_2 ** <span class="number">2</span>)) * (lamb_da/(<span class="number">2</span>*m))</span><br><span class="line"></span><br><span class="line">    a3 = predict(Theta_1, Theta_2, X)</span><br><span class="line"></span><br><span class="line">    J = <span class="number">1.0</span> / m * np.sum(-<span class="number">1</span> * y_recoded * np.log(a3)-(<span class="number">1</span>-y_recoded) * np.log(<span class="number">1</span>-a3)) + regularator</span><br><span class="line">    <span class="comment"># print J</span></span><br><span class="line">    <span class="keyword">return</span> J</span><br></pre></td></tr></table></figure>
+<p>因为scipy中优化函数要求输入参数是向量而不是矩阵，因此我们的函数实现也必须能够随时展开和复原矩阵。</p>
+<hr>
+<h1 id="实现反向传播">实现反向传播</h1><ul>
+<li>正向传播计算网络输出</li>
+<li>反向计算每一层的误差$\sigma^{(l)}$</li>
+<li>由误差累加计算得到成本函数的偏微分$\frac{\partial}{\partial\Theta_{ij}^{(l)}}J(\Theta)$</li>
+</ul>
+<p>同样，在实现函数时因为要传递给<code>scipy.optimize</code>模块中的优化函数，必须能展开矩阵参数为向量并可随时复原。</p>
+<p>详细实现过程参见Andrew NG在Coursera上的讲座。</p>
+<p>数学推导过程请 <em>自行</em> 上coursera ml课程论坛搜索。</p>
+<hr>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">6</span>]:</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Gradient</span><span class="params">(nn_param, input_layer_size, hidden_layer_size, classes, X, y, lamb_da)</span>:</span></span><br><span class="line">    </span><br><span class="line">    Theta_1 = nn_param[:hidden_layer_size * (input_layer_size + <span class="number">1</span>)].reshape((hidden_layer_size, (input_layer_size + <span class="number">1</span>)))</span><br><span class="line">    Theta_2 = nn_param[hidden_layer_size * (input_layer_size + <span class="number">1</span>):].reshape((classes, (hidden_layer_size + <span class="number">1</span>)))</span><br><span class="line">    </span><br><span class="line">    m = X.shape[<span class="number">0</span>]</span><br><span class="line">    </span><br><span class="line">    Theta1_grad = np.zeros(Theta_1.shape);</span><br><span class="line">    Theta2_grad = np.zeros(Theta_2.shape);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> t <span class="keyword">in</span> range(m):</span><br><span class="line">        <span class="comment"># For the input layer, where l=1:</span></span><br><span class="line">        <span class="comment"># add a bias unit and forward propagate</span></span><br><span class="line">        a1 = np.hstack((np.ones((X[t:t+<span class="number">1</span>,:].shape[<span class="number">0</span>], <span class="number">1</span>)), X[t:t+<span class="number">1</span>,:]))</span><br><span class="line"></span><br><span class="line">        <span class="comment"># For the hidden layers, where l=2:</span></span><br><span class="line">        a2 = g(Theta_1, a1)</span><br><span class="line">        a2 = np.hstack((np.ones((a2.shape[<span class="number">0</span>], <span class="number">1</span>)), a2))</span><br><span class="line">        a3 = g(Theta_2, a2)</span><br><span class="line"></span><br><span class="line">        yy = np.zeros((<span class="number">1</span>, classes))</span><br><span class="line">        yy[<span class="number">0</span>][y[t]] = <span class="number">1</span></span><br><span class="line">        <span class="comment"># For the delta values:</span></span><br><span class="line">        delta_3 = a3 - yy;</span><br></pre></td></tr></table></figure>
+<hr>
+<p>续上页</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">    delta_2 = delta_3.dot(Theta_2) * (a2 * (<span class="number">1</span> - a2))</span><br><span class="line">    delta_2 = delta_2[<span class="number">0</span>][<span class="number">1</span>:] <span class="comment"># Taking of the bias row</span></span><br><span class="line">    delta_2 = np.transpose(delta_2)</span><br><span class="line">    delta_2 = delta_2.reshape(<span class="number">1</span>, (np.size(delta_2)))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># delta_1 is not calculated because we do not associate error with the input</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Big delta update</span></span><br><span class="line">    Theta1_grad = Theta1_grad + np.transpose(delta_2).dot(a1);</span><br><span class="line">    Theta2_grad = Theta2_grad + np.transpose(delta_3).dot(a2);</span><br><span class="line"></span><br><span class="line">Theta1_grad = <span class="number">1.0</span> / m * Theta1_grad + lamb_da / m * np.hstack((np.zeros((Theta_1.shape[<span class="number">0</span>], <span class="number">1</span>)), Theta_1[:, <span class="number">1</span>:]))</span><br><span class="line">Theta2_grad = <span class="number">1.0</span> / m * Theta2_grad + lamb_da / m * np.hstack((np.zeros((Theta_2.shape[<span class="number">0</span>], <span class="number">1</span>)), Theta_2[:, <span class="number">1</span>:]))</span><br><span class="line"></span><br><span class="line">Grad = np.concatenate((Theta1_grad.ravel(), Theta2_grad.ravel()), axis=<span class="number">0</span>)</span><br><span class="line"><span class="keyword">return</span> Grad</span><br></pre></td></tr></table></figure>
+<hr>
+<h1 id="梯度检测">梯度检测</h1><blockquote>
+<p>“But back prop as an algorithm has a lot of details and,you know, can be a<br>little bit tricky to implement.”</p>
+<p>– Andrew NG如是说</p>
+</blockquote>
+<ul>
+<li>即使看上去成本函数在一直减小，可能神经网络还是有问题。</li>
+<li>梯度检测能让你确认，哦，我的实现还正常。</li>
+</ul>
+<hr>
+<h2 id="梯度检测原理">梯度检测原理</h2><p>简单的微分近似。但相比反向传播神经网络算法计算量更大。</p>
+<p>$$<br>\frac{\partial}{\partial\theta<em>{i}}J(\theta) \approx<br>\frac{J(\theta</em>{i}+\epsilon) - J(\theta_{i}+\epsilon) }{2\epsilon}<br>$$</p>
+<h3 id="这种梯度计算实现如下：">这种梯度计算实现如下：</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">7</span>]:</span><br><span class="line"><span class="comment"># define compute_grad</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">compute_grad</span><span class="params">(theta, input_layer_size, hidden_layer_size, classes, X, y, lamb_da, epsilon=<span class="number">1e-4</span>)</span>:</span></span><br><span class="line">    n = np.size(theta)</span><br><span class="line">    gradaproxy = np.zeros(n)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(n):</span><br><span class="line">        theta_plus = np.copy(theta) <span class="comment"># Important for in numpy assign is shalow copy</span></span><br><span class="line">        theta_plus[i] = theta_plus[i] + epsilon</span><br><span class="line">        theta_minus = np.copy(theta)</span><br><span class="line">        theta_minus[i] = theta_minus[i] - epsilon</span><br><span class="line">        gradaproxy[i] = (costfunction(theta_plus, input_layer_size, hidden_layer_size, classes, X, y, lamb_da) - costfunction(theta_minus, input_layer_size, hidden_layer_size, classes, X, y, lamb_da)) / (<span class="number">2.0</span> * epsilon)</span><br><span class="line">    <span class="keyword">return</span> gradaproxy</span><br></pre></td></tr></table></figure>
+<hr>
+<h1 id="把一切放到一起">把一切放到一起</h1><p>先定义训练函数如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">8</span>]:</span><br><span class="line"><span class="keyword">from</span> scipy <span class="keyword">import</span> optimize</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">train</span><span class="params">(input_layer_size, hidden_layer_size, classes, X, y, lamb_da)</span>:</span></span><br><span class="line">    Theta_1, Theta_2 = random_init(input_layer_size, hidden_layer_size, classes, init_epsilon=<span class="number">0.12</span>)</span><br><span class="line">    nn_param = np.concatenate((Theta_1.ravel(), Theta_2.ravel()))</span><br><span class="line">    final_nn = optimize.fmin_cg(costfunction, </span><br><span class="line">                                np.concatenate((Theta_1.ravel(), Theta_2.ravel()), axis=<span class="number">0</span>), </span><br><span class="line">                                fprime=Gradient, </span><br><span class="line">                                args=(input_layer_size,</span><br><span class="line">                                      hidden_layer_size, </span><br><span class="line">                                      classes, </span><br><span class="line">                                      X, </span><br><span class="line">                                      y,</span><br><span class="line">                                      lamb_da))</span><br><span class="line">    <span class="keyword">return</span> final_nn</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="使用训练集进行训练">使用训练集进行训练</h2><p>我选取鸢尾花数据集的100条作为训练集，剩下50条作为测试集。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">9</span>]:</span><br><span class="line">X = iris.data[:<span class="number">100</span>]</span><br><span class="line">y = iris.target[:<span class="number">100</span>]</span><br><span class="line">lamb_da = <span class="number">1.0</span> <span class="comment"># must be float</span></span><br><span class="line">input_layer_size = <span class="number">4</span></span><br><span class="line">hidden_layer_size = <span class="number">6</span></span><br><span class="line">classes = <span class="number">3</span></span><br><span class="line"></span><br><span class="line">final_nn = train(input_layer_size, hidden_layer_size, classes, X, y, lamb_da)</span><br><span class="line"></span><br><span class="line">    Warning: Desired error <span class="keyword">not</span> necessarily achieved due to precision loss.</span><br><span class="line">             Current function value: <span class="number">0.878999</span></span><br><span class="line">             Iterations: <span class="number">48</span></span><br><span class="line">             Function evaluations: <span class="number">152</span></span><br><span class="line">             Gradient evaluations: <span class="number">140</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="检测两种方式计算的梯度是否近似">检测两种方式计算的梯度是否近似</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">10</span>]:</span><br><span class="line"><span class="comment"># gradient checking</span></span><br><span class="line">grad_aprox = compute_grad(final_nn, input_layer_size, hidden_layer_size, classes, X, y, lamb_da)</span><br><span class="line">grad_bp = Gradient(final_nn, input_layer_size, hidden_layer_size, classes, X, y, lamb_da)</span><br><span class="line"><span class="keyword">print</span> (grad_aprox - grad_bp) &lt; <span class="number">1e-1</span></span><br><span class="line"></span><br><span class="line">    [ <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span></span><br><span class="line">      <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span></span><br><span class="line">      <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span></span><br><span class="line">      <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span></span><br><span class="line">      <span class="keyword">True</span>  <span class="keyword">True</span>  <span class="keyword">True</span>]</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="对测试集使用训练得来的参数">对测试集使用训练得来的参数</h2><p>可以看到，测试集中50个样本有_个判定错误，其它_个分类正确。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">11</span>]:</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">(final_nn, input_layer_size, hidden_layer_size, classes, X, y, lamb_da)</span>:</span></span><br><span class="line">    Theta_1 = final_nn[:hidden_layer_size * (input_layer_size + <span class="number">1</span>)].reshape((hidden_layer_size, input_layer_size + <span class="number">1</span>))</span><br><span class="line">    Theta_2 = final_nn[hidden_layer_size * (input_layer_size + <span class="number">1</span>):].reshape((classes, hidden_layer_size + <span class="number">1</span>))</span><br><span class="line">    nsuccess = np.sum(np.argmax(predict(Theta_1, Theta_2, X), axis=<span class="number">1</span>) == y)</span><br><span class="line">    <span class="keyword">return</span> nsuccess</span><br><span class="line"></span><br><span class="line">n = test(final_nn, input_layer_size, hidden_layer_size, classes, iris.data[<span class="number">100</span>:], iris.target[<span class="number">100</span>:], lamb_da)</span><br><span class="line"><span class="keyword">print</span> n</span><br><span class="line">n = test(final_nn, input_layer_size, hidden_layer_size, classes, iris.data[:<span class="number">100</span>], iris.target[:<span class="number">100</span>], lamb_da)</span><br><span class="line"><span class="keyword">print</span> n</span><br><span class="line"></span><br><span class="line">Out[<span class="number">11</span>]:</span><br><span class="line">    <span class="number">47</span></span><br><span class="line">    <span class="number">99</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h1 id="另一个例子：手写数字数据集">另一个例子：手写数字数据集</h1><p>最后是对同样著名的手写数字数据集的实验。</p>
+<h3 id="载入并观察数据集：">载入并观察数据集：</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">12</span>]:</span><br><span class="line">digits = datasets.load_digits()</span><br><span class="line"></span><br><span class="line"><span class="comment"># random it</span></span><br><span class="line">perm = np.random.permutation(digits.target.size)</span><br><span class="line">digits.data = digits.data[perm]</span><br><span class="line">digits.target = digits.target[perm]</span><br><span class="line"><span class="keyword">print</span> digits.data.shape</span><br><span class="line"><span class="keyword">print</span> digits.target.shape</span><br><span class="line"><span class="keyword">print</span> np.unique(digits.target)</span><br><span class="line"></span><br><span class="line">Out[<span class="number">12</span>]:</span><br><span class="line">    (<span class="number">1797</span>, <span class="number">64</span>)</span><br><span class="line">    (<span class="number">1797</span>,)</span><br><span class="line">    [<span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span> <span class="number">9</span>]</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="选择神经网络参数">选择神经网络参数</h2><p>取1000个样本作为训练集，剩下作为测试集。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">13</span>]:</span><br><span class="line">X = digits.data[:<span class="number">1000</span>]</span><br><span class="line">y = digits.target[:<span class="number">1000</span>]</span><br><span class="line">lamb_da = <span class="number">1.0</span> <span class="comment"># must be float</span></span><br><span class="line">input_layer_size = <span class="number">64</span></span><br><span class="line">hidden_layer_size = <span class="number">10</span></span><br><span class="line">classes = <span class="number">10</span></span><br><span class="line"></span><br><span class="line">final_nn = train(input_layer_size, hidden_layer_size, classes, X, y, lamb_da)</span><br><span class="line"></span><br><span class="line">Out[<span class="number">13</span>]:</span><br><span class="line">    Warning: Desired error <span class="keyword">not</span> necessarily achieved due to precision loss.</span><br><span class="line">             Current function value: <span class="number">0.594474</span></span><br><span class="line">             Iterations: <span class="number">965</span></span><br><span class="line">             Function evaluations: <span class="number">2210</span></span><br><span class="line">             Gradient evaluations: <span class="number">2189</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="进行梯度检测">进行梯度检测</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">14</span>]:</span><br><span class="line"><span class="comment"># gradient checking</span></span><br><span class="line">grad_aprox = compute_grad(final_nn, input_layer_size, hidden_layer_size, classes, X, y, lamb_da)</span><br><span class="line">grad_bp = Gradient(final_nn, input_layer_size, hidden_layer_size, classes, X, y, lamb_da)</span><br><span class="line"><span class="keyword">print</span> np.all((grad_aprox - grad_bp) &lt; <span class="number">1e-1</span>)</span><br><span class="line"></span><br><span class="line">Out[<span class="number">14</span>]:</span><br><span class="line">    <span class="keyword">True</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="对测试集使用训练得来的参数-1">对测试集使用训练得来的参数</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">15</span>]:</span><br><span class="line"></span><br><span class="line">n = test(final_nn, input_layer_size, hidden_layer_size, classes, digits.data[<span class="number">1000</span>:], digits.target[<span class="number">1000</span>:], lamb_da)</span><br><span class="line"><span class="keyword">print</span> n</span><br><span class="line"></span><br><span class="line">n = test(final_nn, input_layer_size, hidden_layer_size, classes, digits.data[:<span class="number">1000</span>], digits.target[:<span class="number">1000</span>], lamb_da)</span><br><span class="line"><span class="keyword">print</span> n</span><br><span class="line"></span><br><span class="line">Out[<span class="number">15</span>]:</span><br><span class="line"></span><br><span class="line">    <span class="number">722</span></span><br><span class="line">    <span class="number">991</span></span><br></pre></td></tr></table></figure>
+<hr>
+<center><br><h3>BY REVERLAND</h3><br></center>
+
+
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/sql/2014/05/31/mysql-learning-notes/" itemprop="url">
                   MySQL Learning Notes
                 </a>
@@ -3204,336 +3394,6 @@ listening on wlan0, link-type EN10MB (Ethernet), capture size <span class="numbe
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/network/2014/03/04/play-arp/" itemprop="url">
-                  Playing and Learning ARP in Action
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-03-04T00:00:00+08:00" content="2014-03-04">
-              2014-03-04
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/network/" itemprop="url" rel="index">
-                    <span itemprop="name">network</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/network/2014/03/04/play-arp/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="network/2014/03/04/play-arp/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="实验准备">实验准备</h2><p>这是我的工具：</p>
-<ul>
-<li>一台linux机器，内核支持ip转发，arp代理。带无线网卡和有线网卡。比如一台笔记本电脑。</li>
-<li>linux机器装好scapy，tcpdump</li>
-<li>网线，不一定是双绞线，现代网卡都应该支持双向通信模式的转换。</li>
-<li>一台windows台式机，带有线网卡和接口。</li>
-</ul>
-<h2 id="一点scapy的小基础">一点scapy的小基础</h2><p>scapy是一种基于python的包操作工具，在python上实现了一种DSL(领域特定语言)。定义一个包很简单。比如一个<code>Ether</code>：</p>
-<pre><code><span class="function"><span class="title">Ether</span><span class="params">(dst=<span class="string">"ff:ff:ff:ff:ff:ff"</span>)</span></span>
-</code></pre><p>封包里的字段可以<code>ls</code>来查看：</p>
-<pre><code><span class="function"><span class="title">ls</span><span class="params">(Ether)</span></span>
-</code></pre><p>当我们想让一个Ethernet包封装一个IP包时，仅仅使用一个<code>/</code>:</p>
-<pre><code>ip = <span class="function"><span class="title">Ether</span><span class="params">()</span></span>/<span class="function"><span class="title">IP</span><span class="params">()</span></span>
-</code></pre><p>当我们想发包时，如果想在第三层上网络层以上发包：</p>
-<pre><code><span class="function"><span class="title">send</span><span class="params">(ip)</span></span>
-</code></pre><p>但你要发一个ARP包(在第二层上发包)的话，要用<code>srp</code>或<code>srp1</code>。</p>
-<h2 id="arp如何工作">arp如何工作</h2><p>计算机仅仅知道ip地址是无法通信的，ip数据报在封装到数据链路层中时需要加上比如以太网报头，报头中应该含有数据链路层能理解的地址即MAC地址。ARP就是着么一种将IP转换成MAC地址的协议。</p>
-<p>如下例子，当我们Ping一台机器时，如果该ip在arp缓存中有，就可以直接找到mac地址，如果没有，就会广播一个请求询问对应ip的mac地址。</p>
-<pre><code>~/Work/project/arp-pos ⮀ sudo arp -d <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span>
-~/Work/project/arp-pos ⮀ ping -c <span class="number">1</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span>
-PING <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span> (<span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span>) <span class="number">56</span>(<span class="number">84</span>) <span class="keyword">bytes</span> <span class="operator">of</span> data.
-<span class="number">64</span> <span class="keyword">bytes</span> <span class="built_in">from</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span>: icmp_seq=<span class="number">1</span> ttl=<span class="number">64</span> <span class="built_in">time</span>=<span class="number">142</span> ms
-
-<span class="comment">--- 192.168.1.113 ping statistics ---</span>
-<span class="number">1</span> packets transmitted, <span class="number">1</span> received, <span class="number">0</span>% packet loss, <span class="built_in">time</span> <span class="number">0</span>ms
-rtt <span class="built_in">min</span>/<span class="built_in">avg</span>/<span class="built_in">max</span>/mdev = <span class="number">142.484</span>/<span class="number">142.484</span>/<span class="number">142.484</span>/<span class="number">0.000</span> ms
-
- ~ ⮀ sudo tcpdump -vv -eqtnni wlan0 arp
-tcpdump: listening <span class="command"><span class="keyword">on</span> <span class="title">wlan0</span>, <span class="title">link-type</span> <span class="title">EN10MB</span> (<span class="title">Ethernet</span>), <span class="title">capture</span> <span class="title">size</span> <span class="title">65535</span> <span class="title">bytes</span></span>
-<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> &gt; ff:ff:ff:ff:ff:ff, ARP, <span class="built_in">length</span> <span class="number">42</span>: Ethernet (<span class="built_in">len</span> <span class="number">6</span>), IPv4 (<span class="built_in">len</span> <span class="number">4</span>), Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span> tell <span class="number">192.168</span><span class="number">.1</span><span class="number">.106</span>, <span class="built_in">length</span> <span class="number">28</span>
-<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span> &gt; <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>, ARP, <span class="built_in">length</span> <span class="number">42</span>: Ethernet (<span class="built_in">len</span> <span class="number">6</span>), IPv4 (<span class="built_in">len</span> <span class="number">4</span>), Reply <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span> is-<span class="keyword">at</span> <span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>:<span class="number">22</span>, <span class="built_in">length</span> <span class="number">28</span>
-</code></pre><h2 id="抓包观察">抓包观察</h2><p>让我们看看机器获取IP的过程。这里我们用tcpdump，你可以在任何linux发行版的源里找到它。当然，也可以用wireshark。</p>
-<pre><code> ~ ⮀ sudo tcpdump -e -i wlan0 port bootps or port bootpc or arp
-tcpdump: WARNING: wlan0: no IPv4 address assigned
-tcpdump: verbose output suppressed, <span class="operator"><span class="keyword">use</span> -v <span class="keyword">or</span> -vv <span class="keyword">for</span> <span class="keyword">full</span> protocol <span class="keyword">decode</span>
-listening <span class="keyword">on</span> wlan0, <span class="keyword">link</span>-<span class="keyword">type</span> EN10MB (Ethernet), capture <span class="keyword">size</span> <span class="number">65535</span> <span class="keyword">bytes</span>
-<span class="number">21</span>:<span class="number">54</span>:<span class="number">19.202074</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype IPv4 (<span class="number">0x0800</span>), <span class="keyword">length</span> <span class="number">371</span>: <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>.bootpc &gt; <span class="number">255.255</span><span class="number">.255</span><span class="number">.255</span>.bootps: BOOTP/DHCP, Request <span class="keyword">from</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>), <span class="keyword">length</span> <span class="number">329</span>
-<span class="number">21</span>:<span class="number">54</span>:<span class="number">19.277875</span> ec:<span class="number">88</span>:<span class="number">8</span><span class="keyword">f</span>:b4:d6:<span class="number">68</span> (oui <span class="keyword">Unknown</span>) &gt; <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>), ethertype IPv4 (<span class="number">0x0800</span>), <span class="keyword">length</span> <span class="number">590</span>: <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span>.bootps &gt; <span class="number">192.168</span><span class="number">.1</span><span class="number">.101</span>.bootpc: BOOTP/DHCP, Reply, <span class="keyword">length</span> <span class="number">548</span>
-<span class="number">21</span>:<span class="number">54</span>:<span class="number">19.352068</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span> tell <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>, <span class="keyword">length</span> <span class="number">28</span>
-<span class="number">21</span>:<span class="number">54</span>:<span class="number">20.720541</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span> tell <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>, <span class="keyword">length</span> <span class="number">28</span>
-<span class="number">21</span>:<span class="number">54</span>:<span class="number">22.155087</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span> tell <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>, <span class="keyword">length</span> <span class="number">28</span>
-<span class="number">21</span>:<span class="number">54</span>:<span class="number">24.232076</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span> tell <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span>, <span class="keyword">length</span> <span class="number">28</span>
-<span class="number">21</span>:<span class="number">54</span>:<span class="number">26.234201</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span> tell <span class="number">192.168</span><span class="number">.1</span><span class="number">.102</span>, <span class="keyword">length</span> <span class="number">28</span>
-<span class="number">21</span>:<span class="number">54</span>:<span class="number">27.502047</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>) &gt; Broadcast, ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Request who-has <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span> tell <span class="number">192.168</span><span class="number">.1</span><span class="number">.101</span>, <span class="keyword">length</span> <span class="number">28</span>
-<span class="number">21</span>:<span class="number">54</span>:<span class="number">27.514492</span> ec:<span class="number">88</span>:<span class="number">8</span><span class="keyword">f</span>:b4:d6:<span class="number">68</span> (oui <span class="keyword">Unknown</span>) &gt; <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> (oui <span class="keyword">Unknown</span>), ethertype ARP (<span class="number">0x0806</span>), <span class="keyword">length</span> <span class="number">42</span>: Reply <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span> <span class="keyword">is</span>-<span class="keyword">at</span> ec:<span class="number">88</span>:<span class="number">8</span><span class="keyword">f</span>:b4:d6:<span class="number">68</span> (oui <span class="keyword">Unknown</span>), <span class="keyword">length</span> <span class="number">28</span></span>
-</code></pre><p>可以看到，先是dhcp的过程，下次我们再讲。紧接着我们的机器发出一个ARP探针(Probe)，哦，发了好几次来确认没有机器使用<code>192.168.1.1</code>，于是接着发了两个announcement宣告拥有了这个ip。接着询问<code>192.168.1.1</code>的MAC地址并收到来自<code>192.168.1.1</code>的回复。</p>
-<h2 id="一个广播的ARP请求">一个广播的ARP请求</h2><p>为了实验正确，我们先删除arp缓存内容：</p>
-<pre><code>~/Work/project/arp ⮀ sudo arp -d <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
-~/Work/project/arp ⮀ sudo arp -n
-Address                  HWtype  HWaddress           Flags Mask            Iface
-  <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>                    (incomplete)                              eth0
-</code></pre><p>首先，我们作为<code>10.210.96.200</code>，想知道<code>10.210.96.193</code>的MAC地址，我们广播一个ARP请求：</p>
-<pre><code>我是<span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>,我的MAC地址是<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>,我想知道<span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>的IP地址是什么。
-</code></pre><p>让我们先探索下ARP包的结构。</p>
-<pre><code>&gt;&gt;&gt; ls(ARP)
-<span class="string">hwtype     :</span> XShortField          = (<span class="number">1</span>)
-<span class="string">ptype      :</span> XShortEnumField      = (<span class="number">2048</span>)
-<span class="string">hwlen      :</span> ByteField            = (<span class="number">6</span>)
-<span class="string">plen       :</span> ByteField            = (<span class="number">4</span>)
-<span class="string">op         :</span> ShortEnumField       = (<span class="number">1</span>)
-<span class="string">hwsrc      :</span> ARPSourceMACField    = (None)
-<span class="string">psrc       :</span> SourceIPField        = (None)
-<span class="string">hwdst      :</span> MACField             = (<span class="string">'00:00:00:00:00:00'</span>)
-<span class="string">pdst       :</span> IPField              = (<span class="string">'0.0.0.0'</span>)
-</code></pre><p>参见<a href="http://en.wikipedia.org/wiki/Address_Resolution_Protocol#Packet_structure" target="_blank" rel="external">ARP协议封包结构</a></p>
-<p>首先我们构造一个ARP请求。该请求工作在Ethernet上(<code>0x0001</code>)，协议类型是IPv4(<code>0x0800</code>), 是一个请求(<code>0x0001</code>或<code>who-has</code>)，发送者的MAC地址是<code>11:11:11:11:11:11</code>, 发送者的协议地址是<code>10.210.96.200</code>，想要知道MAC地址的协议地址是<code>10.210.96.193</code>。根据以太网包字段，该消息通过广播发送。</p>
-<pre><code>arp_request = <span class="function"><span class="title">Ether</span><span class="params">(dst=<span class="string">"ff:ff:ff:ff:ff:ff"</span>)</span></span>/<span class="function"><span class="title">ARP</span><span class="params">(hwtype=<span class="number">0</span>x0001,ptype=<span class="number">0</span>x0800,op=<span class="number">0</span>x0001,hwsrc=<span class="string">'11:11:11:11:11:11'</span>, psrc=<span class="string">'10.210.96.200'</span>, pdst=<span class="string">'10.210.96.193'</span>)</span></span>
-</code></pre><p>scapy会自动为我们设置<code>Ether</code>的某些字段，所以我们不用都指定。</p>
-<pre><code>&gt;&gt;&gt; arp_request.show()
-<span class="preprocessor">###[ Ethernet ]###</span>
-  dst= ff:ff:ff:ff:ff:ff
-  src= <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>
-  type= <span class="number">0x806</span>
-<span class="preprocessor">###[ ARP ]###</span>
-     hwtype= <span class="number">0x1</span>
-     ptype= <span class="number">0x800</span>
-     hwlen= <span class="number">6</span>
-     plen= <span class="number">4</span>
-     op= who-has
-     hwsrc= <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>
-     psrc= <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span>
-     hwdst= <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>
-     pdst= <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>
-</code></pre><p>紧接着发送它：</p>
-<pre><code>&gt;&gt;&gt; recv = srp(arp_request)
-Begin emission:
-Finished to send <span class="number">1</span> packets.
-*
-Received <span class="number">1</span> packets, got <span class="number">1</span> answers, remaining <span class="number">0</span> packets
-&gt;&gt;&gt; recv
-(&lt;Results: TCP:<span class="number">0</span> UDP:<span class="number">0</span> ICMP:<span class="number">0</span> Other:<span class="number">1</span>&gt;, &lt;Unanswered: TCP:<span class="number">0</span> UDP:<span class="number">0</span> ICMP:<span class="number">0</span> Other:<span class="number">0</span>&gt;)
-&gt;&gt;&gt; recv[<span class="number">0</span>].show()
-<span class="number">0000</span> Ether / ARP who has <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span> says <span class="number">10.210</span><span class="number">.96</span><span class="number">.200</span> ==&gt; Ether / ARP is at <span class="number">3</span>c:e5:a6:d2:<span class="number">39</span>:ad says <span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span> / Padding
-</code></pre><p>可见我们得到了它的MAC地址。检查ARP缓存：</p>
-<pre><code>~/Work/project/arp ⮀ sudo arp -n
-Address                  HWtype  HWaddress           Flags Mask            Iface
-<span class="number">10.210</span><span class="number">.96</span><span class="number">.193</span>            ether   <span class="number">3</span>c:e5:a6:d2:<span class="number">39</span>:ad   C                     eth0
-</code></pre><p>Bingo!</p>
-<h2 id="一个ARP应答">一个ARP应答</h2><p>首先要设置静态IP。将一台win7机器设置为<code>172.16.0.17</code>.</p>
-<p>接着我们要发一个不请自答的ARP reply，这一技术常用来进行ARP Poison。</p>
-<pre><code>&gt;&gt;&gt; arp_reply = <span class="function"><span class="title">Ether</span><span class="params">(src=<span class="string">'11:11:11:11:11:11'</span>, dst=<span class="string">'C8:1F:66:05:E2:6A'</span>)</span></span>/<span class="function"><span class="title">ARP</span><span class="params">(hwtype=<span class="number">0</span>x0001,ptype=<span class="number">0</span>x0800,op=<span class="number">0</span>x0002,hwsrc=<span class="string">'11:11:11:11:11:11'</span>, hwdst=<span class="string">'C8:1F:66:05:E2:6A'</span>, psrc=<span class="string">'172.16.0.28'</span>, pdst=<span class="string">'172.16.0.17'</span>)</span></span>
-recv = <span class="function"><span class="title">srp</span><span class="params">(arp_reply, timeout=<span class="number">1</span>, iface=<span class="string">'eth0'</span>)</span></span>
-</code></pre><p>查看我们的监听：</p>
-<pre><code> ~ ⮀ sudo  tcpdump -nni eth0 arp 
-tcpdump: verbose output suppressed, <span class="operator"><span class="keyword">use</span> -v <span class="keyword">or</span> -vv <span class="keyword">for</span> <span class="keyword">full</span> protocol <span class="keyword">decode</span>
-listening <span class="keyword">on</span> eth0, <span class="keyword">link</span>-<span class="keyword">type</span> EN10MB (Ethernet), capture <span class="keyword">size</span> <span class="number">65535</span> <span class="keyword">bytes</span>
-<span class="number">17</span>:<span class="number">22</span>:<span class="number">10.465636</span> ARP, Reply <span class="number">172.16</span><span class="number">.0</span><span class="number">.28</span> <span class="keyword">is</span>-<span class="keyword">at</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>, <span class="keyword">length</span> <span class="number">28</span></span>
-</code></pre><p>然而检查另一台机器的arp缓存可能并没有<code>172.16.0.28</code>的项。这是因为操作系统可能不欢迎不请自来的arp应答。</p>
-<p>我们试着使用不请自来的arp请求看看：</p>
-<pre><code>&gt;&gt;&gt; arp_request = <span class="function"><span class="title">Ether</span><span class="params">(dst=<span class="string">"ff:ff:ff:ff:ff:ff"</span>)</span></span>/<span class="function"><span class="title">ARP</span><span class="params">(hwtype=<span class="number">0</span>x0001,ptype=<span class="number">0</span>x0800,op=<span class="number">0</span>x0001,hwsrc=<span class="string">'11:11:11:11:11:11'</span>, psrc=<span class="string">'172.16.0.22'</span>, pdst=<span class="string">'172.16.0.17'</span>)</span></span>
-&gt;&gt;&gt; recv = <span class="function"><span class="title">srp</span><span class="params">(arp_request)</span></span>
-</code></pre><p>则可以在另一台机器上的缓存表中发现<code>172.16.0.22</code>的项。说明操作系统默默接受了不请自来的请求。</p>
-<p>为了查看ARP响应的效果，我们同时打开两边机器，创造一个请求。先清空windows机器的缓存表。</p>
-<p>我们让windows机器ping<code>172.16.0.30</code>。同时开始抓包和准备应答(在win7上ping的同时执行下列命令)：</p>
-<pre><code>&gt;&gt;&gt; arp_reply = <span class="function"><span class="title">Ether</span><span class="params">(src=<span class="string">'11:11:11:11:11:11'</span>, dst=<span class="string">'C8:1F:66:05:E2:6A'</span>)</span></span>/<span class="function"><span class="title">ARP</span><span class="params">(hwtype=<span class="number">0</span>x0001,ptype=<span class="number">0</span>x0800,op=<span class="number">0</span>x0002,hwsrc=<span class="string">'11:11:11:11:11:11'</span>, hwdst=<span class="string">'C8:1F:66:05:E2:6A'</span>, psrc=<span class="string">'172.16.0.30'</span>, pdst=<span class="string">'172.16.0.17'</span>)</span></span>
-&gt;&gt;&gt; recv = <span class="function"><span class="title">srp</span><span class="params">(arp_reply, timeout=<span class="number">1</span>, iface=<span class="string">'eth0'</span>)</span><span class="title">Begin</span></span> emission:
-Finished to send <span class="number">1</span> packets.
-...
-Received <span class="number">3</span> packets, got <span class="number">0</span> answers, remaining <span class="number">1</span> packets
-</code></pre><p>可以观察到包的前两个正是我们想要的。</p>
-<pre><code>~ ⮀ <span class="tag">sudo</span>  <span class="tag">tcpdump</span> <span class="tag">-nni</span> <span class="tag">eth0</span> <span class="tag">arp</span> 
-<span class="tag">tcpdump</span>: <span class="tag">verbose</span> <span class="tag">output</span> <span class="tag">suppressed</span>, <span class="tag">use</span> <span class="tag">-v</span> <span class="tag">or</span> <span class="tag">-vv</span> <span class="tag">for</span> <span class="tag">full</span> <span class="tag">protocol</span> <span class="tag">decode</span>
-<span class="tag">listening</span> <span class="tag">on</span> <span class="tag">eth0</span>, <span class="tag">link-type</span> <span class="tag">EN10MB</span> (<span class="tag">Ethernet</span>), <span class="tag">capture</span> <span class="tag">size</span> 65535 <span class="tag">bytes</span>
-17<span class="pseudo">:28</span><span class="pseudo">:55</span><span class="class">.041968</span> <span class="tag">ARP</span>, <span class="tag">Request</span> <span class="tag">who-has</span> 172<span class="class">.16</span><span class="class">.0</span><span class="class">.30</span> <span class="tag">tell</span> 172<span class="class">.16</span><span class="class">.0</span><span class="class">.17</span>, <span class="tag">length</span> 46
-17<span class="pseudo">:28</span><span class="pseudo">:55</span><span class="class">.165561</span> <span class="tag">ARP</span>, <span class="tag">Reply</span> 172<span class="class">.16</span><span class="class">.0</span><span class="class">.30</span> <span class="tag">is-at</span> 11<span class="pseudo">:11</span><span class="pseudo">:11</span><span class="pseudo">:11</span><span class="pseudo">:11</span><span class="pseudo">:11</span>, <span class="tag">length</span> 28
-</code></pre><p>同时发现win7的arp缓存中已经有了<code>172.16.0.30</code>。</p>
-<h2 id="ARP_Announcement">ARP Announcement</h2><p>这是一种特殊的ARP请求，目标协议地址填入发送者的协议地址，将目标硬件地址设为0.</p>
-<p>或者，是一种特殊的ARP响应，目标协议地址和目标硬件地址都是发送者的协议和目标硬件地址。</p>
-<p>ARP announcement意在更新其它收到这个包的机器的ARP缓存。这种免费的ARP(不请自来)常用来在机器启动或换网卡时通知其它机器。也用来做负载平衡。</p>
-<pre><code>&gt;&gt;&gt; arp_announcement = <span class="function"><span class="title">Ether</span><span class="params">(src=<span class="string">'11:11:11:11:11:11'</span>, dst=<span class="string">"ff:ff:ff:ff:ff:ff"</span>)</span></span>/<span class="function"><span class="title">ARP</span><span class="params">(hwtype=<span class="number">0</span>x0001,ptype=<span class="number">0</span>x0800,op=<span class="number">0</span>x0001,hwsrc=<span class="string">'11:11:11:11:11:11'</span>, hwdst=<span class="string">'00:00:00:00:00:00'</span>, psrc=<span class="string">'172.16.0.40'</span>, pdst=<span class="string">'172.16.0.40'</span>)</span></span>
-&gt;&gt;&gt; recv = <span class="function"><span class="title">srp1</span><span class="params">(arp_announcement, timeout=<span class="number">2</span>)</span></span>
-Begin emission:
-Finished to send <span class="number">1</span> packets.
-
-Received <span class="number">0</span> packets, got <span class="number">0</span> answers, remaining <span class="number">1</span> packets
-
- ~ ⮀ sudo  tcpdump -enni eth0 arp 
-tcpdump: verbose output suppressed, use -v or -vv <span class="keyword">for</span> full protocol decode
-listening on eth0, link-type EN10MB (Ethernet), capture size <span class="number">65535</span> bytes
-<span class="number">22</span>:<span class="number">15</span>:<span class="number">39.645293</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> &gt; ff:ff:ff:ff:ff:ff, ethertype ARP (<span class="number">0</span>x0806), length <span class="number">42</span>: Request who-has <span class="number">172.16</span>.<span class="number">0.40</span> tell <span class="number">172.16</span>.<span class="number">0.40</span>, length <span class="number">28</span>
-</code></pre><p>遗憾的是，win7的ARP缓存没有接受<code>172.16.0.40</code>.</p>
-<p>一个响应Announcement：</p>
-<pre><code>&gt;&gt;&gt; arp_announcement = <span class="function"><span class="title">Ether</span><span class="params">(src=<span class="string">'11:11:11:11:11:11'</span>, dst=<span class="string">"ff:ff:ff:ff:ff:ff"</span>)</span></span>/<span class="function"><span class="title">ARP</span><span class="params">(hwtype=<span class="number">0</span>x0001,ptype=<span class="number">0</span>x0800,op=<span class="number">0</span>x0002,hwsrc=<span class="string">'11:11:11:11:11:11'</span>, hwdst=<span class="string">'11:11:11:11:11:11'</span>, psrc=<span class="string">'172.16.0.40'</span>, pdst=<span class="string">'172.16.0.40'</span>)</span></span>
-&gt;&gt;&gt; recv = <span class="function"><span class="title">srp1</span><span class="params">(arp_announcement, timeout=<span class="number">2</span>)</span></span>
-
- ~ ⮀ sudo  tcpdump -enni eth0 arp 
-tcpdump: verbose output suppressed, use -v or -vv <span class="keyword">for</span> full protocol decode
-listening on eth0, link-type EN10MB (Ethernet), capture size <span class="number">65535</span> bytes
-<span class="number">22</span>:<span class="number">18</span>:<span class="number">21.655256</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> &gt; ff:ff:ff:ff:ff:ff, ethertype ARP (<span class="number">0</span>x0806), length <span class="number">42</span>: Reply <span class="number">172.16</span>.<span class="number">0.40</span> is-at <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>, length <span class="number">28</span>
-</code></pre><h2 id="ARP_probe">ARP probe</h2><p>ARP探针是一个全0 IP地址的广播请求，用来检测IPv4地址冲突。在开始使用一个IP地址之前，实现这个规范(RFC5227)的主机必须通过ARP探针测试地址是否被使用。</p>
-<p>具体过程参见RFC5227.</p>
-<blockquote>
-<p>A host probes to see if an address is already in use by broadcasting<br>an ARP Request for the desired address.  The client MUST fill in the<br>‘sender hardware address’ field of the ARP Request with the hardware<br>address of the interface through which it is sending the packet.  The<br>‘sender IP address’ field MUST be set to all zeroes; this is to avoid<br>polluting ARP caches in other hosts on the same link in the case<br>where the address turns out to be already in use by another host.<br>The ‘target hardware address’ field is ignored and SHOULD be set to<br>all zeroes.  The ‘target IP address’ field MUST be set to the address<br>being probed.  An ARP Request constructed this way, with an all-zero<br>‘sender IP address’, is referred to as an ‘ARP Probe’.</p>
-</blockquote>
-<p>类似这样：</p>
-<pre><code><span class="prompt">&gt;&gt;</span>&gt; arp_probe = (<span class="constant">Ether</span>(dst=<span class="string">'ff:ff:ff:ff:ff:ff'</span>)/<span class="constant">ARP</span>(psrc=<span class="string">'0.0.0.0'</span>, pdst=<span class="string">'172.16.0.17'</span>))
-<span class="prompt">&gt;&gt;</span>&gt; arp_probe.show()
-<span class="comment">###[ Ethernet ]###</span>
-  dst= <span class="symbol">ff:</span><span class="symbol">ff:</span><span class="symbol">ff:</span><span class="symbol">ff:</span><span class="symbol">ff:</span>ff
-  src= <span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span>
-  type= <span class="number">0x806</span>
-<span class="comment">###[ ARP ]###</span>
-     hwtype= <span class="number">0x1</span>
-     ptype= <span class="number">0x800</span>
-     hwlen= <span class="number">6</span>
-     plen= <span class="number">4</span>
-     op= who-has
-     hwsrc= <span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:</span><span class="number">11</span>
-     psrc= <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>
-     hwdst= <span class="number">00</span><span class="symbol">:</span><span class="number">00</span><span class="symbol">:</span><span class="number">00</span><span class="symbol">:</span><span class="number">00</span><span class="symbol">:</span><span class="number">00</span><span class="symbol">:</span><span class="number">00</span>
-     pdst= <span class="number">172.16</span>.<span class="number">0</span>.<span class="number">17</span>
-<span class="prompt">&gt;&gt;</span>&gt; recv = srp(arp_probe, iface=<span class="string">'eth0'</span>)
-<span class="constant">Begin</span> <span class="symbol">emission:</span>
-<span class="constant">Finished</span> to send <span class="number">1</span> packets.
-*
-<span class="constant">Received</span> <span class="number">1</span> packets, got <span class="number">1</span> answers, remaining <span class="number">0</span> packets
-</code></pre><p>开始监听然后发送：</p>
-<pre><code> ~ ⮀ <span class="tag">sudo</span>  <span class="tag">tcpdump</span> <span class="tag">-nni</span> <span class="tag">eth0</span> <span class="tag">arp</span> 
-<span class="tag">tcpdump</span>: <span class="tag">verbose</span> <span class="tag">output</span> <span class="tag">suppressed</span>, <span class="tag">use</span> <span class="tag">-v</span> <span class="tag">or</span> <span class="tag">-vv</span> <span class="tag">for</span> <span class="tag">full</span> <span class="tag">protocol</span> <span class="tag">decode</span>
-<span class="tag">listening</span> <span class="tag">on</span> <span class="tag">eth0</span>, <span class="tag">link-type</span> <span class="tag">EN10MB</span> (<span class="tag">Ethernet</span>), <span class="tag">capture</span> <span class="tag">size</span> 65535 <span class="tag">bytes</span>
-22<span class="pseudo">:08</span><span class="pseudo">:56</span><span class="class">.885470</span> <span class="tag">ARP</span>, <span class="tag">Request</span> <span class="tag">who-has</span> 172<span class="class">.16</span><span class="class">.0</span><span class="class">.17</span> <span class="tag">tell</span> 0<span class="class">.0</span><span class="class">.0</span><span class="class">.0</span>, <span class="tag">length</span> 28
-22<span class="pseudo">:08</span><span class="pseudo">:56</span><span class="class">.885831</span> <span class="tag">ARP</span>, <span class="tag">Reply</span> 172<span class="class">.16</span><span class="class">.0</span><span class="class">.17</span> <span class="tag">is-at</span> <span class="tag">c8</span><span class="pseudo">:1f</span><span class="pseudo">:66</span><span class="pseudo">:05</span><span class="pseudo">:e2</span><span class="pseudo">:6a</span>, <span class="tag">length</span> 46
-</code></pre><p>说明有<code>172.16.0.17</code>这个地址。但可以检查一下，<code>0.0.0.0</code>并没有污染win7机器的arp缓存。</p>
-<h2 id="ARP_mediation">ARP mediation</h2><p>在VPN中不同网络架构时使用ARP。略</p>
-<h2 id="ARP_Stuffing">ARP Stuffing</h2><p>某些嵌入式系统，没有配置界面，用户无法使用地址分配协议，设备没有合适的IP地址，这时候主机人工填充一个IP地址到它的地址表，然后向设备发送特殊的包。设备于是采用这个IP地址和主机通信。</p>
-<h2 id="ARP_Suppression">ARP Suppression</h2><p>禁用主机ARP，要求配置静态ARP缓存才能通信：</p>
-<pre><code>ip link <span class="keyword">set</span> dev eth0 arp <span class="keyword">off</span>
-<span class="comment"># ifconfig wlan0 -arp</span>
-</code></pre><h2 id="ARP_Proxy">ARP Proxy</h2><p>同一个IP网段被某台设备分成两个部分。arp代理可以让两端的机器好像在同一以太网内工作一样。</p>
-<p>举如下例子。</p>
-<p>当我们有一台linux机器。其中wlan0连接无线路由，另外有一台win7机器，没有无线网卡，和linux机器的eth0直接用网线相连。</p>
-<pre><code><span class="comment">Internet</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">无线路由</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">wlan0</span> <span class="title">[</span><span class="comment">Linux</span><span class="title">]</span> <span class="comment">eth0</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">windows</span> <span class="comment">7</span>
-</code></pre><p>为了让windows7机器能够联网，我们可以设置windows7机器和linux机器在同一网段。比如设置：</p>
-<p>先设置ip地址：</p>
-<ul>
-<li>路由器网关地址<code>192.168.1.1</code></li>
-<li>linux在wlan0被路由器分配地址，<code>192.168.1.103</code>，子网掩码<code>255.255.255.0</code></li>
-<li>windows7机器设置静态ip<code>192.168.1.114</code>，子网掩码<code>255.255.255.0</code></li>
-</ul>
-<p>下面我们开始设置ARP代理，在linux机器上设置内核允许代理和转发：</p>
-<pre><code>gentoo ~ # echo <span class="number">1</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/conf/eth0/proxy_arp<span class="symbol">
-gentoo</span> ~ #<span class="symbol"> echo</span> 1 &gt; /<span class="keyword">proc</span>/sys/net/ipv4/conf/wlan0/proxy_arp<span class="symbol">
-gentoo</span> ~ #<span class="symbol"> echo</span> 1 &gt; /<span class="keyword">proc</span>/sys/net/ipv4/ip_forward
-</code></pre><p>在wlan0上对应其MAC设置想要代理的对象的静态地址(<code>192.168.1.114</code>)，让linux对wlan0上以太网响应对<code>192.168.1.114</code>的响应，并把自己的无线网卡MAC作为响应内容。</p>
-<pre><code>sudo arp -i wlan0 -s <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span> <span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span>:<span class="number">11</span> pub
-</code></pre><p>可以选择是否设置下一步，即使在eth0上没有ip地址也可以。</p>
-<p>设置eth0接口上的ip地址(默认netmask是<code>255.255.255.0</code>)：</p>
-<pre><code>sudo ifconfig eth0 inet <span class="number">192.168</span><span class="number">.1</span><span class="number">.113</span>
-</code></pre><p>添加路由：</p>
-<pre><code>sudo route add <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span> eth0
-</code></pre><p>linux和windows机器互ping以确保连接：</p>
-<pre><code>⮀ ~ ⮀ ping -c <span class="number">2</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span>
-PING <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span> (<span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span>) <span class="number">56</span>(<span class="number">84</span>) bytes of data.
-<span class="number">64</span> bytes from <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span>: icmp_seq=<span class="number">1</span> ttl=<span class="number">128</span> time=<span class="number">0.446</span> ms
-<span class="number">64</span> bytes from <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span>: icmp_seq=<span class="number">2</span> ttl=<span class="number">128</span> time=<span class="number">0.469</span> ms
-
---- <span class="number">192.168</span><span class="number">.1</span><span class="number">.114</span> ping statistics ---
-<span class="number">2</span> packets transmitted, <span class="number">2</span> received, <span class="number">0</span>% packet loss, time <span class="number">999</span>ms
-rtt min/avg/max/mdev = <span class="number">0.446</span>/<span class="number">0.457</span>/<span class="number">0.469</span>/<span class="number">0.024</span> ms
-</code></pre><p>对<code>eth0</code>上将自己的有线网卡MAC设置为对<code>192.168.1.1</code>的响应。</p>
-<pre><code>sudo arp -i eth0 -s <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span> <span class="number">00</span>:<span class="number">24</span>:<span class="number">54</span>:<span class="number">9</span>a:<span class="number">05</span>:<span class="number">8</span>b pub
-</code></pre><p>接着在windows7上尝试<code>ping</code>一下<code>192.168.1.1</code>：</p>
-<p>如果在windows7机器上设置了正确的dns，就可以直接上网了。</p>
-<h2 id="Reference">Reference</h2><ul>
-<li><a href="en.wikipedia.org/wiki/Address_Resolution_Protocol">Address Resolution Protocol</a></li>
-<li><a href="http://linux-ip.net/html/ether-arp.html" target="_blank" rel="external">Address Resolution Protocol (ARP)</a></li>
-<li><a href="http://linux.vbird.org/linux_server/0230router.php#arp_proxy" target="_blank" rel="external">特殊狀況：路由器兩邊界面是同一個 IP 網段： ARP Proxy</a></li>
-</ul>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -3580,21 +3440,21 @@ rtt min/avg/max/mdev = <span class="number">0.446</span>/<span class="number">0.
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">179</span>
+              <span class="site-state-item-count">180</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-count">24</span>
               <span class="site-state-item-name">分类</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">66</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

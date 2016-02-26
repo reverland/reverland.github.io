@@ -224,6 +224,142 @@
             
               
                 
+                <a class="post-title-link" href="/life/2015/05/24/hacking-security/" itemprop="url">
+                  Hacking Security
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2015-05-24T00:00:00+08:00" content="2015-05-24">
+              2015-05-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/life/" itemprop="url" rel="index">
+                    <span itemprop="name">life</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/life/2015/05/24/hacking-security/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2015/05/24/hacking-security/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="TSCTF2015">TSCTF2015</h2><p><img src="/images/tsctf.png" alt="TSCTF2015" title="TSCTF2015"></p>
+<p>准备折腾近乎三周的TSCTF终于在昨天圆满结束，这三周来眼见到主板者的耐心与热情，亲历他们的付出与坚持。非常敬佩在此次活动中付诸心血和时间的所有人，以及他们在比赛承办过程中显示的卓越智慧和气质。</p>
+<p>至于为何社团忽然建立，为何和阿里巴巴技术联盟一起举办了个校内赛，其中错综复杂种种并不清楚。后来颁奖阿里巴巴安全部技术总监和一位HR姐姐来了，对总监的名字非常眼熟，但我记得是在绿盟而不是阿里，抱着试试看的心理一问竟然真是siblly。没想到绿盟上市后这么多人离开了。</p>
+<p>第一次见到天枢的幕后BOSS，没有他大概场地和资源都连影都没有，当然没有阿里也就没有主干道不输天池大数据和微软编程之美的霸气展板和外场宣传，也没影了大多数奖品，一个校赛宣传和奖品规格真是不低。</p>
+<p>比赛中出了两道misc题目。有兴趣可以玩玩，根据题目提示获取flag，flag形式为TSCTF{xxxxxxxxxxxxxxxxx}的格式</p>
+<ul>
+<li>初赛misc3：<a href="http://buptlug.cn/steganography.html" target="_blank" rel="external">Steganography</a></li>
+<li>决赛misc4：<a href="http://buptlug.cn/what-you-copy-is-not-you-want.html" target="_blank" rel="external">What You Copy is Not What You Want</a></li>
+</ul>
+<p>如果觉得有意思不要忘记评论点赞哈哈。</p>
+<p>我并没有怎么参加过CTF这种牛逼哄哄的比赛，只是前一阵的ALICTF，被室友拉去打了个酱油，再我碌碌无为并未成功调出任何逆向题目和web题目的情况下，队友连下apk和web若干题目，硬是把排名拉到63左右。</p>
+<p>我个人只玩过360在14年的hack game，overthewire上natas，krypto和bandit的题目，coolshell博主当年给大家玩得一个游戏。能有幸参与TSCTF的出题，真是不胜荣幸。</p>
+<p>题目的设计要有粘性，有趣味，能吸引玩家往下继续深入。而不是依靠隐藏某些信息或假设玩家知道哪些信息，玩家可能是千差万别的所以一个好的题目设计并不容易。我想谈谈所看到TSCTF中的一些题目设计。</p>
+<h3 id="ws">ws</h3><p>首先是我自己的决赛Misc4。最开始的设计来源于<a href="http://www.soimort.org/posts/154/" target="_blank" rel="external">soimort的一个博文</a>，告诫大家不要把html中的代码直接复制到可执行环境中去，并展示了这种危险性。我觉得一个题目要让大家感觉到很有意思，就要用令人惊奇的方式欺骗大家的眼睛，但这种欺骗并不是为了掩盖有利于解题的信息，而是让玩家能在解题的道路上体验到这种惊奇的感觉。</p>
+<p>所以，开始的时候是提示了一个</p>
+<pre><code><span class="built_in">echo</span> VGVhY2hlciBHOiB0aGVyZSBpcyBhIGxhbmd1YWdlIHdob3NlIG5hbWUgaXMgd2hpdGVzcGFjZQ== | base64 <span class="operator">-d</span>
+</code></pre><p>我的想法很简单，玩家看到这个命令后很可能会直接把命令复制到控制台，实际上这个html偷偷藏了个输出到文件的(有点危险额)命令。</p>
+<p>万万没想到，大部分人并不使用Unix，他们甚至没有看内容直接看源代码去了。。。卧槽。。。</p>
+<p>后来看到使用mac的nemo直接往控制台里粘帖了，可惜后来已经不这么设计了。结果就是他在那里奇怪怎么粘帖的东西和复制的不一样= =</p>
+<p>于是，为了引导玩家和照顾非unix使用者，我重新设计了游戏。对js部分进行编码(没有丧心病狂进行加密我好良心的好不好)，让html的dom结构看上去是那么回事，但一旦按下键盘按键或者鼠标就更改dom结构。</p>
+<p>之后又改了几次出题组试了试几种常见浏览器，最后才是最终的版本。其实这是给初赛出的题目，Cao直接给放到决赛了。为了引导玩家进行了非常明显的提示，cslei觉得题目应该给分少些，但Cao给了350pts，最终决赛的时候大家率先把misc4完成了，分低的misc123反而好久没人做出来。。。。。。个人觉得misc123缺乏引导，这让人很难想到怎么回事，但一旦知道思路一切都不是问题，所以hint出来后misc1几乎被全A了，没放hint的misc23似乎没什么人玩。关于misc5,一道图片藏图片藏xx藏xx的题目，玩了一晚上，几经崩溃。。。这不是游戏，这是变着戏法虐人。</p>
+<h3 id="sandbox">sandbox</h3><p>nemo为决赛出了两道相关的linux下shellcode和sandbox题目，sandbox题目按其设计意图是在shellcode题目的基础上完成。不过后来事情有些出乎意料。</p>
+<p>sandbox的题目发到出题组的时候，我完全理解错他的意思了，他设计题目的时候想的是循环计数那里有漏洞，让玩家通过逆向分析，然后用exploit和shellcode来利用那个漏洞。我特么以为是escape shell玩了一晚上，丧心病狂以各种奇葩方式escape shell和dos nemo那个restricted shell环境的结果就是，nemo不断为其过滤黑名单添加各种过滤条件，为了防止fork bomb折腾linux系统配置到两点(建议大家不要在生产环境使用kali，那个给用户的权限高限制少)。我猜肯定还有我们没注意的其它方式，nemo已然不想管了，线下赛反正什么都方便。如果有人通过非设计者设计的方式获得flag那也算一种方式。果然，后来决赛的时候应验了。。。特么有个队shellcode根本没做就把sandbox给a掉了……</p>
+<h3 id="天枢web对战平台">天枢web对战平台</h3><p>Teacher G出了一道非常灵活的决赛web题目。基于他们比赛的经验，他从一周前开始设想，最终实现、测试、上线对战系统。题目出得很是新颖，不过玩家的反应有些不太适应。Teacher G最后总结时说大家还是不太灵活。很多他设想的玩法都没有队伍去做。</p>
+<p>其设计了一个有多个可利用漏洞的系统，让玩家能通过这几种方式进行对打。设计一个灵活的系统就是必须考虑各种奇葩的状况和面对奇葩的bug，结果就是为了实现这么个平台投入了大量开发和测试运维人力，Teacher G都快被bug和限制玩家的策略折磨哭了<br>，哈哈。</p>
+<p>对实现的具体细节，有不同理解的cslei和Teacher G又进行了大量争论和妥协，最终上线后，发现有某个队开始一支独秀，其它队伍还在傻眼被虐中，并且很多人的解题策略安排都被这个题给打乱了。</p>
+<p>好在是线下赛，经过我们npc的宏观调控(其实是一个强力的伪玩家，开始设计只是想作为玩家虐待目标)和不断的明示暗示之后，大多数队伍都走上正轨，开始了burp suite对刷大战。之后关于这个平台又放出若干提示，可惜已经晚了，平台大多功能并没有被玩家们使用。甚至。。。第一名竟然放弃了这道题= =</p>
+<p>如果时间足够的话，我们还想做web可视化的攻防效果呢。可惜只有Teacher G用mascuee标签实现的好像营业厅广告般的实时战况信息。</p>
+<p>很棒的一个想法和实现，总得来说。</p>
+<h3 id="Coding题目">Coding题目</h3><p>Coding题目很是中规中矩，cslei在运营社团诸多繁杂事项的时候还一力承担起coding题目。出乎意料的一个是，本来有道分类识别的题目，发现解题者根本没写程序识别而是人工识别。。。。。。</p>
+<p>我们说到底还真是人力不足，测试不充分。</p>
+<p>大致我关注且印象比较深刻的就这些。</p>
+<p>还有件惊奇的事，半年前的暑假，有个大三的学生来我们实验室做过一阵APT攻击的什么研究，今天说起来，才发现出题人之一竟然是他。。。。。。</p>
+<p><img src="/images/dubhe.jpg" alt="Hacking Security" title="hacking security"></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/life/2015/05/17/17/" itemprop="url">
                   17
                 </a>
@@ -1541,139 +1677,6 @@ Out[<span class="number">17</span>]: &lt;Response [<span class="number">200</spa
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/os/2015/03/30/boot-sequence/" itemprop="url">
-                  boot sequence
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2015-03-30T00:00:00+08:00" content="2015-03-30">
-              2015-03-30
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/os/" itemprop="url" rel="index">
-                    <span itemprop="name">os</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/os/2015/03/30/boot-sequence/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="os/2015/03/30/boot-sequence/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h2 id="POST">POST</h2><p>Power-on  Self-Test, 定位设备</p>
-<h2 id="主引导记录">主引导记录</h2><p>如果设备的启动扇区的511和512字节是<code>0x55</code>和<code>0xAA</code>。BIOS会发现这样的启动扇区，载入内存<code>0x0000:0x7c00</code>(有些是<code>0x7c0:0x0000</code>， 同一个物理地址)。让<code>CS:IP</code>在启动扇区的最开始是个好的实践。</p>
-<p>执行被移交给刚加载的启动记录。软盘上所有的512字节都会是可执行代码。硬盘上则在偏移为<code>0x0000-0x01bd</code>的主引导记录处放置可执行代码。然后是四个主分区的表条目，每个条目使用16字节(<code>0x01fd-0x01be</code>),还有两字节的签名(<code>0x01ef-0x01ff</code>)</p>
-<h2 id="早期环境">早期环境</h2><p>早期执行环境高度依赖实现。特定的BIOS有特定的实现。不要做关于寄存器中内容的任何假设。也许被初始化为0,也许包含假的值。</p>
-<p>CPU现在在实模式。你不仅要写激活保护模式的代码还要添加测试条件看看有没有激活。</p>
-<h2 id="内核">内核</h2><p>启动载入器把内核载入内存并移交控制权。</p>
-<h2 id="载入">载入</h2><p>我们已经知道要载入什么，但不知道如何载入。</p>
-<p>如果从硬盘载入，引导记录(boot record)只有446字节大小。以下是内核镜像启动前必须要做的：</p>
-<ul>
-<li>从哪个分区启动</li>
-<li>找到启动分区上的内核镜像</li>
-<li>将内核镜像载入内存</li>
-<li>激活实模式</li>
-<li>为内核准备运行时环境</li>
-</ul>
-<p>不用按顺序来，但调用<code>kmain()</code>之前做完这些。</p>
-<p>To make things worse，gcc只生成保护模式的可执行代码，所以这部分是你用C做不到的。</p>
-<p>有几种解决问题的方式：</p>
-<ul>
-<li>geek loading：把上面列出的一切都挤压到引导记录中。这几乎不可能，会让接下来的特例处理和有用的错误信息无处安放。</li>
-<li>One-stage loading: 写一个stub来转换，链接到内核镜像之前。引导记录加载内核镜像(在1mb(因为<code>[ES:BX]</code>0xffff x 0xffff = 1114095b约为1mb)内存标志下,实模式的最大内存上限),跳转到stub，stub转换到保护模式并准备运行环境，跳入内核。</li>
-<li>Two-stage loading: 写一个分开的stub，这个stub载入到1mb内存标志下，然后做以上列表中的所有事。</li>
-</ul>
-<h3 id="传统方式">传统方式</h3><p>传统，MBR重定位到<code>0x0000:0x0600</code>，找到有用分区的分区表，载入分区表的第一个扇区(分区引导记录)至<code>0x0000:0x7c00</code>，并跳转到该地址。这叫链式载入，想要自己写的引导记录能双启动的话就模仿这种方式。</p>
-<h3 id="简单方法">简单方法</h3><p>除非你真得想因为教学目的自制启动载入器(记录/stub)，推荐使用可用的启动载入器。</p>
-<p>其中最突出的是GRUB，一个two-stage启动载入器，不仅提供能链式载入的启动菜单，而且准备好环境(包括保护模式和读取BIOS上有价值的信息)，把普通的可执行文件作为内核载入(而不是像很多启动载入器要求flat binary(不包含任何头的二进制文件))，支持可选的内核模块，不同的文件系统，甚至无盘启动(如果配置得当)</p>
-<ul>
-<li><a href="http://duartes.org/gustavo/blog/post/how-computers-boot-up" target="_blank" rel="external">How computers boot up</a></li>
-<li><a href="http://duartes.org/gustavo/blog/post/kernel-boot-process" target="_blank" rel="external">The Kernel Boot Process</a></li>
-<li><a href="http://www.ibm.com/developerworks/library/l-linuxboot/index.html" target="_blank" rel="external">Inside the Linux boot process</a></li>
-</ul>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1720,21 +1723,21 @@ Out[<span class="number">17</span>]: &lt;Response [<span class="number">200</spa
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">179</span>
+              <span class="site-state-item-count">180</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-count">24</span>
               <span class="site-state-item-name">分类</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">66</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

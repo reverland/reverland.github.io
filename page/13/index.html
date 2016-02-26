@@ -224,6 +224,573 @@
             
               
                 
+                <a class="post-title-link" href="/python/2012/10/31/python/" itemprop="url">
+                  调试代码(Python)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-10-31T00:00:00+08:00" content="2012-10-31">
+              2012-10-31
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2012/10/31/python/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/10/31/python/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="调试代码">调试代码</h1><p>翻译自：<a href="http://scipy-lectures.github.com/advanced/debugging/index.html" target="_blank" rel="external">http://scipy-lectures.github.com/advanced/debugging/index.html</a></p>
+<p>作者：Gaël Varoquaux</p>
+<p>本教程探索工具，以更好地理解你的编程基础：调试，找到并修复错误。</p>
+<p>这并不特定适合Python科学计算社区，但是我们采取的策略量身定制。</p>
+<p><strong>先决条件</strong></p>
+<ul>
+<li>Numpy</li>
+<li>IPython</li>
+<li>nosetests (<a href="http://readthedocs.org/docs/nose/en/latest/" target="_blank" rel="external">http://readthedocs.org/docs/nose/en/latest/</a>)</li>
+<li>line_profiler (<a href="http://packages.python.org/line_profiler/" target="_blank" rel="external">http://packages.python.org/line_profiler/</a>)</li>
+<li>pyflakes (<a href="http://pypi.python.org/pypi/pyflakes" target="_blank" rel="external">http://pypi.python.org/pypi/pyflakes</a>)</li>
+<li>gdb 用于C调试部分</li>
+</ul>
+<p><strong>目录</strong></p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<h2 id="避免错误">避免错误</h2><h3 id="避免麻烦最佳编码法">避免麻烦最佳编码法</h3><ul>
+<li>我们都写有bug的代码。接受它，解决它。</li>
+<li>写程序时，在心里测试和调试。</li>
+<li>Keep it Simple, Stupid(KISS).<ul>
+<li>可能有效的最简单方法</li>
+</ul>
+</li>
+<li>Don‘t Repeat Yourself (DRY).<ul>
+<li>每个知识都必须有个单独、明确、在一个系统中的正式表示</li>
+<li>常量、算法，等等。</li>
+</ul>
+</li>
+<li>尝试限制你的代码间的相互关系(松耦合)</li>
+<li>赋予你的变量、函数和模块有意义的名字(不是数学名称)</li>
+</ul>
+<h3 id="pyflakes:快速静态分析">pyflakes:快速静态分析</h3><p>这些是几个Python中的静态分析工具：<a href="http://www.logilab.org/857" target="_blank" rel="external">pylint</a>、<a href="http://pychecker.sourceforge.net/" target="_blank" rel="external">pychecker</a>和<a href="http://pypi.python.org/pypi/pyflakes" target="_blank" rel="external">pyflakes</a>。这里我们重点放在pyflakes上，这是最简单的工具。</p>
+<ul>
+<li><em>快速，简单</em></li>
+<li>探测语法错误，漏掉的导入，名称的拼写错误。</li>
+</ul>
+<p>高度推荐在你的编辑器中集成pyflakes，它<em>确实产生巨大生产力</em>。</p>
+<h4 id="在当前编辑文件运行pyflakes">在当前编辑文件运行pyflakes</h4><p>你可以绑定一个键来在当前缓冲区运行pyflakes。</p>
+<ul>
+<li><p>kate中 菜单：<code>设置 -&gt; 配置kate</code></p>
+<ul>
+<li>在插件中勾选’外部工具’<a href="我是没找到">^1</a></li>
+<li><p>在外部工具中，添加<code>pyflakes</code>:</p>
+<pre><code>kdialog --title <span class="string">"pyflakes <span class="variable">%filename</span>"</span> --msgbox <span class="string">"<span class="variable">$(</span>pyflakes <span class="variable">%filename</span>)"</span>
+</code></pre></li>
+</ul>
+</li>
+<li><p>在TextMate中<br>菜单：TextMate -&gt; 首选项 -&gt; 高级 -&gt; Shell变量，添加一个shell变量：</p>
+<pre><code>TM_PYCHECKER=<span class="regexp">/Library/</span>Frameworks<span class="regexp">/Python.framework/</span>Versions<span class="regexp">/Current/</span>bin<span class="regexp">/pyflakes</span>
+</code></pre><p>  然后<code>Ctrl-Shift-V</code>被绑定到pyflakes报告上。</p>
+</li>
+<li><p>在<em>Vim</em>中，在你的vimrc中(将F5绑定到pyflakes上)：</p>
+<pre><code>autocmd <span class="constant">FileType </span>python let &amp;mp = <span class="string">'echo "*** running % ***" ; pyflakes %'</span>
+autocmd <span class="constant">FileType </span>tex,mp,rst,python imap &lt;<span class="constant">Esc&gt;</span>[<span class="number">15</span>~ &lt;<span class="constant">C-O&gt;</span><span class="symbol">:make!^M</span>
+autocmd <span class="constant">FileType </span>tex,mp,rst,python map  &lt;<span class="constant">Esc&gt;</span>[<span class="number">15</span>~ <span class="symbol">:make!^M</span>
+autocmd <span class="constant">FileType </span>tex,mp,rst,python set autowrite]]    
+</code></pre></li>
+<li><p>在emacs中，在你的.emacs中(绑定F5到pyflakes)：</p>
+<pre><code><span class="list">(<span class="keyword">defun</span> pyflakes-thisfile <span class="list">()</span> <span class="list">(<span class="keyword">interactive</span>)</span>
+   <span class="list">(<span class="keyword"><span class="built_in">compile</span></span> <span class="list">(<span class="keyword"><span class="built_in">format</span></span> <span class="string">"pyflakes %s"</span> <span class="list">(<span class="keyword">buffer-file-name</span>)</span>)</span>)</span>
+)</span>
+
+<span class="list">(<span class="keyword">define-minor-mode</span> pyflakes-mode
+    <span class="string">"Toggle pyflakes mode.
+    With no argument, this command toggles the mode.
+    Non-null prefix argument turns on the mode.
+    Null prefix argument turns off the mode."</span>
+    <span class="comment">;; The initial value.</span>
+    <span class="literal">nil</span>
+    <span class="comment">;; The indicator for the mode line.</span>
+    <span class="string">" Pyflakes"</span>
+    <span class="comment">;; The minor mode bindings.</span>
+    '<span class="list">( <span class="list">(<span class="collection">[f5]</span> . pyflakes-thisfile)</span> )</span>
+)</span>
+
+<span class="list">(<span class="keyword">add-hook</span> 'python-mode-hook <span class="list">(<span class="keyword">lambda</span> <span class="list">()</span> <span class="list">(<span class="keyword">pyflakes-mode</span> t)</span>)</span>)</span>
+</code></pre></li>
+</ul>
+<h4 id="一个在线拼写检查集成">一个在线拼写检查集成</h4><ul>
+<li>在vim中使用vim.pyflakes插件：<ol>
+<li>从<a href="http://www.vim.org/scripts/script.php?script_id=2441" target="_blank" rel="external">http://www.vim.org/scripts/script.php?script_id=2441</a>下载zip文件<a href="关于插件的安装，我更倾向于pathogen">^2</a></li>
+<li>将文件解压到<code>.vim/ftplugin/python</code></li>
+<li>确定你的vimrc中有’filetype plugin indent on’</li>
+</ol>
+</li>
+<li><p>在emacs中在flymake模式中使用pyflakes，文档在<a href="http://www.plope.com/Members/chrism/flymake-mode" target="_blank" rel="external">http://www.plope.com/Members/chrism/flymake-mode</a>:添加以下内容到你的.emacs文件：</p>
+<pre><code><span class="list">(<span class="keyword"><span class="built_in">when</span></span> <span class="list">(<span class="keyword"><span class="built_in">load</span></span> <span class="string">"flymake"</span> t)</span>
+        <span class="list">(<span class="keyword">defun</span> flymake-pyflakes-init <span class="list">()</span>
+        <span class="list">(<span class="keyword"><span class="built_in">let*</span></span> <span class="list">(<span class="list">(<span class="keyword">temp-file</span> <span class="list">(<span class="keyword">flymake-init-create-temp-buffer-copy</span>
+                            <span class="variable">'flymake-create-temp-inplace</span>)</span>)</span>
+            <span class="list">(<span class="keyword">local-file</span> <span class="list">(<span class="keyword">file-relative-name</span>
+                        temp-file
+                        <span class="list">(<span class="keyword">file-name-directory</span> buffer-file-name)</span>)</span>)</span>)</span>
+            <span class="list">(<span class="keyword"><span class="built_in">list</span></span> <span class="string">"pyflakes"</span> <span class="list">(<span class="keyword"><span class="built_in">list</span></span> local-file)</span>)</span>)</span>)</span>
+
+        <span class="list">(<span class="keyword">add-to-list</span> <span class="variable">'flymake-allowed-file-name-masks</span>
+                '<span class="list">(<span class="string">"\\.py\\'"</span> flymake-pyflakes-init)</span>)</span>)</span>
+
+<span class="list">(<span class="keyword">add-hook</span> <span class="variable">'find-file-hook</span> <span class="variable">'flymake-find-file-hook</span>)</span>
+</code></pre></li>
+</ul>
+<h2 id="调试工作流">调试工作流</h2><p>你确实有个并不微不足道的bug，这时调试策略就关键了。这没有银色子弹。然而，策略有帮助：</p>
+<blockquote>
+<p>对调试一个给定的问题，最受欢迎的情况是当问题被隔离成少量几行的代码，在框架和应用之外，伴随的更改-运行-失败循环</p>
+</blockquote>
+<ol>
+<li>让出错可靠。找到一个测试实例让代码每次都出错(fail)</li>
+<li>分解并且克服。一旦你有了一个失败测试实例，隔绝出错代码 。<ul>
+<li>哪个模块</li>
+<li>哪个函数</li>
+<li>哪行代码<br>= &gt; 隔离小块可再生错误：测试样例。</li>
+</ul>
+</li>
+<li>一次更改一样东西，并且重新运行错误测试样例</li>
+<li>使用调试器来理解哪里出错了</li>
+<li>记笔记，保持耐心。这将花很久。</li>
+</ol>
+<p><strong>注意：</strong>一旦你已经完成这个过程：严格隔离一片再生bug的代码并使用这片代码修复它，向你的测试套件中添加相应的代码。</p>
+<h2 id="使用Python调试器">使用Python调试器</h2><p>Python调试器，<code>pdb</code>：<a href="http://docs.python.org/library/pdb.html" target="_blank" rel="external">http://docs.python.org/library/pdb.html</a>，允许你交互地检查你的代码。</p>
+<p>具体来说它允许你：</p>
+<ul>
+<li>查看源代码</li>
+<li>向上或向下查看调用堆栈</li>
+<li>检查变量值</li>
+<li>更改变量值</li>
+<li>设置断点</li>
+</ul>
+<p><strong>print</strong></p>
+<p>是的，print确实可以作为一个调试工具。然而在运行时检查的话，使用调试器通常更有效率。</p>
+<h3 id="调用调试器">调用调试器</h3><p>开启调试器的方法：</p>
+<ol>
+<li>尸检(post-mortem)，在模块错误后开启调试器</li>
+<li>用调试器运行模块</li>
+<li>在模块中调用调试器</li>
+</ol>
+<h4 id="尸检">尸检</h4><p><strong>情形：</strong>你使用ipython并且你获得一个回溯(traceback)。</p>
+<p>现在让我们调试文件<a href="http://scipy-lectures.github.com/_downloads/index_error.py" target="_blank" rel="external">index_error.py</a>。当运行它时，一个<code>IndexError</code>被引发。键入<code>%debug</code>将进入调试器：</p>
+<pre><code>In [1]: %run index_error.py
+<span class="comment">---------------------------------------------------------------------------</span>
+IndexError                                Traceback (most recent <span class="operator"><span class="keyword">call</span> <span class="keyword">last</span>)
+/usr/lib/python2<span class="number">.7</span>/site-packages/IPython/utils/py3compat.py <span class="keyword">in</span> execfile(fname, *<span class="keyword">where</span>)
+    <span class="number">176</span>             <span class="keyword">else</span>:
+    <span class="number">177</span>                 filename = fname
+<span class="comment">--&gt; 178             __builtin__.execfile(filename, *where)</span>
+
+/home/lyy/index_error.py <span class="keyword">in</span> &lt;<span class="keyword">module</span>&gt;()
+      <span class="number">6</span> 
+      <span class="number">7</span> <span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+<span class="comment">----&gt; 8     index_error()</span>
+      <span class="number">9</span> 
+
+/home/lyy/index_error.py <span class="keyword">in</span> index_error()
+      <span class="number">3</span> <span class="keyword">def</span> index_error():
+      <span class="number">4</span>     lst = <span class="keyword">list</span>(<span class="string">'foobar'</span>)
+<span class="comment">----&gt; 5     print lst[len(lst)]</span>
+      <span class="number">6</span> 
+      <span class="number">7</span> <span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+
+IndexError: <span class="keyword">list</span> <span class="keyword">index</span> <span class="keyword">out</span> <span class="keyword">of</span> <span class="keyword">range</span>
+
+<span class="keyword">In</span> [<span class="number">2</span>]: %debug
+&gt; /home/lyy/index_error.py(<span class="number">5</span>)index_error()
+      <span class="number">4</span>     lst = <span class="keyword">list</span>(<span class="string">'foobar'</span>)
+<span class="comment">----&gt; 5     print lst[len(lst)]</span>
+      <span class="number">6</span> 
+
+ipdb&gt; <span class="keyword">list</span>
+      <span class="number">1</span> <span class="string">"""Small snippet to raise an IndexError."""</span>
+      <span class="number">2</span> 
+      <span class="number">3</span> <span class="keyword">def</span> index_error():
+      <span class="number">4</span>     lst = <span class="keyword">list</span>(<span class="string">'foobar'</span>)
+<span class="comment">----&gt; 5     print lst[len(lst)]</span>
+      <span class="number">6</span> 
+      <span class="number">7</span> <span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+      <span class="number">8</span>     index_error()
+      <span class="number">9</span> 
+
+ipdb&gt; <span class="keyword">len</span>(lst)
+<span class="number">6</span>
+ipdb&gt; print lst[<span class="keyword">len</span>(lst)-<span class="number">1</span>]
+r
+ipdb&gt; quit
+
+<span class="keyword">In</span> [<span class="number">3</span>]: </span>
+</code></pre><p><strong>在IPython之外尸检<a href="这词……">^3</a>调试</strong></p>
+<p>在一些情形下你无法使用IPython，例如调试一个想要从命令行调用的脚本。这中情况下，你可以使用<code>python -m pdb script.py</code>来调用脚本：</p>
+<pre><code>lyy@<span class="keyword">arch</span> ~ % python2 -<span class="keyword">m</span> pdb index_error.py
+&gt; /home/lyy/index_error.py(1)&lt;module&gt;()
+-&gt; <span class="string">""</span><span class="string">"Small snippet to raise an IndexError."</span><span class="string">""</span>
+(Pdb) <span class="keyword">continue</span>
+Traceback (most recent call last):
+  <span class="keyword">File</span> <span class="string">"/usr/lib/python2.7/pdb.py"</span>, <span class="keyword">line</span> 1314, <span class="keyword">in</span> main
+    pdb._runscript(mainpyfile)
+  <span class="keyword">File</span> <span class="string">"/usr/lib/python2.7/pdb.py"</span>, <span class="keyword">line</span> 1233, <span class="keyword">in</span> _runscript
+    self.<span class="keyword">run</span>(statement)
+  <span class="keyword">File</span> <span class="string">"/usr/lib/python2.7/bdb.py"</span>, <span class="keyword">line</span> 387, <span class="keyword">in</span> <span class="keyword">run</span>
+    exec cmd <span class="keyword">in</span> globals, locals
+  <span class="keyword">File</span> <span class="string">"&lt;string&gt;"</span>, <span class="keyword">line</span> 1, <span class="keyword">in</span> &lt;module&gt;
+  <span class="keyword">File</span> <span class="string">"index_error.py"</span>, <span class="keyword">line</span> 1, <span class="keyword">in</span> &lt;module&gt;
+    <span class="string">""</span><span class="string">"Small snippet to raise an IndexError."</span><span class="string">""</span>
+  <span class="keyword">File</span> <span class="string">"index_error.py"</span>, <span class="keyword">line</span> 5, <span class="keyword">in</span> index_error
+    <span class="keyword">print</span> lst[len(lst)]
+IndexError: <span class="keyword">list</span> index <span class="keyword">out</span> of <span class="keyword">range</span>
+Uncaught exception. Entering <span class="keyword">post</span> mortem debugging
+Running 'cont' or 'step' will restart the <span class="keyword">program</span>
+&gt; /home/lyy/index_error.py(5)index_error()
+-&gt; <span class="keyword">print</span> lst[len(lst)]
+(Pdb) <span class="keyword">print</span> lst[len(lst)]
+<span class="comment">*** IndexError: list index out of range</span>
+</code></pre><h4 id="单步执行">单步执行</h4><p><strong>情形：</strong>你相信在模块中存在一个bug但不确定在哪里。</p>
+<p>例如我们尝试调试<a href="http://scipy-lectures.github.com/_downloads/wiener_filtering.py" target="_blank" rel="external">wiener_filtering.py</a>。确实代码运行了，但是滤波效果并不好。</p>
+<ul>
+<li><p>用调试器运行脚本：</p>
+<pre><code>In [1]: %run -d wiener_filtering.py
+<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span> Blank or comment
+<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span> Blank or comment
+<span class="keyword">*</span><span class="keyword">*</span><span class="keyword">*</span> Blank or comment
+Breakpoint 1 at /home/lyy/wiener_filtering.py:4
+NOTE: Enter 'c' at the ipdb&gt;  prompt to start your script.
+&gt; <span class="variable">&lt;string&gt;</span>(1)<span class="variable">&lt;module&gt;</span>()
+</code></pre></li>
+<li><p>进入<a href="http://scipy-lectures.github.com/_downloads/wiener_filtering.py" target="_blank" rel="external">wiener_filtering.py</a>并且在34行设置断点：</p>
+<pre><code>ipdb&gt; n
+&gt; /home/lyy/wiener_filtering.py(<span class="number">4</span>)&lt;module&gt;()
+      <span class="number">3</span> 
+<span class="number">1</span>---&gt; <span class="number">4</span> import numpy as np
+      <span class="number">5</span> import scipy as sp
+
+ipdb&gt; b <span class="number">34</span>
+Breakpoint <span class="number">2</span> at /home/lyy/wiener_filtering.py:<span class="number">34</span>
+</code></pre></li>
+<li><p>用<code>c(out(inue))</code>继续执行到下一个断点:</p>
+<pre><code>ipdb&gt; <span class="keyword">c</span>
+&gt; /home/lyy/wiener_filtering.<span class="keyword">py</span>(<span class="number">34</span>)iterated_wiener()
+     <span class="number">33</span>     <span class="string">""</span><span class="string">"
+</span><span class="number">2</span>--&gt; <span class="number">34</span>     noisy_img = noisy_img
+     <span class="number">35</span>     denoised_img = local_mean(noisy_img, size=size)
+</code></pre></li>
+<li><p>用<code>n(ext)</code>和<code>s(tep)</code>回到代码：<code>next</code>跳到当前执行文本的下一个语句，而<code>step</code>将穿越执行文本，也就是，可以深入探索函数调用：<a href="区别在于step停在函数调用，next立即执行函数调用">^4</a></p>
+<pre><code>ipdb&gt; s
+&gt; /home/lyy/wiener_filtering.<span class="function"><span class="title">py</span><span class="params">(<span class="number">35</span>)</span><span class="title">iterated_wiener</span><span class="params">()</span></span>
+<span class="number">2</span>    <span class="number">34</span>     noisy_img = noisy_img
+---&gt; <span class="number">35</span>     denoised_img = <span class="function"><span class="title">local_mean</span><span class="params">(noisy_img, size=size)</span></span>
+     <span class="number">36</span>     l_var = <span class="function"><span class="title">local_var</span><span class="params">(noisy_img, size=size)</span></span>
+
+ipdb&gt; n
+&gt; /home/lyy/wiener_filtering.<span class="function"><span class="title">py</span><span class="params">(<span class="number">36</span>)</span><span class="title">iterated_wiener</span><span class="params">()</span></span>
+     <span class="number">35</span>     denoised_img = <span class="function"><span class="title">local_mean</span><span class="params">(noisy_img, size=size)</span></span>
+---&gt; <span class="number">36</span>     l_var = <span class="function"><span class="title">local_var</span><span class="params">(noisy_img, size=size)</span></span>
+     <span class="number">37</span>     <span class="keyword">for</span> <span class="tag">i</span> <span class="keyword">in</span> <span class="function"><span class="title">range</span><span class="params">(<span class="number">3</span>)</span></span>:
+</code></pre></li>
+<li><p>执行几行然后探索局部变量：</p>
+<pre><code>ipdb&gt; n
+&gt; /home/lyy/wiener_filtering.<span class="function"><span class="title">py</span><span class="params">(<span class="number">37</span>)</span><span class="title">iterated_wiener</span><span class="params">()</span></span>
+     <span class="number">36</span>     l_var = <span class="function"><span class="title">local_var</span><span class="params">(noisy_img, size=size)</span></span>
+---&gt; <span class="number">37</span>     <span class="keyword">for</span> <span class="tag">i</span> <span class="keyword">in</span> <span class="function"><span class="title">range</span><span class="params">(<span class="number">3</span>)</span></span>:
+     <span class="number">38</span>         res = noisy_img - denoised_img
+
+ipdb&gt; print l_var
+[[<span class="number">5868</span> <span class="number">5379</span> <span class="number">5316</span> ..., <span class="number">5071</span> <span class="number">4799</span> <span class="number">5149</span>]
+ [<span class="number">5013</span>  <span class="number">363</span>  <span class="number">437</span> ...,  <span class="number">346</span>  <span class="number">262</span> <span class="number">4355</span>]
+ [<span class="number">5379</span>  <span class="number">410</span>  <span class="number">344</span> ...,  <span class="number">392</span>  <span class="number">604</span> <span class="number">3377</span>]
+ ..., 
+ [ <span class="number">435</span>  <span class="number">362</span>  <span class="number">308</span> ...,  <span class="number">275</span>  <span class="number">198</span> <span class="number">1632</span>]
+ [ <span class="number">548</span>  <span class="number">392</span>  <span class="number">290</span> ...,  <span class="number">248</span>  <span class="number">263</span> <span class="number">1653</span>]
+ [ <span class="number">466</span>  <span class="number">789</span>  <span class="number">736</span> ..., <span class="number">1835</span> <span class="number">1725</span> <span class="number">1940</span>]]
+ipdb&gt; print l_var.<span class="function"><span class="title">min</span><span class="params">()</span></span>
+<span class="number">0</span>
+</code></pre></li>
+</ul>
+<p>Oh,亲爱的，除了整数什么也没有，还有0变动。这就是我们的bug所在，我们在做整数算术。</p>
+<p><strong>引发数值错误例外</strong></p>
+<p>当我们运行<a href="http://scipy-lectures.github.com/_downloads/wiener_filtering.py" target="_blank" rel="external">wiener_filtering.py</a>文件时，以下警告被引发(raise)：</p>
+<pre><code>In [<span class="number">1</span>]: %run wiener_filtering.py
+wiener_filtering.py:<span class="number">40</span>: RuntimeWarning: <span class="built_in">divide</span> <span class="keyword">by</span> <span class="constant">zero</span> encountered <span class="operator">in</span> <span class="built_in">divide</span>
+  noise_level = (<span class="number">1</span> - noise/l_var )
+</code></pre><p>我们可以将这些警告转化为例外(exception)，这让我们能对它们尸检调试，并且迅速找到我们的问题：</p>
+<pre><code><span class="name">In</span> [<span class="number">2</span>]: <span class="atom">np</span>.<span class="atom">seterr</span>(<span class="atom">all</span>=<span class="string">'raise'</span>)
+<span class="name">Out</span>[<span class="number">2</span>]: {<span class="string">'divide'</span>: <span class="string">'warn'</span>, <span class="string">'invalid'</span>: <span class="string">'warn'</span>, <span class="string">'over'</span>: <span class="string">'warn'</span>, <span class="string">'under'</span>: <span class="string">'ignore'</span>}
+</code></pre><h4 id="其它开始调试的方法">其它开始调试的方法</h4><ul>
+<li><p><strong>引发一个例外作为”可怜的”断点</strong></p>
+<p>如果你发现几下行号设置断点很无聊，你可以简单地在你想要检查的地方引发一个例外，使用ipython的<code>%debug</code>。注意在这种情况下你不能step和continue执行。</p>
+</li>
+<li><p>使用nosetests调试测试失败</p>
+<p>你可以运行<code>nosetests --pdb</code>对例外(exception)尸检调试，并且<code>nosetests --pdb-failure</code>使用调试器来检查测试失败。</p>
+<p>另外，你可以通过安装nose插件<a href="http://pypi.python.org/pypi/ipdbplugin" target="_blank" rel="external">ipdbplugin</a>，在nose中使用IPython调试接口。你可以传递<code>--ipdb</code>和<code>--ipdb-failure</code>选项给nosetests。</p>
+</li>
+<li><p>显式调用调试器</p>
+<p>  在你想要调试的地方放入以下一行：</p>
+<pre><code><span class="preprocessor"><span class="keyword">import</span> pdb;</span> pdb.set_trace()
+</code></pre></li>
+</ul>
+<font color="red">警告：当运行<code>nosetests</code>时，输出被捕捉，并且因此似乎调试器不工作了。只要加上<code>-s</code>标志运行nosetests</font>
+
+<p><strong>图形化调试器</strong></p>
+<p>为了单步执行和检查变量，你也许觉得用图形化的调试器如<a href="http://winpdb.org/" target="_blank" rel="external">winpdb</a>更加方便。</p>
+<p>另外，<a href="http://pypi.python.org/pypi/pudb" target="_blank" rel="external">pudb</a>是一个很棒的半图形化调试器，它在终端里有一个文字用户界面。</p>
+<h3 id="调试器命令和交互">调试器命令和交互</h3><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>l(list)</td>
+<td>列出当前运行的代码</td>
+</tr>
+<tr>
+<td>u(p)</td>
+<td>上一个调用堆栈</td>
+</tr>
+<tr>
+<td>d(own)</td>
+<td>下一个调用堆栈</td>
+</tr>
+<tr>
+<td>n(ext)</td>
+<td>执行下一行(不到新的函数)</td>
+</tr>
+<tr>
+<td>s(tep)</td>
+<td>执行下一个语句(到新的函数)</td>
+</tr>
+<tr>
+<td>bt</td>
+<td>打印调用堆栈</td>
+</tr>
+<tr>
+<td>a</td>
+<td>打印局部变量</td>
+</tr>
+<tr>
+<td>!command</td>
+<td>执行特定的<em>Python</em>命令(相对于pdb命令)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>警告：Debugger 命令不是Python代码</strong></p>
+<p>你不能想当然的命名一个变量。例如，例如，如果在其中，你不能在当前情形下覆盖用同名变量:<em>当在调试器中敲代码时，使用不同的名字而不是你的局部变量</em>。</p>
+<h2 id="使用gdb调试段错误">使用gdb调试段错误</h2><p>如果你有一个段错误，你不能通过pdb调试它，因为它会让Python解释器在进入调试器之前崩溃。同样，如果你在Python中嵌入的C代码有bug，pdb也没用。对这种情况我们使用在linux上可用的gnu调试器<a href="http://www.gnu.org/s/gdb/" target="_blank" rel="external">gdb</a>。</p>
+<p>在我们用gdb之前，让我们向它添加一些Python特有的工具。对此我们向我们的<em>gdbinit</em>添加一些宏。宏优化的选择依赖于你的Python版本和gdb版本。我已经在<a href="http://scipy-lectures.github.com/_downloads/gdbinit" target="_blank" rel="external">gdbinit</a>里添加了一个简化的版本，但是请自由地阅读<a href="http://wiki.python.org/moin/DebuggingWithGdb" target="_blank" rel="external">DebuggingWithGdb</a>。</p>
+<p>为用gdb调试脚本<a href="http://scipy-lectures.github.com/_downloads/segfault.py" target="_blank" rel="external">segfault.py</a>，我们可以在gdb中如下运行：</p>
+<pre><code>$ gdb python
+...
+(gdb) run segfault.py
+Starting program: /usr/bin/python segfault.py
+[Thread debugging <span class="keyword">using</span> libthread_db enabled]
+
+Program received signal SIGSEGV, Segmentation fault.
+_strided_byte_copy (dst=<span class="number">0x8537478</span> <span class="string">"\360\343G"</span>, outstrides=<span class="number">4</span>, src=
+    <span class="number">0x86c0690</span> &lt;Address <span class="number">0x86c0690</span> out of bounds&gt;, instrides=<span class="number">32</span>, N=<span class="number">3</span>,
+    elsize=<span class="number">4</span>)
+        at numpy/core/src/multiarray/ctors.c:<span class="number">365</span>
+<span class="number">365</span>            _FAST_MOVE(Int32);
+(gdb)
+</code></pre><p>我们得到一个段错误，并且gdb事后在C级别的堆栈中(不是python调用堆栈)捕捉到了它。我们可以使用使用gdb的命令调试C调用堆栈：</p>
+<pre><code>(gdb) up
+<span class="preprocessor">#<span class="number">1</span>  <span class="number">0x004af4f5</span> in _copy_from_same_shape (dest=&lt;value optimized out&gt;,</span>
+    src=&lt;value optimized out&gt;, myfunc=<span class="number">0x496780</span> &lt;_strided_byte_copy&gt;,
+    swap=<span class="number">0</span>)
+at numpy/core/src/multiarray/ctors.c:<span class="number">748</span>
+<span class="number">748</span>         myfunc(dit-&gt;dataptr, dest-&gt;strides[maxaxis],
+</code></pre><p>如你所见，现在我们在numpy的C代码中。我们想要知道什么Python代码触发了这个段错误，因此我们向上查看堆栈直到我们发现Python执行循环：</p>
+<pre><code>(gdb) up
+#<span class="number">8</span>  <span class="number">0</span>x080ddd23 <span class="keyword">in</span> call_function (f=
+    Frame <span class="number">0</span>x85371ec, <span class="keyword">for</span> file /home/varoquau/usr/lib/python2.<span class="number">6</span>/site-packages/numpy/core/arrayprint<span class="class">.py</span>, line <span class="number">156</span>, <span class="keyword">in</span> _leading_trailing (a=&lt;numpy<span class="class">.ndarray</span> at remote <span class="number">0</span>x85371b0&gt;, _nc=&lt;module at remote <span class="number">0</span>xb7f93a64&gt;), throwflag=<span class="number">0</span>)
+    at ../Python/ceval<span class="class">.c</span>:<span class="number">3750</span>
+<span class="number">3750</span>    ../Python/ceval<span class="class">.c</span>: No such file or directory.
+        <span class="keyword">in</span> ../Python/ceval<span class="class">.c</span>
+
+(gdb) up
+#<span class="number">9</span>  PyEval_EvalFrameEx (f=
+    Frame <span class="number">0</span>x85371ec, <span class="keyword">for</span> file /home/varoquau/usr/lib/python2.<span class="number">6</span>/site-packages/numpy/core/arrayprint<span class="class">.py</span>, line <span class="number">156</span>, <span class="keyword">in</span> _leading_trailing (a=&lt;numpy<span class="class">.ndarray</span> at remote <span class="number">0</span>x85371b0&gt;, _nc=&lt;module at remote <span class="number">0</span>xb7f93a64&gt;), throwflag=<span class="number">0</span>)
+    at ../Python/ceval<span class="class">.c</span>:<span class="number">2412</span>
+<span class="number">2412</span>    <span class="keyword">in</span> ../Python/ceval<span class="class">.c</span>
+(gdb)
+</code></pre><p>一旦我们在python执行循环中时，我们可以使用特殊的python帮助函数。例如我们找到相应的Python代码：</p>
+<pre><code>(gdb) pyframe
+/home/varoquau/usr/<span class="class"><span class="keyword">lib</span>/<span class="title">python2</span>.6/<span class="title">site</span>-<span class="title">packages</span>/<span class="title">numpy</span>/<span class="title">core</span>/<span class="title">arrayprint</span>.<span class="title">py</span> (158): <span class="title">_leading_trailing</span></span>
+(gdb)
+</code></pre><p>这是numpy的代码，我们需要向上直到找到我们自己写的代码：</p>
+<pre><code>(gdb) up
+...
+(gdb) up
+#<span class="number">34</span> <span class="number">0</span>x080dc97a <span class="keyword">in</span> PyEval_EvalFrameEx (f=
+    Frame <span class="number">0</span>x82f064c, <span class="keyword">for</span> file segfault<span class="class">.py</span>, line <span class="number">11</span>, <span class="keyword">in</span> print_big_array (small_array=&lt;numpy<span class="class">.ndarray</span> at remote <span class="number">0</span>x853ecf0&gt;, big_array=&lt;numpy<span class="class">.ndarray</span> at remote <span class="number">0</span>x853ed20&gt;), throwflag=<span class="number">0</span>) at ../Python/ceval<span class="class">.c</span>:<span class="number">1630</span>
+<span class="number">1630</span>    ../Python/ceval<span class="class">.c</span>: No such file or directory.
+        <span class="keyword">in</span> ../Python/ceval<span class="class">.c</span>
+(gdb) pyframe
+segfault<span class="class">.py</span> (<span class="number">12</span>): print_big_array
+</code></pre><p>相应的代码是：</p>
+<pre><code><span class="function"><span class="keyword">def</span> <span class="title">print_big_array</span><span class="params">(small_array)</span>:</span>
+    big_array = make_big_array(small_array)
+    <span class="keyword">print</span> big_array[-<span class="number">10</span>:]
+    <span class="keyword">return</span> big_array
+</code></pre><p>所以当打印<code>big_array[-10:]</code>时发生段错误。原因很简单，<code>big-array</code>的末尾被分配到程序内存之外了。<a href="也许你得将shape从20000改的大点，2e5或更大。">^5</a></p>
+<p><strong>注意：</strong>在gdbinit中定义的专用于python的命令，请阅读这个文件。<a href="提醒下，在gdb7或更高版本中，不再单独需要gdbinit文件。另外，要完成用gdb对python程序的调试，我想你的python程序都应该用`-g`来编译。">^6</a></p>
+<h2 id="总结练习">总结练习</h2><p>以下脚本清晰易读，它致力于解决数值计算感兴趣的实际问题。但是它不能工作。你能调试它吗？</p>
+<p>Python源码<a href="http://scipy-lectures.github.com/_downloads/to_debug.py" target="_blank" rel="external">to_debug.py</a></p>
+<pre><code><span class="string">"""
+A script to compare different root-finding algorithms.
+
+This version of the script is buggy and does not execute. It is your task
+to find an fix these bugs.
+
+The output of the script sould look like:
+
+    Benching 1D root-finder optimizers from scipy.optimize:
+                brenth:   604678 total function calls
+                brentq:   594454 total function calls
+                ridder:   778394 total function calls
+                bisect:  2148380 total function calls
+"""</span>
+<span class="keyword">from</span> itertools <span class="keyword">import</span> product
+
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">from</span> scipy <span class="keyword">import</span> optimize
+
+FUNCTIONS = (np.tan,  <span class="comment"># Dilating map</span>
+             np.tanh, <span class="comment"># Contracting map</span>
+             <span class="keyword">lambda</span> x: x**<span class="number">3</span> + <span class="number">1e-4</span>*x, <span class="comment"># Almost null gradient at the root</span>
+             <span class="keyword">lambda</span> x: x+np.sin(<span class="number">2</span>*x), <span class="comment"># Non monotonous function</span>
+             <span class="keyword">lambda</span> x: <span class="number">1.1</span>*x+np.sin(<span class="number">4</span>*x), <span class="comment"># Fonction with several local maxima</span>
+            )
+
+OPTIMIZERS = (optimize.brenth, optimize.brentq, optimize.ridder,
+              optimize.bisect)
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">apply_optimizer</span><span class="params">(optimizer, func, a, b)</span>:</span>
+    <span class="string">""" Return the number of function calls given an root-finding optimizer, 
+        a function and upper and lower bounds.
+    """</span>
+    <span class="keyword">return</span> optimizer(func, a, b, full_output=<span class="keyword">True</span>)[<span class="number">1</span>].function_calls,
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">bench_optimizer</span><span class="params">(optimizer, param_grid)</span>:</span>
+    <span class="string">""" Find roots for all the functions, and upper and lower bounds
+        given and return the total number of function calls.
+    """</span>
+    <span class="keyword">return</span> sum(apply_optimizer(optimizer, func, a, b)
+               <span class="keyword">for</span> func, a, b <span class="keyword">in</span> param_grid)
+
+
+<span class="function"><span class="keyword">def</span> <span class="title">compare_optimizers</span><span class="params">(optimizers)</span>:</span>
+    <span class="string">""" Compare all the optimizers given on a grid of a few different
+        functions all admitting a signle root in zero and a upper and
+        lower bounds.
+    """</span>
+    random_a = -<span class="number">1.3</span> + np.random.random(size=<span class="number">100</span>)
+    random_b =   <span class="number">.3</span> + np.random.random(size=<span class="number">100</span>)
+    param_grid = product(FUNCTIONS, random_a, random_b)
+    <span class="keyword">print</span> <span class="string">"Benching 1D root-finder optimizers from scipy.optimize:"</span>
+    <span class="keyword">for</span> optimizer <span class="keyword">in</span> OPTIMIZERS:
+        <span class="keyword">print</span> <span class="string">'% 20s: % 8i total function calls'</span> % (
+                    optimizer.__name__, 
+                    bench_optimizer(optimizer, param_grid)
+                )
+
+
+<span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+    compare_optimizers(OPTIMIZERS)
+</code></pre><h2 id="Footnotes">Footnotes</h2>
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/python/2012/10/30/" itemprop="url">
                   斯普罗站最大风力预测
                 </a>
@@ -3978,223 +4545,6 @@ This is dvipng 1.14 <span class="keyword">Copyright</span> 2002-2010 Jan-Ake Lar
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/python/2012/08/24/scipy/" itemprop="url">
-                  SciPy入门指南(译)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-08-24T00:00:00+08:00" content="2012-08-24">
-              2012-08-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/python/2012/08/24/scipy/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/08/24/scipy/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="SciPy入门指南">SciPy入门指南</h1><p>这个教程是为了帮助初学者掌握scipy并且肯能快地实际使用。</p>
-<ul>
-<li>toc<br>{:toc }</li>
-</ul>
-<p><img src="http://fmn.rrimg.com/fmn056/20120825/1810/p_large_LzVl_40d700008a811261.jpg" alt="optimization"></p>
-<h2 id="什么是scipy、numpy、matplotlib？">什么是scipy、numpy、matplotlib？</h2><p><em>Python</em>是一种通用语言。它被解释运行，是动态类型语言，并且非常适合交互工作和快速实现原型，然而又足够强大用来写大型应用。</p>
-<p><em>NumPy</em>是一个定义了数值数组和矩阵类型和它们的基本运算的语言扩展。</p>
-<p><em>SciPy</em>是另一种使用NumPy来做高等数学、信号处理、优化、统计和许多其它科学任务的语言扩展。</p>
-<p><em>Matplotlib</em>是一个帮助绘图的语言扩展。</p>
-<h2 id="它们是用来干什么的？">它们是用来干什么的？</h2><p>SciPy和其它这些能用来完成许多任务：</p>
-<ul>
-<li><p>首先它们很适于用来进行严重依赖数学和数值运算的计算,它们可以原生地使用数组、矩阵和对数组和矩阵的运算，求出特征根，计算积分，解决微分方程。</p>
-<p>NumPy的数组类(被用来实现矩阵类的基础)是考虑速度的实现，所以存取NumPy数组比存取Python列表速度更快。此外，NumPy实现一种<em>数组语言</em>，以致于不需要大多数循环。例如，普通Python(C等等也是相似的):</p>
-<pre><code><span class="tag">a</span> = <span class="function"><span class="title">range</span><span class="params">(<span class="number">10000000</span>)</span></span>
-<span class="tag">b</span> = <span class="function"><span class="title">range</span><span class="params">(<span class="number">10000000</span>)</span></span>
-c = []
-<span class="keyword">for</span> <span class="tag">i</span> <span class="keyword">in</span> <span class="function"><span class="title">range</span><span class="params">(len(a)</span></span>):
-  c.<span class="function"><span class="title">append</span><span class="params">(a[i] + b[i])</span></span>
-</code></pre><p>这个循环将在几GHz的处理器上耗时5到10秒，而NumPy：</p>
-<pre><code>import numpy as np
-<span class="tag">a</span> = np.<span class="function"><span class="title">arange</span><span class="params">(<span class="number">10000000</span>)</span></span>
-<span class="tag">b</span> = np.<span class="function"><span class="title">arange</span><span class="params">(<span class="number">10000000</span>)</span></span>
-c = <span class="tag">a</span> + b
-</code></pre><p>不仅这个更加简洁和易读，而且相比几乎是瞬间的，甚至NumPy的导入都比普通Python中的循环更快。为什么？Python是一种动态类型的解释语言，这意味着在每次循环迭代时它都必须检查运算对象a和b的类型来选则<code>+</code>正确的意义。(在python中<code>+</code>被用到许多地方，比如连接字符串、可以有不同元素类型的列表)当’+’的操作对象之一是一个NumPy数组时，NumPy的<code>add</code>函数将被Python自动选择，仅仅检测一次类型。然后它通过编译C函数执行”真正的”加法循环。这和普通python中的解释循环相比是非常快的。</p>
-</li>
-<li><p>有许多通用的或特定用途的数值代码使用了numpy和scipy。参考<a href="http://scipy.org/Topical_Software" target="_blank" rel="external">局部软件索引</a>来查看部分列表。Python有许多用来创建交互应用的高级的模块(例如<a href="http://scipy.org/TraitsUI" target="_blank" rel="external">TraitsUI</a>和<a href="http://scipy.org/Cookbook/wxPython_dialogs" target="_blank" rel="external">wxPython</a>)。和scipy一同使用这些是最快的创建科学应用的方法。</p>
-</li>
-<li><p>使用<a href="http://ipython.scipy.org/" target="_blank" rel="external">ipython</a>使得交互工作更加简单。数据处理，数值模型探索，在运行中尝试运算可以很快地从一个想法得到结果(参考<a href="https://cirl.berkeley.edu/fperez/papers/ipython-cise-final.pdf" target="_blank" rel="external">artical on ipython</a>)。</p>
-</li>
-<li><a href="http://matplotlib.sourceforge.net/" target="_blank" rel="external">matplotlib</a>模块制造高质量的绘图，通过它你可以把你的数据和模型转化为展示或文章用的图像。不必在一个程序中做数值计算，保存数据，然后用另一个绘图。</li>
-</ul>
-<h2 id="如何使用scipy工作">如何使用scipy工作</h2><p>Python是一门语言，它有几个用户界面。没有一个单独的程序可以开始并且给一个集成的用户体验。取而代之的是各种使用python的方法。<a href="是这样？还是我理解错了？">^1</a></p>
-<p>最普遍的方法是使用高级python交互shell来输入命令和运行脚本。脚本可以用任何编辑器来写，例如<a href="http://stani.be/python/spe/" target="_blank" rel="external">SPE</a>,PyScripter,甚至notepad，emacs或者vi/vim。</p>
-<p>scipy和numpy默认都没有提供绘图函数。它们仅仅是数值工具。推荐的绘图工具包是<a href="http://matplotlib.sourceforge.net/" target="_blank" rel="external">matplotlib</a>。</p>
-<p>在Windows、Mac OS X和Linux下，所有这些工具都被<a href="http://www.enthought.com/products/epd.php" target="_blank" rel="external">Enthought Python发行版</a>提供，获取更多关于安装这些的指导参考此站点<a href="http://www.scipy.org/Installing_SciPy" target="_blank" rel="external">安装scipy</a>部分。</p>
-<h2 id="学习使用scipy">学习使用scipy</h2><p>最快的使用scipy工作的方法可能就是这个<a href="http://www.scipy.org/Additional_Documentation/Astronomy_Tutorial" target="_blank" rel="external">交互数据分析教程</a></p>
-<p>去学习Python语言，python教程可以让你迅速熟悉python语法和对象。你可以从<a href="http://docs.python.org/download.html" target="_blank" rel="external">http://docs.python.org/download.html</a>下载这个教程。</p>
-<p>Dave Kuhlman的numpy和scipy教程是另一个很好的介绍：<a href="http://www.rexx.com/~dkuhlman/scipy\_course\_01.html" target="_blank" rel="external">http://www.rexx.com/~dkuhlman/scipy_course_01.html</a>.</p>
-<p>本站点上的<a href="http://docs.scipy.org/" target="_blank" rel="external">文档</a>和<a href="http://www.scipy.org/Cookbook" target="_blank" rel="external">Cookbook</a>部分提供更多学习材料。</p>
-<h2 id="示例会话">示例会话</h2><h3 id="交互工作">交互工作</h3><p>让我们看看在矩形窗函数的傅利叶变换。我们将使用一个交互python shell——ipython来做这个。因为我们想要通过交互绘图呈现结果，我们将启动使用<code>--pylab</code>参数启动ipython，这个参数允许使用<a href="http://matplotlib.sourceforge.net/" target="_blank" rel="external">matplotlib</a>交互。</p>
-<pre><code>$ ipython <span class="comment">--pylab</span>
-Python <span class="number">2.5</span>.<span class="number">1</span> (r251:<span class="number">54863</span>, May  <span class="number">2</span> <span class="number">2007</span>, <span class="number">16</span>:<span class="number">27</span>:<span class="number">44</span>)
-<span class="keyword">Type</span> <span class="string">"copyright"</span>, <span class="string">"credits"</span> <span class="keyword">or</span> <span class="string">"license"</span> <span class="keyword">for</span> more information.
-IPython <span class="number">0.7</span>.<span class="number">3</span> <span class="comment">-- An enhanced Interactive Python.</span>
-?       -&gt; Introduction <span class="keyword">to</span> IPython<span class="attribute">'s</span> features.
-%magic  -&gt; Information about IPython<span class="attribute">'s</span> <span class="attribute">'magic</span>' % functions.
-help    -&gt; Python<span class="attribute">'s</span> own help system.
-object? -&gt; Details about <span class="attribute">'object</span>'. ?object also works, ?? prints more.
-  Welcome <span class="keyword">to</span> pylab, a matplotlib-based Python environment.
-  <span class="keyword">For</span> more information, <span class="keyword">type</span> <span class="attribute">'help</span>(pylab)'.
-</code></pre><p>ipython提供了许多方便的特性，想tab补全python函数和一个优秀的帮助系统。</p>
-<pre><code>In [<span class="number">1</span>]: %logstart
-Activating auto-logging. Current session state plus future input saved.
-<span class="string">Filename       :</span> ipython_log.py
-<span class="string">Mode           :</span> rotate
-Output <span class="string">logging :</span> False
-Raw input <span class="string">log  :</span> False
-<span class="string">Timestamping   :</span> False
-<span class="string">State          :</span> active
-</code></pre><p>这个激活一个登录会话到一个文件。登录文件格式允许在以后就像一个python脚本一样被简单的执行，或编辑进一个程序。ipython也记录所有的输入输出(并把它们保存在叫In和Out的列表中)，因此你可以启动有追溯的登录。</p>
-<pre><code>In [<span class="number">2</span>]: <span class="keyword">from</span> scipy <span class="keyword">import</span> *
-</code></pre><p>因为numpy和scipy不是构建在python中的，你必须显示地告诉python加载它们的特性。Scipy提供numpy所以当导入scipy时导入它是不必要的。</p>
-<p>现在开始实际的数学：</p>
-<pre><code>In [<span class="number">3</span>]: <span class="tag">a</span> = <span class="function"><span class="title">zeros</span><span class="params">(<span class="number">1000</span>)</span></span>
-In [<span class="number">4</span>]: <span class="tag">a</span>[:<span class="number">100</span>]=<span class="number">1</span>
-</code></pre><p>第一行正如你所期望的那样简单地创建了一个有1000个0的数组;numpy默认使这些0是双精度浮点数，但是如果我想要单精度或复数，我可以指定<code>zeors</code>的额外参数。第二行把一百个元素设置成-1.</p>
-<p>然后我想要对这个数组进行傅利叶变换，scipy提供<code>fft</code>函数来完成这些：</p>
-<pre><code><span class="tag">b</span> = <span class="function"><span class="title">fft</span><span class="params">(a)</span></span>
-</code></pre><p>为了看看b是什么样的，我将使用matplotlib库。如果你使用”–pylab”启动ipython将不需要导入matplotlib。否则你应导入它:<code>from pylab import *</code>但是你将没有交互功能(当你创建时自动绘图)。</p>
-<pre><code>In [<span class="number">6</span>]: plot(abs(b))
-Out[<span class="number">6</span>]: <span class="annotation">[&lt;matplotlib.lines.Line2D instance at 0xb7b9144c&gt;]</span>
-In [<span class="number">7</span>]: show()
-</code></pre><p><img src="http://fmn.rrimg.com/fmn056/20120825/1810/p_large_34di_40d700008a7f1261.jpg" alt="fft"></p>
-<p>这将出现一个显示b的图像的窗口，如果你启动ipython时使用<code>--pylab</code>的话<code>show</code>命令是不必要的。</p>
-<p>我注意到如果我把b的0频移动到中间看起来更好。我可以通过连接b的后半部分和前半部分来实现，但是我记不清concatenate的语法了:</p>
-<pre><code><span class="keyword">In</span> [<span class="number">8</span>]: concatenate?
-<span class="keyword">Type</span>:           builtin_function_or_method
-Base <span class="keyword">Class</span>:     &lt;<span class="keyword">type</span> <span class="string">'builtin_function_or_method'</span>&gt;
-String Form:    &lt;built-<span class="keyword">in</span> <span class="function"><span class="keyword">function</span> <span class="title">concatenate</span>&gt;
-<span class="title">Namespace</span>:</span>      Interactive
-Docstring:
-    concatenate((a1, a2, ...), axis=<span class="number">0</span>)
-    <span class="keyword">Join</span> arrays together.
-    The <span class="keyword">tuple</span> <span class="keyword">of</span> sequences (a1, a2, ...) are joined along the given axis
-    (<span class="keyword">default</span> <span class="keyword">is</span> the first one) <span class="keyword">into</span> a single numpy <span class="keyword">array</span>.
-    Example:
-    &gt;&gt;&gt; concatenate( ([<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>], [<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>]) )
-    <span class="keyword">array</span>([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>])
-<span class="keyword">In</span> [<span class="number">9</span>]: f=arange(-<span class="number">500</span>,<span class="number">500</span>,<span class="number">1</span>)
-<span class="keyword">In</span> [<span class="number">10</span>]: grid(<span class="keyword">True</span>)
-<span class="keyword">In</span> [<span class="number">11</span>]: plot(f,abs(concatenate((b[<span class="number">500</span>:],b[:<span class="number">500</span>]))))
-<span class="keyword">Out</span>[<span class="number">11</span>]: [&lt;matplotlib.lines.Line2D instance at <span class="number">0</span>xb360ca4c&gt;]
-<span class="keyword">In</span> [<span class="number">12</span>]: show()
-</code></pre><p><img src="http://fmn.rrimg.com/fmn062/20120825/1810/p_large_fk20_40d700008a801261.jpg" alt="scipy-2"></p>
-<p>这得到了我想要的图像。我可以使用交互控制上下移动和缩放图片，并且为包含在出版物中产生postscript输出(如果你想要学习更多绘图知识，建议你阅读<a href="http://matplotlib.sourceforge.net/tutorial.html" target="_blank" rel="external">matplotlib教程</a>)。</p>
-<h3 id="运行脚本">运行脚本</h3><p>当你一遍又一遍重复做着相同的工作，把一些命令保存在文件中并把它们作为脚本在ipython中运行将很有用。你可以使用”Ctrl-D”退出当前的ipython会话并且编辑<code>ipython_log.py</code>文件。当你想要执行这个文件中的指令时，你可以打开一个新的ipython会话输入命令<code>%run -i ipython_log.py</code>。</p>
-<p>当编辑一个脚本文件时，在ipython中尝试一些命令也很方便。这将允许你在保存和运行之前，对一些简单的情况逐行尝试你的脚本。</p>
-<h3 id="一些关于导入(import)的笔记">一些关于导入(import)的笔记</h3><p>如果你仅仅初学scipy和与其伴侣，以下的东西对你并不那么重要，不要太操心。但是当你开发一些大型的应用时最好记住它。</p>
-<p>对交互工作(在ipython中)和一些小型的脚本使用<code>from scipy import *</code>没什么。这样将会有个优点就是所有的功能在当前命名空间都是立即可用的。然而，对大型的程序和软件包来说，建议只导入你真正需要的函数和模块。让我们考虑这种情况：你(为了无论什么理由)想要比较numpy和scipy的<code>fft</code>函数。在你的脚本中你应这样写：</p>
-<pre><code># import from module numpy.fft
-from numpy.fft import fft
-# import scipy's fft implementation and <span class="operator"><span class="keyword">rename</span> it;</span>
-# Note: `from scipy import fft` actually imports numpy.fft.fft (<span class="operator"><span class="keyword">check</span> <span class="keyword">with</span>
-# <span class="string">`scipy.fft?`</span> <span class="keyword">in</span> Ipython <span class="keyword">or</span> look <span class="keyword">at</span> .../site-packages/scipy/__init__.py)
-<span class="keyword">from</span> scipy.fftpack <span class="keyword">import</span> fft <span class="keyword">as</span> scipy_fft</span>
-</code></pre><p>这个优势就是，当你查看代码时，你可以显式的知道你在导入什么，代码便因此变得清晰和可读。而且，这通常比通过<code>import *</code>导入所有东西更快，特别是如果你是从一个像scipy一样特别大的库中导入。</p>
-<p>然而，如果你使用许多不同的numpy函数，如果你显式导入每一个函数导入声明将变得非常长。但是你可以导入整个包来代替使用<code>import *</code>。</p>
-<pre><code><span class="built_in">from</span> numpy import *  <span class="comment"># bad</span>
-<span class="built_in">from</span> numpy import <span class="built_in">abs</span>, concatenate, <span class="built_in">sin</span>, <span class="constant">pi</span>, dot, amin, amax, asarray, cov, diag, zeros, <span class="constant">empty</span>, <span class="built_in">exp</span>, eye, kaiser <span class="comment"># very long</span>
-import numpy         <span class="comment"># good</span>
-<span class="comment"># use numpy.fft.fft() on array 'a'</span>
-b = numpy.fft.fft(<span class="operator">a</span>)
-</code></pre><p>没关系，因为通常<code>import numpy</code>非常快。另一方面，scipy相当大(有很多子包)。因此<code>from scipy import *</code>第一次导入可能非常慢(所有接下来的导入声明将会更迅速地执行，因为实际上没有再次导入)。这是为什么当你导入scipy时子包的导入默认被禁止(像scipy.fft)，这样它才能像<code>import numpy</code>一样快。如果你想使用比如说scipy.fft，你不得不显式的导入它(这无论如何是个好的想法)。如果你想要一次加载所有子包，你将不得不<code>import scipy; scipy.pkgbuild()</code>。使用ipython的交互会话，你可以通过scipy profile调用它(<code>ipython -p scipy</code>),为你读取scipy的配置文件(通常在~/.ipython/ipythonrc-scipy)和加载所有scipy。对在即时交互环境使用scipy和matplotlib绘图，你可以用像这样的命令<code>ipython --pylab -p scipy</code>。</p>
-<p>获得更多有关全面概述包结构和”pythonic”导入惯例的信息，看一看<a href="http://www.python.org/doc/2.5.4/tut/node8.html#SECTION008400000000000000000" target="_blank" rel="external">Python教程的这一部分</a></p>
-<hr>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -4241,21 +4591,21 @@ b = numpy.fft.fft(<span class="operator">a</span>)
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">179</span>
+              <span class="site-state-item-count">180</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-count">24</span>
               <span class="site-state-item-name">分类</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">66</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

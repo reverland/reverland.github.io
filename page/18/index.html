@@ -224,6 +224,147 @@
             
               
                 
+                <a class="post-title-link" href="/lisp/2012/04/26/a-text-game-engine-written-by-lisp/" itemprop="url">
+                  a text game engine written by lisp
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-04-26T00:00:00+08:00" content="2012-04-26">
+              2012-04-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/lisp/2012/04/26/a-text-game-engine-written-by-lisp/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/04/26/a-text-game-engine-written-by-lisp/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="Lisp_is_amazing,isn’t_it?">Lisp is amazing,isn’t it?</h2><p>最早的时候，是从emacs听说lisp的，不过emacs这等神器，却并非我的菜，几经折腾最终滚回了简洁的vim。</p>
+<p>最早开始学习lisp，是跟着田春译的《实用common lisp编程》，看了几章越看越累，等到看到讲单元测试那章时，我已经不知道在讲什么了。不过很惊叹lisp自动生成程序的能力倒是，还有种让人着迷的数学感。</p>
+<p>后来看见网上有人在译<a href="http://readthedocs.org/docs/ansi-common-lisp/en/latest/index.html" target="_blank" rel="external">ansi common lisp中文版</a>，沉寂了两个月的lisp情怀陡升，我又开始看了。看了两章也陷入了越看越累的境地，最后到了能读懂却不能写出的境界，相对之前，也算是进步吧。然而才到高级数据结构那部分，我已没看下去的勇气，我觉得自己这种小白应该先修炼本更循序渐进的。</p>
+<p>然后找啊找在<a href="http://common-lisp.net/" target="_blank" rel="external">common-lisp</a>上有推荐Land of lisp这本书,虽然很贵，但天朝的孩子们总是有办法的：<a href="http://115.com/folder/faujangp#lisp" target="_blank" rel="external">lisp资料</a>。</p>
+<p>好难得有本图文并茂的书，声称一次一个游戏，我就喜欢这种例子丰富的东西，幽默点不致于无聊更好。找不到中文版，算了，英文版直接上吧。话说还考研，唉，还是想抽空看看这个。</p>
+<hr>
+<h2 id="第一个游戏">第一个游戏</h2><p>猜数的小游戏，不解释。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun guess-my-number ()&#10;  (ash (+ *big* *small*) -1))&#10;(defun bigger ()&#10;  (setf *small* (1+ (guess-my-number)))&#10;  (guess-my-number))&#10;(defun smaller ()&#10;  (setf *big* (1- (guess-my-number)))&#10;  (guess-my-number))&#10;(defun start-over ()&#10;  (defparameter *small* 1)&#10;  (defparameter *big* 100)&#10;  (guess-my-number))</span><br></pre></td></tr></table></figure>
+<h2 id="一个简单的文本游戏引擎">一个简单的文本游戏引擎</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;;&#23450;&#20041;&#33410;&#28857;&#21450;&#25551;&#36848;&#10;(defparameter *nodes* &#39;((living-room (you are in the living-room.&#10;                                          a wizard is snoring loudly on the couch.))&#10;                        (garden (you are in a beautiful garden.&#10;                                     there is a well in front of you.))&#10;                        (attic (you are in the attic.&#10;                                    there is a giant welding torch in the corner.))))&#10;;;&#23450;&#20041;&#25551;&#36848;&#25928;&#24212;&#20301;&#32622;&#30340;&#20989;&#25968;&#10;(defun describe-location (location nodes)&#10;  (cadr (assoc location nodes)))&#10;;;&#23450;&#20041;&#33410;&#28857;-&#36335;&#24452;&#10;(defparameter *edges* &#39;((living-room (garden west door)&#10;                                     (attic upstairs ladder))&#10;                        (garden (living-room east door))&#10;                        (attic (living-room downstairs ladder))))&#10;;;&#23450;&#20041;&#25551;&#36848;&#36335;&#24452;&#20989;&#25968;&#10;(defun describe-path (edge)&#10;  `(there is a ,(caddr edge) going ,(cadr edge) from here.))&#10;;;&#23450;&#20041;&#25551;&#36848;&#23545;&#24212;&#20301;&#32622;&#36335;&#24452;&#30340;&#20989;&#25968;&#10;(defun describe-paths (location edges)&#10;  (apply #&#39;append (mapcar #&#39;describe-path (cdr (assoc location edges)))))&#10;;;&#23450;&#20041;&#29289;&#21697;&#21015;&#34920;&#10;(defparameter *objects* &#39;(whiskey bucket frog chain))&#10;;;&#29289;&#21697;-&#20301;&#32622;&#23545;&#65292;hash&#65311;&#10;(defparameter *object-locations* &#39;((whiskey living-room)&#10;                                   (bucket living-room)&#10;                                   (chain garden)&#10;                                   (frog garden)))&#10;;;&#24471;&#21040;&#30456;&#24212;&#20301;&#32622;&#29289;&#21697;&#21015;&#34920;&#10;(defun objects-at (loc objs obj-locs)&#10;  (labels ((at-loc-p (obj)&#10;             (eq (cadr (assoc obj obj-locs)) loc)))&#10;    (remove-if-not #&#39;at-loc-p objs)))&#10;;;&#25551;&#36848;&#30456;&#24212;&#20301;&#32622;&#29289;&#21697;&#10;(defun describe-objects (loc objs obj-loc)&#10;  (labels ((describe-obj (obj)&#10;             `(you see a ,obj on the floor.)))&#10;    (apply #&#39;append (mapcar #&#39;describe-obj (objects-at loc objs obj-loc)))))&#10;;;&#32473;&#23450;&#21021;&#22987;&#20301;&#32622;&#10;(defparameter *location* &#39;living-room)&#10;;;&#23450;&#20041;&#26597;&#30475;&#20989;&#25968;&#10;(defun look ()&#10;  (append (describe-location *location* *nodes*)&#10;          (describe-paths *location* *edges*)&#10;          (describe-objects *location* *objects* *object-locations*)))&#10;;;&#23450;&#20041;&#34892;&#36208;&#20989;&#25968;&#10;(defun walk (direction)&#10;  (let ((next (find direction&#10;                    (cdr (assoc *location* *edges*))&#10;                    :key #&#39;cadr)))&#10;    (if next&#10;      (progn (setf *location* (car next))&#10;             (look))&#10;      &#39;(you cannot go that way.))))&#10;;;&#23450;&#20041;&#25342;&#36215;&#20989;&#25968;&#10;(defun pickup (object)&#10;  (cond ((member object&#10;                 (objects-at *location* *objects* *object-locations*))&#10;         (push (list object &#39;body) *object-locations*)&#10;         `(you are now carrying the ,object))&#10;        (t &#39;(you cannot get that.))))&#10;;;&#26597;&#30475;&#29616;&#26377;&#29289;&#21697;&#30340;&#20989;&#25968;&#10;(defun inventory ()&#10;  (cons &#39;items- (objects-at &#39;body *objects* *object-locations*)))&#10;;;&#30331;&#20837;&#30028;&#38754;&#10;(defun say-hello ()&#10;  (princ &#34;Please type your name:&#34;)&#10;  (let ((name (read-line)))&#10;    (princ &#34;Nice to meet you, &#34;)&#10;    (princ name)))&#10;;;&#33258;&#23450;&#20041;repl&#10;(defun game-repl ()&#10;  (let ((cmd (game-read)))&#10;    (unless (eq (car cmd) &#39;quit)&#10;      (game-print (game-eval cmd))&#10;      (game-repl))))&#10;;;&#33258;&#23450;&#20041;&#30340;read&#10;(defun game-read ()&#10;  (let ((cmd (read-from-string&#10;               (concatenate &#39;string &#34;(&#34; (read-line) &#34;)&#34;))))&#10;    (flet ((quote-it (x)&#10;             (list &#39;quote x)))&#10;      (cons (car cmd) (mapcar #&#39;quote-it (cdr cmd))))))&#10;;;&#32473;&#23450;&#21487;&#25191;&#34892;&#21629;&#20196;&#10;(defparameter *allowed-commands* &#39;(look walk pickup inventory))&#10;;;&#33258;&#23450;&#20041;eval&#10;(defun game-eval (sexp)&#10;  (if (member (car sexp) *allowed-commands*)&#10;    (eval sexp)&#10;    &#39;(i do not know that command.)))&#10;;;&#36716;&#25442;&#23383;&#31526;&#21015;&#34920;&#22823;&#23567;&#20889;&#20989;&#25968;&#10;(defun tweak-text (lst caps lit)&#10;  (when lst&#10;    (let ((item (car lst))&#10;          (rest (cdr lst)))&#10;      (cond ((eq item #\space) (cons item (tweak-text rest caps lit)))&#10;            ((member item &#39;(#\! #\? #\.)) (cons item (tweak-text rest t lit)))&#10;            ((eq item #\&#34;) (tweak-text rest caps (not lit)))&#10;            (lit (cons item (tweak-text rest nil lit)))&#10;            ((or caps lit) (cons (char-upcase item) (tweak-text rest nil lit)))&#10;            (t (cons (char-downcase item) (tweak-text rest nil nil)))))))&#10;;;&#33258;&#23450;&#20041;print&#10;(defun game-print (lst)&#10;  (princ (coerce (tweak-text (coerce (string-trim &#34;() &#34;&#10;                                                  (prin1-to-string lst))&#10;                                     &#39;list)&#10;                             t&#10;                             nil)&#10;                 &#39;string))&#10;  (fresh-line))</span><br></pre></td></tr></table></figure>
+<p>然后测试游戏引擎，在repl中输入</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(game-repl)</span><br></pre></td></tr></table></figure>
+<p>首先让我惊异的就repl可以自定义,还有那个quasiquote很好用。</p>
+<p>然后学到了以下一堆命令：</p>
+<ul>
+<li>defparameter/defvar</li>
+<li>cons</li>
+<li>assoc</li>
+<li>caxdxr</li>
+<li>`/，/quote</li>
+<li>append</li>
+<li>mapcar</li>
+<li>apply</li>
+<li>labels/flet</li>
+<li>eq</li>
+<li>remove-if-not</li>
+<li>find</li>
+<li>progn</li>
+<li>cond</li>
+<li>if/unless</li>
+<li>and/or</li>
+<li>member</li>
+<li>push</li>
+<li>print/princ/prin1/prin1-to-string/princ-to-string</li>
+<li>read/read-from-string/read-line</li>
+<li>concatenate</li>
+<li>coerce</li>
+<li>fresh-line</li>
+<li>char-upcase/char-downcase</li>
+</ul>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/life/2012/04/24/" itemprop="url">
                   折腾
                 </a>
@@ -1464,21 +1605,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">179</span>
+              <span class="site-state-item-count">180</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-count">24</span>
               <span class="site-state-item-name">分类</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-count">66</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
