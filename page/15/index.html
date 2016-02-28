@@ -224,6 +224,189 @@
             
               
                 
+                <a class="post-title-link" href="/lisp/2012/07/07/dice-of-doom-v4/" itemprop="url">
+                  Dice of Doom v4
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-07-07T00:00:00+08:00" content="2012-07-07">
+              2012-07-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/lisp/" itemprop="url" rel="index">
+                    <span itemprop="name">lisp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/lisp/2012/07/07/dice-of-doom-v4/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/07/07/dice-of-doom-v4/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="最终版的Dice_of_Doom">最终版的Dice of Doom</h1><p>这个游戏终于结束了，基本上这本书的主要内容也算看完了。实际上，我根本就写不出这些东西，源码也读的云里雾里。但这是一本很有趣的书，我想看完htdp之后用htdp推荐风格重新处理下这本书的代码，顺便也复习一下。</p>
+<h2 id="让Dice_of_Doom_更加的有趣">让Dice of Doom 更加的有趣</h2><p>我们上回完成的版本虽然很棒，但总缺乏些什么。因为之前程序的设计，我们可以很轻易的扩展它，让它变得更有趣</p>
+<p>先加载我们之前的游戏<a href="对从官网下载的源码和书中的源码可能需要修改，具体参见前几篇读书笔记。">^1</a></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(load &#34;dice-v3&#34;);</span><br></pre></td></tr></table></figure>
+<h3 id="增加玩家数">增加玩家数</h3><p>因为我们之前的架构，增加玩家数很简单。为了增加玩家数后计算机能反应敏捷，让它变“傻”一点。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defparameter *num-players* 4)&#10;(defparameter *die-colors* &#39;((255 63 63) (63 63 255) (63 255 63) (255 63 255)))&#10;(defparameter *max-dice* 5)&#10;(defparameter *ai-level* 2)</span><br></pre></td></tr></table></figure>
+<h3 id="建立概率节点">建立概率节点</h3><p>我们本质上是向游戏树中加入几率节点，先升级attacking-moves函数，增加个board-attack-fail分支。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun attacking-moves (board cur-player spare-dice)&#10;  (labels ((player (pos)&#10;             (car (aref board pos)))&#10;           (dice (pos)&#10;             (cadr (aref board pos))))&#10;    (lazy-mapcan (lambda (src)&#10;                   (if (eq (player src) cur-player)&#10;                     (lazy-mapcan&#10;                       (lambda (dst)&#10;                         (if (and (not (eq (player dst) cur-player))&#10;                                  (&#62; (dice src) 1))&#10;                           (make-lazy (list (list (list src dst)&#10;                                                  (game-tree (board-attack board cur-player src dst (dice src))&#10;                                                             cur-player&#10;                                                             (+ spare-dice (dice dst))&#10;                                                             nil)&#10;                                                  (game-tree (board-attack-fail board cur-player src dst (dice src))&#10;                                                             cur-player&#10;                                                             (+ spare-dice (dice dst))&#10;                                                             nil))))&#10;                           (lazy-nil)))&#10;                       (make-lazy (neighbors src)))&#10;                     (lazy-nil)))&#10;                 (make-lazy (loop for n below *board-hexnum*&#10;                                  collect n)))))</span><br></pre></td></tr></table></figure>
+<p>board-attack-fail函数遍历所有位置。如果这个位置是攻击方就只能留下一个骰子</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun board-attack-fail (board player src dst dice)&#10;  (board-array (loop for pos from 0&#10;                     for hex across board&#10;                     collect (if (eq pos src)&#10;                               (list player 1)&#10;                               hex))))</span><br></pre></td></tr></table></figure>
+<h3 id="让骰子滚动起来">让骰子滚动起来</h3><p>一下程序让一堆骰子滚动起来，并判断谁赢了</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;rolling the dice&#10;(defun roll-dice (dice-num)&#10;  (let ((total (loop repeat dice-num&#10;                     sum (1+ (random 6)))))&#10;    (fresh-line)&#10;    (format t &#34;On ~a dice rolled ~a. &#34; dice-num total)&#10;    total))&#10;(defun roll-against (src-dice dst-dice)&#10;  (&#62; (roll-dice src-dice) (roll-dice dst-dice)))</span><br></pre></td></tr></table></figure>
+<p>我们还需要在游戏引擎中调用让骰子滚动的代码,选出正确的子树</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun pick-chance-branch (board move)&#10;  (labels ((dice (pos)&#10;             (cadr (aref board pos))))&#10;    (let ((path (car move)))&#10;      (if (or (null path) (roll-against (dice (car path))&#10;                                        (dice (cadr path))))&#10;        (cadr move)&#10;        (caddr move)))))</span><br></pre></td></tr></table></figure>
+<p>更新handle-computer函数让它调用选择几率分支的函数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun handle-human (tree)&#10;  (fresh-line)&#10;  (princ &#34;choose your move:&#34;)&#10;  (let ((moves (caddr tree)))&#10;    (labels ((print-moves (moves n)&#10;               (unless (lazy-null moves)&#10;                 (let* ((move (lazy-car moves))&#10;                        (action (car move)))&#10;                   (fresh-line)&#10;                   (format t &#34;~a. &#34; n)&#10;                   (if action&#10;                     (format t &#34;~a -&#62; ~a&#34; (car action) (cadr action))&#10;                     (princ &#34;end turn&#34;)))&#10;                 (print-moves (lazy-cdr moves) (1+ n)))))&#10;      (print-moves moves 1))&#10;    (fresh-line)&#10;    (pick-chance-branch (cadr tree) (lazy-nth (1- (read)) moves))))</span><br></pre></td></tr></table></figure>
+<p>同样我们可以处理handle-computer函数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun handle-computer (tree)&#10;  (let ((ratings (get-ratings (limit-tree-depth tree *ai-level*) (car tree))))&#10;    (pick-chance-branch&#10;      (cadr tree)&#10;      (lazy-nth (position (apply #&#39;max ratings) ratings) (caddr tree)))))</span><br></pre></td></tr></table></figure>
+<h3 id="升级AI">升级AI</h3><p>但现在还有个问题，AI还没有考虑骰子的滚动，依然认为骰子多的一定获胜。因此需要更新AI。</p>
+<p>根据概率论原理，我们可以得到这样一个矩阵来表征攻击成功的概率</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">防守方\攻击方</th>
+<th style="text-align:center">2</th>
+<th style="text-align:center">3</th>
+<th style="text-align:center">4</th>
+<th style="text-align:center">5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0.84</td>
+<td style="text-align:center">0.97</td>
+<td style="text-align:center">1.0</td>
+<td style="text-align:center">1.0</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">0.44</td>
+<td style="text-align:center">0.78</td>
+<td style="text-align:center">0.94</td>
+<td style="text-align:center">0.99</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">0.15</td>
+<td style="text-align:center">0.45</td>
+<td style="text-align:center">0.74</td>
+<td style="text-align:center">0.91</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">0.04</td>
+<td style="text-align:center">0.19</td>
+<td style="text-align:center">0.46</td>
+<td style="text-align:center">0.72</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">0.01</td>
+<td style="text-align:center">0.06</td>
+<td style="text-align:center">0.22</td>
+<td style="text-align:center">0.46</td>
+</tr>
+</tbody>
+</table>
+<p>现在把这个概率交给计算机，更新get-ratings函数,给评分加权</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun get-ratings (tree player)&#10;  (let ((board (cadr tree)))&#10;    (labels ((dice (pos)&#10;               (cadr (aref board pos))))&#10;      (take-all (lazy-mapcar&#10;                  (lambda (move)&#10;                    (let ((path (car move)))&#10;                      (if path&#10;                        (let* ((src (car path))&#10;                               (dst (cadr path))&#10;                               (odds (aref (aref *dice-odds*&#10;                                                 (1- (dice dst)))&#10;                                           (- (dice src) 2))))&#10;                          (+ (* odds (rate-position (cadr move) player))&#10;                             (* (- 1 odds) (rate-position (caddr move)&#10;                                                          player))))&#10;                        (rate-position (cadr move) player))))&#10;                  (caddr tree))))))</span><br></pre></td></tr></table></figure>
+<p>为了让修剪游戏树的函数能工作，还需要做些修改让它能处理新的游戏树。同时为了简化不再使用alpha-beta算法。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun limit-tree-depth (tree depth)&#10;  (list (car tree)&#10;        (cadr tree)&#10;        (if (zerop depth)&#10;          (lazy-nil)&#10;          (lazy-mapcar (lambda (move)&#10;                         (cons (car move)&#10;                               (mapcar (lambda (x)&#10;                                         (limit-tree-depth x (1- depth)))&#10;                                       (cdr move))))&#10;                       (caddr tree)))))&#10;;We mapcar across the tail of each move, so trimming is performed on&#10;;both branches of any chance nodes.</span><br></pre></td></tr></table></figure>
+<h3 id="改进增援方案">改进增援方案</h3><p>之前是依据消灭敌人多少来决定增援骰子数。现在我们换一种方法：依据占据的最大领地来决定增援多少。这使游戏的地缘性更加复杂。</p>
+<p>回想我们之前在<a href="http://reverland.org/Tech/2012/05/01/grand-theft-wumpus/">wumpus游戏</a>里写过的相似函数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun get-connected (board player pos)&#10;  (labels ((check-pos (pos visited)&#10;             (if (and (eq (car (aref board pos)) player)&#10;                      (not (member pos visited)))&#10;               (check-neighbors (neighbors pos) (cons pos visited))&#10;               visited))&#10;           (check-neighbors (lst visited)&#10;             (if lst&#10;               (check-neighbors (cdr lst) (check-pos (car lst) visited))&#10;               visited)))&#10;    (check-pos pos &#39;())))</span><br></pre></td></tr></table></figure>
+<p>获得最大的集群,最后添加援军，注意，spare-dice仍然作为参数传递但已经不再被add-new-dice使用了。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun largest-cluster-size (board player)&#10;  (labels ((f (pos visited best)&#10;             (if (&#60; pos *board-hexnum*)&#10;               (if (and (eq (car (aref board pos)) player)&#10;                        (not (member pos visited)))&#10;                 (let* ((cluster (get-connected board player pos))&#10;                        (size (length cluster)))&#10;                   (if (&#62; size best)&#10;                     (f (1+ pos) (append cluster visited) size)&#10;                     (f (1+ pos) (append cluster visited) best)))&#10;                 (f (1+ pos) visited best))&#10;               best)))&#10;    (f 0 &#39;() 0)))&#10;(defun add-new-dice (board player spare-dice)&#10;  (labels ((f (lst n)&#10;             (cond ((zerop n) lst)&#10;                   ((null lst) nil)&#10;                   (t (let ((cur-player (caar lst))&#10;                            (cur-dice (cadar lst)))&#10;                        (if (and (eq cur-player player) (&#60; cur-dice *max-dice*))&#10;                          (cons (list cur-player (1+ cur-dice))&#10;                                (f (cdr lst) (1- n)))&#10;                          (cons (car lst) (f (cdr lst) n))))))))&#10;    (board-array (f (coerce board &#39;list)&#10;                   (largest-cluster-size board player)))))</span><br></pre></td></tr></table></figure>
+<p>享受你的劳动成果吧</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(serve #&#39;dod-request-handleer)</span><br></pre></td></tr></table></figure>
+<h2 id="疑问">疑问</h2><p>我发现我可以选中任何自己的领地，只要上面的骰子数大于2。我可以攻击任何强大的敌人，而且一定能成功。不知道哪里的更改或错误！！</p>
+<hr>
+<h2 id="Footnotes">Footnotes</h2>
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/math/2012/07/05/" itemprop="url">
                   概率论与数理统计基础
                 </a>
@@ -1409,173 +1592,12 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/lisp/2012/06/16/dsl/" itemprop="url">
-                  传说中的DSL
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-06-16T00:00:00+08:00" content="2012-06-16">
-              2012-06-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/lisp/" itemprop="url" rel="index">
-                    <span itemprop="name">lisp</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/lisp/2012/06/16/dsl/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/06/16/dsl/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="lisp中的dsl">lisp中的dsl</h1><h2 id="什么是dsl，为什么要dsl">什么是dsl，为什么要dsl</h2><p>显然对于特定的领域，特定的程序是更好的解决方案，这个程序就是DSL[1].lisp非常方便来实现DSL。在land of lisp一书中进行了两种dsl，一种是生成xml或html，另一种是对我们之前<a href="/lisp/2012/04/26/a-text-game-engine-written-by-lisp/">wizard游戏的</a>中的游戏命令进行dsl。</p>
-<h2 id="生成svg文件">生成svg文件</h2><p>关于svg文件不加以详述，读者可以参考<a href="http://zh.wikipedia.org/zh/SVG" target="_blank" rel="external">这里</a> 。这非常重要，只有理解了xml文件的格式才能继续我们的dsl。svg采用xml格式，顺便我们也说说生成网页的dsl。</p>
-<p>首先写一个辅助函数，</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Creating XML and HTML with the tag Macro&#10;;Writing a Macro Helper Function&#10;(defun print-tag (name alst closingp)&#10;  (princ #\&#60;)&#10;  (when closingp&#10;    (princ #\/))&#10;  (princ (string-downcase name))&#10;  (mapc (lambda (att);&#20351;&#29992;mapc&#26159;&#20026;&#20102;&#21103;&#20316;&#29992;&#12290;&#23427;&#24635;&#36820;&#22238;&#31532;&#19968;&#20010;&#21442;&#25968;&#10;          (format t &#34; ~a=\&#34;~a\&#34;&#34; (string-downcase (car att)) (cdr att)))&#10;        alst)&#10;  (princ #\&#62;))</span><br></pre></td></tr></table></figure>
-<p>可以试试</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(print-tag &#39;mytag &#39;((color . blue) (height . 9)) nil)</span><br></pre></td></tr></table></figure>
-<p>然后创造生成标签的宏，宏能在以下几个方面提供不可替代的改善：</p>
-<ul>
-<li>标签总是成对的，如果想要嵌套标签，函数办不到。因为它要求我们在嵌套标签被求值之前和之后执行代码。这在宏中是可能的，函数却做不到。</li>
-<li>标签名和属性名通常不必通过动态方式改变。因此，把标签名通过单引号引用是多余的。换句话说，标签名应该默认被对待为想数据模式一样。</li>
-<li>不像标签名，属性值则应该动态生成。我们的宏将拥有这么一个语法去把属性值放到代码模式，让我们可以执行lisp代码去生成这些值。</li>
-</ul>
-<p>总之我们想让我们的宏看上去这样：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(tag mytag (color &#39;blue height (+ 4 5)))&#10;&#60;mytag color=&#34;BLUE&#34; height=&#34;9&#34;&#62;&#60;mytag&#62;</span><br></pre></td></tr></table></figure>
-<p>我们这么做：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defmacro tag (name atts &#38;body body)&#10;  `(progn (print-tag &#39;,name&#10;                     (list ,@(mapcar (lambda (x)&#10;                                       `(cons &#39;,(car x) ,(cdr x)))&#10;                                     (pairs atts)))&#10;                     nil)&#10;          ,@body&#10;          (print-tag &#39;,name nil t)))</span><br></pre></td></tr></table></figure>
-<p>很好的实现了以上要求，可以展开看看：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(macroexpand &#39;(tag mytag (color &#39;blue height (+ 4 5))))</span><br></pre></td></tr></table></figure>
-<p>可以看看如何实现嵌套的：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(tag mytag (color &#39;blue size &#39;big)&#10;  (tag first_inner_tag ())&#10;  (tag second_inner_tag ()))</span><br></pre></td></tr></table></figure>
-<p>我们还可以用来生成html</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(tag html ();&#27604;&#20043;&#21069;&#25105;&#20204;&#29983;&#25104;html&#30340;&#29256;&#26412;&#22909;&#30475;&#22810;&#20102;&#8230;&#8230;&#10;  (tag body ()&#10;    (princ &#34;Hello World!&#34;)))</span><br></pre></td></tr></table></figure>
-<p>html的标签是特定的，我们还能为特定的html标签编写宏：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defmacro html (&#38;body body)&#10;  `(tag html ()&#10;     ,@body))&#10;(defmacro body (&#38;body body)&#10;  `(tag body ()&#10;     ,@body))&#10;(html (body (princ &#34;Hi boys&#34;)))</span><br></pre></td></tr></table></figure>
-<p>好了，不跑题了，开始写生成svg的宏</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Creating SVG-Specific Macros and Functions &#10;(defmacro svg (&#38;body body)&#10;  `(tag svg (xmlns &#34;http://www.w3.org/2000/svg&#34;;&#22768;&#26126;&#26631;&#20934;&#22312;&#21738;&#37324;&#10;             &#34;xmlns:xlink&#34; &#34;http://www.w3.org/1999/xlink&#34;);&#38142;&#25509;&#10;        ,@body))</span><br></pre></td></tr></table></figure>
-<p>写一个函数专门加深色彩，方便我们绘图</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun brightness (col amt)&#10;  (mapcar (lambda (x)&#10;            (min 255 (max 0 (+ x amt))))&#10;          col))&#10;(brightness &#39;(255 0 0) -100)</span><br></pre></td></tr></table></figure>
-<p>使用一个svg样式函数生成颜色属性，边比内部颜色深.注意～{和～}可以起遍历的作用。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun svg-style (color)&#10;  (format nil&#10;          &#34;~&#123;fill:rgb(~a,~a,~a);stroke:rgb(~a,~a,~a)~&#125;&#34;&#10;          (append color;&#36793;&#30028;&#27604;&#20869;&#37096;&#39068;&#33394;&#26356;&#28145;&#10;                  (brightness color -100))))</span><br></pre></td></tr></table></figure>
-<p>于是得到生成圆的一个函数</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun circle (center radius color)&#10;  (tag circle (cx (car center)&#10;                  cy (cdr center)&#10;                  r radius&#10;                  style (svg-style color))))</span><br></pre></td></tr></table></figure>
-<p>最后可以简单的得到svg文件</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(svg (circle &#39;(50 .50) 50 &#39;(255 0 0))&#10;     (circle &#39;(100 . 100) 50 &#39;(0 0 255)))</span><br></pre></td></tr></table></figure>
-<p>还可以写些更复杂的svg例子，比如一个多边形</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Building a More Complicated SVG Example&#10;(defun polygon (points color)&#10;  (tag polygon (points (format nil&#10;                               &#34;~&#123;~a,~a ~&#125;&#34;;~&#123;&#20801;&#35768;&#25105;&#20204;&#36845;&#20195;&#10;                               (mapcan (lambda (tp)&#10;                                         (list (car tp) (cdr tp)));mapcan&#26159;&#26377;append&#30340;mapcar&#10;                                       points))&#10;                       style (svg-style color))))</span><br></pre></td></tr></table></figure>
-<p>写个random-walk函数，我想读者应该知道是干什么的</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun random-walk (value length)&#10;  (unless (zerop length)&#10;    (cons value&#10;          (random-walk (if (zerop (random 2))&#10;                         (1- value)&#10;                         (1+ value))&#10;                       (1- length)))))&#10;(random-walk 100 10);&#27979;&#35797;</span><br></pre></td></tr></table></figure>
-<p>写进一个文件</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(with-open-file (*standard-output* &#34;random_walk.svg&#34;&#10;                                   :direction :output&#10;                                   :if-exists :supersede)&#10;  (svg (loop repeat 10&#10;             do (polygon (append &#39;((0 . 200))&#10;                                 (loop for x;&#21448;&#26159;&#36825;&#31181;&#39118;&#26684;&#65292;sbcl&#35782;&#21035;&#19981;&#20102;&#21834;&#10;                                       for y in (random-walk 100 400)&#10;                                       collect (cons x y))&#10;                                 &#39;((400 . 200)))&#10;                         (loop repeat 3&#10;                               collect (random 256))))))</span><br></pre></td></tr></table></figure>
-<p>用你的浏览器打开random_walk.svg看看吧，生成大概这样的图像:<br>“random_walk”:/images/random_walk.svg</p>
-<h2 id="对先前的游戏进行dsl">对先前的游戏进行dsl</h2><p>首先别忘了加载那个游戏</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Creating Custom Game Commands for Wizard&#39;s Adventure Game&#10;(load &#34;wizards_game&#34;)</span><br></pre></td></tr></table></figure>
-<p>添加两个命令，一个把链条和篮子焊接在一起，另一个用焊好的篮子从井里打水。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;Creating New Game Commands by Hand&#10;;A Command for Welding&#10;(defun have (object)&#10;  (member object (inventory)))&#10;(defparameter *chain-welded* nil)&#10;(defun weld (subject object)&#10;  (if (and (eq *location* &#39;attic)&#10;           (eq subject &#39;chain)&#10;           (eq obejct &#39;bucket)&#10;           (have &#39;chain)&#10;           (have &#39;bucket)&#10;           (not *chain-welded*))&#10;    (progn (setf *chain-welded* t)&#10;           &#39;(the chain is now securely welded to the bucket.))&#10;    &#39;(you cannot weld like that)))&#10;(weld &#39;chain &#39;bucket)&#10;;(game-repl)&#10;(pushnew &#39;weld *allowed-commands*);&#36825;&#24456;&#20851;&#38190;&#65292;&#19981;&#26159;&#21527;&#65311;&#10;;A Command for Dunking&#10;(setf *bucket-filled* nil)&#10;&#10;(defun dunk (subject object)&#10;  (if (and (eq *location* &#39;garden)&#10;           (eq subject &#39;bucket)&#10;           (eq object &#39;well)&#10;           (have &#39;bucket)&#10;           *chain-welded*)&#10;    (progn (setf *bucket-filled* &#39;t)&#10;           &#39;(the bucket is now full of water))&#10;    &#39;(you cannot dunk like that.)))&#10;(pushnew &#39;dunk *allowed-commands*)</span><br></pre></td></tr></table></figure>
-<p>发现没？这两种命令很相似，我们来dsl,重新用我们的宏来重新添加上两个命令，另为我们还添加了一个更复杂的命令splash，把水泼到巫师脸上……</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;The game-action Macro&#10;(defmacro game-action (command subj obj place &#38;body body)&#10;  (let1 subject (gensym) (let1 object (gensym) &#10;  `(progn (defun ,command (,subject ,object)&#10;            (if (and (eq *location* &#39;,place)&#10;                     (eq ,subject &#39;,subj)&#10;                     (eq ,object &#39;,obj)&#10;                     (have &#39;,subj))&#10;            ,@body &#10;            &#39;(i cant ,command like that.)))&#10;  (pushnew &#39;,command *allowed-commands*)))))&#10;;rewrite&#10;(defparameter *chain-welded* nil)&#10;(game-action weld chain bucket attic&#10;  (if (and (have &#39;bucket) (not *chain-welded*))&#10;    (progn (setf *chain-welded* &#39;t)&#10;           &#39;(the chain is now securely welded to the bucket.))&#10;    &#39;(you do not have a bucket.)))&#10;(setf *bucket-filled* nil)&#10;(game-action dunk bucket well garden&#10;  (if *chain-welded*&#10;    (progn (setf *bucket-filled* &#39;t)&#10;           &#39;(the bucket is now full of water))&#10;    &#39;(the water level is too low to reach.)))&#10;(game-action splash bucket wizard living-room&#10;  (cond ((not *bucket-filled*) &#39;(the bucket has nothing in it.))&#10;        ((have &#39;frog) &#39;(the wizard awakens and sees that you stole his frog.&#10;                            he is so upset he banishes you to the&#10;                            netherworlds- you lose! the end.))&#10;        (t &#39;(the wizard awakens from his slumber and greets you warmly.&#10;                 he hands you the magic low-carb donut- you win! the end.))))</span><br></pre></td></tr></table></figure>
-<p>试试我们的新游戏，很棒不是？</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(game-repl)</span><br></pre></td></tr></table></figure>
-<h2 id="小结">小结</h2><ul>
-<li>当你需要一些特定领域的古怪的程序，宏是很棒的方案。通过它们，你可以创建自己的dsl。</li>
-<li>通常，首先为宏写一个辅助函数，然后写宏来提供宏能提供的提升。这些提高通常关乎能更清晰更安全地语法来使用代码。</li>
-<li>你可以混合DSL和常规Lisp 程序。lisp程序可以更方便你调试。</li>
-<li>DSL非常有用，当你需要写下非常特定代码——无论是生成网页，代码，或是画图，或是建立特殊的游戏命令的代码。</li>
-</ul>
-<hr>
-
-<h2 id="照例的废话">照例的废话</h2><p>寝室的室友在看dota比赛，不要这么激情好么，吵死了。晚上试着跑了将近一个小时步，感觉不错。</p>
-<p>[^1]: domian-specific language</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/14/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/16/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/14/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" href="/page/16/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1616,7 +1638,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">180</span>
+              <span class="site-state-item-count">181</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

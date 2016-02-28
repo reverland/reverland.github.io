@@ -224,6 +224,627 @@
             
               
                 
+                <a class="post-title-link" href="/python/2012/11/12/numpyscipy/" itemprop="url">
+                  使用Numpy和Scipy处理图像
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-11-12T00:00:00+08:00" content="2012-11-12">
+              2012-11-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2012/11/12/numpyscipy/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/11/12/numpyscipy/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="Image_manipulation_and_processing_using_Numpy_and_Scipy">Image manipulation and processing using Numpy and Scipy</h1><p>翻译自：<a href="http://scipy-lectures.github.com/advanced/image_processing/index.html" target="_blank" rel="external">http://scipy-lectures.github.com/advanced/image_processing/index.html</a></p>
+<p>作者：Emmanuelle Gouillart, Gaël Varoquaux</p>
+<pre><code>图像 = <span class="number">2</span>-D 数值数组
+
+(或者 <span class="number">3</span>-D: CT, MRI, <span class="number">2</span>D + 时间; <span class="number">4</span>-D, ...)
+
+这里 图像 == Numpy数组 np.<span class="built_in">array</span>
+</code></pre><p>这个教程中使用的工具：</p>
+<ul>
+<li>numpy：基本数组操作</li>
+<li><p>scipy：<code>scipy.ndimage</code>子模块致力于图像处理(n维图像)。参见<a href="http://docs.scipy.org/doc/scipy/reference/tutorial/ndimage.html" target="_blank" rel="external">http://docs.scipy.org/doc/scipy/reference/tutorial/ndimage.html</a></p>
+<pre><code><span class="keyword">from</span> scipy <span class="keyword">import</span> ndimage
+</code></pre></li>
+<li><p>一些例子用到了使用np.array的特殊的工具箱：</p>
+<ul>
+<li><a href="http://scikits-image.org/" target="_blank" rel="external">Scikit Image</a></li>
+<li><a href="http://scikit-learn.org/" target="_blank" rel="external">scikit-learn</a></li>
+</ul>
+</li>
+</ul>
+<p>图像中的常见问题有：</p>
+<ul>
+<li>输入/输出，呈现图像</li>
+<li>基本操作：裁剪、翻转、旋转……</li>
+<li>图像滤镜：消噪，锐化</li>
+<li>图像分割：不同对应对象的像素标记</li>
+</ul>
+<p>更有力和完整的模块：</p>
+<ul>
+<li><a href="http://opencv.willowgarage.com/documentation/python/cookbook.html" target="_blank" rel="external">OpenCV</a> (Python绑定)</li>
+<li><a href="http://www.cellprofiler.org/" target="_blank" rel="external">CellProfiler</a></li>
+<li><a href="http://www.itk.org/" target="_blank" rel="external">ITK</a>,Python绑定</li>
+<li>更多……</li>
+</ul>
+<p><strong>目录</strong></p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<h2 id="打开和读写图像文件">打开和读写图像文件</h2><p>将一个数组写入文件：</p>
+<pre><code><span class="keyword">In</span> [1]: from scipy import misc
+
+<span class="keyword">In</span> [2]: <span class="keyword">l</span> = misc.lena()
+
+<span class="keyword">In</span> [3]: misc.imsave('lena.png', <span class="keyword">l</span>)  # uses the Image module (PIL)
+
+<span class="keyword">In</span> [4]: import pylab <span class="keyword">as</span> <span class="keyword">pl</span>
+
+<span class="keyword">In</span> [5]: <span class="keyword">pl</span>.imshow(<span class="keyword">l</span>)
+<span class="keyword">Out</span>[5]: &lt;matplotlib.image.AxesImage at 0x4118110&gt;
+</code></pre><p>从一个图像文件创建数组：</p>
+<pre><code>In [<span class="number">7</span>]: lena = misc.<span class="function"><span class="title">imread</span><span class="params">(<span class="string">'lena.png'</span>)</span></span>
+
+In [<span class="number">8</span>]: <span class="function"><span class="title">type</span><span class="params">(lena)</span></span>
+Out[<span class="number">8</span>]: numpy<span class="class">.ndarray</span>
+
+In [<span class="number">9</span>]: lena<span class="class">.shape</span>, lena<span class="class">.dtype</span>
+Out[<span class="number">9</span>]: ((<span class="number">512</span>, <span class="number">512</span>), <span class="function"><span class="title">dtype</span><span class="params">(<span class="string">'uint8'</span>)</span></span>)
+</code></pre><p>8位图像(0-255)的dtype是uint8</p>
+<p>打开一个raw文件(相机， 3-D图像)</p>
+<pre><code><span class="keyword">In</span> [<span class="number">10</span>]: l.tofile(<span class="string">'lena.raw'</span>)  # 创建一个raw文件
+
+<span class="keyword">In</span> [<span class="number">14</span>]: lena_from_raw = np.fromfile(<span class="string">'lena.raw'</span>, dtype=np.int64)
+
+<span class="keyword">In</span> [<span class="number">15</span>]: lena_from_raw.shape
+<span class="keyword">Out</span>[<span class="number">15</span>]: (<span class="number">262144</span>,)
+
+<span class="keyword">In</span> [<span class="number">16</span>]: lena_from_raw.shape = (<span class="number">512</span>, <span class="number">512</span>)
+
+<span class="keyword">In</span> [<span class="number">17</span>]: import os
+
+<span class="keyword">In</span> [<span class="number">18</span>]: os.<span class="keyword">remove</span>(<span class="string">'lena.raw'</span>)
+</code></pre><p>需要知道图像的shape和dtype(如何区分隔数据字节)</p>
+<p>对于大数据，使用<code>np.memmap</code>进行内存映射：</p>
+<pre><code>In [<span class="number">21</span>]: lena_memmap = np.<span class="function"><span class="title">memmap</span><span class="params">(<span class="string">'lena.raw'</span>, dtype=np.int64, shape=(<span class="number">512</span>,<span class="number">512</span>)</span></span>)
+</code></pre><p>(数据从文件读取，而不是载入内存)</p>
+<p>处理一个列表的图像文件：</p>
+<pre><code>In [<span class="number">22</span>]: <span class="keyword">for</span> <span class="tag">i</span> <span class="keyword">in</span> <span class="function"><span class="title">range</span><span class="params">(<span class="number">10</span>)</span></span>:
+   ....:     im = np<span class="class">.random</span><span class="class">.random_integers</span>(<span class="number">0</span>, <span class="number">255</span>, <span class="number">10000</span>).<span class="function"><span class="title">reshape</span><span class="params">((<span class="number">100</span>, <span class="number">100</span>)</span></span>)
+   ....:     misc.<span class="function"><span class="title">imsave</span><span class="params">(<span class="string">'random_%02d.png'</span> % i, im)</span></span>
+   ....:     
+
+In [<span class="number">23</span>]: from glob import glob
+
+In [<span class="number">24</span>]: filelist = <span class="function"><span class="title">glob</span><span class="params">(<span class="string">'random*.png'</span>)</span></span>
+
+In [<span class="number">25</span>]: filelist.<span class="function"><span class="title">sort</span><span class="params">()</span></span>
+</code></pre><h2 id="呈现图像">呈现图像</h2><p>使用<code>matplotlib</code>和<code>imshow</code>将图像呈现在matplotlib图像(figure)中：</p>
+<pre><code>In [<span class="number">29</span>]: l = misc.<span class="function"><span class="title">lena</span><span class="params">()</span></span>
+
+In [<span class="number">30</span>]: import matplotlib<span class="class">.pyplot</span> as plt
+
+In [<span class="number">31</span>]: plt.<span class="function"><span class="title">imshow</span><span class="params">(l, cmap=plt.cm.gray)</span></span>
+Out[<span class="number">31</span>]: &lt;matplotlib<span class="class">.image</span><span class="class">.AxesImage</span> at <span class="number">0</span>x4964990&gt;
+</code></pre><p>通过设置最大最小之增加对比：</p>
+<pre><code><span class="keyword">In</span> [<span class="number">33</span>]: plt.imshow(l, cmap=plt.cm.gray, vmin=<span class="number">30</span>, vmax=<span class="number">200</span>)
+<span class="keyword">Out</span>[<span class="number">33</span>]: &lt;matplotlib.image.AxesImage <span class="preprocessor">at</span> <span class="number">0x50cb790</span>&gt;
+
+<span class="keyword">In</span> [<span class="number">34</span>]: plt.axis(<span class="string">'off'</span>)  # 移除axes和ticks
+<span class="keyword">Out</span>[<span class="number">34</span>]: (-<span class="number">0.5</span>, <span class="number">511.5</span>, <span class="number">511.5</span>, -<span class="number">0.5</span>)
+</code></pre><p>绘制等高线：<a href="占位">^1</a></p>
+<pre><code>ln[<span class="number">7</span>]: plt.contour(l, [<span class="number">60</span>, <span class="number">211</span>])
+</code></pre><p>更好地观察强度变化，使用<code>interpolate=‘nearest’</code>：</p>
+<pre><code>In [<span class="number">7</span>]: plt.<span class="function"><span class="title">imshow</span><span class="params">(l[<span class="number">200</span>:<span class="number">220</span>, <span class="number">200</span>:<span class="number">220</span>], cmap=plt.cm.gray)</span></span>
+Out[<span class="number">7</span>]: &lt;matplotlib<span class="class">.image</span><span class="class">.AxesImage</span> at <span class="number">0</span>x3bbe610&gt;
+
+In [<span class="number">8</span>]: plt.<span class="function"><span class="title">imshow</span><span class="params">(l[<span class="number">200</span>:<span class="number">220</span>, <span class="number">200</span>:<span class="number">220</span>], cmap=plt.cm.gray, interpolation=<span class="string">'nearest'</span>)</span></span>
+Out[<span class="number">8</span>]: &lt;matplotlib<span class="class">.image</span><span class="class">.AxesImage</span> at <span class="number">0</span>x3ed3250&gt;
+</code></pre><p>其它包有时使用图形工具箱来可视化(GTK，Qt)：[^2]</p>
+<pre><code>In [<span class="number">9</span>]: import skimage<span class="class">.io</span> as im_io
+
+In [<span class="number">21</span>]: im_io.<span class="function"><span class="title">use_plugin</span><span class="params">(<span class="string">'gtk'</span>, <span class="string">'imshow'</span>)</span></span>
+
+In [<span class="number">22</span>]: im_io.<span class="function"><span class="title">imshow</span><span class="params">(l)</span></span>
+</code></pre><p><strong>3-D可视化：Mayavi</strong></p>
+<p>参见<a href="http://scipy-lectures.github.com/advanced/3d_plotting/index.html#mayavi-label" target="_blank" rel="external">可用Mayavi进行3-D绘图</a>和<a href="http://scipy-lectures.github.com/advanced/3d_plotting/3d_plotting_functions.html#mayavi-voldata-label" target="_blank" rel="external">体积数据</a></p>
+<ul>
+<li>图形平面工具</li>
+<li>等值面</li>
+<li>……</li>
+</ul>
+<h2 id="基本操作">基本操作</h2><p>图像是数组：使用整个<code>numpy</code>机理。</p>
+<p><img src="http://scipy-lectures.github.com/_images/axis_convention.png" alt="basic"></p>
+<pre><code>&gt;&gt;&gt; lena = misc.lena()
+&gt;&gt;&gt; lena[<span class="number">0</span>, <span class="number">40</span>]
+<span class="number">166</span>
+&gt;&gt;&gt; <span class="preprocessor"># Slicing</span>
+&gt;&gt;&gt; lena[<span class="number">10</span>:<span class="number">13</span>, <span class="number">20</span>:<span class="number">23</span>]
+<span class="built_in">array</span>([[<span class="number">158</span>, <span class="number">156</span>, <span class="number">157</span>],
+[<span class="number">157</span>, <span class="number">155</span>, <span class="number">155</span>],
+[<span class="number">157</span>, <span class="number">157</span>, <span class="number">158</span>]])
+&gt;&gt;&gt; lena[<span class="number">100</span>:<span class="number">120</span>] = <span class="number">255</span>
+&gt;&gt;&gt;
+&gt;&gt;&gt; lx, ly = lena.shape
+&gt;&gt;&gt; X, Y = np.ogrid[<span class="number">0</span>:lx, <span class="number">0</span>:ly]
+&gt;&gt;&gt; mask = (X - lx/<span class="number">2</span>)**<span class="number">2</span> + (Y - ly/<span class="number">2</span>)**<span class="number">2</span> &gt; lx*ly/<span class="number">4</span>
+&gt;&gt;&gt; <span class="preprocessor"># Masks</span>
+&gt;&gt;&gt; lena[mask] = <span class="number">0</span>
+&gt;&gt;&gt; <span class="preprocessor"># Fancy indexing</span>
+&gt;&gt;&gt; lena[range(<span class="number">400</span>), range(<span class="number">400</span>)] = <span class="number">255</span>
+</code></pre><h3 id="统计信息">统计信息</h3><pre><code>&gt;&gt;&gt; lena = scipy.<span class="function"><span class="title">lena</span><span class="params">()</span></span>
+&gt;&gt;&gt; lena.<span class="function"><span class="title">mean</span><span class="params">()</span></span>
+<span class="number">124.04678344726562</span>
+&gt;&gt;&gt; lena.<span class="function"><span class="title">max</span><span class="params">()</span></span>, lena.<span class="function"><span class="title">min</span><span class="params">()</span></span>
+(<span class="number">245</span>, <span class="number">25</span>)
+</code></pre><p><code>np.histogram</code></p>
+<h3 id="几何转换">几何转换</h3><pre><code><span class="prompt">&gt;&gt;</span>&gt; lena = scipy.lena()
+<span class="prompt">&gt;&gt;</span>&gt; lx, ly = lena.shape
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># Cropping</span>
+<span class="prompt">&gt;&gt;</span>&gt; crop_lena = lena[lx/<span class="number">4</span><span class="symbol">:-lx/</span><span class="number">4</span>, ly/<span class="number">4</span><span class="symbol">:-ly/</span><span class="number">4</span>]
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># up &lt;-&gt; down flip</span>
+<span class="prompt">&gt;&gt;</span>&gt; flip_ud_lena = np.flipud(lena)
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># rotation</span>
+<span class="prompt">&gt;&gt;</span>&gt; rotate_lena = ndimage.rotate(lena, <span class="number">45</span>)
+<span class="prompt">&gt;&gt;</span>&gt; rotate_lena_noreshape = ndimage.rotate(lena, <span class="number">45</span>, reshape=<span class="constant">False</span>)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_geom_lena_1.png" alt="Geometrical transformations"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_geom_lena.html#example-plot-geom-lena-py" target="_blank" rel="external">示例源码</a></p>
+<h2 id="图像滤镜">图像滤镜</h2><p><strong>局部滤镜</strong>：用相邻像素值的函数替代当前像素的值。</p>
+<p>相邻：方形(指定大小)，圆形， 或者更多复杂的<em>结构元素</em>。</p>
+<h3 id="模糊/平滑">模糊/平滑</h3><p><code>scipy.ndimage</code>中的<em>高斯滤镜</em>：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from scipy import misc
+<span class="prompt">&gt;&gt;</span>&gt; from scipy import ndimage
+<span class="prompt">&gt;&gt;</span>&gt; lena = misc.lena()
+<span class="prompt">&gt;&gt;</span>&gt; blurred_lena = ndimage.gaussian_filter(lena, sigma=<span class="number">3</span>)
+<span class="prompt">&gt;&gt;</span>&gt; very_blurred = ndimage.gaussian_filter(lena, sigma=<span class="number">5</span>)
+</code></pre><p><em>均匀滤镜</em></p>
+<pre><code>&gt;&gt;&gt; local_mean = ndimage.<span class="function"><span class="title">uniform_filter</span><span class="params">(lena, size=<span class="number">11</span>)</span></span>
+</code></pre><p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_blur.html#example-plot-blur-py" target="_blank" rel="external">示例源码</a></p>
+<h3 id="锐化">锐化</h3><p>锐化模糊图像：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from scipy import misc
+<span class="prompt">&gt;&gt;</span>&gt; lena = misc.lena()
+<span class="prompt">&gt;&gt;</span>&gt; blurred_l = ndimage.gaussian_filter(lena, <span class="number">3</span>)
+</code></pre><p>通过增加拉普拉斯近似增加边缘权重：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; filter_blurred_l = ndimage.gaussian_filter(blurred_l, <span class="number">1</span>)
+<span class="prompt">&gt;&gt;</span>&gt; alpha = <span class="number">30</span>
+<span class="prompt">&gt;&gt;</span>&gt; sharpened = blurred_l + alpha * (blurred_l - filter_blurred_l)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_sharpen_1.png" alt="sharpen"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_sharpen.html#example-plot-sharpen-py" target="_blank" rel="external">示例源码</a></p>
+<h3 id="消噪">消噪</h3><p>向lena增加噪声：</p>
+<pre><code>&gt;&gt;&gt; from scipy import misc
+&gt;&gt;&gt; l = misc.<span class="function"><span class="title">lena</span><span class="params">()</span></span>
+&gt;&gt;&gt; l = l[<span class="number">230</span>:<span class="number">310</span>, <span class="number">210</span>:<span class="number">350</span>]
+&gt;&gt;&gt; noisy = l + <span class="number">0.4</span>*l.<span class="function"><span class="title">std</span><span class="params">()</span></span>*np<span class="class">.random</span><span class="class">.random</span>(l.shape)
+</code></pre><p><em>高斯滤镜</em>平滑掉噪声……还有边缘：</p>
+<pre><code>&gt;&gt;&gt; gauss_denoised = ndimage.<span class="function"><span class="title">gaussian_filter</span><span class="params">(noisy, <span class="number">2</span>)</span></span>
+</code></pre><p>大多局部线性各向同性滤镜都模糊图像(<code>ndimage.uniform_filter</code>)</p>
+<p><em>中值滤镜</em>更好地保留边缘：</p>
+<pre><code>&gt;&gt;&gt; med_denoised = ndimage.<span class="function"><span class="title">median_filter</span><span class="params">(noisy, <span class="number">3</span>)</span></span>
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_lena_denoise_1.png" alt="guassian&amp;median"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_lena_denoise.html#example-plot-lena-denoise-py" target="_blank" rel="external">示例源码</a></p>
+<p>中值滤镜：对直边界效果更好(低曲率)：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; im = np.zeros((<span class="number">20</span>, <span class="number">20</span>))
+<span class="prompt">&gt;&gt;</span>&gt; im[<span class="number">5</span><span class="symbol">:-</span><span class="number">5</span>, <span class="number">5</span><span class="symbol">:-</span><span class="number">5</span>] = <span class="number">1</span>
+<span class="prompt">&gt;&gt;</span>&gt; im = ndimage.distance_transform_bf(im)
+<span class="prompt">&gt;&gt;</span>&gt; im_noise = im + <span class="number">0</span>.<span class="number">2</span>*np.random.randn(*im.shape)
+<span class="prompt">&gt;&gt;</span>&gt; im_med = ndimage.median_filter(im_noise, <span class="number">3</span>)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_denoising_1.png" alt="median"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_denoising.html#example-plot-denoising-py" target="_blank" rel="external">示例源码</a></p>
+<p>其它排序滤波器：<code>ndimage.maximum_filter</code>,<code>ndimage.percentile_filter</code></p>
+<p>其它局部非线性滤波器：维纳滤波器(<code>scipy.signal.wiener</code>)等</p>
+<p><strong>非局部滤波器</strong></p>
+<p><em>总变差(TV)</em>消噪。找到新的图像让图像的总变差(正态L1梯度的积分)变得最小，当接近测量图像时：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># from skimage.filter import tv_denoise</span>
+<span class="prompt">&gt;&gt;</span>&gt; from tv_denoise import tv_denoise
+<span class="prompt">&gt;&gt;</span>&gt; tv_denoised = tv_denoise(noisy, weight=<span class="number">10</span>)
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># More denoising (to the expense of fidelity to data)</span>
+<span class="prompt">&gt;&gt;</span>&gt; tv_denoised = tv_denoise(noisy, weight=<span class="number">50</span>)
+</code></pre><p>总变差滤镜<code>tv_denoise</code>可以从<code>skimage</code>中获得，(文档:<a href="http://scikit-image.org/docs/dev/api/skimage.filter.html#denoise-tv" target="_blank" rel="external">http://scikit-image.org/docs/dev/api/skimage.filter.html#denoise-tv</a>)，但是为了方便我们在这个教程中作为一个<em>单独模块</em>导入。</p>
+<p><img src="http://scipy-lectures.github.com/_images/plot_lena_tv_denoise_1.png" alt="tv"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_lena_tv_denoise.html#example-plot-lena-tv-denoise-py" target="_blank" rel="external">示例源码</a></p>
+<h3 id="数学形态学">数学形态学</h3><p>参见：<a href="http://en.wikipedia.org/wiki/Mathematical_morphology" target="_blank" rel="external">http://en.wikipedia.org/wiki/Mathematical_morphology</a></p>
+<p><em>结构元素</em>：</p>
+<pre><code>&gt;&gt;&gt; el = ndimage.generate_binary_structure(<span class="number">2</span>, <span class="number">1</span>)
+&gt;&gt;&gt; el
+<span class="keyword">array</span>([[<span class="keyword">False</span>,  <span class="keyword">True</span>, <span class="keyword">False</span>],
+       [ <span class="keyword">True</span>,  <span class="keyword">True</span>,  <span class="keyword">True</span>],
+       [<span class="keyword">False</span>,  <span class="keyword">True</span>, <span class="keyword">False</span>]], dtype=<span class="keyword">bool</span>)
+&gt;&gt;&gt; el.astype(np.<span class="keyword">int</span>)
+<span class="keyword">array</span>([[<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>],
+       [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>],
+       [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>]])
+</code></pre><p><em>腐蚀</em> = 最小化滤镜。用结构元素覆盖的像素的最小值替代一个像素值：</p>
+<pre><code>&gt;&gt;&gt; a = np.zeros((7,7), dtype=np.int)
+&gt;&gt;&gt; a<span class="comment">[1:6, 2:5]</span> = 1
+&gt;&gt;&gt; a
+array(<span class="comment">[<span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 1, 1, 1, 0, 0]</span>,
+       <span class="comment">[0, 0, 1, 1, 1, 0, 0]</span>,
+       <span class="comment">[0, 0, 1, 1, 1, 0, 0]</span>,
+       <span class="comment">[0, 0, 1, 1, 1, 0, 0]</span>,
+       <span class="comment">[0, 0, 1, 1, 1, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>]</span>)
+&gt;&gt;&gt; ndimage.binary_erosion(a).astype(a.dtype)
+array(<span class="comment">[<span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 1, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 1, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 1, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>]</span>)
+&gt;&gt;&gt; #Erosion removes objects smaller than the structure
+&gt;&gt;&gt; ndimage.binary_erosion(a, structure=np.ones((5,5))).astype(a.dtype)
+array(<span class="comment">[<span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>,
+       <span class="comment">[0, 0, 0, 0, 0, 0, 0]</span>]</span>)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/morpho_mat.png" alt="erosion"></p>
+<p><em>膨胀</em>：最大化滤镜:</p>
+<pre><code>&gt;&gt;&gt; <span class="tag">a</span> = np.<span class="function"><span class="title">zeros</span><span class="params">((<span class="number">5</span>, <span class="number">5</span>)</span></span>)
+&gt;&gt;&gt; <span class="tag">a</span>[<span class="number">2</span>, <span class="number">2</span>] = <span class="number">1</span>
+&gt;&gt;&gt; <span class="tag">a</span>
+array([[ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">1</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.]])
+&gt;&gt;&gt; ndimage.<span class="function"><span class="title">binary_dilation</span><span class="params">(a)</span></span>.<span class="function"><span class="title">astype</span><span class="params">(a.dtype)</span></span>
+array([[ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">1</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">1</span>.,  <span class="number">1</span>.,  <span class="number">1</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">1</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.],
+       [ <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.,  <span class="number">0</span>.]])
+</code></pre><p>对灰度值图像也有效：</p>
+<pre><code>&gt;&gt;&gt; np<span class="class">.random</span><span class="class">.seed</span>(<span class="number">2</span>)
+&gt;&gt;&gt; x, y = (<span class="number">63</span>*np<span class="class">.random</span><span class="class">.random</span>((<span class="number">2</span>, <span class="number">8</span>))).<span class="function"><span class="title">astype</span><span class="params">(np.int)</span></span>
+&gt;&gt;&gt; im[x, y] = np.<span class="function"><span class="title">arange</span><span class="params">(<span class="number">8</span>)</span></span>
+
+&gt;&gt;&gt; bigger_points = ndimage.<span class="function"><span class="title">grey_dilation</span><span class="params">(im, size=(<span class="number">5</span>, <span class="number">5</span>)</span></span>, structure=np.<span class="function"><span class="title">ones</span><span class="params">((<span class="number">5</span>, <span class="number">5</span>)</span></span>))
+
+&gt;&gt;&gt; square = np.<span class="function"><span class="title">zeros</span><span class="params">((<span class="number">16</span>, <span class="number">16</span>)</span></span>)
+&gt;&gt;&gt; square[<span class="number">4</span>:-<span class="number">4</span>, <span class="number">4</span>:-<span class="number">4</span>] = <span class="number">1</span>
+&gt;&gt;&gt; dist = ndimage.<span class="function"><span class="title">distance_transform_bf</span><span class="params">(square)</span></span>
+&gt;&gt;&gt; dilate_dist = ndimage.<span class="function"><span class="title">grey_dilation</span><span class="params">(dist, size=(<span class="number">3</span>, <span class="number">3</span>)</span></span>, \
+...         structure=np.<span class="function"><span class="title">ones</span><span class="params">((<span class="number">3</span>, <span class="number">3</span>)</span></span>))
+</code></pre><p><img src="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_greyscale_dilation.html" alt="gray-delation"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_greyscale_dilation.html#example-plot-greyscale-dilation-py" target="_blank" rel="external">示例源码</a></p>
+<p><em>开操作</em>：腐蚀+膨胀：</p>
+<p><em>应用</em>：移除噪声</p>
+<pre><code>&gt;&gt;&gt; square = np.<span class="function"><span class="title">zeros</span><span class="params">((<span class="number">32</span>, <span class="number">32</span>)</span></span>)
+&gt;&gt;&gt; square[<span class="number">10</span>:-<span class="number">10</span>, <span class="number">10</span>:-<span class="number">10</span>] = <span class="number">1</span>
+&gt;&gt;&gt; np<span class="class">.random</span><span class="class">.seed</span>(<span class="number">2</span>)
+&gt;&gt;&gt; x, y = (<span class="number">32</span>*np<span class="class">.random</span><span class="class">.random</span>((<span class="number">2</span>, <span class="number">20</span>))).<span class="function"><span class="title">astype</span><span class="params">(np.int)</span></span>
+&gt;&gt;&gt; square[x, y] = <span class="number">1</span>
+
+&gt;&gt;&gt; open_square = ndimage.<span class="function"><span class="title">binary_opening</span><span class="params">(square)</span></span>
+
+&gt;&gt;&gt; eroded_square = ndimage.<span class="function"><span class="title">binary_erosion</span><span class="params">(square)</span></span>
+&gt;&gt;&gt; reconstruction = ndimage.<span class="function"><span class="title">binary_propagation</span><span class="params">(eroded_square, mask=square)</span></span>
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_propagation_1.png" alt="application"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_propagation.html#example-plot-propagation-py" target="_blank" rel="external">示例源码</a></p>
+<p><em>闭操作</em>：膨胀+腐蚀</p>
+<p>许多其它数学分形：击中(hit)和击不中(miss)变换，tophat等等。</p>
+<h2 id="特征提取">特征提取</h2><h3 id="边缘检测">边缘检测</h3><p>合成数据：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; im = np.zeros((<span class="number">256</span>, <span class="number">256</span>))
+<span class="prompt">&gt;&gt;</span>&gt; im[<span class="number">64</span><span class="symbol">:-</span><span class="number">64</span>, <span class="number">64</span><span class="symbol">:-</span><span class="number">64</span>] = <span class="number">1</span>
+<span class="prompt">&gt;&gt;</span>&gt;
+&gt;&gt;&gt; im = ndimage.rotate(im, <span class="number">15</span>, mode=<span class="string">'constant'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; im = ndimage.gaussian_filter(im, <span class="number">8</span>)
+</code></pre><p>使用<em>梯度操作(Sobel)</em>来找到搞强度的变化：</p>
+<pre><code>&gt;&gt;&gt; sx = ndimage.<span class="function"><span class="title">sobel</span><span class="params">(im, axis=<span class="number">0</span>, mode=<span class="string">'constant'</span>)</span></span>
+&gt;&gt;&gt; sy = ndimage.<span class="function"><span class="title">sobel</span><span class="params">(im, axis=<span class="number">1</span>, mode=<span class="string">'constant'</span>)</span></span>
+&gt;&gt;&gt; sob = np.<span class="function"><span class="title">hypot</span><span class="params">(sx, sy)</span></span>
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_find_edges_1.png" alt="sob"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_find_edges.html#example-plot-find-edges-py" target="_blank" rel="external">示例源码</a></p>
+<p><em>canny滤镜</em></p>
+<p>Canny滤镜可以从<code>skimage</code>中获取(<a href="http://scikit-image.org/docs/dev/api/skimage.filter.html#canny" target="_blank" rel="external">文档</a>)，但是为了方便我们在这个教程中作为一个<em>单独模块</em>导入：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; <span class="comment">#from skimage.filter import canny</span>
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment">#or use module shipped with tutorial</span>
+<span class="prompt">&gt;&gt;</span>&gt; im += <span class="number">0</span>.<span class="number">1</span>*np.random.random(im.shape)
+<span class="prompt">&gt;&gt;</span>&gt; edges = canny(im, <span class="number">1</span>, <span class="number">0</span>.<span class="number">4</span>, <span class="number">0</span>.<span class="number">2</span>) <span class="comment"># not enough smoothing</span>
+<span class="prompt">&gt;&gt;</span>&gt; edges = canny(im, <span class="number">3</span>, <span class="number">0</span>.<span class="number">3</span>, <span class="number">0</span>.<span class="number">2</span>) <span class="comment"># better parameters</span>
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_canny_1.png" alt="edge"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_canny.html#example-plot-canny-py" target="_blank" rel="external">示例源码</a></p>
+<p>需要调整几个参数……过度拟合的风险</p>
+<h3 id="分割">分割</h3><ul>
+<li><p>基于<em>直方图</em>的分割(没有空间信息)</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; n = <span class="number">10</span>
+<span class="prompt">&gt;&gt;</span>&gt; l = <span class="number">256</span>
+<span class="prompt">&gt;&gt;</span>&gt; im = np.zeros((l, l))
+<span class="prompt">&gt;&gt;</span>&gt; np.random.seed(<span class="number">1</span>)
+<span class="prompt">&gt;&gt;</span>&gt; points = l*np.random.random((<span class="number">2</span>, n**<span class="number">2</span>))
+<span class="prompt">&gt;&gt;</span>&gt; im[(points[<span class="number">0</span>]).astype(np.int), (points[<span class="number">1</span>]).astype(np.int)] = <span class="number">1</span>
+<span class="prompt">&gt;&gt;</span>&gt; im = ndimage.gaussian_filter(im, sigma=l/(<span class="number">4</span>.*n))
+
+<span class="prompt">&gt;&gt;</span>&gt; mask = (im &gt; im.mean()).astype(np.float)
+<span class="prompt">&gt;&gt;</span>&gt; mask += <span class="number">0</span>.<span class="number">1</span> * im
+<span class="prompt">&gt;&gt;</span>&gt; img = mask + <span class="number">0</span>.<span class="number">2</span>*np.random.randn(*mask.shape)
+
+<span class="prompt">&gt;&gt;</span>&gt; hist, bin_edges = np.histogram(img, bins=<span class="number">60</span>)
+<span class="prompt">&gt;&gt;</span>&gt; bin_centers = <span class="number">0</span>.<span class="number">5</span>*(bin_edges[<span class="symbol">:-</span><span class="number">1</span>] + bin_edges[<span class="number">1</span><span class="symbol">:</span>])
+
+<span class="prompt">&gt;&gt;</span>&gt; binary_img = img &gt; <span class="number">0</span>.<span class="number">5</span>
+</code></pre></li>
+</ul>
+<p><img src="http://scipy-lectures.github.com/_images/plot_histo_segmentation_1.png" alt="segmente"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_histo_segmentation.html#example-plot-histo-segmentation-py" target="_blank" rel="external">示例源码</a></p>
+<p>自动阈值：使用高斯混合模型：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; mask = (im &gt; im.mean()).astype(np.float)
+<span class="prompt">&gt;&gt;</span>&gt; mask += <span class="number">0</span>.<span class="number">1</span> * im
+<span class="prompt">&gt;&gt;</span>&gt; img = mask + <span class="number">0</span>.<span class="number">3</span>*np.random.randn(*mask.shape)
+
+<span class="prompt">&gt;&gt;</span>&gt; from sklearn.mixture import <span class="constant">GMM</span>
+<span class="prompt">&gt;&gt;</span>&gt; classif = <span class="constant">GMM</span>(n_components=<span class="number">2</span>)
+<span class="prompt">&gt;&gt;</span>&gt; classif.fit(img.reshape((img.size, <span class="number">1</span>))) 
+<span class="constant">GMM</span>(...)
+
+<span class="prompt">&gt;&gt;</span>&gt; classif.means<span class="number">_</span>
+array([[ <span class="number">0</span>.<span class="number">9353155</span> ],
+       [-<span class="number">0</span>.<span class="number">02</span>966039]])
+<span class="prompt">&gt;&gt;</span>&gt; np.sqrt(classif.covars<span class="number">_</span>).ravel()
+array([ <span class="number">0</span>.<span class="number">35074631</span>,  <span class="number">0</span>.<span class="number">28225327</span>])
+<span class="prompt">&gt;&gt;</span>&gt; classif.weights<span class="number">_</span>
+array([ <span class="number">0</span>.<span class="number">40989799</span>,  <span class="number">0</span>.<span class="number">59010201</span>])
+<span class="prompt">&gt;&gt;</span>&gt; threshold = np.mean(classif.means<span class="number">_</span>)
+<span class="prompt">&gt;&gt;</span>&gt; binary_img = img &gt; threshold
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/image_GMM.png" alt="gauss-mixture"></p>
+<p>使用数学形态学来清理结果：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># Remove small white regions</span>
+<span class="prompt">&gt;&gt;</span>&gt; open_img = ndimage.binary_opening(binary_img)
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># Remove small black hole</span>
+<span class="prompt">&gt;&gt;</span>&gt; close_img = ndimage.binary_closing(open_img)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_clean_morpho_1.png" alt="cleanup"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_clean_morpho.html#example-plot-clean-morpho-py" target="_blank" rel="external">示例源码</a></p>
+<p><strong>练习</strong></p>
+<p>参看重建(reconstruction)操作(腐蚀+传播(propagation))产生比开/闭操作更好的结果：</p>
+<pre><code>&gt;&gt;&gt; eroded_img = ndimage.<span class="function"><span class="title">binary_erosion</span><span class="params">(binary_img)</span></span>
+&gt;&gt;&gt; reconstruct_img = ndimage.<span class="function"><span class="title">binary_propagation</span><span class="params">(eroded_img, mask=binary_img)</span></span>
+&gt;&gt;&gt; tmp = np.<span class="function"><span class="title">logical_not</span><span class="params">(reconstruct_img)</span></span>
+&gt;&gt;&gt; eroded_tmp = ndimage.<span class="function"><span class="title">binary_erosion</span><span class="params">(tmp)</span></span>
+&gt;&gt;&gt; reconstruct_final = np.<span class="function"><span class="title">logical_not</span><span class="params">(ndimage.binary_propagation(eroded_tmp, mask=tmp)</span></span>)
+&gt;&gt;&gt; np.<span class="function"><span class="title">abs</span><span class="params">(mask - close_img)</span></span>.<span class="function"><span class="title">mean</span><span class="params">()</span></span>
+<span class="number">0.014678955078125</span>
+&gt;&gt;&gt; np.<span class="function"><span class="title">abs</span><span class="params">(mask - reconstruct_final)</span></span>.<span class="function"><span class="title">mean</span><span class="params">()</span></span>
+<span class="number">0.0042572021484375</span>
+</code></pre><p><strong>练习</strong></p>
+<p>检查首次消噪步骤(中值滤波，总变差)如何更改直方图，并且查看是否基于直方图的分割更加精准了。</p>
+<ul>
+<li><p><em>基于图像</em>的分割：使用空间信息</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sklearn.feature_extraction import image
+<span class="prompt">&gt;&gt;</span>&gt; from sklearn.cluster import spectral_clustering
+
+<span class="prompt">&gt;&gt;</span>&gt; l = <span class="number">100</span>
+<span class="prompt">&gt;&gt;</span>&gt; x, y = np.indices((l, l))
+
+<span class="prompt">&gt;&gt;</span>&gt; center1 = (<span class="number">28</span>, <span class="number">24</span>)
+<span class="prompt">&gt;&gt;</span>&gt; center2 = (<span class="number">40</span>, <span class="number">50</span>)
+<span class="prompt">&gt;&gt;</span>&gt; center3 = (<span class="number">67</span>, <span class="number">58</span>)
+<span class="prompt">&gt;&gt;</span>&gt; center4 = (<span class="number">24</span>, <span class="number">70</span>)
+<span class="prompt">&gt;&gt;</span>&gt; radius1, radius2, radius3, radius4 = <span class="number">16</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">14</span>
+
+<span class="prompt">&gt;&gt;</span>&gt; circle1 = (x - center1[<span class="number">0</span>])**<span class="number">2</span> + (y - center1[<span class="number">1</span>])**<span class="number">2</span> &lt; radius1**<span class="number">2</span>
+<span class="prompt">&gt;&gt;</span>&gt; circle2 = (x - center2[<span class="number">0</span>])**<span class="number">2</span> + (y - center2[<span class="number">1</span>])**<span class="number">2</span> &lt; radius2**<span class="number">2</span>
+<span class="prompt">&gt;&gt;</span>&gt; circle3 = (x - center3[<span class="number">0</span>])**<span class="number">2</span> + (y - center3[<span class="number">1</span>])**<span class="number">2</span> &lt; radius3**<span class="number">2</span>
+<span class="prompt">&gt;&gt;</span>&gt; circle4 = (x - center4[<span class="number">0</span>])**<span class="number">2</span> + (y - center4[<span class="number">1</span>])**<span class="number">2</span> &lt; radius4**<span class="number">2</span>
+
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># 4 circles</span>
+<span class="prompt">&gt;&gt;</span>&gt; img = circle1 + circle2 + circle3 + circle4
+<span class="prompt">&gt;&gt;</span>&gt; mask = img.astype(bool)
+<span class="prompt">&gt;&gt;</span>&gt; img = img.astype(float)
+
+<span class="prompt">&gt;&gt;</span>&gt; img += <span class="number">1</span> + <span class="number">0</span>.<span class="number">2</span>*np.random.randn(*img.shape)
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># Convert the image into a graph with the value of the gradient on</span>
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># the edges.</span>
+<span class="prompt">&gt;&gt;</span>&gt; graph = image.img_to_graph(img, mask=mask)
+
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># Take a decreasing function of the gradient: we take it weakly</span>
+<span class="prompt">&gt;&gt;</span>&gt; <span class="comment"># dependant from the gradient the segmentation is close to a voronoi</span>
+<span class="prompt">&gt;&gt;</span>&gt; graph.data = np.exp(-graph.data/graph.data.std())
+
+<span class="prompt">&gt;&gt;</span>&gt; labels = spectral_clustering(graph, k=<span class="number">4</span>, mode=<span class="string">'arpack'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; label_im = -np.ones(mask.shape)
+<span class="prompt">&gt;&gt;</span>&gt; label_im[mask] = labels
+</code></pre></li>
+</ul>
+<p><img src="http://scipy-lectures.github.com/_images/image_spectral_clustering.png" alt="graph-base"></p>
+<hr>
+<h2 id="测量对象属性：ndimage-measurements">测量对象属性：ndimage.measurements</h2><p>合成数据：</p>
+<pre><code>&gt;&gt;&gt; n = <span class="number">10</span>
+&gt;&gt;&gt; l = <span class="number">256</span>
+&gt;&gt;&gt; im = np.<span class="function"><span class="title">zeros</span><span class="params">((l, l)</span></span>)
+&gt;&gt;&gt; points = l*np<span class="class">.random</span><span class="class">.random</span>((<span class="number">2</span>, n**<span class="number">2</span>))
+&gt;&gt;&gt; im[(points[<span class="number">0</span>]).<span class="function"><span class="title">astype</span><span class="params">(np.int)</span></span>, (points[<span class="number">1</span>]).<span class="function"><span class="title">astype</span><span class="params">(np.int)</span></span>] = <span class="number">1</span>
+&gt;&gt;&gt; im = ndimage.<span class="function"><span class="title">gaussian_filter</span><span class="params">(im, sigma=l/(<span class="number">4</span>.*n)</span></span>)
+&gt;&gt;&gt; <span class="attribute">mask</span> = im &gt; im.<span class="function"><span class="title">mean</span><span class="params">()</span></span>
+</code></pre><ul>
+<li><p><em>连接成分分析</em></p>
+<p>  标记连接成分：<code>ndimage.label</code></p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; label_im, nb_labels = ndimage.label(mask)
+<span class="prompt">&gt;&gt;</span>&gt; nb_labels <span class="comment"># how many regions?</span>
+<span class="number">23</span>
+<span class="prompt">&gt;&gt;</span>&gt; plt.imshow(label_im)        
+&lt;matplotlib.image.<span class="constant">AxesImage</span> object at ...&gt;
+</code></pre></li>
+</ul>
+<p><img src="http://scipy-lectures.github.com/_images/plot_synthetic_data_1.png" alt="label"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_synthetic_data.html#example-plot-synthetic-data-py" target="_blank" rel="external">示例源码</a></p>
+<p>计算每个区域的尺寸，均值等等：</p>
+<pre><code>&gt;&gt;&gt; sizes = ndimage.<span class="function"><span class="title">sum</span><span class="params">(mask, label_im, range(nb_labels + <span class="number">1</span>)</span></span>)
+&gt;&gt;&gt; mean_vals = ndimage.<span class="function"><span class="title">sum</span><span class="params">(im, label_im, range(<span class="number">1</span>, nb_labels + <span class="number">1</span>)</span></span>)
+</code></pre><p>计算小的连接成分：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; mask_size = sizes &lt; <span class="number">1000</span>
+<span class="prompt">&gt;&gt;</span>&gt; remove_pixel = mask_size[label_im]
+<span class="prompt">&gt;&gt;</span>&gt; remove_pixel.shape
+(<span class="number">256</span>, <span class="number">256</span>)
+<span class="prompt">&gt;&gt;</span>&gt; label_im[remove_pixel] = <span class="number">0</span>
+<span class="prompt">&gt;&gt;</span>&gt; plt.imshow(label_im)        
+&lt;matplotlib.image.<span class="constant">AxesImage</span> object at ...&gt;
+</code></pre><p>现在使用<code>np.searchsorted</code>重新分配标签：</p>
+<pre><code>&gt;&gt;&gt; labels = np.<span class="function"><span class="title">unique</span><span class="params">(label_im)</span></span>
+&gt;&gt;&gt; label_im = np.<span class="function"><span class="title">searchsorted</span><span class="params">(labels, label_im)</span></span>
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_measure_data_1.png" alt="reassign"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_measure_data.html#example-plot-measure-data-py" target="_blank" rel="external">示例源码</a></p>
+<p>找到关注的封闭对象区域：<a href="根据以上操作剩下的区域选择区域，因为是随机生成可能结果不通，label_im==4未必留下来了。">^3</a></p>
+<pre><code>&gt;&gt;&gt; slice_x, slice_y = ndimage.<span class="function"><span class="title">find_objects</span><span class="params">(label_im==<span class="number">4</span>)</span></span>[<span class="number">0</span>]
+&gt;&gt;&gt; roi = im[slice_x, slice_y]
+&gt;&gt;&gt; plt.<span class="function"><span class="title">imshow</span><span class="params">(roi)</span></span>     
+&lt;matplotlib<span class="class">.image</span><span class="class">.AxesImage</span> <span class="tag">object</span> at ...&gt;
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_find_object_1.png" alt="find"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_find_object.html#example-plot-find-object-py" target="_blank" rel="external">示例源码</a></p>
+<p>其它空间测量：<code>ndiamge.center_of_mass</code>,<code>ndimage.maximum_position</code>等等。</p>
+<p>可以在分割应用限制范围之外使用。</p>
+<p>示例：块平均(block mean)：</p>
+<pre><code>m scipy import misc
+<span class="prompt">&gt;&gt;</span>&gt; l = misc.lena()
+<span class="prompt">&gt;&gt;</span>&gt; sx, sy = l.shape
+<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">X</span>, <span class="constant">Y</span> = np.ogrid[<span class="number">0</span><span class="symbol">:sx</span>, <span class="number">0</span><span class="symbol">:sy</span>]
+<span class="prompt">&gt;&gt;</span>&gt; regions = sy/<span class="number">6</span> * (<span class="constant">X</span>/<span class="number">4</span>) + <span class="constant">Y</span>/<span class="number">6</span>  <span class="comment"># note that we use broadcasting</span>
+<span class="prompt">&gt;&gt;</span>&gt; block_mean = ndimage.mean(l, labels=regions, index=np.arange(<span class="number">1</span>,
+...     regions.max() +<span class="number">1</span>))
+<span class="prompt">&gt;&gt;</span>&gt; block_mean.shape = (sx/<span class="number">4</span>, sy/<span class="number">6</span>)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_block_mean_1.png" alt="block mean"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_block_mean.html#example-plot-block-mean-py" target="_blank" rel="external">示例源码</a></p>
+<p>当区域不是正则的<a href="[正则空间](https://en.wikipedia.org/wiki/Regular_space)">^4</a>块状时，使用stride技巧更有效(<a href="http://scipy-lectures.github.com/advanced/advanced_numpy/index.html#stride-manipulation-label" target="_blank" rel="external">示例：fake dimensions with strides</a>)</p>
+<p>非正则空间(Non-regular-spaced)区块：径向平均：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; sx, sy = l.shape
+<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">X</span>, <span class="constant">Y</span> = np.ogrid[<span class="number">0</span><span class="symbol">:sx</span>, <span class="number">0</span><span class="symbol">:sy</span>]
+<span class="prompt">&gt;&gt;</span>&gt; r = np.hypot(<span class="constant">X</span> - sx/<span class="number">2</span>, <span class="constant">Y</span> - sy/<span class="number">2</span>)
+<span class="prompt">&gt;&gt;</span>&gt; rbin = (<span class="number">20</span>* r/r.max()).astype(np.int)
+<span class="prompt">&gt;&gt;</span>&gt; radial_mean = ndimage.mean(l, labels=rbin, index=np.arange(<span class="number">1</span>, rbin.max() +<span class="number">1</span>))
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_radial_mean_1.png" alt="radial"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_radial_mean.html#example-plot-radial-mean-py" target="_blank" rel="external">示例源码</a></p>
+<ul>
+<li><em>其它测量</em></li>
+</ul>
+<p>相关函数，傅里叶/小波谱等。</p>
+<p>一个使用数学形态学的例子：<em>粒度</em>(<a href="http://en.wikipedia.org/wiki/Granulometry_%28morphology%29" target="_blank" rel="external">http://en.wikipedia.org/wiki/Granulometry_%28morphology%29</a>)</p>
+<pre><code>&gt;&gt;&gt; def <span class="function"><span class="title">disk_structure</span><span class="params">(n)</span></span>:
+...     struct = np.<span class="function"><span class="title">zeros</span><span class="params">((<span class="number">2</span> * n + <span class="number">1</span>, <span class="number">2</span> * n + <span class="number">1</span>)</span></span>)
+...     x, y = np.<span class="function"><span class="title">indices</span><span class="params">((<span class="number">2</span> * n + <span class="number">1</span>, <span class="number">2</span> * n + <span class="number">1</span>)</span></span>)
+...     <span class="attribute">mask</span> = (x - n)**<span class="number">2</span> + (y - n)**<span class="number">2</span> &lt;= n**<span class="number">2</span>
+...     struct[<span class="attribute">mask</span>] = <span class="number">1</span>
+...     return struct.<span class="function"><span class="title">astype</span><span class="params">(np.bool)</span></span>
+...
+&gt;&gt;&gt;
+&gt;&gt;&gt; def <span class="function"><span class="title">granulometry</span><span class="params">(data, sizes=None)</span></span>:
+...     s = <span class="function"><span class="title">max</span><span class="params">(data.shape)</span></span>
+...     <span class="keyword">if</span> sizes == None:
+...         sizes = <span class="function"><span class="title">range</span><span class="params">(<span class="number">1</span>, s/<span class="number">2</span>, <span class="number">2</span>)</span></span>
+...     granulo = [ndimage.binary_opening(data, \
+...         structure=<span class="function"><span class="title">disk_structure</span><span class="params">(n)</span></span>).<span class="function"><span class="title">sum</span><span class="params">()</span></span> <span class="keyword">for</span> n <span class="keyword">in</span> sizes]
+...     return granulo
+...
+&gt;&gt;&gt;
+&gt;&gt;&gt; np<span class="class">.random</span><span class="class">.seed</span>(<span class="number">1</span>)
+&gt;&gt;&gt; n = <span class="number">10</span>
+&gt;&gt;&gt; l = <span class="number">256</span>
+&gt;&gt;&gt; im = np.<span class="function"><span class="title">zeros</span><span class="params">((l, l)</span></span>)
+&gt;&gt;&gt; points = l*np<span class="class">.random</span><span class="class">.random</span>((<span class="number">2</span>, n**<span class="number">2</span>))
+&gt;&gt;&gt; im[(points[<span class="number">0</span>]).<span class="function"><span class="title">astype</span><span class="params">(np.int)</span></span>, (points[<span class="number">1</span>]).<span class="function"><span class="title">astype</span><span class="params">(np.int)</span></span>] = <span class="number">1</span>
+&gt;&gt;&gt; im = ndimage.<span class="function"><span class="title">gaussian_filter</span><span class="params">(im, sigma=l/(<span class="number">4</span>.*n)</span></span>)
+&gt;&gt;&gt;
+&gt;&gt;&gt; <span class="attribute">mask</span> = im &gt; im.<span class="function"><span class="title">mean</span><span class="params">()</span></span>
+&gt;&gt;&gt;
+&gt;&gt;&gt; granulo = <span class="function"><span class="title">granulometry</span><span class="params">(mask, sizes=np.arange(<span class="number">2</span>, <span class="number">19</span>, <span class="number">4</span>)</span></span>)
+</code></pre><p><img src="http://scipy-lectures.github.com/_images/plot_granulo_1.png" alt="granulometry"></p>
+<p><a href="http://scipy-lectures.github.com/advanced/image_processing/auto_examples/plot_granulo.html#example-plot-granulo-py" target="_blank" rel="external">示例源码</a></p>
+<h2 id="Footnotes">Footnotes</h2><p>[^2]:ValueError: can not convert int64 to uint8.</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/python/2012/10/31/python/" itemprop="url">
                   调试代码(Python)
                 </a>
@@ -2242,191 +2863,6 @@ in [<span class="number">32</span>]: %timeit np.dot(b, c)
             
               
                 
-                <a class="post-title-link" href="/life/2012/10/14/always-look-on-the-bright-side-of-life/" itemprop="url">
-                  Always Look on the Bright Side of life
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-10-14T00:00:00+08:00" content="2012-10-14">
-              2012-10-14
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/life/2012/10/14/always-look-on-the-bright-side-of-life/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2012/10/14/always-look-on-the-bright-side-of-life/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>blahblahblah,这几天看了三部电影，随便感慨下。</p>
-<h2 id="Always_Look_on_the_Bright_Side_of_life">Always Look on the Bright Side of life</h2><p>也许执念太深，从一年前开始看到无所事事的人就极度不爽，也无法忍受自己浪费一分一秒，然而事情总是这样：你越想抓住什么，什么就越从你的指缝间溜走得越快。</p>
-<p>一年来总是给自己一些莫名奇妙的压力，天天为各种各样的琐事烦得一塌糊涂。结果身体一直也不好，要不要感冒每个月就像大姨妈一样来一次？[^1]有很多人和事，只觉得他们二逼，然而搅扰的自己也无法静下心。也许只是我自己太在意。</p>
-<p>我想黑我们学校，黑自己专业，黑这学校很多人很久了。然而最终还是忍住，也许世界就该这样，或者你爱怎样就怎样。没必要因此搅扰得自己不安。</p>
-<p>也许我就该笑笑，依旧回头走我的路，如果路被人堵上，换另一条继续走，条条大路通罗马。</p>
-<p>也许我就该放下许多执念，在心灵上解放自我，在行动上自我解放。</p>
-<p>也许我就该随波逐流，无所谓得失，让该来的来，让该去的去，万事随缘。</p>
-<p>每天入夜，当我怨恨时，我不断暗示自己，神赐你一颗平和的心，不要怨恨。</p>
-<p>当我为周围的风吹草动胆颤心惊时，不断鼓舞自己，神赐给你的是一个刚强的心，无所畏惧。</p>
-<p>让心平和下来吧，</p>
-<p>一直想考研，跨掉自己的专业，离开熟悉的学校，寻找更好的环境和人<a href="希望不要误解，对每个人好坏都是不同的，我不想黑任何人。">^2</a>。</p>
-<p>但没必要逼自己，让心平和下来吧</p>
-<p>好好锻炼身体，考不上明年再来。</p>
-<p>再考不上再做打算。</p>
-<p>留得青山在，不怕没柴烧。</p>
-<p>总是看见生活光明的一面。</p>
-<embed src="http://www.xiami.com/widget/0_2018536/singlePlayer.swf" type="application/x-shockwave-flash" width="257" height="33" wmode="transparent">
-
-
-<blockquote>
-<p>some things in life are bad,生命中总有些不如意</p>
-<p>they can really make you mad, 它们真的能让你抓狂</p>
-<p>other things just make you swear and curse.还有些使你诅咒和咒骂</p>
-<p>when you’re chewing on life’s gristle 当你咀嚼生活的乏味</p>
-<p>don’t grumble, give a whistle. 别抱怨 ,吹个口哨</p>
-<p>and this’ll help things turn out for the best.这能帮事情变好 </p>
-<p>and…. 还有</p>
-<p>always look on the bright side of life,(whistle) 总是看到好的一面</p>
-<p>always look on the bright side of life,(whistle) 总是看到好的一面</p>
-<p>if life seems jolly rotten, 如果生活看起来非常糟糕</p>
-<p>there’s something you’ve forgotten, 肯定有什么事你忘了</p>
-<p>and that’s to laugh and smile and dance and sing.那些关于高兴、微笑、舞蹈和歌唱的事情 </p>
-<p>when you’re feeling in the dumps,当你觉得一团糟 </p>
-<p>don’t be silly chumps. 别象个榆木疙瘩</p>
-<p>just purse your lips and whistle, that’s the thing.缩起你的嘴，吹个口哨，就这样</p>
-<p>and… 还有</p>
-<p>always look on the bright side of life.(whistle) 总是看到好的一面</p>
-<p>come on… 来吧</p>
-<p>always look on the bright side of life…总是看到好的一面 </p>
-<p>for life is quite absurd, 因为生活如此荒诞</p>
-<p>and death’s the final word, 死亡是最终的结局</p>
-<p>you must always face the curtain with a bow. 你总得鞠躬谢幕</p>
-<p>forget about your sin, 忘了你的罪</p>
-<p>give the audience a grin, 给观众一个开怀的笑</p>
-<p>enjoy it - it’s your last chance anyhow.享受它，不管怎么说这是你最后的机会 </p>
-<p>so always look on the bright side of death, 所以总是看到好的一面</p>
-<p>just before you draw your terminal breath, 就在你最后一次呼吸之前</p>
-<p>life’s a piece of shit, 生活是坨屎</p>
-<p>when you look at it, 当你看着它的时候</p>
-<p>life’s a laugh and death’s a joke, it’s true. 生活是一次大笑，死亡是个玩笑，真的</p>
-<p>you’ll see it’s all a show,你会看到这都是一场戏 </p>
-<p>keep ‘em laughing as you go. 当你上演时保持是喜剧</p>
-<p>just remember that the last laugh is on you.记住要笑到最后 </p>
-<p>and always look on the bright side of life, 总是看到好的一面</p>
-<p>always look on the right side of life, 看生活好的一面</p>
-<p>come on guys, cheer up. 来吧伙伴，庆祝一下</p>
-<p>always look on the bright side of life. 总看到好的一面</p>
-<p>worse things happen at sea, you know. 世界末日离你还远，知道吗？</p>
-<p>always look on the bright side of life. 总是看到好的一面</p>
-<p>i mean - what have you got to lose? 我是说——你将会失去什么？</p>
-<p>you know, you come from nothing, 你知道，你本来就一无所有</p>
-<p>you’re going back to nothing. 你会再回到虚无</p>
-<p>what have you lost? nothing 你将会失去什么？什么也没有</p>
-</blockquote>
-<h2 id="Aal_izz_well">Aal izz well</h2><p>你在做自己不喜欢的事情吗？</p>
-<p>你总是担心太多吗？</p>
-<p>兰彻导师说：追随自己的心，不断追求卓越，其它的都会追随而来的。</p>
-<p>兰彻导师说：我们心很怯懦，需要我们“欺骗”，Aal izz well(一切都好)。</p>
-<p>三年前和玩伴在他的mp4上看了一半，只是觉的好笑，如今看着确是完全不同的感觉。</p>
-<p>一切都好，一语胜千言。</p>
-<h2 id="纵使抛弃一切终归还有执着">纵使抛弃一切终归还有执着</h2><p>“人人都愿意相信自已愿意相信的东西。”</p>
-<p>不断想起大一在图书馆的日日夜夜</p>
-<p>翻看那些心理学、社会科学的书籍，</p>
-<p>甚至很多成功学的书(我现在依然非常喜欢卡耐基的书)。</p>
-<p>里头很多观点、看法、假说，深深植入我的心里。</p>
-<p>我会怀念，整个学校我最喜欢的地方。</p>
-<p>怀念那里的光影，味道，声音。</p>
-<p>还有无法忘怀的记忆。</p>
-<p>有些执着我永远不愿放弃，</p>
-<p>不过是想让自己的心冷静下来，</p>
-<p>该来的终将到来。</p>
-<p>有意思的喜剧。</p>
-<h2 id="Footnotes">Footnotes</h2><p>[^1]:<del>真尼玛扯淡，几次跑步回去就觉的嗓子疼，然后他妈的就生病来着。我他妈的每次保持一个月一晚一小时的习惯都被一场接一场莫名奇妙的感冒什么的给毁了。我还记得冬天跑步手被冻伤过，还记得从没什么人到天气转暖到处是人的操场，然而现实的冷水泼的比谁都厉害。</del></p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/python/2012/10/14/scikit-learn-machine-learning-in-python/" itemprop="url">
                   Scikit Learn: 在python中机器学习
                 </a>
@@ -2835,6 +3271,191 @@ LassoCV(alphas=<span class="keyword">array</span>([ <span class="number">2.14804
 <hr>
 <h2 id="Footnotes">Footnotes</h2><p>[^3]:<a href="http://en.wikipedia.org/wiki/Ball_tree" target="_blank" rel="external">Ball tree数据结构</a></p>
 <p>[^8]:<a href="http://en.wikipedia.org/wiki/Penalty_method" target="_blank" rel="external">Penalty methods</a><br>[^9]:<a href="http://en.wikipedia.org/wiki/Least_squares#LASSO_method" target="_blank" rel="external">LASSO method</a><br>[^10]:<a href="http://en.wikipedia.org/wiki/Coordinate_descent" target="_blank" rel="external">Coordinate descent</a></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/life/2012/10/14/always-look-on-the-bright-side-of-life/" itemprop="url">
+                  Always Look on the Bright Side of life
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-10-14T00:00:00+08:00" content="2012-10-14">
+              2012-10-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/life/" itemprop="url" rel="index">
+                    <span itemprop="name">life</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/life/2012/10/14/always-look-on-the-bright-side-of-life/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="life/2012/10/14/always-look-on-the-bright-side-of-life/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>blahblahblah,这几天看了三部电影，随便感慨下。</p>
+<h2 id="Always_Look_on_the_Bright_Side_of_life">Always Look on the Bright Side of life</h2><p>也许执念太深，从一年前开始看到无所事事的人就极度不爽，也无法忍受自己浪费一分一秒，然而事情总是这样：你越想抓住什么，什么就越从你的指缝间溜走得越快。</p>
+<p>一年来总是给自己一些莫名奇妙的压力，天天为各种各样的琐事烦得一塌糊涂。结果身体一直也不好，要不要感冒每个月就像大姨妈一样来一次？[^1]有很多人和事，只觉得他们二逼，然而搅扰的自己也无法静下心。也许只是我自己太在意。</p>
+<p>我想黑我们学校，黑自己专业，黑这学校很多人很久了。然而最终还是忍住，也许世界就该这样，或者你爱怎样就怎样。没必要因此搅扰得自己不安。</p>
+<p>也许我就该笑笑，依旧回头走我的路，如果路被人堵上，换另一条继续走，条条大路通罗马。</p>
+<p>也许我就该放下许多执念，在心灵上解放自我，在行动上自我解放。</p>
+<p>也许我就该随波逐流，无所谓得失，让该来的来，让该去的去，万事随缘。</p>
+<p>每天入夜，当我怨恨时，我不断暗示自己，神赐你一颗平和的心，不要怨恨。</p>
+<p>当我为周围的风吹草动胆颤心惊时，不断鼓舞自己，神赐给你的是一个刚强的心，无所畏惧。</p>
+<p>让心平和下来吧，</p>
+<p>一直想考研，跨掉自己的专业，离开熟悉的学校，寻找更好的环境和人<a href="希望不要误解，对每个人好坏都是不同的，我不想黑任何人。">^2</a>。</p>
+<p>但没必要逼自己，让心平和下来吧</p>
+<p>好好锻炼身体，考不上明年再来。</p>
+<p>再考不上再做打算。</p>
+<p>留得青山在，不怕没柴烧。</p>
+<p>总是看见生活光明的一面。</p>
+<embed src="http://www.xiami.com/widget/0_2018536/singlePlayer.swf" type="application/x-shockwave-flash" width="257" height="33" wmode="transparent">
+
+
+<blockquote>
+<p>some things in life are bad,生命中总有些不如意</p>
+<p>they can really make you mad, 它们真的能让你抓狂</p>
+<p>other things just make you swear and curse.还有些使你诅咒和咒骂</p>
+<p>when you’re chewing on life’s gristle 当你咀嚼生活的乏味</p>
+<p>don’t grumble, give a whistle. 别抱怨 ,吹个口哨</p>
+<p>and this’ll help things turn out for the best.这能帮事情变好 </p>
+<p>and…. 还有</p>
+<p>always look on the bright side of life,(whistle) 总是看到好的一面</p>
+<p>always look on the bright side of life,(whistle) 总是看到好的一面</p>
+<p>if life seems jolly rotten, 如果生活看起来非常糟糕</p>
+<p>there’s something you’ve forgotten, 肯定有什么事你忘了</p>
+<p>and that’s to laugh and smile and dance and sing.那些关于高兴、微笑、舞蹈和歌唱的事情 </p>
+<p>when you’re feeling in the dumps,当你觉得一团糟 </p>
+<p>don’t be silly chumps. 别象个榆木疙瘩</p>
+<p>just purse your lips and whistle, that’s the thing.缩起你的嘴，吹个口哨，就这样</p>
+<p>and… 还有</p>
+<p>always look on the bright side of life.(whistle) 总是看到好的一面</p>
+<p>come on… 来吧</p>
+<p>always look on the bright side of life…总是看到好的一面 </p>
+<p>for life is quite absurd, 因为生活如此荒诞</p>
+<p>and death’s the final word, 死亡是最终的结局</p>
+<p>you must always face the curtain with a bow. 你总得鞠躬谢幕</p>
+<p>forget about your sin, 忘了你的罪</p>
+<p>give the audience a grin, 给观众一个开怀的笑</p>
+<p>enjoy it - it’s your last chance anyhow.享受它，不管怎么说这是你最后的机会 </p>
+<p>so always look on the bright side of death, 所以总是看到好的一面</p>
+<p>just before you draw your terminal breath, 就在你最后一次呼吸之前</p>
+<p>life’s a piece of shit, 生活是坨屎</p>
+<p>when you look at it, 当你看着它的时候</p>
+<p>life’s a laugh and death’s a joke, it’s true. 生活是一次大笑，死亡是个玩笑，真的</p>
+<p>you’ll see it’s all a show,你会看到这都是一场戏 </p>
+<p>keep ‘em laughing as you go. 当你上演时保持是喜剧</p>
+<p>just remember that the last laugh is on you.记住要笑到最后 </p>
+<p>and always look on the bright side of life, 总是看到好的一面</p>
+<p>always look on the right side of life, 看生活好的一面</p>
+<p>come on guys, cheer up. 来吧伙伴，庆祝一下</p>
+<p>always look on the bright side of life. 总看到好的一面</p>
+<p>worse things happen at sea, you know. 世界末日离你还远，知道吗？</p>
+<p>always look on the bright side of life. 总是看到好的一面</p>
+<p>i mean - what have you got to lose? 我是说——你将会失去什么？</p>
+<p>you know, you come from nothing, 你知道，你本来就一无所有</p>
+<p>you’re going back to nothing. 你会再回到虚无</p>
+<p>what have you lost? nothing 你将会失去什么？什么也没有</p>
+</blockquote>
+<h2 id="Aal_izz_well">Aal izz well</h2><p>你在做自己不喜欢的事情吗？</p>
+<p>你总是担心太多吗？</p>
+<p>兰彻导师说：追随自己的心，不断追求卓越，其它的都会追随而来的。</p>
+<p>兰彻导师说：我们心很怯懦，需要我们“欺骗”，Aal izz well(一切都好)。</p>
+<p>三年前和玩伴在他的mp4上看了一半，只是觉的好笑，如今看着确是完全不同的感觉。</p>
+<p>一切都好，一语胜千言。</p>
+<h2 id="纵使抛弃一切终归还有执着">纵使抛弃一切终归还有执着</h2><p>“人人都愿意相信自已愿意相信的东西。”</p>
+<p>不断想起大一在图书馆的日日夜夜</p>
+<p>翻看那些心理学、社会科学的书籍，</p>
+<p>甚至很多成功学的书(我现在依然非常喜欢卡耐基的书)。</p>
+<p>里头很多观点、看法、假说，深深植入我的心里。</p>
+<p>我会怀念，整个学校我最喜欢的地方。</p>
+<p>怀念那里的光影，味道，声音。</p>
+<p>还有无法忘怀的记忆。</p>
+<p>有些执着我永远不愿放弃，</p>
+<p>不过是想让自己的心冷静下来，</p>
+<p>该来的终将到来。</p>
+<p>有意思的喜剧。</p>
+<h2 id="Footnotes">Footnotes</h2><p>[^1]:<del>真尼玛扯淡，几次跑步回去就觉的嗓子疼，然后他妈的就生病来着。我他妈的每次保持一个月一晚一小时的习惯都被一场接一场莫名奇妙的感冒什么的给毁了。我还记得冬天跑步手被冻伤过，还记得从没什么人到天气转暖到处是人的操场，然而现实的冷水泼的比谁都厉害。</del></p>
 
             
           </span>
@@ -3826,731 +4447,12 @@ plot(*args, **kwargs)
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/python/2012/08/30/sympy-tutorial/" itemprop="url">
-                  SymPy Tutorial(译)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-08-30T00:00:00+08:00" content="2012-08-30">
-              2012-08-30
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/python/2012/08/30/sympy-tutorial/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/08/30/sympy-tutorial/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="SymPy_Tutorial">SymPy Tutorial</h1><p>翻译自：<a href="http://docs.sympy.org/dev/tutorial.html" target="_blank" rel="external">SymPy Tutorial</a>,其实有人译过了，但我看着不爽……你看我的不爽可以参考他的<a href="http://blankdesktop.blogbus.com/logs/74200705.html" target="_blank" rel="external">SymPy简明教程</a></p>
-<p><strong>目录</strong></p>
-<ul>
-<li>toc<br>{: toc}</li>
-</ul>
-<h2 id="引言">引言</h2><p>SymPy是一个符号数学Python库。它的目标是成为一个全功能的计算机代数系统，同时保持代码的精简而易于理解和课扩展。SymPy完全由Python写成，不需要任何外部库。 </p>
-<p>这个教程概述和简介SymPy。阅读它能让你知道SymPy可以为你做什么。如果你想了解更多，阅读<a href="http://docs.sympy.org/0.7.1/guide.html#guide" target="_blank" rel="external">SymPy用户指南</a>和<a href="http://docs.sympy.org/0.7.1/modules/index.html#module-docs" target="_blank" rel="external">SymPy模块参考</a>。或者直接阅读<a href="https://github.com/sympy/sympy/" target="_blank" rel="external">源码</a>。</p>
-<h2 id="SymPy第一步">SymPy第一步</h2><p>下载它最简单的方法是去<a href="http://code.google.com/p/sympy/" target="_blank" rel="external">http://code.google.com/p/sympy/</a>从“推荐下载”下载最新的压缩包。<a href="不介意非稳定版我觉得git更方便一些，当然linux包管理器更方便,所以先用你的包管理器安装它。">^1</a><br><img src="http://fmn.rrimg.com/fmn061/20120901/1800/p_large_M3yG_5d30000027c61261.jpg" alt="downloads"></p>
-<p>解压：</p>
-<pre><code><span class="tag">tar</span> <span class="tag">xzf</span> <span class="tag">sympy-0</span><span class="class">.7</span><span class="class">.1</span><span class="class">.tar</span><span class="class">.gz</span>
-</code></pre><p>然后用Python解释器尝试它：</p>
-<pre><code>[lyy@arch ~]cd sympy-<span class="number">0.7</span><span class="number">.1</span>
-[lyy@arch ~]$ python2
-Python <span class="number">2.7</span><span class="number">.3</span> (<span class="keyword">default</span>, Apr <span class="number">24</span> <span class="number">2012</span>, <span class="number">00</span>:<span class="number">00</span>:<span class="number">54</span>) 
-[GCC <span class="number">4.7</span><span class="number">.0</span> <span class="number">20120414</span> (prerelease)] on linux2
-Type <span class="string">"help"</span>, <span class="string">"copyright"</span>, <span class="string">"credits"</span> or <span class="string">"license"</span> <span class="keyword">for</span> more information.
-&gt;&gt;&gt; from sympy import Symbol, <span class="built_in">cos</span>
-&gt;&gt;&gt; x = Symbol(<span class="string">'x'</span>)
-&gt;&gt;&gt; (<span class="number">1</span>/<span class="built_in">cos</span>(x)).series(x, <span class="number">0</span>, <span class="number">10</span>)
-<span class="number">1</span> + x**<span class="number">2</span>/<span class="number">2</span> + <span class="number">5</span>*x**<span class="number">4</span>/<span class="number">24</span> + <span class="number">61</span>*x**<span class="number">6</span>/<span class="number">720</span> + <span class="number">277</span>*x**<span class="number">8</span>/<span class="number">8064</span> + O(x**<span class="number">10</span>)
-</code></pre><p>你可以如上展示使用SymPy。如果你在你的程序中使用它的话，这确实是推荐的方法。你也可以用<code>./setup.py install</code>像所有其它Python模块一样安装它，或者仅仅在你心爱的发行版中安装相应的包，等等。</p>
-<p><strong>在archlinux中安装SymPy</strong></p>
-<pre><code>[lyy@arch ~]$ sudo pacman -S python2-sympy
-警告：python2-sympy-<span class="number">0.7</span><span class="number">.1</span>-<span class="number">4</span> 已经为最新 -- 重新安装
-正在解决依赖关系...
-正在查找内部冲突...
-
-目标 (<span class="number">1</span>)： python2-sympy-<span class="number">0.7</span><span class="number">.1</span>-<span class="number">4</span>
-
-全部安装大小：<span class="number">25.12</span> MiB
-净更新大小：<span class="number">0.00</span> MiB
-
-进行安装吗？ [Y/n] 
-(<span class="number">1</span>/<span class="number">1</span>) 正在检查软件包完整性      [<span class="preprocessor">###############################] <span class="number">100</span>%</span>
-(<span class="number">1</span>/<span class="number">1</span>) 正在加载软件包文件        [<span class="preprocessor">###############################] <span class="number">100</span>%</span>
-(<span class="number">1</span>/<span class="number">1</span>) 正在检查文件冲突          [<span class="preprocessor">###############################] <span class="number">100</span>%</span>
-(<span class="number">1</span>/<span class="number">1</span>) 正在检查可用硬盘空间      [<span class="preprocessor">###############################] <span class="number">100</span>%</span>
-(<span class="number">1</span>/<span class="number">1</span>) 正在更新 python2-sympy
-</code></pre><p>其它安装SymPy的方法，查阅SymPy主页上的<a href="http://code.google.com/p/sympy/wiki/DownloadInstallation?tm=2" target="_blank" rel="external">下载</a>标签。</p>
-<h3 id="isympy控制台">isympy控制台</h3><p>为了试验新功能，或当搞清楚如何做事时，你可以使用我们对IPython的特殊封装<code>isympy</code>(它位于<code>/bin/isympy</code>中，如果你正在从源码文件夹运行的话)，它仅仅是一个已经导入相关sympy模块的标准python shell，定义了符号<code>x,y,z</code>和一些其它东西：</p>
-<pre><code><span class="list">[<span class="keyword">lyy@arch</span> ~]$ cd sympy 
-<span class="list">[<span class="keyword">lyy@arch</span> ~]$ ./bin/isympy 
-IPython console for SymPy <span class="number">0.7</span>.1 <span class="list">(<span class="keyword">Python</span> <span class="number">2.7</span>.3-64-bit)</span> <span class="list">(<span class="keyword">ground</span> types: python)</span>
-
-These commands were executed:
-&gt;&gt;&gt; from __future__ import division
-&gt;&gt;&gt; from sympy import *
-&gt;&gt;&gt; x, y, z, t = symbols<span class="list">(<span class="variable">'x</span> y z t')</span>
-&gt;&gt;&gt; k, m, n = symbols<span class="list">(<span class="variable">'k</span> m n', integer=True)</span>
-&gt;&gt;&gt; f, g, h = symbols<span class="list">(<span class="variable">'f</span> g h', cls=Function)</span>
-
-Documentation can be found at http://www.sympy.org
-
-In <span class="list">[<span class="keyword">1</span>]: <span class="list">(<span class="keyword">1/cos</span><span class="list">(<span class="keyword">x</span>)</span>)</span>.series<span class="list">(<span class="keyword">x</span>, <span class="number">0</span>, <span class="number">10</span>)</span>
-Out<span class="list">[<span class="keyword">1</span>]: 
-     <span class="number">2</span>      <span class="number">4</span>       <span class="number">6</span>        <span class="number">8</span>           
-    x    <span class="number">5</span>⋅x    <span class="number">61</span>⋅x    <span class="number">277</span>⋅x            
-<span class="number">1</span> + ── + ──── + ───── + ────── + O<span class="list">(<span class="keyword">x**10</span>)</span>
-    <span class="number">2</span>     <span class="number">24</span>     <span class="number">720</span>     <span class="number">8064</span>  </span></span></span></span>
-</code></pre><h3 id="用SymPy做计算器">用SymPy做计算器</h3><p>SymPy有三种内建的数值类型：浮点数、有理数和整数。</p>
-<p>有理数类用一对整数表示一个有理数：分子和分母，所以<code>Rational(1,2)</code>代表1/2,<code>Rational(5,2)</code>代表5/2等等。</p>
-<pre><code>&gt;&gt;&gt; from sympy import *
-&gt;&gt;&gt; a = Rational(<span class="number">1</span>,<span class="number">2</span>)
-
-&gt;&gt;&gt; a
-<span class="number">1</span>/<span class="number">2</span>
-
-&gt;&gt;&gt; a*<span class="number">2</span>
-<span class="number">1</span>
-
-&gt;&gt;&gt; Rational(<span class="number">2</span>)**<span class="number">50</span>/Rational(<span class="number">10</span>)**<span class="number">50</span>
-<span class="number">1</span>/<span class="number">88817841970012523233890533447265625</span>
-</code></pre><p>当计算整型数据时小心处理，因为他们会截取整数部分。这就是为何：</p>
-<pre><code>&gt;&gt;&gt; <span class="number">1</span>/<span class="number">2</span>
-<span class="number">0</span>
-
-&gt;&gt;&gt; <span class="number">1.0</span>/<span class="number">2</span>
-<span class="number">0.5</span>
-</code></pre><p>然而你可以这样做</p>
-<pre><code><span class="prompt">&gt;&gt;</span>&gt; from __future_<span class="number">_</span> import division
-
-<span class="prompt">&gt;&gt;</span>&gt; <span class="number">1</span>/<span class="number">2</span> 
-<span class="number">0</span>.<span class="number">5</span>
-</code></pre><p>真正的除法将要成为python3k的标准，isympy中也是。</p>
-<p>我们也有些特殊的常数，像e和pi，它们被视为符号(1+pi将不被数值求解，它将保持为1+pi)，并且我们可以有任意精度：</p>
-<pre><code>&gt;&gt;&gt; pi**<span class="number">2</span>
-pi**<span class="number">2</span>
-
-&gt;&gt;&gt; pi.<span class="function"><span class="title">evalf</span><span class="params">()</span></span>
-<span class="number">3.14159265358979</span>
-
-&gt;&gt;&gt; (pi+<span class="function"><span class="title">exp</span><span class="params">(<span class="number">1</span>)</span></span>).<span class="function"><span class="title">evalf</span><span class="params">()</span></span>
-<span class="number">5.85987448204884</span>
-</code></pre><p>就像你看到的，<code>evalf</code>将表达式求解为浮点数。</p>
-<p>这还有一个类表示数学上的无限，叫作<code>oo</code>：</p>
-<pre><code><span class="prompt">&gt;&gt;</span>&gt; oo &gt; <span class="number">99999</span>
-<span class="constant">True</span>
-<span class="prompt">&gt;&gt;</span>&gt; oo + <span class="number">1</span>
-oo
-</code></pre><h3 id="符号">符号</h3><p>和其它计算机代数系统相比，在SymPy中你不得不显式地声明符号变量：</p>
-<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy <span class="keyword">import</span> *
-<span class="prompt">&gt;&gt;&gt; </span>x = Symbol(<span class="string">'x'</span>)
-<span class="prompt">&gt;&gt;&gt; </span>y = Symbol(<span class="string">'y'</span>)
-</code></pre><p>然后你可以使用它们：</p>
-<pre><code>&gt;&gt;&gt; x+y+x-y
-2<span class="keyword">*</span>x
-
-&gt;&gt;&gt; (x+y)<span class="keyword">*</span><span class="keyword">*</span>2
-(x + y)<span class="keyword">*</span><span class="keyword">*</span>2
-
-&gt;&gt;&gt; ((x+y)<span class="keyword">*</span><span class="keyword">*</span>2).expand()
-x<span class="keyword">*</span><span class="keyword">*</span>2 + 2<span class="keyword">*</span>x<span class="keyword">*</span>y + y<span class="keyword">*</span><span class="keyword">*</span>2
-</code></pre><p>使用<code>subs(old, new)</code>用其它符号和数代换它们：</p>
-<pre><code>&gt;&gt;&gt; ((x+y)<span class="keyword">*</span><span class="keyword">*</span>2).subs(x, 1)
-(y + 1)<span class="keyword">*</span><span class="keyword">*</span>2
-
-&gt;&gt;&gt; ((x+y)<span class="keyword">*</span><span class="keyword">*</span>2).subs(x, y)
-4<span class="keyword">*</span>y<span class="keyword">*</span><span class="keyword">*</span>2
-</code></pre><p>对于剩余的教程，我们假设我们已经运行了：</p>
-<pre><code><span class="prompt">&gt;&gt;</span>&gt; import sys
-<span class="prompt">&gt;&gt;</span>&gt; oldhook = sys.displayhook
-<span class="prompt">&gt;&gt;</span>&gt; sys.displayhook = pprint
-</code></pre><p>这样就有漂亮的打印。参见之后的<a href="#section-16">打印</a>部分。如果你安装了unicode字体，你的输出可能看起来有点不同。(将看起来稍微好些)</p>
-<h2 id="代数">代数</h2><p>对部分分式分解，使用<code>apart(expr, x)</code>：</p>
-<pre><code>&gt;&gt;&gt; <span class="number">1</span>/((x+<span class="number">2</span>)*(x+<span class="number">1</span>))
-       <span class="number">1</span>       
-───────────────
-(x + <span class="number">1</span>)⋅(x + <span class="number">2</span>)
-&gt;&gt;&gt; apart(<span class="number">1</span>/((x+<span class="number">2</span>)*(x+<span class="number">1</span>)), x)
-    <span class="number">1</span>       <span class="number">1</span>  
-- ───── + ─────
-  x + <span class="number">2</span>   x + <span class="number">1</span>
-&gt;&gt;&gt; (x+<span class="number">1</span>)/(x-<span class="number">1</span>)
-x + <span class="number">1</span>
-─────
-x - <span class="number">1</span>
-&gt;&gt;&gt; apart((x+<span class="number">1</span>)/(x-<span class="number">1</span>), x)
-      <span class="number">2</span>  
-<span class="number">1</span> + ─────
-    x - <span class="number">1</span>
-</code></pre><p>把它们重新结合起来，使用<code>together(expr, x)</code>：</p>
-<pre><code>&gt;&gt;&gt; z = Symbol(<span class="string">'z'</span>)
-&gt;&gt;&gt; together(<span class="number">1</span>/x + <span class="number">1</span>/y + <span class="number">1</span>/z)
-x⋅y + x⋅z + y⋅z
-───────────────
-     x⋅y⋅z     
-&gt;&gt;&gt; together(apart((x+<span class="number">1</span>)/(x-<span class="number">1</span>), x), x)
-x + <span class="number">1</span>
-─────
-x - <span class="number">1</span>
-&gt;&gt;&gt; together(apart(<span class="number">1</span>/( (x+<span class="number">2</span>)*(x+<span class="number">1</span>) ), x), x)
-       <span class="number">1</span>       
-───────────────
-(x + <span class="number">1</span>)⋅(x + <span class="number">2</span>)
-</code></pre><h2 id="演算">演算</h2><h3 id="极限">极限</h3><p>极限在sympy中使用很简单，它们的语法是<code>limit(function, variable, point)</code>，所以计算当x趋近于0时f(x)的极限，你可以给出<code>limit(f, x, 0)</code>：</p>
-<pre><code>&gt;&gt;&gt; from sympy import *
-&gt;&gt;&gt; x=Symbol<span class="list">(<span class="string">"x"</span>)</span>
-&gt;&gt;&gt; limit<span class="list">(<span class="keyword">sin</span><span class="list">(<span class="keyword">x</span>)</span>/x, x, <span class="number">0</span>)</span>
-<span class="number">1</span>
-</code></pre><p>你也可以计算在无穷的极限：</p>
-<pre><code>&gt;&gt;&gt; <span class="function"><span class="title">limit</span><span class="params">(sin(x)</span></span>/x,x,<span class="number">0</span>)
-<span class="number">1</span>
-&gt;&gt;&gt; <span class="function"><span class="title">limit</span><span class="params">(x,x,oo)</span></span>
-∞
-</code></pre><p>对于一些不寻常的极限例子，你可以阅读这个测试文件<a href="https://github.com/sympy/sympy/blob/master/sympy/series/tests/test_demidovich.py" target="_blank" rel="external">test_demidovich.py</a></p>
-<h3 id="微分">微分</h3><p>你可以使用<code>diff(func, var)</code>微分任何SymPy表达式。例如：</p>
-<pre><code>&gt;&gt;&gt; from sympy import *
-&gt;&gt;&gt; x = Symbol(<span class="string">'x'</span>)
-&gt;&gt;&gt; diff(<span class="built_in">sin</span>(x), x)
-<span class="built_in">cos</span>(x)
-&gt;&gt;&gt; diff(<span class="built_in">sin</span>(<span class="number">2</span>*x), x)
-<span class="number">2</span>⋅<span class="built_in">cos</span>(<span class="number">2</span>⋅x)
-&gt;&gt;&gt; diff(<span class="built_in">tan</span>(x), x)
-   <span class="number">2</span>       
-<span class="built_in">tan</span> (x) + <span class="number">1</span>
-</code></pre><p>你可以检查正确性：</p>
-<pre><code>&gt;&gt;&gt; limit<span class="list">(<span class="list">(<span class="keyword">tan</span><span class="list">(<span class="keyword">x+y</span>)</span>-tan<span class="list">(<span class="keyword">x</span>)</span>)</span>/y, y, <span class="number">0</span>)</span>
-   <span class="number">2</span>       
-tan <span class="list">(<span class="keyword">x</span>)</span> + <span class="number">1</span>
-</code></pre><p>高阶微分可以使用<code>diff(func, var, n)</code>来计算：</p>
-<pre><code>&gt;&gt;&gt; diff(<span class="built_in">sin</span>(<span class="number">2</span>*x), x, <span class="number">1</span>)
-<span class="number">2</span>⋅<span class="built_in">cos</span>(<span class="number">2</span>⋅x)
-&gt;&gt;&gt; diff(<span class="built_in">sin</span>(<span class="number">2</span>*x), x, <span class="number">2</span>)
--<span class="number">4</span>⋅<span class="built_in">sin</span>(<span class="number">2</span>⋅x)
-&gt;&gt;&gt; diff(<span class="built_in">sin</span>(<span class="number">2</span>*x), x, <span class="number">3</span>)
--<span class="number">8</span>⋅<span class="built_in">cos</span>(<span class="number">2</span>⋅x)
-</code></pre><h3 id="级数展开">级数展开</h3><p>使用<code>.series(var, point, order)</code>:</p>
-<pre><code>&gt;&gt;&gt; <span class="built_in">cos</span>(x).series(x, <span class="number">0</span>, <span class="number">10</span>)
-     <span class="number">2</span>    <span class="number">4</span>     <span class="number">6</span>      <span class="number">8</span>            
-    x    x     x      x             
-<span class="number">1</span> - ── + ── - ─── + ───── + O(x**<span class="number">10</span>)
-    <span class="number">2</span>    <span class="number">24</span>   <span class="number">720</span>   <span class="number">40320</span> 
-&gt;&gt;&gt; (<span class="number">1</span>/<span class="built_in">cos</span>(x)).series(x, <span class="number">0</span>, <span class="number">10</span>)
-     <span class="number">2</span>      <span class="number">4</span>       <span class="number">6</span>        <span class="number">8</span>           
-    x    <span class="number">5</span>⋅x    <span class="number">61</span>⋅x    <span class="number">277</span>⋅x            
-<span class="number">1</span> + ── + ──── + ───── + ────── + O(x**<span class="number">10</span>)
-    <span class="number">2</span>     <span class="number">24</span>     <span class="number">720</span>     <span class="number">8064</span>            
-</code></pre><p>另一个简单的例子：</p>
-<pre><code>&gt;&gt;&gt; from sympy import Integral, Symbol, pprint
-&gt;&gt;&gt; x = Symbol(<span class="string">'x'</span>)
-&gt;&gt;&gt; y = Symbol(<span class="string">'y'</span>)
-&gt;&gt;&gt; e = <span class="number">1</span>/(x + y)
-&gt;&gt;&gt; s = e.series(x, <span class="number">0</span>, <span class="number">5</span>)
-&gt;&gt;&gt; print(s)
-<span class="number">1</span>/y - x/y**<span class="number">2</span> + x**<span class="number">2</span>/y**<span class="number">3</span> - x**<span class="number">3</span>/y**<span class="number">4</span> + x**<span class="number">4</span>/y**<span class="number">5</span> + O(x**<span class="number">5</span>)
-&gt;&gt;&gt; pprint(s)
-          <span class="number">2</span>    <span class="number">3</span>    <span class="number">4</span>          
-<span class="number">1</span>   x    x    x    x           
-─ - ── + ── - ── + ── + O(x**<span class="number">5</span>)
-y    <span class="number">2</span>    <span class="number">3</span>    <span class="number">4</span>    <span class="number">5</span>          
-    y    y    y    y           
-None
-</code></pre><h3 id="求和">求和</h3><p>计算给定求和变量界限的f的总和(Summation)。[^2]</p>
-<p><code>summation(f, (i, a, b))</code>变量i从a到b计算f的和，也就是，</p>
-<pre><code>                            <span class="tag">b</span>
-                          ____
-                          \   `
-<span class="function"><span class="title">summation</span><span class="params">(f, (i, a, b)</span></span>) =  )    f
-                          /___,
-                          <span class="tag">i</span> = a
-</code></pre><p>如果不能计算总和，它将打印相应的求和公式。求值可引入额外的极限计算：</p>
-<pre><code>&gt;&gt;&gt; from sympy import summation, oo, symbols, <span class="literal">log</span>
-&gt;&gt;&gt; i, <span class="keyword">n</span>, <span class="keyword">m</span> = symbols('i <span class="keyword">n</span> <span class="keyword">m</span>', integer=True)
-&gt;&gt;&gt; summation(2*i - 1, (i, 1, <span class="keyword">n</span>))
- 2
-<span class="keyword">n</span> 
-&gt;&gt;&gt; summation(1/2**i, (i, 0, oo))
-2
-&gt;&gt;&gt; summation(1/<span class="literal">log</span>(<span class="keyword">n</span>)**<span class="keyword">n</span>, (<span class="keyword">n</span>, 2, oo))
-  ∞           
- ___          
- \  `         
-  \      -<span class="keyword">n</span>   
-  /   <span class="keyword">log</span>  (<span class="keyword">n</span>)
- /__,         
-<span class="keyword">n</span> = 2         
-&gt;&gt;&gt; summation(i, (i, 0, <span class="keyword">n</span>), (<span class="keyword">n</span>, 0, <span class="keyword">m</span>))
- 3    2    
-<span class="keyword">m</span>    <span class="keyword">m</span>    <span class="literal">m</span>
-── + ── + ─
-6    2    3
-&gt;&gt;&gt; from sympy.abc import x
-&gt;&gt;&gt; from sympy import factorial
-&gt;&gt;&gt; summation(x**<span class="keyword">n</span>/factorial(<span class="keyword">n</span>), (<span class="keyword">n</span>, 0, oo))
- x
-ℯ 
-</code></pre><h3 id="积分">积分</h3><p>通过<code>integrate()</code>功能(facility)，SymPy对基本和特殊函数定与不定积分有卓越的支持。<br>该功能使用有力的扩展Risch-Norman算法，启发算法和模式匹配：</p>
-<pre><code>&gt;&gt;&gt; from sympy import integrate, <span class="built_in">erf</span>, <span class="built_in">exp</span>, <span class="built_in">sin</span>, <span class="built_in">log</span>, oo, <span class="built_in">pi</span>, <span class="built_in">sinh</span>, symbols
-&gt;&gt;&gt; x, y = symbols(<span class="string">'x,y'</span>)
-</code></pre><p>你可以对基本函数积分：</p>
-<pre><code>&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(<span class="number">6</span>*x**<span class="number">5</span>, x)</span></span>
- <span class="number">6</span>
-x 
-&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(sin(x)</span></span>, x)
--<span class="function"><span class="title">cos</span><span class="params">(x)</span></span>
-&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(log(x)</span></span>, x)
-x⋅<span class="function"><span class="title">log</span><span class="params">(x)</span></span> - x
-&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(<span class="number">2</span>*x + sinh(x)</span></span>, x)
- <span class="number">2</span>          
-x  + <span class="function"><span class="title">cosh</span><span class="params">(x)</span></span>
-</code></pre><p>特殊函数也可以简单的处理：</p>
-<pre><code>&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(exp(-x**<span class="number">2</span>)</span></span>*<span class="function"><span class="title">erf</span><span class="params">(x)</span></span>, x)
-  ⎽⎽⎽    <span class="number">2</span>   
-╲╱ π ⋅erf (x)
-─────────────
-      <span class="number">4</span>      
-</code></pre><p>还可以计算定积分：</p>
-<pre><code>&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">x**3</span>, <span class="list">(<span class="keyword">x</span>, <span class="number">-1</span>, <span class="number">1</span>)</span>)</span>
-<span class="number">0</span>
-&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">sin</span><span class="list">(<span class="keyword">x</span>)</span>, <span class="list">(<span class="keyword">x</span>, <span class="number">0</span>, pi/2)</span>)</span>
-<span class="number">1</span>
-&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">cos</span><span class="list">(<span class="keyword">x</span>)</span>, <span class="list">(<span class="keyword">x</span>, -pi/2, pi/2)</span>)</span>
-<span class="number">2</span>
-</code></pre><p>反常积分也被支持：</p>
-<pre><code>&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">exp</span><span class="list">(<span class="keyword">-x</span>)</span>, <span class="list">(<span class="keyword">x</span>, <span class="number">0</span>, oo)</span>)</span>
-<span class="number">1</span>
-&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">log</span><span class="list">(<span class="keyword">x</span>)</span>, <span class="list">(<span class="keyword">x</span>, <span class="number">0</span>, <span class="number">1</span>)</span>)</span>
-<span class="number">-1</span>
-</code></pre><h3 id="复数">复数</h3><p>除了复数单元<code>I</code>是虚数，符号可以被用属性创建(例如 real,positive,complex,等等)这将影响它们的表现：</p>
-<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import <span class="constant">Symbol</span>, exp, <span class="constant">I</span>
-<span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">'x'</span>)  <span class="comment"># a plain x with no attributes</span>
-<span class="prompt">&gt;&gt;</span>&gt; exp(<span class="constant">I</span>*x).expand()
- ⅈ⋅x
-ℯ   
-<span class="prompt">&gt;&gt;</span>&gt; exp(<span class="constant">I</span>*x).expand(complex=<span class="constant">True</span>)
-   -im(x)               -im(x)           
-ⅈ⋅ℯ      ⋅sin(re(x)) + ℯ      ⋅cos(re(x))
-<span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">'x'</span>, real=<span class="constant">True</span>)
-<span class="prompt">&gt;&gt;</span>&gt; exp(<span class="constant">I</span>*x).expand(complex=<span class="constant">True</span>)
-ⅈ⋅sin(x) + cos(x)
-</code></pre><h3 id="函数">函数</h3><p><strong>三角函数:</strong></p>
-<pre><code>&gt;&gt;&gt; from sympy import asin, asinh, cos, sin, sinh, symbols, I
-&gt;&gt;&gt; x, y = <span class="function"><span class="title">symbols</span><span class="params">(<span class="string">'x,y'</span>)</span></span>
-&gt;&gt;&gt; <span class="function"><span class="title">sin</span><span class="params">(x+y)</span></span>.<span class="function"><span class="title">expand</span><span class="params">(trig=True)</span></span>
-<span class="function"><span class="title">sin</span><span class="params">(x)</span></span>⋅<span class="function"><span class="title">cos</span><span class="params">(y)</span></span> + <span class="function"><span class="title">sin</span><span class="params">(y)</span></span>⋅<span class="function"><span class="title">cos</span><span class="params">(x)</span></span>
-&gt;&gt;&gt; <span class="function"><span class="title">cos</span><span class="params">(x+y)</span></span>.<span class="function"><span class="title">expand</span><span class="params">(trig=True)</span></span>
--<span class="function"><span class="title">sin</span><span class="params">(x)</span></span>⋅<span class="function"><span class="title">sin</span><span class="params">(y)</span></span> + <span class="function"><span class="title">cos</span><span class="params">(x)</span></span>⋅<span class="function"><span class="title">cos</span><span class="params">(y)</span></span>
-&gt;&gt;&gt; <span class="function"><span class="title">sin</span><span class="params">(I*x)</span></span>
-ⅈ⋅<span class="function"><span class="title">sinh</span><span class="params">(x)</span></span>
-&gt;&gt;&gt; <span class="function"><span class="title">sinh</span><span class="params">(I*x)</span></span>
-ⅈ⋅<span class="function"><span class="title">sin</span><span class="params">(x)</span></span>
-&gt;&gt;&gt; <span class="function"><span class="title">asinh</span><span class="params">(I)</span></span>
-ⅈ⋅π
-───
- <span class="number">2</span> 
-&gt;&gt;&gt; <span class="function"><span class="title">asinh</span><span class="params">(I*x)</span></span>
-ⅈ⋅<span class="function"><span class="title">asin</span><span class="params">(x)</span></span>
-&gt;&gt;&gt; <span class="function"><span class="title">sin</span><span class="params">(x)</span></span>.<span class="function"><span class="title">series</span><span class="params">(x, <span class="number">0</span>, <span class="number">10</span>)</span></span>
-     <span class="number">3</span>     <span class="number">5</span>     <span class="number">7</span>       <span class="number">9</span>             
-    x     x     x       x              
-x - ── + ─── - ──── + ────── + <span class="function"><span class="title">O</span><span class="params">(x**<span class="number">10</span>)</span></span>
-    <span class="number">6</span>    <span class="number">120</span>   <span class="number">5040</span>   <span class="number">362880</span>           
-&gt;&gt;&gt; <span class="function"><span class="title">sinh</span><span class="params">(x)</span></span>.<span class="function"><span class="title">series</span><span class="params">(x, <span class="number">0</span>, <span class="number">10</span>)</span></span>
-     <span class="number">3</span>     <span class="number">5</span>     <span class="number">7</span>       <span class="number">9</span>             
-    x     x     x       x              
-x + ── + ─── + ──── + ────── + <span class="function"><span class="title">O</span><span class="params">(x**<span class="number">10</span>)</span></span>
-    <span class="number">6</span>    <span class="number">120</span>   <span class="number">5040</span>   <span class="number">362880</span>           
-&gt;&gt;&gt; <span class="function"><span class="title">asin</span><span class="params">(x)</span></span>.<span class="function"><span class="title">series</span><span class="params">(x, <span class="number">0</span>, <span class="number">10</span>)</span></span>
-     <span class="number">3</span>      <span class="number">5</span>      <span class="number">7</span>       <span class="number">9</span>           
-    x    <span class="number">3</span>⋅x    <span class="number">5</span>⋅x    <span class="number">35</span>⋅x            
-x + ── + ──── + ──── + ───── + <span class="function"><span class="title">O</span><span class="params">(x**<span class="number">10</span>)</span></span>
-    <span class="number">6</span>     <span class="number">40</span>    <span class="number">112</span>     <span class="number">1152</span>           
-&gt;&gt;&gt; <span class="function"><span class="title">asinh</span><span class="params">(x)</span></span>.<span class="function"><span class="title">series</span><span class="params">(x, <span class="number">0</span>, <span class="number">10</span>)</span></span>
-     <span class="number">3</span>      <span class="number">5</span>      <span class="number">7</span>       <span class="number">9</span>           
-    x    <span class="number">3</span>⋅x    <span class="number">5</span>⋅x    <span class="number">35</span>⋅x            
-x - ── + ──── - ──── + ───── + <span class="function"><span class="title">O</span><span class="params">(x**<span class="number">10</span>)</span></span>
-    <span class="number">6</span>     <span class="number">40</span>    <span class="number">112</span>     <span class="number">1152</span>    
-</code></pre><p><strong>球谐函数：</strong></p>
-<pre><code>&gt;&gt;&gt; from sympy import Ylm
-&gt;&gt;&gt; from sympy<span class="class">.abc</span> import theta, phi
-&gt;&gt;&gt; <span class="function"><span class="title">Ylm</span><span class="params">(<span class="number">1</span>, <span class="number">0</span>, theta, phi)</span></span>
-  ⎽⎽⎽       
-╲╱ <span class="number">3</span> ⋅<span class="function"><span class="title">cos</span><span class="params">(θ)</span></span>
-────────────
-      ⎽⎽⎽   
-  <span class="number">2</span>⋅╲╱ π    
-&gt;&gt;&gt; <span class="function"><span class="title">Ylm</span><span class="params">(<span class="number">1</span>, <span class="number">1</span>, theta, phi)</span></span>
-   ⎽⎽⎽  ⅈ⋅φ       
--╲╱ <span class="number">6</span> ⋅ℯ   ⋅<span class="function"><span class="title">sin</span><span class="params">(θ)</span></span>
-──────────────────
-         ⎽⎽⎽      
-     <span class="number">4</span>⋅╲╱ π       
-&gt;&gt;&gt; <span class="function"><span class="title">Ylm</span><span class="params">(<span class="number">2</span>, <span class="number">1</span>, theta, phi)</span></span>
-   ⎽⎽⎽⎽  ⅈ⋅φ              
--╲╱ <span class="number">30</span> ⋅ℯ   ⋅<span class="function"><span class="title">sin</span><span class="params">(θ)</span></span>⋅<span class="function"><span class="title">cos</span><span class="params">(θ)</span></span>
-──────────────────────────
-             ⎽⎽⎽          
-         <span class="number">4</span>⋅╲╱ π       
-</code></pre><p><strong>阶乘和伽马函数：</strong></p>
-<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import factorial, gamma, <span class="constant">Symbol</span>
-<span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">"x"</span>)
-<span class="prompt">&gt;&gt;</span>&gt; n = <span class="constant">Symbol</span>(<span class="string">"n"</span>, integer=<span class="constant">True</span>)
-<span class="prompt">&gt;&gt;</span>&gt; factorial(x)
-x!
-<span class="prompt">&gt;&gt;</span>&gt; factorial(n)
-n!
-<span class="prompt">&gt;&gt;</span>&gt; gamma(x + <span class="number">1</span>).series(x, <span class="number">0</span>, <span class="number">3</span>) <span class="comment"># i.e. factorial(x)</span>
-                    <span class="number">2</span>  <span class="number">2</span>             <span class="number">2</span>  <span class="number">2</span>          
-                   π ⋅x    <span class="constant">EulerGamma</span> ⋅x           
-<span class="number">1</span> - <span class="constant">EulerGamma</span>⋅x + ───── + ────────────── + <span class="constant">O</span>(x**<span class="number">3</span>)
-                     <span class="number">12</span>          <span class="number">2</span>     
-</code></pre><p><strong>zeta函数：</strong></p>
-<pre><code>&gt;&gt;&gt; from sympy import zeta
-&gt;&gt;&gt; zeta(<span class="number">4</span>, x)
-ζ(<span class="number">4</span>, x)
-&gt;&gt;&gt; zeta(<span class="number">4</span>, <span class="number">1</span>)
- <span class="number">4</span>
-π 
-──
-<span class="number">90</span>
-&gt;&gt;&gt; zeta(<span class="number">4</span>, <span class="number">2</span>)
-      <span class="number">4</span>
-     π 
--<span class="number">1</span> + ──
-     <span class="number">90</span>
-&gt;&gt;&gt; zeta(<span class="number">4</span>, <span class="number">3</span>)
-        <span class="number">4</span>
-  <span class="number">17</span>   π 
-- ── + ──
-  <span class="number">16</span>   <span class="number">90</span>
-</code></pre><p><strong>多项式：</strong></p>
-<pre><code>&gt;&gt;&gt; from sympy import assoc_legendre, chebyshevt, legendre, hermite
-&gt;&gt;&gt; chebyshevt(<span class="number">2</span>, x)
-   <span class="number">2</span>    
-<span class="number">2</span>⋅x  - <span class="number">1</span>
-&gt;&gt;&gt; chebyshevt(<span class="number">4</span>, x)
-   <span class="number">4</span>      <span class="number">2</span>    
-<span class="number">8</span>⋅x  - <span class="number">8</span>⋅x  + <span class="number">1</span>
-&gt;&gt;&gt; legendre(<span class="number">2</span>, x)
-   <span class="number">2</span>    
-<span class="number">3</span>⋅x    <span class="number">1</span>
-──── - ─
- <span class="number">2</span>     <span class="number">2</span>
-&gt;&gt;&gt; legendre(<span class="number">8</span>, x)
-      <span class="number">8</span>         <span class="number">6</span>         <span class="number">4</span>        <span class="number">2</span>      
-<span class="number">6435</span>⋅x    <span class="number">3003</span>⋅x    <span class="number">3465</span>⋅x    <span class="number">315</span>⋅x     <span class="number">35</span>
-─────── - ─────── + ─────── - ────── + ───
-  <span class="number">128</span>        <span class="number">32</span>        <span class="number">64</span>       <span class="number">32</span>     <span class="number">128</span>
-&gt;&gt;&gt; assoc_legendre(<span class="number">2</span>, <span class="number">1</span>, x)
-        ⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽
-       ╱    <span class="number">2</span>     
--<span class="number">3</span>⋅x⋅╲╱  - x  + <span class="number">1</span> 
-&gt;&gt;&gt; assoc_legendre(<span class="number">2</span>, <span class="number">2</span>, x)
-     <span class="number">2</span>    
-- <span class="number">3</span>⋅x  + <span class="number">3</span>
-&gt;&gt;&gt; hermite(<span class="number">3</span>, x)
-   <span class="number">3</span>       
-<span class="number">8</span>⋅x  - <span class="number">12</span>⋅x
-</code></pre><h3 id="微分方程">微分方程</h3><p>在 isympy中：</p>
-<pre><code>&gt;&gt;&gt; from sympy import Function, Symbol, dsolve
-&gt;&gt;&gt; f = <span class="function"><span class="title">Function</span><span class="params">(<span class="string">'f'</span>)</span></span>
-&gt;&gt;&gt; x = <span class="function"><span class="title">Symbol</span><span class="params">(<span class="string">'x'</span>)</span></span>
-&gt;&gt;&gt; <span class="function"><span class="title">f</span><span class="params">(x)</span></span>.<span class="function"><span class="title">diff</span><span class="params">(x, x)</span></span> + <span class="function"><span class="title">f</span><span class="params">(x)</span></span>
-         <span class="number">2</span>      
-        d       
-<span class="function"><span class="title">f</span><span class="params">(x)</span></span> + ───(<span class="function"><span class="title">f</span><span class="params">(x)</span></span>)
-         <span class="number">2</span>      
-       dx       
-&gt;&gt;&gt; <span class="function"><span class="title">dsolve</span><span class="params">(f(x)</span></span>.<span class="function"><span class="title">diff</span><span class="params">(x, x)</span></span> + <span class="function"><span class="title">f</span><span class="params">(x)</span></span>, <span class="function"><span class="title">f</span><span class="params">(x)</span></span>)
-<span class="function"><span class="title">f</span><span class="params">(x)</span></span> = C₁⋅<span class="function"><span class="title">cos</span><span class="params">(x)</span></span> + C₂⋅<span class="function"><span class="title">sin</span><span class="params">(x)</span></span>
-</code></pre><h3 id="代数方程">代数方程</h3><p>在isympy中：</p>
-<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import solve, symbols
-<span class="prompt">&gt;&gt;</span>&gt; x, y = symbols(<span class="string">'x,y'</span>)
-<span class="prompt">&gt;&gt;</span>&gt; solve(x**<span class="number">4</span> - <span class="number">1</span>, x)
-[<span class="number">1</span>, -<span class="number">1</span>, -ⅈ, ⅈ]
-<span class="prompt">&gt;&gt;</span>&gt; solve([x + <span class="number">5</span>*y - <span class="number">2</span>, -<span class="number">3</span>*x + <span class="number">6</span>*y - <span class="number">15</span>], [x, y])
-{<span class="symbol">x:</span> -<span class="number">3</span>, <span class="symbol">y:</span> <span class="number">1</span>}
-</code></pre><h2 id="线性代数">线性代数</h2><h3 id="矩阵">矩阵</h3><p>矩阵从Matrix类创建：</p>
-<pre><code>&gt;&gt;&gt; from sympy import Matrix, Symbol
-&gt;&gt;&gt; Matrix([[<span class="number">1</span>,<span class="number">0</span>], [<span class="number">0</span>,<span class="number">1</span>]])
-⎡<span class="number">1</span>  <span class="number">0</span>⎤
-⎢    ⎥
-⎣<span class="number">0</span>  <span class="number">1</span>⎦
-</code></pre><p>它可以包含符号：</p>
-<pre><code><span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">'x'</span>)
-<span class="prompt">&gt;&gt;</span>&gt; y = <span class="constant">Symbol</span>(<span class="string">'y'</span>)
-<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">A</span> = <span class="constant">Matrix</span>([[<span class="number">1</span>,x], [y,<span class="number">1</span>]])
-<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">A</span>
-⎡<span class="number">1</span>  x⎤
-⎢    ⎥
-⎣y  <span class="number">1</span>⎦
-<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">A</span>**<span class="number">2</span>
-⎡x⋅y + <span class="number">1</span>    <span class="number">2</span>⋅x  ⎤
-⎢                ⎥
-⎣  <span class="number">2</span>⋅y    x⋅y + <span class="number">1</span>⎦
-</code></pre><p>更多有关矩阵信息，参见线性代数教程。</p>
-<h2 id="模式匹配">模式匹配</h2><p>使用<code>.match()</code>方法，和Wild类对表达式实行模式匹配。这个方法将返回一个发生替换的字典，如下：</p>
-<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import <span class="constant">Symbol</span>, <span class="constant">Wild</span>
-<span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">'x'</span>)
-<span class="prompt">&gt;&gt;</span>&gt; p = <span class="constant">Wild</span>(<span class="string">'p'</span>)
-<span class="prompt">&gt;&gt;</span>&gt; (<span class="number">5</span>*x**<span class="number">2</span>).match(p*x**<span class="number">2</span>)
-{<span class="symbol">p:</span> <span class="number">5</span>}
-<span class="prompt">&gt;&gt;</span>&gt; q = <span class="constant">Wild</span>(<span class="string">'q'</span>)
-<span class="prompt">&gt;&gt;</span>&gt; (x**<span class="number">2</span>).match(p*x**q)
-{<span class="symbol">p:</span> <span class="number">1</span>, <span class="symbol">q:</span> <span class="number">2</span>}
-</code></pre><p>如果匹配失败，将返回<code>None</code>：</p>
-<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> (x+<span class="number">1</span>).match(p**x)
-<span class="keyword">None</span>
-</code></pre><p>可以指定<code>Wild</code>类的排除参数去保证一些东西不出现在结果之中：</p>
-<pre><code>&gt;&gt;&gt; p = Wild(<span class="string">'p'</span>, exclude=[<span class="number">1</span>,x])
-&gt;&gt;&gt; print (x+<span class="number">1</span>).match(x+p) <span class="preprocessor"># <span class="number">1</span> is excluded</span>
-None
-&gt;&gt;&gt; print (x+<span class="number">1</span>).match(p+<span class="number">1</span>) <span class="preprocessor"># x is excluded</span>
-None
-&gt;&gt;&gt; print (x+<span class="number">1</span>).match(x+<span class="number">2</span>+p) <span class="preprocessor"># -<span class="number">1</span> is not excluded</span>
-{p_: -<span class="number">1</span>}
-</code></pre><h2 id="打印">打印</h2><p>这里有许多打印表达式的方法：</p>
-<p><strong>标准</strong></p>
-<p>这就是<code>str(expression)</code>返回的，看起来想这样：</p>
-<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy <span class="keyword">import</span> Integral
-<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy.abc <span class="keyword">import</span> x
-<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> x**<span class="number">2</span>
-x**<span class="number">2</span>
-<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> <span class="number">1</span>/x
-<span class="number">1</span>/x
-<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> Integral(x**<span class="number">2</span>, x)
-Integral(x**<span class="number">2</span>, x)
-</code></pre><p><strong>漂亮的打印</strong></p>
-<p><code>pprint</code>函数产生好看的ascii艺术打印：</p>
-<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy <span class="keyword">import</span> Integral, pprint
-<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy.abc <span class="keyword">import</span> x
-<span class="prompt">&gt;&gt;&gt; </span>pprint(x**<span class="number">2</span>)
- <span class="number">2</span>
-x 
-<span class="keyword">None</span>
-<span class="prompt">&gt;&gt;&gt; </span>pprint(<span class="number">1</span>/x)
-<span class="number">1</span>
-─
-x
-<span class="keyword">None</span>
-<span class="prompt">&gt;&gt;&gt; </span>pprint(Integral(x**<span class="number">2</span>, x))
-⌠      
-⎮  <span class="number">2</span>   
-⎮ x  dx
-⌡      
-<span class="keyword">None</span>
-</code></pre><p>如果你安装了unicode字体，<code>pprint</code>函数将默认使用它。你可以使用<code>use_unicode</code>函数改变这个选项。：</p>
-<pre><code>&gt;&gt;&gt; pprint(Integral(x<span class="keyword">*</span><span class="keyword">*</span>2, x), use_unicode=False)
-  /     
- |<span class="string">      
- </span>|<span class="string">  2   
- </span>|<span class="string"> x  dx
- </span>|<span class="string">      
-/       
-None</span>
-</code></pre><p>更多好看的unicode打印另见维基<a href="https://github.com/sympy/sympy/wiki/Pretty-Printing" target="_blank" rel="external">Pretty Printing</a>。</p>
-<p>小技巧：在Python解释器中默认使用漂亮的打印，使用：</p>
-<pre><code>$ python
-Python <span class="number">2.5</span><span class="number">.2</span> (r252:<span class="number">60911</span>, Jun <span class="number">25</span> <span class="number">2008</span>, <span class="number">17</span>:<span class="number">58</span>:<span class="number">32</span>)
-[GCC <span class="number">4.3</span><span class="number">.1</span>] on linux2
-Type <span class="string">"help"</span>, <span class="string">"copyright"</span>, <span class="string">"credits"</span> or <span class="string">"license"</span> <span class="keyword">for</span> more information.
-&gt;&gt;&gt; from sympy import init_printing, var, Integral
-&gt;&gt;&gt; init_printing(use_unicode=False, wrap_line=False, no_global=True)
-&gt;&gt;&gt; var(<span class="string">"x"</span>)
-x
-&gt;&gt;&gt; x**<span class="number">3</span>/<span class="number">3</span>
- <span class="number">3</span>
-x
---
-<span class="number">3</span>
-&gt;&gt;&gt; Integral(x**<span class="number">2</span>, x) <span class="preprocessor">#doctest: +NORMALIZE_WHITESPACE</span>
-  /
- |
- |  <span class="number">2</span>
- | x  dx
- |
-/
-</code></pre><p><strong>Python打印</strong></p>
-<pre><code>&gt;&gt;&gt; from sympy<span class="class">.printing</span><span class="class">.python</span> import python
-&gt;&gt;&gt; from sympy import Integral
-&gt;&gt;&gt; from sympy<span class="class">.abc</span> import x
-&gt;&gt;&gt; print <span class="function"><span class="title">python</span><span class="params">(x**<span class="number">2</span>)</span></span>
-x = <span class="function"><span class="title">Symbol</span><span class="params">(<span class="string">'x'</span>)</span></span>
-e = x**<span class="number">2</span>
-&gt;&gt;&gt; print <span class="function"><span class="title">python</span><span class="params">(<span class="number">1</span>/x)</span></span>
-x = <span class="function"><span class="title">Symbol</span><span class="params">(<span class="string">'x'</span>)</span></span>
-e = <span class="number">1</span>/x
-&gt;&gt;&gt; print <span class="function"><span class="title">python</span><span class="params">(Integral(x**<span class="number">2</span>, x)</span></span>)
-x = <span class="function"><span class="title">Symbol</span><span class="params">(<span class="string">'x'</span>)</span></span>
-e = <span class="function"><span class="title">Integral</span><span class="params">(x**<span class="number">2</span>, x)</span></span>
-</code></pre><p><strong>LaTeX打印</strong></p>
-<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import <span class="constant">Integral</span>, latex
-<span class="prompt">&gt;&gt;</span>&gt; from sympy.abc import x
-<span class="prompt">&gt;&gt;</span>&gt; latex(x**<span class="number">2</span>)
-x^{<span class="number">2</span>}
-<span class="prompt">&gt;&gt;</span>&gt; latex(x**<span class="number">2</span>, mode=<span class="string">'inline'</span>)
-<span class="variable">$x</span>^{<span class="number">2</span>}<span class="variable">$
-</span><span class="prompt">&gt;&gt;</span>&gt; latex(x**<span class="number">2</span>, mode=<span class="string">'equation'</span>)
-\<span class="keyword">begin</span>{equation}x^{<span class="number">2</span>}\<span class="keyword">end</span>{equation}
-<span class="prompt">&gt;&gt;</span>&gt; latex(x**<span class="number">2</span>, mode=<span class="string">'equation*'</span>)
-\<span class="keyword">begin</span>{equation*}x^{<span class="number">2</span>}\<span class="keyword">end</span>{equation*}
-<span class="prompt">&gt;&gt;</span>&gt; latex(<span class="number">1</span>/x)
-\frac{<span class="number">1</span>}{x}
-<span class="prompt">&gt;&gt;</span>&gt; latex(<span class="constant">Integral</span>(x**<span class="number">2</span>, x))
-\int x^{<span class="number">2</span>}\,dx
-</code></pre><p><strong>MathML</strong></p>
-<pre><code>&gt;&gt;&gt; <span class="keyword">from</span> sympy.printing.mathml import mathml
-&gt;&gt;&gt; <span class="keyword">from</span> sympy import Integral, latex
-&gt;&gt;&gt; <span class="keyword">from</span> sympy.abc import x
-&gt;&gt;&gt; print mathml(x**<span class="number">2</span>)
-<span class="variable">&lt;apply&gt;</span><span class="variable">&lt;power/&gt;</span><span class="variable">&lt;ci&gt;</span>x<span class="variable">&lt;/ci&gt;</span><span class="variable">&lt;cn&gt;</span><span class="number">2</span><span class="variable">&lt;/cn&gt;</span><span class="variable">&lt;/apply&gt;</span>
-&gt;&gt;&gt; print mathml(<span class="number">1</span>/x)
-<span class="variable">&lt;apply&gt;</span><span class="variable">&lt;power/&gt;</span><span class="variable">&lt;ci&gt;</span>x<span class="variable">&lt;/ci&gt;</span><span class="variable">&lt;cn&gt;</span>-<span class="number">1</span><span class="variable">&lt;/cn&gt;</span><span class="variable">&lt;/apply&gt;</span>
-</code></pre><p><strong>Pylet</strong></p>
-<pre><code>&gt;&gt;&gt; from sympy import Integral, preview
-&gt;&gt;&gt; from sympy.abc import x
-&gt;&gt;&gt; preview(Integral(x**2, x))
-This is pdfTeX, <span class="keyword">Version</span> 3.1415926-2.4-1.40.13 (TeX Live 2012/<span class="keyword">Arch</span> Linux)
- restricted \write18 enabled.
-entering extended mode
-(/tmp/tmpGYREx_.tex
-LaTeX2e &lt;2011/06/27&gt;
-Babel &lt;v3.8m&gt; and hyphenation patterns <span class="keyword">for</span> english, dumylang, nohyphenation, <span class="keyword">ge</span>
-rman-x-2012-05-30, ngerman-x-2012-05-30, afrikaans, ancientgreek, ibycus, arabi
-c, armenian, basque, bulgarian, catalan, pinyin, coptic, croatian, czech, danis
-<span class="keyword">h</span>, dutch, ukenglish, usenglishmax, esperanto, estonian, ethiopic, farsi, finnis
-<span class="keyword">h</span>, french, friulan, galician, german, ngerman, swissgerman, monogreek, greek, <span class="literal">h</span>
-ungarian, icelandic, assamese, bengali, gujarati, hindi, kannada, malayalam, <span class="keyword">ma</span>
-rathi, oriya, panjabi, tamil, telugu, indonesian, interlingua, irish, italian, 
-kurmanji, latin, latvian, lithuanian, mongolian, mongolianlmc, bokmal, nynorsk,
- polish, portuguese, romanian, romansh, russian, sanskrit, serbian, serbianc, <span class="literal">s</span>
-lovak, slovenian, spanish, swedish, turkish, turkmen, ukrainian, uppersorbian, 
-welsh, loaded.
-(/usr/share/texmf-dist/tex/latex/base/article.cls
-Document <span class="keyword">Class</span>: article 2007/10/19 v1.4h Standard LaTeX document <span class="keyword">class</span>
-(/usr/share/texmf-dist/tex/latex/base/size12.<span class="keyword">clo</span>))
-(/usr/share/texmf-dist/tex/latex/amsmath/amsmath.sty
-<span class="keyword">For</span> additional information <span class="keyword">on</span> amsmath, <span class="keyword">use</span> the `?' option.
-(/usr/share/texmf-dist/tex/latex/amsmath/amstext.sty
-(/usr/share/texmf-dist/tex/latex/amsmath/amsgen.sty))
-(/usr/share/texmf-dist/tex/latex/amsmath/amsbsy.sty)
-(/usr/share/texmf-dist/tex/latex/amsmath/amsopn.sty))
-(/usr/share/texmf-dist/tex/latex/eulervm/eulervm.sty)
-<span class="keyword">No</span> <span class="keyword">file</span> tmpGYREx_.aux.
-(/usr/share/texmf-dist/tex/latex/eulervm/uzeur.fd)
-(/usr/share/texmf-dist/tex/latex/eulervm/uzeus.fd)
-(/usr/share/texmf-dist/tex/latex/eulervm/uzeuex.fd) [1] (./tmpGYREx_.aux) )
-Output written <span class="keyword">on</span> tmpGYREx_.dvi (1 page, 320 bytes).
-Transcript written <span class="keyword">on</span> tmpGYREx_.<span class="keyword">log</span>.
-This is dvipng 1.14 <span class="keyword">Copyright</span> 2002-2010 Jan-Ake Larsson
-[1] 
-</code></pre><p>如果pyglet被安装了，一个包含LaTeX渲染后表达式的pyglet窗口将被打开：</p>
-<p><img src="http://fmn.rrimg.com/fmn059/20120903/1210/p_large_ViwY_2fcc000000bf1262.jpg" alt="pyglet"></p>
-<h3 id="注意">注意</h3><p>isympy自动调用<code>pprint</code>,这就是为什么默认情况下你看到的是漂亮的打印。</p>
-<p>注意有一个可用的打印模块<code>sympy.printing</code>。其它通过这个模块的打印方法是：</p>
-<ul>
-<li><code>pretty(expr)</code>,<code>pretty_print(expr)</code>,<code>pprint(expr)</code>:分别漂亮的表示<code>expr</code>.这是和之前描述的第二层表示是一样的。</li>
-<li><code>latex(expr)</code>, <code>print_latex(expr)</code>：分别返回和打印<code>expr</code>的<a href="http://www.latex-project.org/" target="_blank" rel="external">LaTeX</a>表示。</li>
-<li><code>mathml(expr)</code>,<code>print_mathml(expr)</code>：分别返回和打印<code>expr</code>的<a href="http://www.w3.org/Math/" target="_blank" rel="external">MathML</a>表示。</li>
-<li><code>print_gtk(expr)</code>：在<a href="http://helm.cs.unibo.it/mml-widget/" target="_blank" rel="external">Gtkmathview</a>打印<code>expr</code>，这是一个呈现MathML代码的GTK部件。<a href="http://helm.cs.unibo.it/mml-widget/" target="_blank" rel="external">Gtkmathview</a>要求安装。</li>
-</ul>
-<h2 id="更多文档">更多文档</h2><p>现在该学更多有关SymPy的知识了。浏览<a href="http://docs.sympy.org/dev/guide.html#guide" target="_blank" rel="external">SymPy用户指南</a>和<a href="http://docs.sympy.org/dev/modules/index.html#module-docs" target="_blank" rel="external">SymPy模块参考</a>。</p>
-<p>一定也浏览我们的公共<a href="http://wiki.sympy.org/" target="_blank" rel="external">wiki.sympy.org</a>，那里包含了很多我们和我们的用户贡献的示例，教程，cookbook，请自由地编辑它。</p>
-<h2 id="翻译">翻译</h2><p>这个教程还有其它语言：</p>
-<p><a href="http://docs.sympy.org/dev/tutorial.de.html" target="_blank" rel="external">德语</a></p>
-<hr>
-<h2 id="FootNotes">FootNotes</h2><p>[^2]:Compute the summation of f with respect to the given summation variable over the given limits.</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/12/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/14/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/12/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" href="/page/14/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -4591,7 +4493,7 @@ This is dvipng 1.14 <span class="keyword">Copyright</span> 2002-2010 Jan-Ake Lar
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">180</span>
+              <span class="site-state-item-count">181</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

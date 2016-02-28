@@ -224,6 +224,725 @@
             
               
                 
+                <a class="post-title-link" href="/python/2012/08/30/sympy-tutorial/" itemprop="url">
+                  SymPy Tutorial(译)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            发表于
+            <time itemprop="dateCreated" datetime="2012-08-30T00:00:00+08:00" content="2012-08-30">
+              2012-08-30
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分类于
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/python/2012/08/30/sympy-tutorial/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/08/30/sympy-tutorial/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h1 id="SymPy_Tutorial">SymPy Tutorial</h1><p>翻译自：<a href="http://docs.sympy.org/dev/tutorial.html" target="_blank" rel="external">SymPy Tutorial</a>,其实有人译过了，但我看着不爽……你看我的不爽可以参考他的<a href="http://blankdesktop.blogbus.com/logs/74200705.html" target="_blank" rel="external">SymPy简明教程</a></p>
+<p><strong>目录</strong></p>
+<ul>
+<li>toc<br>{: toc}</li>
+</ul>
+<h2 id="引言">引言</h2><p>SymPy是一个符号数学Python库。它的目标是成为一个全功能的计算机代数系统，同时保持代码的精简而易于理解和课扩展。SymPy完全由Python写成，不需要任何外部库。 </p>
+<p>这个教程概述和简介SymPy。阅读它能让你知道SymPy可以为你做什么。如果你想了解更多，阅读<a href="http://docs.sympy.org/0.7.1/guide.html#guide" target="_blank" rel="external">SymPy用户指南</a>和<a href="http://docs.sympy.org/0.7.1/modules/index.html#module-docs" target="_blank" rel="external">SymPy模块参考</a>。或者直接阅读<a href="https://github.com/sympy/sympy/" target="_blank" rel="external">源码</a>。</p>
+<h2 id="SymPy第一步">SymPy第一步</h2><p>下载它最简单的方法是去<a href="http://code.google.com/p/sympy/" target="_blank" rel="external">http://code.google.com/p/sympy/</a>从“推荐下载”下载最新的压缩包。<a href="不介意非稳定版我觉得git更方便一些，当然linux包管理器更方便,所以先用你的包管理器安装它。">^1</a><br><img src="http://fmn.rrimg.com/fmn061/20120901/1800/p_large_M3yG_5d30000027c61261.jpg" alt="downloads"></p>
+<p>解压：</p>
+<pre><code><span class="tag">tar</span> <span class="tag">xzf</span> <span class="tag">sympy-0</span><span class="class">.7</span><span class="class">.1</span><span class="class">.tar</span><span class="class">.gz</span>
+</code></pre><p>然后用Python解释器尝试它：</p>
+<pre><code>[lyy@arch ~]cd sympy-<span class="number">0.7</span><span class="number">.1</span>
+[lyy@arch ~]$ python2
+Python <span class="number">2.7</span><span class="number">.3</span> (<span class="keyword">default</span>, Apr <span class="number">24</span> <span class="number">2012</span>, <span class="number">00</span>:<span class="number">00</span>:<span class="number">54</span>) 
+[GCC <span class="number">4.7</span><span class="number">.0</span> <span class="number">20120414</span> (prerelease)] on linux2
+Type <span class="string">"help"</span>, <span class="string">"copyright"</span>, <span class="string">"credits"</span> or <span class="string">"license"</span> <span class="keyword">for</span> more information.
+&gt;&gt;&gt; from sympy import Symbol, <span class="built_in">cos</span>
+&gt;&gt;&gt; x = Symbol(<span class="string">'x'</span>)
+&gt;&gt;&gt; (<span class="number">1</span>/<span class="built_in">cos</span>(x)).series(x, <span class="number">0</span>, <span class="number">10</span>)
+<span class="number">1</span> + x**<span class="number">2</span>/<span class="number">2</span> + <span class="number">5</span>*x**<span class="number">4</span>/<span class="number">24</span> + <span class="number">61</span>*x**<span class="number">6</span>/<span class="number">720</span> + <span class="number">277</span>*x**<span class="number">8</span>/<span class="number">8064</span> + O(x**<span class="number">10</span>)
+</code></pre><p>你可以如上展示使用SymPy。如果你在你的程序中使用它的话，这确实是推荐的方法。你也可以用<code>./setup.py install</code>像所有其它Python模块一样安装它，或者仅仅在你心爱的发行版中安装相应的包，等等。</p>
+<p><strong>在archlinux中安装SymPy</strong></p>
+<pre><code>[lyy@arch ~]$ sudo pacman -S python2-sympy
+警告：python2-sympy-<span class="number">0.7</span><span class="number">.1</span>-<span class="number">4</span> 已经为最新 -- 重新安装
+正在解决依赖关系...
+正在查找内部冲突...
+
+目标 (<span class="number">1</span>)： python2-sympy-<span class="number">0.7</span><span class="number">.1</span>-<span class="number">4</span>
+
+全部安装大小：<span class="number">25.12</span> MiB
+净更新大小：<span class="number">0.00</span> MiB
+
+进行安装吗？ [Y/n] 
+(<span class="number">1</span>/<span class="number">1</span>) 正在检查软件包完整性      [<span class="preprocessor">###############################] <span class="number">100</span>%</span>
+(<span class="number">1</span>/<span class="number">1</span>) 正在加载软件包文件        [<span class="preprocessor">###############################] <span class="number">100</span>%</span>
+(<span class="number">1</span>/<span class="number">1</span>) 正在检查文件冲突          [<span class="preprocessor">###############################] <span class="number">100</span>%</span>
+(<span class="number">1</span>/<span class="number">1</span>) 正在检查可用硬盘空间      [<span class="preprocessor">###############################] <span class="number">100</span>%</span>
+(<span class="number">1</span>/<span class="number">1</span>) 正在更新 python2-sympy
+</code></pre><p>其它安装SymPy的方法，查阅SymPy主页上的<a href="http://code.google.com/p/sympy/wiki/DownloadInstallation?tm=2" target="_blank" rel="external">下载</a>标签。</p>
+<h3 id="isympy控制台">isympy控制台</h3><p>为了试验新功能，或当搞清楚如何做事时，你可以使用我们对IPython的特殊封装<code>isympy</code>(它位于<code>/bin/isympy</code>中，如果你正在从源码文件夹运行的话)，它仅仅是一个已经导入相关sympy模块的标准python shell，定义了符号<code>x,y,z</code>和一些其它东西：</p>
+<pre><code><span class="list">[<span class="keyword">lyy@arch</span> ~]$ cd sympy 
+<span class="list">[<span class="keyword">lyy@arch</span> ~]$ ./bin/isympy 
+IPython console for SymPy <span class="number">0.7</span>.1 <span class="list">(<span class="keyword">Python</span> <span class="number">2.7</span>.3-64-bit)</span> <span class="list">(<span class="keyword">ground</span> types: python)</span>
+
+These commands were executed:
+&gt;&gt;&gt; from __future__ import division
+&gt;&gt;&gt; from sympy import *
+&gt;&gt;&gt; x, y, z, t = symbols<span class="list">(<span class="variable">'x</span> y z t')</span>
+&gt;&gt;&gt; k, m, n = symbols<span class="list">(<span class="variable">'k</span> m n', integer=True)</span>
+&gt;&gt;&gt; f, g, h = symbols<span class="list">(<span class="variable">'f</span> g h', cls=Function)</span>
+
+Documentation can be found at http://www.sympy.org
+
+In <span class="list">[<span class="keyword">1</span>]: <span class="list">(<span class="keyword">1/cos</span><span class="list">(<span class="keyword">x</span>)</span>)</span>.series<span class="list">(<span class="keyword">x</span>, <span class="number">0</span>, <span class="number">10</span>)</span>
+Out<span class="list">[<span class="keyword">1</span>]: 
+     <span class="number">2</span>      <span class="number">4</span>       <span class="number">6</span>        <span class="number">8</span>           
+    x    <span class="number">5</span>⋅x    <span class="number">61</span>⋅x    <span class="number">277</span>⋅x            
+<span class="number">1</span> + ── + ──── + ───── + ────── + O<span class="list">(<span class="keyword">x**10</span>)</span>
+    <span class="number">2</span>     <span class="number">24</span>     <span class="number">720</span>     <span class="number">8064</span>  </span></span></span></span>
+</code></pre><h3 id="用SymPy做计算器">用SymPy做计算器</h3><p>SymPy有三种内建的数值类型：浮点数、有理数和整数。</p>
+<p>有理数类用一对整数表示一个有理数：分子和分母，所以<code>Rational(1,2)</code>代表1/2,<code>Rational(5,2)</code>代表5/2等等。</p>
+<pre><code>&gt;&gt;&gt; from sympy import *
+&gt;&gt;&gt; a = Rational(<span class="number">1</span>,<span class="number">2</span>)
+
+&gt;&gt;&gt; a
+<span class="number">1</span>/<span class="number">2</span>
+
+&gt;&gt;&gt; a*<span class="number">2</span>
+<span class="number">1</span>
+
+&gt;&gt;&gt; Rational(<span class="number">2</span>)**<span class="number">50</span>/Rational(<span class="number">10</span>)**<span class="number">50</span>
+<span class="number">1</span>/<span class="number">88817841970012523233890533447265625</span>
+</code></pre><p>当计算整型数据时小心处理，因为他们会截取整数部分。这就是为何：</p>
+<pre><code>&gt;&gt;&gt; <span class="number">1</span>/<span class="number">2</span>
+<span class="number">0</span>
+
+&gt;&gt;&gt; <span class="number">1.0</span>/<span class="number">2</span>
+<span class="number">0.5</span>
+</code></pre><p>然而你可以这样做</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from __future_<span class="number">_</span> import division
+
+<span class="prompt">&gt;&gt;</span>&gt; <span class="number">1</span>/<span class="number">2</span> 
+<span class="number">0</span>.<span class="number">5</span>
+</code></pre><p>真正的除法将要成为python3k的标准，isympy中也是。</p>
+<p>我们也有些特殊的常数，像e和pi，它们被视为符号(1+pi将不被数值求解，它将保持为1+pi)，并且我们可以有任意精度：</p>
+<pre><code>&gt;&gt;&gt; pi**<span class="number">2</span>
+pi**<span class="number">2</span>
+
+&gt;&gt;&gt; pi.<span class="function"><span class="title">evalf</span><span class="params">()</span></span>
+<span class="number">3.14159265358979</span>
+
+&gt;&gt;&gt; (pi+<span class="function"><span class="title">exp</span><span class="params">(<span class="number">1</span>)</span></span>).<span class="function"><span class="title">evalf</span><span class="params">()</span></span>
+<span class="number">5.85987448204884</span>
+</code></pre><p>就像你看到的，<code>evalf</code>将表达式求解为浮点数。</p>
+<p>这还有一个类表示数学上的无限，叫作<code>oo</code>：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; oo &gt; <span class="number">99999</span>
+<span class="constant">True</span>
+<span class="prompt">&gt;&gt;</span>&gt; oo + <span class="number">1</span>
+oo
+</code></pre><h3 id="符号">符号</h3><p>和其它计算机代数系统相比，在SymPy中你不得不显式地声明符号变量：</p>
+<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy <span class="keyword">import</span> *
+<span class="prompt">&gt;&gt;&gt; </span>x = Symbol(<span class="string">'x'</span>)
+<span class="prompt">&gt;&gt;&gt; </span>y = Symbol(<span class="string">'y'</span>)
+</code></pre><p>然后你可以使用它们：</p>
+<pre><code>&gt;&gt;&gt; x+y+x-y
+2<span class="keyword">*</span>x
+
+&gt;&gt;&gt; (x+y)<span class="keyword">*</span><span class="keyword">*</span>2
+(x + y)<span class="keyword">*</span><span class="keyword">*</span>2
+
+&gt;&gt;&gt; ((x+y)<span class="keyword">*</span><span class="keyword">*</span>2).expand()
+x<span class="keyword">*</span><span class="keyword">*</span>2 + 2<span class="keyword">*</span>x<span class="keyword">*</span>y + y<span class="keyword">*</span><span class="keyword">*</span>2
+</code></pre><p>使用<code>subs(old, new)</code>用其它符号和数代换它们：</p>
+<pre><code>&gt;&gt;&gt; ((x+y)<span class="keyword">*</span><span class="keyword">*</span>2).subs(x, 1)
+(y + 1)<span class="keyword">*</span><span class="keyword">*</span>2
+
+&gt;&gt;&gt; ((x+y)<span class="keyword">*</span><span class="keyword">*</span>2).subs(x, y)
+4<span class="keyword">*</span>y<span class="keyword">*</span><span class="keyword">*</span>2
+</code></pre><p>对于剩余的教程，我们假设我们已经运行了：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; import sys
+<span class="prompt">&gt;&gt;</span>&gt; oldhook = sys.displayhook
+<span class="prompt">&gt;&gt;</span>&gt; sys.displayhook = pprint
+</code></pre><p>这样就有漂亮的打印。参见之后的<a href="#section-16">打印</a>部分。如果你安装了unicode字体，你的输出可能看起来有点不同。(将看起来稍微好些)</p>
+<h2 id="代数">代数</h2><p>对部分分式分解，使用<code>apart(expr, x)</code>：</p>
+<pre><code>&gt;&gt;&gt; <span class="number">1</span>/((x+<span class="number">2</span>)*(x+<span class="number">1</span>))
+       <span class="number">1</span>       
+───────────────
+(x + <span class="number">1</span>)⋅(x + <span class="number">2</span>)
+&gt;&gt;&gt; apart(<span class="number">1</span>/((x+<span class="number">2</span>)*(x+<span class="number">1</span>)), x)
+    <span class="number">1</span>       <span class="number">1</span>  
+- ───── + ─────
+  x + <span class="number">2</span>   x + <span class="number">1</span>
+&gt;&gt;&gt; (x+<span class="number">1</span>)/(x-<span class="number">1</span>)
+x + <span class="number">1</span>
+─────
+x - <span class="number">1</span>
+&gt;&gt;&gt; apart((x+<span class="number">1</span>)/(x-<span class="number">1</span>), x)
+      <span class="number">2</span>  
+<span class="number">1</span> + ─────
+    x - <span class="number">1</span>
+</code></pre><p>把它们重新结合起来，使用<code>together(expr, x)</code>：</p>
+<pre><code>&gt;&gt;&gt; z = Symbol(<span class="string">'z'</span>)
+&gt;&gt;&gt; together(<span class="number">1</span>/x + <span class="number">1</span>/y + <span class="number">1</span>/z)
+x⋅y + x⋅z + y⋅z
+───────────────
+     x⋅y⋅z     
+&gt;&gt;&gt; together(apart((x+<span class="number">1</span>)/(x-<span class="number">1</span>), x), x)
+x + <span class="number">1</span>
+─────
+x - <span class="number">1</span>
+&gt;&gt;&gt; together(apart(<span class="number">1</span>/( (x+<span class="number">2</span>)*(x+<span class="number">1</span>) ), x), x)
+       <span class="number">1</span>       
+───────────────
+(x + <span class="number">1</span>)⋅(x + <span class="number">2</span>)
+</code></pre><h2 id="演算">演算</h2><h3 id="极限">极限</h3><p>极限在sympy中使用很简单，它们的语法是<code>limit(function, variable, point)</code>，所以计算当x趋近于0时f(x)的极限，你可以给出<code>limit(f, x, 0)</code>：</p>
+<pre><code>&gt;&gt;&gt; from sympy import *
+&gt;&gt;&gt; x=Symbol<span class="list">(<span class="string">"x"</span>)</span>
+&gt;&gt;&gt; limit<span class="list">(<span class="keyword">sin</span><span class="list">(<span class="keyword">x</span>)</span>/x, x, <span class="number">0</span>)</span>
+<span class="number">1</span>
+</code></pre><p>你也可以计算在无穷的极限：</p>
+<pre><code>&gt;&gt;&gt; <span class="function"><span class="title">limit</span><span class="params">(sin(x)</span></span>/x,x,<span class="number">0</span>)
+<span class="number">1</span>
+&gt;&gt;&gt; <span class="function"><span class="title">limit</span><span class="params">(x,x,oo)</span></span>
+∞
+</code></pre><p>对于一些不寻常的极限例子，你可以阅读这个测试文件<a href="https://github.com/sympy/sympy/blob/master/sympy/series/tests/test_demidovich.py" target="_blank" rel="external">test_demidovich.py</a></p>
+<h3 id="微分">微分</h3><p>你可以使用<code>diff(func, var)</code>微分任何SymPy表达式。例如：</p>
+<pre><code>&gt;&gt;&gt; from sympy import *
+&gt;&gt;&gt; x = Symbol(<span class="string">'x'</span>)
+&gt;&gt;&gt; diff(<span class="built_in">sin</span>(x), x)
+<span class="built_in">cos</span>(x)
+&gt;&gt;&gt; diff(<span class="built_in">sin</span>(<span class="number">2</span>*x), x)
+<span class="number">2</span>⋅<span class="built_in">cos</span>(<span class="number">2</span>⋅x)
+&gt;&gt;&gt; diff(<span class="built_in">tan</span>(x), x)
+   <span class="number">2</span>       
+<span class="built_in">tan</span> (x) + <span class="number">1</span>
+</code></pre><p>你可以检查正确性：</p>
+<pre><code>&gt;&gt;&gt; limit<span class="list">(<span class="list">(<span class="keyword">tan</span><span class="list">(<span class="keyword">x+y</span>)</span>-tan<span class="list">(<span class="keyword">x</span>)</span>)</span>/y, y, <span class="number">0</span>)</span>
+   <span class="number">2</span>       
+tan <span class="list">(<span class="keyword">x</span>)</span> + <span class="number">1</span>
+</code></pre><p>高阶微分可以使用<code>diff(func, var, n)</code>来计算：</p>
+<pre><code>&gt;&gt;&gt; diff(<span class="built_in">sin</span>(<span class="number">2</span>*x), x, <span class="number">1</span>)
+<span class="number">2</span>⋅<span class="built_in">cos</span>(<span class="number">2</span>⋅x)
+&gt;&gt;&gt; diff(<span class="built_in">sin</span>(<span class="number">2</span>*x), x, <span class="number">2</span>)
+-<span class="number">4</span>⋅<span class="built_in">sin</span>(<span class="number">2</span>⋅x)
+&gt;&gt;&gt; diff(<span class="built_in">sin</span>(<span class="number">2</span>*x), x, <span class="number">3</span>)
+-<span class="number">8</span>⋅<span class="built_in">cos</span>(<span class="number">2</span>⋅x)
+</code></pre><h3 id="级数展开">级数展开</h3><p>使用<code>.series(var, point, order)</code>:</p>
+<pre><code>&gt;&gt;&gt; <span class="built_in">cos</span>(x).series(x, <span class="number">0</span>, <span class="number">10</span>)
+     <span class="number">2</span>    <span class="number">4</span>     <span class="number">6</span>      <span class="number">8</span>            
+    x    x     x      x             
+<span class="number">1</span> - ── + ── - ─── + ───── + O(x**<span class="number">10</span>)
+    <span class="number">2</span>    <span class="number">24</span>   <span class="number">720</span>   <span class="number">40320</span> 
+&gt;&gt;&gt; (<span class="number">1</span>/<span class="built_in">cos</span>(x)).series(x, <span class="number">0</span>, <span class="number">10</span>)
+     <span class="number">2</span>      <span class="number">4</span>       <span class="number">6</span>        <span class="number">8</span>           
+    x    <span class="number">5</span>⋅x    <span class="number">61</span>⋅x    <span class="number">277</span>⋅x            
+<span class="number">1</span> + ── + ──── + ───── + ────── + O(x**<span class="number">10</span>)
+    <span class="number">2</span>     <span class="number">24</span>     <span class="number">720</span>     <span class="number">8064</span>            
+</code></pre><p>另一个简单的例子：</p>
+<pre><code>&gt;&gt;&gt; from sympy import Integral, Symbol, pprint
+&gt;&gt;&gt; x = Symbol(<span class="string">'x'</span>)
+&gt;&gt;&gt; y = Symbol(<span class="string">'y'</span>)
+&gt;&gt;&gt; e = <span class="number">1</span>/(x + y)
+&gt;&gt;&gt; s = e.series(x, <span class="number">0</span>, <span class="number">5</span>)
+&gt;&gt;&gt; print(s)
+<span class="number">1</span>/y - x/y**<span class="number">2</span> + x**<span class="number">2</span>/y**<span class="number">3</span> - x**<span class="number">3</span>/y**<span class="number">4</span> + x**<span class="number">4</span>/y**<span class="number">5</span> + O(x**<span class="number">5</span>)
+&gt;&gt;&gt; pprint(s)
+          <span class="number">2</span>    <span class="number">3</span>    <span class="number">4</span>          
+<span class="number">1</span>   x    x    x    x           
+─ - ── + ── - ── + ── + O(x**<span class="number">5</span>)
+y    <span class="number">2</span>    <span class="number">3</span>    <span class="number">4</span>    <span class="number">5</span>          
+    y    y    y    y           
+None
+</code></pre><h3 id="求和">求和</h3><p>计算给定求和变量界限的f的总和(Summation)。[^2]</p>
+<p><code>summation(f, (i, a, b))</code>变量i从a到b计算f的和，也就是，</p>
+<pre><code>                            <span class="tag">b</span>
+                          ____
+                          \   `
+<span class="function"><span class="title">summation</span><span class="params">(f, (i, a, b)</span></span>) =  )    f
+                          /___,
+                          <span class="tag">i</span> = a
+</code></pre><p>如果不能计算总和，它将打印相应的求和公式。求值可引入额外的极限计算：</p>
+<pre><code>&gt;&gt;&gt; from sympy import summation, oo, symbols, <span class="literal">log</span>
+&gt;&gt;&gt; i, <span class="keyword">n</span>, <span class="keyword">m</span> = symbols('i <span class="keyword">n</span> <span class="keyword">m</span>', integer=True)
+&gt;&gt;&gt; summation(2*i - 1, (i, 1, <span class="keyword">n</span>))
+ 2
+<span class="keyword">n</span> 
+&gt;&gt;&gt; summation(1/2**i, (i, 0, oo))
+2
+&gt;&gt;&gt; summation(1/<span class="literal">log</span>(<span class="keyword">n</span>)**<span class="keyword">n</span>, (<span class="keyword">n</span>, 2, oo))
+  ∞           
+ ___          
+ \  `         
+  \      -<span class="keyword">n</span>   
+  /   <span class="keyword">log</span>  (<span class="keyword">n</span>)
+ /__,         
+<span class="keyword">n</span> = 2         
+&gt;&gt;&gt; summation(i, (i, 0, <span class="keyword">n</span>), (<span class="keyword">n</span>, 0, <span class="keyword">m</span>))
+ 3    2    
+<span class="keyword">m</span>    <span class="keyword">m</span>    <span class="literal">m</span>
+── + ── + ─
+6    2    3
+&gt;&gt;&gt; from sympy.abc import x
+&gt;&gt;&gt; from sympy import factorial
+&gt;&gt;&gt; summation(x**<span class="keyword">n</span>/factorial(<span class="keyword">n</span>), (<span class="keyword">n</span>, 0, oo))
+ x
+ℯ 
+</code></pre><h3 id="积分">积分</h3><p>通过<code>integrate()</code>功能(facility)，SymPy对基本和特殊函数定与不定积分有卓越的支持。<br>该功能使用有力的扩展Risch-Norman算法，启发算法和模式匹配：</p>
+<pre><code>&gt;&gt;&gt; from sympy import integrate, <span class="built_in">erf</span>, <span class="built_in">exp</span>, <span class="built_in">sin</span>, <span class="built_in">log</span>, oo, <span class="built_in">pi</span>, <span class="built_in">sinh</span>, symbols
+&gt;&gt;&gt; x, y = symbols(<span class="string">'x,y'</span>)
+</code></pre><p>你可以对基本函数积分：</p>
+<pre><code>&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(<span class="number">6</span>*x**<span class="number">5</span>, x)</span></span>
+ <span class="number">6</span>
+x 
+&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(sin(x)</span></span>, x)
+-<span class="function"><span class="title">cos</span><span class="params">(x)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(log(x)</span></span>, x)
+x⋅<span class="function"><span class="title">log</span><span class="params">(x)</span></span> - x
+&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(<span class="number">2</span>*x + sinh(x)</span></span>, x)
+ <span class="number">2</span>          
+x  + <span class="function"><span class="title">cosh</span><span class="params">(x)</span></span>
+</code></pre><p>特殊函数也可以简单的处理：</p>
+<pre><code>&gt;&gt;&gt; <span class="function"><span class="title">integrate</span><span class="params">(exp(-x**<span class="number">2</span>)</span></span>*<span class="function"><span class="title">erf</span><span class="params">(x)</span></span>, x)
+  ⎽⎽⎽    <span class="number">2</span>   
+╲╱ π ⋅erf (x)
+─────────────
+      <span class="number">4</span>      
+</code></pre><p>还可以计算定积分：</p>
+<pre><code>&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">x**3</span>, <span class="list">(<span class="keyword">x</span>, <span class="number">-1</span>, <span class="number">1</span>)</span>)</span>
+<span class="number">0</span>
+&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">sin</span><span class="list">(<span class="keyword">x</span>)</span>, <span class="list">(<span class="keyword">x</span>, <span class="number">0</span>, pi/2)</span>)</span>
+<span class="number">1</span>
+&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">cos</span><span class="list">(<span class="keyword">x</span>)</span>, <span class="list">(<span class="keyword">x</span>, -pi/2, pi/2)</span>)</span>
+<span class="number">2</span>
+</code></pre><p>反常积分也被支持：</p>
+<pre><code>&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">exp</span><span class="list">(<span class="keyword">-x</span>)</span>, <span class="list">(<span class="keyword">x</span>, <span class="number">0</span>, oo)</span>)</span>
+<span class="number">1</span>
+&gt;&gt;&gt; integrate<span class="list">(<span class="keyword">log</span><span class="list">(<span class="keyword">x</span>)</span>, <span class="list">(<span class="keyword">x</span>, <span class="number">0</span>, <span class="number">1</span>)</span>)</span>
+<span class="number">-1</span>
+</code></pre><h3 id="复数">复数</h3><p>除了复数单元<code>I</code>是虚数，符号可以被用属性创建(例如 real,positive,complex,等等)这将影响它们的表现：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import <span class="constant">Symbol</span>, exp, <span class="constant">I</span>
+<span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">'x'</span>)  <span class="comment"># a plain x with no attributes</span>
+<span class="prompt">&gt;&gt;</span>&gt; exp(<span class="constant">I</span>*x).expand()
+ ⅈ⋅x
+ℯ   
+<span class="prompt">&gt;&gt;</span>&gt; exp(<span class="constant">I</span>*x).expand(complex=<span class="constant">True</span>)
+   -im(x)               -im(x)           
+ⅈ⋅ℯ      ⋅sin(re(x)) + ℯ      ⋅cos(re(x))
+<span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">'x'</span>, real=<span class="constant">True</span>)
+<span class="prompt">&gt;&gt;</span>&gt; exp(<span class="constant">I</span>*x).expand(complex=<span class="constant">True</span>)
+ⅈ⋅sin(x) + cos(x)
+</code></pre><h3 id="函数">函数</h3><p><strong>三角函数:</strong></p>
+<pre><code>&gt;&gt;&gt; from sympy import asin, asinh, cos, sin, sinh, symbols, I
+&gt;&gt;&gt; x, y = <span class="function"><span class="title">symbols</span><span class="params">(<span class="string">'x,y'</span>)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">sin</span><span class="params">(x+y)</span></span>.<span class="function"><span class="title">expand</span><span class="params">(trig=True)</span></span>
+<span class="function"><span class="title">sin</span><span class="params">(x)</span></span>⋅<span class="function"><span class="title">cos</span><span class="params">(y)</span></span> + <span class="function"><span class="title">sin</span><span class="params">(y)</span></span>⋅<span class="function"><span class="title">cos</span><span class="params">(x)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">cos</span><span class="params">(x+y)</span></span>.<span class="function"><span class="title">expand</span><span class="params">(trig=True)</span></span>
+-<span class="function"><span class="title">sin</span><span class="params">(x)</span></span>⋅<span class="function"><span class="title">sin</span><span class="params">(y)</span></span> + <span class="function"><span class="title">cos</span><span class="params">(x)</span></span>⋅<span class="function"><span class="title">cos</span><span class="params">(y)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">sin</span><span class="params">(I*x)</span></span>
+ⅈ⋅<span class="function"><span class="title">sinh</span><span class="params">(x)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">sinh</span><span class="params">(I*x)</span></span>
+ⅈ⋅<span class="function"><span class="title">sin</span><span class="params">(x)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">asinh</span><span class="params">(I)</span></span>
+ⅈ⋅π
+───
+ <span class="number">2</span> 
+&gt;&gt;&gt; <span class="function"><span class="title">asinh</span><span class="params">(I*x)</span></span>
+ⅈ⋅<span class="function"><span class="title">asin</span><span class="params">(x)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">sin</span><span class="params">(x)</span></span>.<span class="function"><span class="title">series</span><span class="params">(x, <span class="number">0</span>, <span class="number">10</span>)</span></span>
+     <span class="number">3</span>     <span class="number">5</span>     <span class="number">7</span>       <span class="number">9</span>             
+    x     x     x       x              
+x - ── + ─── - ──── + ────── + <span class="function"><span class="title">O</span><span class="params">(x**<span class="number">10</span>)</span></span>
+    <span class="number">6</span>    <span class="number">120</span>   <span class="number">5040</span>   <span class="number">362880</span>           
+&gt;&gt;&gt; <span class="function"><span class="title">sinh</span><span class="params">(x)</span></span>.<span class="function"><span class="title">series</span><span class="params">(x, <span class="number">0</span>, <span class="number">10</span>)</span></span>
+     <span class="number">3</span>     <span class="number">5</span>     <span class="number">7</span>       <span class="number">9</span>             
+    x     x     x       x              
+x + ── + ─── + ──── + ────── + <span class="function"><span class="title">O</span><span class="params">(x**<span class="number">10</span>)</span></span>
+    <span class="number">6</span>    <span class="number">120</span>   <span class="number">5040</span>   <span class="number">362880</span>           
+&gt;&gt;&gt; <span class="function"><span class="title">asin</span><span class="params">(x)</span></span>.<span class="function"><span class="title">series</span><span class="params">(x, <span class="number">0</span>, <span class="number">10</span>)</span></span>
+     <span class="number">3</span>      <span class="number">5</span>      <span class="number">7</span>       <span class="number">9</span>           
+    x    <span class="number">3</span>⋅x    <span class="number">5</span>⋅x    <span class="number">35</span>⋅x            
+x + ── + ──── + ──── + ───── + <span class="function"><span class="title">O</span><span class="params">(x**<span class="number">10</span>)</span></span>
+    <span class="number">6</span>     <span class="number">40</span>    <span class="number">112</span>     <span class="number">1152</span>           
+&gt;&gt;&gt; <span class="function"><span class="title">asinh</span><span class="params">(x)</span></span>.<span class="function"><span class="title">series</span><span class="params">(x, <span class="number">0</span>, <span class="number">10</span>)</span></span>
+     <span class="number">3</span>      <span class="number">5</span>      <span class="number">7</span>       <span class="number">9</span>           
+    x    <span class="number">3</span>⋅x    <span class="number">5</span>⋅x    <span class="number">35</span>⋅x            
+x - ── + ──── - ──── + ───── + <span class="function"><span class="title">O</span><span class="params">(x**<span class="number">10</span>)</span></span>
+    <span class="number">6</span>     <span class="number">40</span>    <span class="number">112</span>     <span class="number">1152</span>    
+</code></pre><p><strong>球谐函数：</strong></p>
+<pre><code>&gt;&gt;&gt; from sympy import Ylm
+&gt;&gt;&gt; from sympy<span class="class">.abc</span> import theta, phi
+&gt;&gt;&gt; <span class="function"><span class="title">Ylm</span><span class="params">(<span class="number">1</span>, <span class="number">0</span>, theta, phi)</span></span>
+  ⎽⎽⎽       
+╲╱ <span class="number">3</span> ⋅<span class="function"><span class="title">cos</span><span class="params">(θ)</span></span>
+────────────
+      ⎽⎽⎽   
+  <span class="number">2</span>⋅╲╱ π    
+&gt;&gt;&gt; <span class="function"><span class="title">Ylm</span><span class="params">(<span class="number">1</span>, <span class="number">1</span>, theta, phi)</span></span>
+   ⎽⎽⎽  ⅈ⋅φ       
+-╲╱ <span class="number">6</span> ⋅ℯ   ⋅<span class="function"><span class="title">sin</span><span class="params">(θ)</span></span>
+──────────────────
+         ⎽⎽⎽      
+     <span class="number">4</span>⋅╲╱ π       
+&gt;&gt;&gt; <span class="function"><span class="title">Ylm</span><span class="params">(<span class="number">2</span>, <span class="number">1</span>, theta, phi)</span></span>
+   ⎽⎽⎽⎽  ⅈ⋅φ              
+-╲╱ <span class="number">30</span> ⋅ℯ   ⋅<span class="function"><span class="title">sin</span><span class="params">(θ)</span></span>⋅<span class="function"><span class="title">cos</span><span class="params">(θ)</span></span>
+──────────────────────────
+             ⎽⎽⎽          
+         <span class="number">4</span>⋅╲╱ π       
+</code></pre><p><strong>阶乘和伽马函数：</strong></p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import factorial, gamma, <span class="constant">Symbol</span>
+<span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">"x"</span>)
+<span class="prompt">&gt;&gt;</span>&gt; n = <span class="constant">Symbol</span>(<span class="string">"n"</span>, integer=<span class="constant">True</span>)
+<span class="prompt">&gt;&gt;</span>&gt; factorial(x)
+x!
+<span class="prompt">&gt;&gt;</span>&gt; factorial(n)
+n!
+<span class="prompt">&gt;&gt;</span>&gt; gamma(x + <span class="number">1</span>).series(x, <span class="number">0</span>, <span class="number">3</span>) <span class="comment"># i.e. factorial(x)</span>
+                    <span class="number">2</span>  <span class="number">2</span>             <span class="number">2</span>  <span class="number">2</span>          
+                   π ⋅x    <span class="constant">EulerGamma</span> ⋅x           
+<span class="number">1</span> - <span class="constant">EulerGamma</span>⋅x + ───── + ────────────── + <span class="constant">O</span>(x**<span class="number">3</span>)
+                     <span class="number">12</span>          <span class="number">2</span>     
+</code></pre><p><strong>zeta函数：</strong></p>
+<pre><code>&gt;&gt;&gt; from sympy import zeta
+&gt;&gt;&gt; zeta(<span class="number">4</span>, x)
+ζ(<span class="number">4</span>, x)
+&gt;&gt;&gt; zeta(<span class="number">4</span>, <span class="number">1</span>)
+ <span class="number">4</span>
+π 
+──
+<span class="number">90</span>
+&gt;&gt;&gt; zeta(<span class="number">4</span>, <span class="number">2</span>)
+      <span class="number">4</span>
+     π 
+-<span class="number">1</span> + ──
+     <span class="number">90</span>
+&gt;&gt;&gt; zeta(<span class="number">4</span>, <span class="number">3</span>)
+        <span class="number">4</span>
+  <span class="number">17</span>   π 
+- ── + ──
+  <span class="number">16</span>   <span class="number">90</span>
+</code></pre><p><strong>多项式：</strong></p>
+<pre><code>&gt;&gt;&gt; from sympy import assoc_legendre, chebyshevt, legendre, hermite
+&gt;&gt;&gt; chebyshevt(<span class="number">2</span>, x)
+   <span class="number">2</span>    
+<span class="number">2</span>⋅x  - <span class="number">1</span>
+&gt;&gt;&gt; chebyshevt(<span class="number">4</span>, x)
+   <span class="number">4</span>      <span class="number">2</span>    
+<span class="number">8</span>⋅x  - <span class="number">8</span>⋅x  + <span class="number">1</span>
+&gt;&gt;&gt; legendre(<span class="number">2</span>, x)
+   <span class="number">2</span>    
+<span class="number">3</span>⋅x    <span class="number">1</span>
+──── - ─
+ <span class="number">2</span>     <span class="number">2</span>
+&gt;&gt;&gt; legendre(<span class="number">8</span>, x)
+      <span class="number">8</span>         <span class="number">6</span>         <span class="number">4</span>        <span class="number">2</span>      
+<span class="number">6435</span>⋅x    <span class="number">3003</span>⋅x    <span class="number">3465</span>⋅x    <span class="number">315</span>⋅x     <span class="number">35</span>
+─────── - ─────── + ─────── - ────── + ───
+  <span class="number">128</span>        <span class="number">32</span>        <span class="number">64</span>       <span class="number">32</span>     <span class="number">128</span>
+&gt;&gt;&gt; assoc_legendre(<span class="number">2</span>, <span class="number">1</span>, x)
+        ⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽
+       ╱    <span class="number">2</span>     
+-<span class="number">3</span>⋅x⋅╲╱  - x  + <span class="number">1</span> 
+&gt;&gt;&gt; assoc_legendre(<span class="number">2</span>, <span class="number">2</span>, x)
+     <span class="number">2</span>    
+- <span class="number">3</span>⋅x  + <span class="number">3</span>
+&gt;&gt;&gt; hermite(<span class="number">3</span>, x)
+   <span class="number">3</span>       
+<span class="number">8</span>⋅x  - <span class="number">12</span>⋅x
+</code></pre><h3 id="微分方程">微分方程</h3><p>在 isympy中：</p>
+<pre><code>&gt;&gt;&gt; from sympy import Function, Symbol, dsolve
+&gt;&gt;&gt; f = <span class="function"><span class="title">Function</span><span class="params">(<span class="string">'f'</span>)</span></span>
+&gt;&gt;&gt; x = <span class="function"><span class="title">Symbol</span><span class="params">(<span class="string">'x'</span>)</span></span>
+&gt;&gt;&gt; <span class="function"><span class="title">f</span><span class="params">(x)</span></span>.<span class="function"><span class="title">diff</span><span class="params">(x, x)</span></span> + <span class="function"><span class="title">f</span><span class="params">(x)</span></span>
+         <span class="number">2</span>      
+        d       
+<span class="function"><span class="title">f</span><span class="params">(x)</span></span> + ───(<span class="function"><span class="title">f</span><span class="params">(x)</span></span>)
+         <span class="number">2</span>      
+       dx       
+&gt;&gt;&gt; <span class="function"><span class="title">dsolve</span><span class="params">(f(x)</span></span>.<span class="function"><span class="title">diff</span><span class="params">(x, x)</span></span> + <span class="function"><span class="title">f</span><span class="params">(x)</span></span>, <span class="function"><span class="title">f</span><span class="params">(x)</span></span>)
+<span class="function"><span class="title">f</span><span class="params">(x)</span></span> = C₁⋅<span class="function"><span class="title">cos</span><span class="params">(x)</span></span> + C₂⋅<span class="function"><span class="title">sin</span><span class="params">(x)</span></span>
+</code></pre><h3 id="代数方程">代数方程</h3><p>在isympy中：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import solve, symbols
+<span class="prompt">&gt;&gt;</span>&gt; x, y = symbols(<span class="string">'x,y'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; solve(x**<span class="number">4</span> - <span class="number">1</span>, x)
+[<span class="number">1</span>, -<span class="number">1</span>, -ⅈ, ⅈ]
+<span class="prompt">&gt;&gt;</span>&gt; solve([x + <span class="number">5</span>*y - <span class="number">2</span>, -<span class="number">3</span>*x + <span class="number">6</span>*y - <span class="number">15</span>], [x, y])
+{<span class="symbol">x:</span> -<span class="number">3</span>, <span class="symbol">y:</span> <span class="number">1</span>}
+</code></pre><h2 id="线性代数">线性代数</h2><h3 id="矩阵">矩阵</h3><p>矩阵从Matrix类创建：</p>
+<pre><code>&gt;&gt;&gt; from sympy import Matrix, Symbol
+&gt;&gt;&gt; Matrix([[<span class="number">1</span>,<span class="number">0</span>], [<span class="number">0</span>,<span class="number">1</span>]])
+⎡<span class="number">1</span>  <span class="number">0</span>⎤
+⎢    ⎥
+⎣<span class="number">0</span>  <span class="number">1</span>⎦
+</code></pre><p>它可以包含符号：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">'x'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; y = <span class="constant">Symbol</span>(<span class="string">'y'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">A</span> = <span class="constant">Matrix</span>([[<span class="number">1</span>,x], [y,<span class="number">1</span>]])
+<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">A</span>
+⎡<span class="number">1</span>  x⎤
+⎢    ⎥
+⎣y  <span class="number">1</span>⎦
+<span class="prompt">&gt;&gt;</span>&gt; <span class="constant">A</span>**<span class="number">2</span>
+⎡x⋅y + <span class="number">1</span>    <span class="number">2</span>⋅x  ⎤
+⎢                ⎥
+⎣  <span class="number">2</span>⋅y    x⋅y + <span class="number">1</span>⎦
+</code></pre><p>更多有关矩阵信息，参见线性代数教程。</p>
+<h2 id="模式匹配">模式匹配</h2><p>使用<code>.match()</code>方法，和Wild类对表达式实行模式匹配。这个方法将返回一个发生替换的字典，如下：</p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import <span class="constant">Symbol</span>, <span class="constant">Wild</span>
+<span class="prompt">&gt;&gt;</span>&gt; x = <span class="constant">Symbol</span>(<span class="string">'x'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; p = <span class="constant">Wild</span>(<span class="string">'p'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; (<span class="number">5</span>*x**<span class="number">2</span>).match(p*x**<span class="number">2</span>)
+{<span class="symbol">p:</span> <span class="number">5</span>}
+<span class="prompt">&gt;&gt;</span>&gt; q = <span class="constant">Wild</span>(<span class="string">'q'</span>)
+<span class="prompt">&gt;&gt;</span>&gt; (x**<span class="number">2</span>).match(p*x**q)
+{<span class="symbol">p:</span> <span class="number">1</span>, <span class="symbol">q:</span> <span class="number">2</span>}
+</code></pre><p>如果匹配失败，将返回<code>None</code>：</p>
+<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> (x+<span class="number">1</span>).match(p**x)
+<span class="keyword">None</span>
+</code></pre><p>可以指定<code>Wild</code>类的排除参数去保证一些东西不出现在结果之中：</p>
+<pre><code>&gt;&gt;&gt; p = Wild(<span class="string">'p'</span>, exclude=[<span class="number">1</span>,x])
+&gt;&gt;&gt; print (x+<span class="number">1</span>).match(x+p) <span class="preprocessor"># <span class="number">1</span> is excluded</span>
+None
+&gt;&gt;&gt; print (x+<span class="number">1</span>).match(p+<span class="number">1</span>) <span class="preprocessor"># x is excluded</span>
+None
+&gt;&gt;&gt; print (x+<span class="number">1</span>).match(x+<span class="number">2</span>+p) <span class="preprocessor"># -<span class="number">1</span> is not excluded</span>
+{p_: -<span class="number">1</span>}
+</code></pre><h2 id="打印">打印</h2><p>这里有许多打印表达式的方法：</p>
+<p><strong>标准</strong></p>
+<p>这就是<code>str(expression)</code>返回的，看起来想这样：</p>
+<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy <span class="keyword">import</span> Integral
+<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy.abc <span class="keyword">import</span> x
+<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> x**<span class="number">2</span>
+x**<span class="number">2</span>
+<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> <span class="number">1</span>/x
+<span class="number">1</span>/x
+<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> Integral(x**<span class="number">2</span>, x)
+Integral(x**<span class="number">2</span>, x)
+</code></pre><p><strong>漂亮的打印</strong></p>
+<p><code>pprint</code>函数产生好看的ascii艺术打印：</p>
+<pre><code><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy <span class="keyword">import</span> Integral, pprint
+<span class="prompt">&gt;&gt;&gt; </span><span class="keyword">from</span> sympy.abc <span class="keyword">import</span> x
+<span class="prompt">&gt;&gt;&gt; </span>pprint(x**<span class="number">2</span>)
+ <span class="number">2</span>
+x 
+<span class="keyword">None</span>
+<span class="prompt">&gt;&gt;&gt; </span>pprint(<span class="number">1</span>/x)
+<span class="number">1</span>
+─
+x
+<span class="keyword">None</span>
+<span class="prompt">&gt;&gt;&gt; </span>pprint(Integral(x**<span class="number">2</span>, x))
+⌠      
+⎮  <span class="number">2</span>   
+⎮ x  dx
+⌡      
+<span class="keyword">None</span>
+</code></pre><p>如果你安装了unicode字体，<code>pprint</code>函数将默认使用它。你可以使用<code>use_unicode</code>函数改变这个选项。：</p>
+<pre><code>&gt;&gt;&gt; pprint(Integral(x<span class="keyword">*</span><span class="keyword">*</span>2, x), use_unicode=False)
+  /     
+ |<span class="string">      
+ </span>|<span class="string">  2   
+ </span>|<span class="string"> x  dx
+ </span>|<span class="string">      
+/       
+None</span>
+</code></pre><p>更多好看的unicode打印另见维基<a href="https://github.com/sympy/sympy/wiki/Pretty-Printing" target="_blank" rel="external">Pretty Printing</a>。</p>
+<p>小技巧：在Python解释器中默认使用漂亮的打印，使用：</p>
+<pre><code>$ python
+Python <span class="number">2.5</span><span class="number">.2</span> (r252:<span class="number">60911</span>, Jun <span class="number">25</span> <span class="number">2008</span>, <span class="number">17</span>:<span class="number">58</span>:<span class="number">32</span>)
+[GCC <span class="number">4.3</span><span class="number">.1</span>] on linux2
+Type <span class="string">"help"</span>, <span class="string">"copyright"</span>, <span class="string">"credits"</span> or <span class="string">"license"</span> <span class="keyword">for</span> more information.
+&gt;&gt;&gt; from sympy import init_printing, var, Integral
+&gt;&gt;&gt; init_printing(use_unicode=False, wrap_line=False, no_global=True)
+&gt;&gt;&gt; var(<span class="string">"x"</span>)
+x
+&gt;&gt;&gt; x**<span class="number">3</span>/<span class="number">3</span>
+ <span class="number">3</span>
+x
+--
+<span class="number">3</span>
+&gt;&gt;&gt; Integral(x**<span class="number">2</span>, x) <span class="preprocessor">#doctest: +NORMALIZE_WHITESPACE</span>
+  /
+ |
+ |  <span class="number">2</span>
+ | x  dx
+ |
+/
+</code></pre><p><strong>Python打印</strong></p>
+<pre><code>&gt;&gt;&gt; from sympy<span class="class">.printing</span><span class="class">.python</span> import python
+&gt;&gt;&gt; from sympy import Integral
+&gt;&gt;&gt; from sympy<span class="class">.abc</span> import x
+&gt;&gt;&gt; print <span class="function"><span class="title">python</span><span class="params">(x**<span class="number">2</span>)</span></span>
+x = <span class="function"><span class="title">Symbol</span><span class="params">(<span class="string">'x'</span>)</span></span>
+e = x**<span class="number">2</span>
+&gt;&gt;&gt; print <span class="function"><span class="title">python</span><span class="params">(<span class="number">1</span>/x)</span></span>
+x = <span class="function"><span class="title">Symbol</span><span class="params">(<span class="string">'x'</span>)</span></span>
+e = <span class="number">1</span>/x
+&gt;&gt;&gt; print <span class="function"><span class="title">python</span><span class="params">(Integral(x**<span class="number">2</span>, x)</span></span>)
+x = <span class="function"><span class="title">Symbol</span><span class="params">(<span class="string">'x'</span>)</span></span>
+e = <span class="function"><span class="title">Integral</span><span class="params">(x**<span class="number">2</span>, x)</span></span>
+</code></pre><p><strong>LaTeX打印</strong></p>
+<pre><code><span class="prompt">&gt;&gt;</span>&gt; from sympy import <span class="constant">Integral</span>, latex
+<span class="prompt">&gt;&gt;</span>&gt; from sympy.abc import x
+<span class="prompt">&gt;&gt;</span>&gt; latex(x**<span class="number">2</span>)
+x^{<span class="number">2</span>}
+<span class="prompt">&gt;&gt;</span>&gt; latex(x**<span class="number">2</span>, mode=<span class="string">'inline'</span>)
+<span class="variable">$x</span>^{<span class="number">2</span>}<span class="variable">$
+</span><span class="prompt">&gt;&gt;</span>&gt; latex(x**<span class="number">2</span>, mode=<span class="string">'equation'</span>)
+\<span class="keyword">begin</span>{equation}x^{<span class="number">2</span>}\<span class="keyword">end</span>{equation}
+<span class="prompt">&gt;&gt;</span>&gt; latex(x**<span class="number">2</span>, mode=<span class="string">'equation*'</span>)
+\<span class="keyword">begin</span>{equation*}x^{<span class="number">2</span>}\<span class="keyword">end</span>{equation*}
+<span class="prompt">&gt;&gt;</span>&gt; latex(<span class="number">1</span>/x)
+\frac{<span class="number">1</span>}{x}
+<span class="prompt">&gt;&gt;</span>&gt; latex(<span class="constant">Integral</span>(x**<span class="number">2</span>, x))
+\int x^{<span class="number">2</span>}\,dx
+</code></pre><p><strong>MathML</strong></p>
+<pre><code>&gt;&gt;&gt; <span class="keyword">from</span> sympy.printing.mathml import mathml
+&gt;&gt;&gt; <span class="keyword">from</span> sympy import Integral, latex
+&gt;&gt;&gt; <span class="keyword">from</span> sympy.abc import x
+&gt;&gt;&gt; print mathml(x**<span class="number">2</span>)
+<span class="variable">&lt;apply&gt;</span><span class="variable">&lt;power/&gt;</span><span class="variable">&lt;ci&gt;</span>x<span class="variable">&lt;/ci&gt;</span><span class="variable">&lt;cn&gt;</span><span class="number">2</span><span class="variable">&lt;/cn&gt;</span><span class="variable">&lt;/apply&gt;</span>
+&gt;&gt;&gt; print mathml(<span class="number">1</span>/x)
+<span class="variable">&lt;apply&gt;</span><span class="variable">&lt;power/&gt;</span><span class="variable">&lt;ci&gt;</span>x<span class="variable">&lt;/ci&gt;</span><span class="variable">&lt;cn&gt;</span>-<span class="number">1</span><span class="variable">&lt;/cn&gt;</span><span class="variable">&lt;/apply&gt;</span>
+</code></pre><p><strong>Pylet</strong></p>
+<pre><code>&gt;&gt;&gt; from sympy import Integral, preview
+&gt;&gt;&gt; from sympy.abc import x
+&gt;&gt;&gt; preview(Integral(x**2, x))
+This is pdfTeX, <span class="keyword">Version</span> 3.1415926-2.4-1.40.13 (TeX Live 2012/<span class="keyword">Arch</span> Linux)
+ restricted \write18 enabled.
+entering extended mode
+(/tmp/tmpGYREx_.tex
+LaTeX2e &lt;2011/06/27&gt;
+Babel &lt;v3.8m&gt; and hyphenation patterns <span class="keyword">for</span> english, dumylang, nohyphenation, <span class="keyword">ge</span>
+rman-x-2012-05-30, ngerman-x-2012-05-30, afrikaans, ancientgreek, ibycus, arabi
+c, armenian, basque, bulgarian, catalan, pinyin, coptic, croatian, czech, danis
+<span class="keyword">h</span>, dutch, ukenglish, usenglishmax, esperanto, estonian, ethiopic, farsi, finnis
+<span class="keyword">h</span>, french, friulan, galician, german, ngerman, swissgerman, monogreek, greek, <span class="literal">h</span>
+ungarian, icelandic, assamese, bengali, gujarati, hindi, kannada, malayalam, <span class="keyword">ma</span>
+rathi, oriya, panjabi, tamil, telugu, indonesian, interlingua, irish, italian, 
+kurmanji, latin, latvian, lithuanian, mongolian, mongolianlmc, bokmal, nynorsk,
+ polish, portuguese, romanian, romansh, russian, sanskrit, serbian, serbianc, <span class="literal">s</span>
+lovak, slovenian, spanish, swedish, turkish, turkmen, ukrainian, uppersorbian, 
+welsh, loaded.
+(/usr/share/texmf-dist/tex/latex/base/article.cls
+Document <span class="keyword">Class</span>: article 2007/10/19 v1.4h Standard LaTeX document <span class="keyword">class</span>
+(/usr/share/texmf-dist/tex/latex/base/size12.<span class="keyword">clo</span>))
+(/usr/share/texmf-dist/tex/latex/amsmath/amsmath.sty
+<span class="keyword">For</span> additional information <span class="keyword">on</span> amsmath, <span class="keyword">use</span> the `?' option.
+(/usr/share/texmf-dist/tex/latex/amsmath/amstext.sty
+(/usr/share/texmf-dist/tex/latex/amsmath/amsgen.sty))
+(/usr/share/texmf-dist/tex/latex/amsmath/amsbsy.sty)
+(/usr/share/texmf-dist/tex/latex/amsmath/amsopn.sty))
+(/usr/share/texmf-dist/tex/latex/eulervm/eulervm.sty)
+<span class="keyword">No</span> <span class="keyword">file</span> tmpGYREx_.aux.
+(/usr/share/texmf-dist/tex/latex/eulervm/uzeur.fd)
+(/usr/share/texmf-dist/tex/latex/eulervm/uzeus.fd)
+(/usr/share/texmf-dist/tex/latex/eulervm/uzeuex.fd) [1] (./tmpGYREx_.aux) )
+Output written <span class="keyword">on</span> tmpGYREx_.dvi (1 page, 320 bytes).
+Transcript written <span class="keyword">on</span> tmpGYREx_.<span class="keyword">log</span>.
+This is dvipng 1.14 <span class="keyword">Copyright</span> 2002-2010 Jan-Ake Larsson
+[1] 
+</code></pre><p>如果pyglet被安装了，一个包含LaTeX渲染后表达式的pyglet窗口将被打开：</p>
+<p><img src="http://fmn.rrimg.com/fmn059/20120903/1210/p_large_ViwY_2fcc000000bf1262.jpg" alt="pyglet"></p>
+<h3 id="注意">注意</h3><p>isympy自动调用<code>pprint</code>,这就是为什么默认情况下你看到的是漂亮的打印。</p>
+<p>注意有一个可用的打印模块<code>sympy.printing</code>。其它通过这个模块的打印方法是：</p>
+<ul>
+<li><code>pretty(expr)</code>,<code>pretty_print(expr)</code>,<code>pprint(expr)</code>:分别漂亮的表示<code>expr</code>.这是和之前描述的第二层表示是一样的。</li>
+<li><code>latex(expr)</code>, <code>print_latex(expr)</code>：分别返回和打印<code>expr</code>的<a href="http://www.latex-project.org/" target="_blank" rel="external">LaTeX</a>表示。</li>
+<li><code>mathml(expr)</code>,<code>print_mathml(expr)</code>：分别返回和打印<code>expr</code>的<a href="http://www.w3.org/Math/" target="_blank" rel="external">MathML</a>表示。</li>
+<li><code>print_gtk(expr)</code>：在<a href="http://helm.cs.unibo.it/mml-widget/" target="_blank" rel="external">Gtkmathview</a>打印<code>expr</code>，这是一个呈现MathML代码的GTK部件。<a href="http://helm.cs.unibo.it/mml-widget/" target="_blank" rel="external">Gtkmathview</a>要求安装。</li>
+</ul>
+<h2 id="更多文档">更多文档</h2><p>现在该学更多有关SymPy的知识了。浏览<a href="http://docs.sympy.org/dev/guide.html#guide" target="_blank" rel="external">SymPy用户指南</a>和<a href="http://docs.sympy.org/dev/modules/index.html#module-docs" target="_blank" rel="external">SymPy模块参考</a>。</p>
+<p>一定也浏览我们的公共<a href="http://wiki.sympy.org/" target="_blank" rel="external">wiki.sympy.org</a>，那里包含了很多我们和我们的用户贡献的示例，教程，cookbook，请自由地编辑它。</p>
+<h2 id="翻译">翻译</h2><p>这个教程还有其它语言：</p>
+<p><a href="http://docs.sympy.org/dev/tutorial.de.html" target="_blank" rel="external">德语</a></p>
+<hr>
+<h2 id="FootNotes">FootNotes</h2><p>[^2]:Compute the summation of f with respect to the given summation variable over the given limits.</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/python/2012/08/24/scipy/" itemprop="url">
                   SciPy入门指南(译)
                 </a>
@@ -2429,195 +3148,12 @@ pylab.show()
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/lisp/2012/07/07/dice-of-doom-v4/" itemprop="url">
-                  Dice of Doom v4
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-07-07T00:00:00+08:00" content="2012-07-07">
-              2012-07-07
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/lisp/" itemprop="url" rel="index">
-                    <span itemprop="name">lisp</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/lisp/2012/07/07/dice-of-doom-v4/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="lisp/2012/07/07/dice-of-doom-v4/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="最终版的Dice_of_Doom">最终版的Dice of Doom</h1><p>这个游戏终于结束了，基本上这本书的主要内容也算看完了。实际上，我根本就写不出这些东西，源码也读的云里雾里。但这是一本很有趣的书，我想看完htdp之后用htdp推荐风格重新处理下这本书的代码，顺便也复习一下。</p>
-<h2 id="让Dice_of_Doom_更加的有趣">让Dice of Doom 更加的有趣</h2><p>我们上回完成的版本虽然很棒，但总缺乏些什么。因为之前程序的设计，我们可以很轻易的扩展它，让它变得更有趣</p>
-<p>先加载我们之前的游戏<a href="对从官网下载的源码和书中的源码可能需要修改，具体参见前几篇读书笔记。">^1</a></p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(load &#34;dice-v3&#34;);</span><br></pre></td></tr></table></figure>
-<h3 id="增加玩家数">增加玩家数</h3><p>因为我们之前的架构，增加玩家数很简单。为了增加玩家数后计算机能反应敏捷，让它变“傻”一点。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defparameter *num-players* 4)&#10;(defparameter *die-colors* &#39;((255 63 63) (63 63 255) (63 255 63) (255 63 255)))&#10;(defparameter *max-dice* 5)&#10;(defparameter *ai-level* 2)</span><br></pre></td></tr></table></figure>
-<h3 id="建立概率节点">建立概率节点</h3><p>我们本质上是向游戏树中加入几率节点，先升级attacking-moves函数，增加个board-attack-fail分支。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun attacking-moves (board cur-player spare-dice)&#10;  (labels ((player (pos)&#10;             (car (aref board pos)))&#10;           (dice (pos)&#10;             (cadr (aref board pos))))&#10;    (lazy-mapcan (lambda (src)&#10;                   (if (eq (player src) cur-player)&#10;                     (lazy-mapcan&#10;                       (lambda (dst)&#10;                         (if (and (not (eq (player dst) cur-player))&#10;                                  (&#62; (dice src) 1))&#10;                           (make-lazy (list (list (list src dst)&#10;                                                  (game-tree (board-attack board cur-player src dst (dice src))&#10;                                                             cur-player&#10;                                                             (+ spare-dice (dice dst))&#10;                                                             nil)&#10;                                                  (game-tree (board-attack-fail board cur-player src dst (dice src))&#10;                                                             cur-player&#10;                                                             (+ spare-dice (dice dst))&#10;                                                             nil))))&#10;                           (lazy-nil)))&#10;                       (make-lazy (neighbors src)))&#10;                     (lazy-nil)))&#10;                 (make-lazy (loop for n below *board-hexnum*&#10;                                  collect n)))))</span><br></pre></td></tr></table></figure>
-<p>board-attack-fail函数遍历所有位置。如果这个位置是攻击方就只能留下一个骰子</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun board-attack-fail (board player src dst dice)&#10;  (board-array (loop for pos from 0&#10;                     for hex across board&#10;                     collect (if (eq pos src)&#10;                               (list player 1)&#10;                               hex))))</span><br></pre></td></tr></table></figure>
-<h3 id="让骰子滚动起来">让骰子滚动起来</h3><p>一下程序让一堆骰子滚动起来，并判断谁赢了</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">;rolling the dice&#10;(defun roll-dice (dice-num)&#10;  (let ((total (loop repeat dice-num&#10;                     sum (1+ (random 6)))))&#10;    (fresh-line)&#10;    (format t &#34;On ~a dice rolled ~a. &#34; dice-num total)&#10;    total))&#10;(defun roll-against (src-dice dst-dice)&#10;  (&#62; (roll-dice src-dice) (roll-dice dst-dice)))</span><br></pre></td></tr></table></figure>
-<p>我们还需要在游戏引擎中调用让骰子滚动的代码,选出正确的子树</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun pick-chance-branch (board move)&#10;  (labels ((dice (pos)&#10;             (cadr (aref board pos))))&#10;    (let ((path (car move)))&#10;      (if (or (null path) (roll-against (dice (car path))&#10;                                        (dice (cadr path))))&#10;        (cadr move)&#10;        (caddr move)))))</span><br></pre></td></tr></table></figure>
-<p>更新handle-computer函数让它调用选择几率分支的函数</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun handle-human (tree)&#10;  (fresh-line)&#10;  (princ &#34;choose your move:&#34;)&#10;  (let ((moves (caddr tree)))&#10;    (labels ((print-moves (moves n)&#10;               (unless (lazy-null moves)&#10;                 (let* ((move (lazy-car moves))&#10;                        (action (car move)))&#10;                   (fresh-line)&#10;                   (format t &#34;~a. &#34; n)&#10;                   (if action&#10;                     (format t &#34;~a -&#62; ~a&#34; (car action) (cadr action))&#10;                     (princ &#34;end turn&#34;)))&#10;                 (print-moves (lazy-cdr moves) (1+ n)))))&#10;      (print-moves moves 1))&#10;    (fresh-line)&#10;    (pick-chance-branch (cadr tree) (lazy-nth (1- (read)) moves))))</span><br></pre></td></tr></table></figure>
-<p>同样我们可以处理handle-computer函数</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun handle-computer (tree)&#10;  (let ((ratings (get-ratings (limit-tree-depth tree *ai-level*) (car tree))))&#10;    (pick-chance-branch&#10;      (cadr tree)&#10;      (lazy-nth (position (apply #&#39;max ratings) ratings) (caddr tree)))))</span><br></pre></td></tr></table></figure>
-<h3 id="升级AI">升级AI</h3><p>但现在还有个问题，AI还没有考虑骰子的滚动，依然认为骰子多的一定获胜。因此需要更新AI。</p>
-<p>根据概率论原理，我们可以得到这样一个矩阵来表征攻击成功的概率</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">防守方\攻击方</th>
-<th style="text-align:center">2</th>
-<th style="text-align:center">3</th>
-<th style="text-align:center">4</th>
-<th style="text-align:center">5</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">1</td>
-<td style="text-align:center">0.84</td>
-<td style="text-align:center">0.97</td>
-<td style="text-align:center">1.0</td>
-<td style="text-align:center">1.0</td>
-</tr>
-<tr>
-<td style="text-align:center">2</td>
-<td style="text-align:center">0.44</td>
-<td style="text-align:center">0.78</td>
-<td style="text-align:center">0.94</td>
-<td style="text-align:center">0.99</td>
-</tr>
-<tr>
-<td style="text-align:center">3</td>
-<td style="text-align:center">0.15</td>
-<td style="text-align:center">0.45</td>
-<td style="text-align:center">0.74</td>
-<td style="text-align:center">0.91</td>
-</tr>
-<tr>
-<td style="text-align:center">4</td>
-<td style="text-align:center">0.04</td>
-<td style="text-align:center">0.19</td>
-<td style="text-align:center">0.46</td>
-<td style="text-align:center">0.72</td>
-</tr>
-<tr>
-<td style="text-align:center">5</td>
-<td style="text-align:center">0.01</td>
-<td style="text-align:center">0.06</td>
-<td style="text-align:center">0.22</td>
-<td style="text-align:center">0.46</td>
-</tr>
-</tbody>
-</table>
-<p>现在把这个概率交给计算机，更新get-ratings函数,给评分加权</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun get-ratings (tree player)&#10;  (let ((board (cadr tree)))&#10;    (labels ((dice (pos)&#10;               (cadr (aref board pos))))&#10;      (take-all (lazy-mapcar&#10;                  (lambda (move)&#10;                    (let ((path (car move)))&#10;                      (if path&#10;                        (let* ((src (car path))&#10;                               (dst (cadr path))&#10;                               (odds (aref (aref *dice-odds*&#10;                                                 (1- (dice dst)))&#10;                                           (- (dice src) 2))))&#10;                          (+ (* odds (rate-position (cadr move) player))&#10;                             (* (- 1 odds) (rate-position (caddr move)&#10;                                                          player))))&#10;                        (rate-position (cadr move) player))))&#10;                  (caddr tree))))))</span><br></pre></td></tr></table></figure>
-<p>为了让修剪游戏树的函数能工作，还需要做些修改让它能处理新的游戏树。同时为了简化不再使用alpha-beta算法。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun limit-tree-depth (tree depth)&#10;  (list (car tree)&#10;        (cadr tree)&#10;        (if (zerop depth)&#10;          (lazy-nil)&#10;          (lazy-mapcar (lambda (move)&#10;                         (cons (car move)&#10;                               (mapcar (lambda (x)&#10;                                         (limit-tree-depth x (1- depth)))&#10;                                       (cdr move))))&#10;                       (caddr tree)))))&#10;;We mapcar across the tail of each move, so trimming is performed on&#10;;both branches of any chance nodes.</span><br></pre></td></tr></table></figure>
-<h3 id="改进增援方案">改进增援方案</h3><p>之前是依据消灭敌人多少来决定增援骰子数。现在我们换一种方法：依据占据的最大领地来决定增援多少。这使游戏的地缘性更加复杂。</p>
-<p>回想我们之前在<a href="http://reverland.org/Tech/2012/05/01/grand-theft-wumpus/">wumpus游戏</a>里写过的相似函数</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun get-connected (board player pos)&#10;  (labels ((check-pos (pos visited)&#10;             (if (and (eq (car (aref board pos)) player)&#10;                      (not (member pos visited)))&#10;               (check-neighbors (neighbors pos) (cons pos visited))&#10;               visited))&#10;           (check-neighbors (lst visited)&#10;             (if lst&#10;               (check-neighbors (cdr lst) (check-pos (car lst) visited))&#10;               visited)))&#10;    (check-pos pos &#39;())))</span><br></pre></td></tr></table></figure>
-<p>获得最大的集群,最后添加援军，注意，spare-dice仍然作为参数传递但已经不再被add-new-dice使用了。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(defun largest-cluster-size (board player)&#10;  (labels ((f (pos visited best)&#10;             (if (&#60; pos *board-hexnum*)&#10;               (if (and (eq (car (aref board pos)) player)&#10;                        (not (member pos visited)))&#10;                 (let* ((cluster (get-connected board player pos))&#10;                        (size (length cluster)))&#10;                   (if (&#62; size best)&#10;                     (f (1+ pos) (append cluster visited) size)&#10;                     (f (1+ pos) (append cluster visited) best)))&#10;                 (f (1+ pos) visited best))&#10;               best)))&#10;    (f 0 &#39;() 0)))&#10;(defun add-new-dice (board player spare-dice)&#10;  (labels ((f (lst n)&#10;             (cond ((zerop n) lst)&#10;                   ((null lst) nil)&#10;                   (t (let ((cur-player (caar lst))&#10;                            (cur-dice (cadar lst)))&#10;                        (if (and (eq cur-player player) (&#60; cur-dice *max-dice*))&#10;                          (cons (list cur-player (1+ cur-dice))&#10;                                (f (cdr lst) (1- n)))&#10;                          (cons (car lst) (f (cdr lst) n))))))))&#10;    (board-array (f (coerce board &#39;list)&#10;                   (largest-cluster-size board player)))))</span><br></pre></td></tr></table></figure>
-<p>享受你的劳动成果吧</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(serve #&#39;dod-request-handleer)</span><br></pre></td></tr></table></figure>
-<h2 id="疑问">疑问</h2><p>我发现我可以选中任何自己的领地，只要上面的骰子数大于2。我可以攻击任何强大的敌人，而且一定能成功。不知道哪里的更改或错误！！</p>
-<hr>
-<h2 id="Footnotes">Footnotes</h2>
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/13/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/15/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/13/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" href="/page/15/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2658,7 +3194,7 @@ pylab.show()
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">180</span>
+              <span class="site-state-item-count">181</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
