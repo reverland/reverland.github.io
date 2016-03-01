@@ -1,61 +1,17 @@
-<!doctype html>
-<html class="theme-next   use-motion ">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <meta charset="utf-8">
+  
+  <title>Account and Access Control | Reverland的行知阁</title>
 
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
-
-
-
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   
-    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <meta name="keywords" content="linux,security," />
   
 
-
-
-<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
-
-
-  <meta name="keywords" content="linux,security," />
-
-
-
-
-
-  <link rel="alternate" href="/atom.xml" title="Reverland的行知阁" type="application/atom+xml" />
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/images/default_avatar.jpg?v=0.4.5.2" />
-
-
-
-
-
-
-<meta name="description" content="传统的Unix中，一旦攻击者获得对应帐号的shell，他就能执行该账户所能行使的任何行为，存取该账户能存取的任何文件。因此，让未授权的人获得指定帐号shell更加困难(特别是对权限账户)，是系统安全重要的部分。本文介绍如何引入限制账户登录的机制。
+  <meta name="description" content="传统的Unix中，一旦攻击者获得对应帐号的shell，他就能执行该账户所能行使的任何行为，存取该账户能存取的任何文件。因此，让未授权的人获得指定帐号shell更加困难(特别是对权限账户)，是系统安全重要的部分。本文介绍如何引入限制账户登录的机制。
 限制基于密码的登录来保护账户传统Unix账户通过提供用户名和密码登录，这些用户名和密码会和储存在/etc/passwd和/etc/shadow中的内容对">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Account and Access Control">
@@ -69,212 +25,104 @@
 <meta name="twitter:description" content="传统的Unix中，一旦攻击者获得对应帐号的shell，他就能执行该账户所能行使的任何行为，存取该账户能存取的任何文件。因此，让未授权的人获得指定帐号shell更加困难(特别是对权限账户)，是系统安全重要的部分。本文介绍如何引入限制账户登录的机制。
 限制基于密码的登录来保护账户传统Unix账户通过提供用户名和密码登录，这些用户名和密码会和储存在/etc/passwd和/etc/shadow中的内容对">
 
+  
 
+  
+    <link rel="icon" href="/favicon.ico">
+  
 
-<script type="text/javascript" id="hexo.configuration">
-  var CONFIG = {
-    scheme: '',
-    sidebar: 'post',
-    motion: true
-  };
-</script>
+  <link rel="stylesheet" href="/css/styles.css" type="text/css">
 
-  <title> Account and Access Control | Reverland的行知阁 </title>
+  
+
+  
+
+  
+
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
-
-  <!--[if lte IE 8]>
-  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
-    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
-      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
-           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
-           style='margin-left:auto;margin-right:auto;display: block;'/>
-    </a>
-  </div>
-<![endif]-->
-  
-
-
-
-
-
-
-  <div class="container one-column page-post-detail">
-    <div class="headband"></div>
-
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-meta ">
-  
-
-  <div class="custom-logo-site-title">
-    <a href="/"  class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <span class="site-title">Reverland的行知阁</span>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-  </div>
-  <p class="site-subtitle">开放、分享、自由与进步</p>
-</div>
-
-<div class="site-nav-toggle">
-  <button>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-  </button>
-</div>
-
-<nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu ">
+<body>
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <div class="toolbox-entry">盒子</div>
+    <ul class="list-toolbox">
       
         
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
-            
-            首页
-          </a>
-        </li>
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/archives/">博客</a>
+          </li>
+        
       
         
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
-            
-            分类
-          </a>
-        </li>
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/category/">分类</a>
+          </li>
+        
       
         
-        <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
-            
-              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
-            
-            归档
-          </a>
-        </li>
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/tag/">标签</a>
+          </li>
+        
       
         
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
-            
-            标签
-          </a>
-        </li>
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/link/">友链</a>
+          </li>
+        
       
         
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
-            
-            关于
-          </a>
-        </li>
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/about/">关于</a>
+          </li>
+        
       
-
-      
+        
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/atom.xml">RSS</a>
+          </li>
+        
       
     </ul>
-  
-
-  
-</nav>
-
- </div>
-    </header>
-
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div id="content" class="content">
-          
-
-  <div id="posts" class="posts-expand">
-    
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                Account and Access Control
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2014-11-20T00:00:00+08:00" content="2014-11-20">
-              2014-11-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/linux/2014/11/20/account-and-access-control/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="linux/2014/11/20/account-and-access-control/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
+  </div>
 
 
-    <div class="post-body">
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#限制基于密码的登录来保护账户"><span class="toc-text">限制基于密码的登录来保护账户</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#限制root只能在系统控制台登录"><span class="toc-text">限制root只能在系统控制台登录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#限制su到root账户"><span class="toc-text">限制su到root账户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置sudo改善对root访问的审计"><span class="toc-text">配置sudo改善对root访问的审计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#禁止非root系统账户登录和使用shell"><span class="toc-text">禁止非root系统账户登录和使用shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确认密码被适当存储和哈希"><span class="toc-text">确认密码被适当存储和哈希</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#确保没有账户有空密码"><span class="toc-text">确保没有账户有空密码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#确保所有账户密码哈希都被shadow"><span class="toc-text">确保所有账户密码哈希都被shadow</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确认没有非root用户的UID为0"><span class="toc-text">确认没有非root用户的UID为0</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置密码过期参数"><span class="toc-text">设置密码过期参数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#从libuser-conf移除密码参数"><span class="toc-text">从libuser.conf移除密码参数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#移除密码文件中遗留的+条目"><span class="toc-text">移除密码文件中遗留的+条目</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通过Unix组来加强安全"><span class="toc-text">通过Unix组来加强安全</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#为每个账户创建一个唯一默认组"><span class="toc-text">为每个账户创建一个唯一默认组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建和维护包含所有人类账户的组"><span class="toc-text">创建和维护包含所有人类账户的组</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通过配置PAM保护帐号"><span class="toc-text">通过配置PAM保护帐号</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#设定密码质量要求"><span class="toc-text">设定密码质量要求</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#如果使用pam_cracklib,设置密码质量需求"><span class="toc-text">如果使用pam_cracklib,设置密码质量需求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#如果使用pam_passwdqc,设置密码质量需求"><span class="toc-text">如果使用pam_passwdqc,设置密码质量需求</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置失败密码尝试锁定"><span class="toc-text">设置失败密码尝试锁定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用pam_deny-so快速禁止访问服务"><span class="toc-text">使用pam_deny.so快速禁止访问服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#仅控制台用户执行userhelper"><span class="toc-text">仅控制台用户执行userhelper</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#升级密码哈希算法到SHA-512"><span class="toc-text">升级密码哈希算法到SHA-512</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#限制密码重用"><span class="toc-text">限制密码重用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#尽可能移除pam_crreds包"><span class="toc-text">尽可能移除pam_crreds包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#对登录用户使用安全会话配置文件"><span class="toc-text">对登录用户使用安全会话配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#确保Root_PATH不存在危险目录"><span class="toc-text">确保Root PATH不存在危险目录</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#确保Root_PATH不包含相对路径或者空目录"><span class="toc-text">确保Root PATH不包含相对路径或者空目录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#确保ROOT路径不包含全局可写或组可写的目录"><span class="toc-text">确保ROOT路径不包含全局可写或组可写的目录</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确保用户家目录不是组可写或者全局可读的"><span class="toc-text">确保用户家目录不是组可写或者全局可读的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确保用户dot文件不是全局可写"><span class="toc-text">确保用户dot文件不是全局可写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确保用户有合理的umask值"><span class="toc-text">确保用户有合理的umask值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确保用户没有-netrc文件"><span class="toc-text">确保用户没有.netrc文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#保护物理控制台访问"><span class="toc-text">保护物理控制台访问</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#设置BIOS密码"><span class="toc-text">设置BIOS密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置Boot_Loader密码"><span class="toc-text">设置Boot Loader密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#要求单用户模式登录认证"><span class="toc-text">要求单用户模式登录认证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#禁用交互式启动"><span class="toc-text">禁用交互式启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#对登录shell实现不活动超时"><span class="toc-text">对登录shell实现不活动超时</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置锁屏"><span class="toc-text">配置锁屏</span></a></li></ol></li></ol>
+  </div>
+
+
+<div class="content-post CENTER">
+   <article id="post-account-and-access-control" class="article article-type-post" itemscope itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Account and Access Control</h1>
+
+    <div class="article-meta">
+      <span>2014-11-20</span>
+
+      <span> | </span>
+
+      <span class="article-author">Liu Yuyang</span>
+
+      <span> | </span>
 
       
-      
+  <span class="article-category">
+    <a class="article-category-link" href="/categories/linux/">linux</a>
+  </span>
 
-      
-        <span itemprop="articleBody"><p>传统的Unix中，一旦攻击者获得对应帐号的shell，他就能执行该账户所能行使的任何行为，存取该账户能存取的任何文件。因此，让未授权的人获得指定帐号shell更加困难(特别是对权限账户)，是系统安全重要的部分。本文介绍如何引入限制账户登录的机制。</p>
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <p>传统的Unix中，一旦攻击者获得对应帐号的shell，他就能执行该账户所能行使的任何行为，存取该账户能存取的任何文件。因此，让未授权的人获得指定帐号shell更加困难(特别是对权限账户)，是系统安全重要的部分。本文介绍如何引入限制账户登录的机制。</p>
 <h2 id="限制基于密码的登录来保护账户">限制基于密码的登录来保护账户</h2><p>传统Unix账户通过提供用户名和密码登录，这些用户名和密码会和储存在<code>/etc/passwd</code>和<code>/etc/shadow</code>中的内容对比。密码登录可能被被猜测，被嗅探，被中间人截取，无论是从网络还是不安全的控制台中。因此，限制账户密码登录的机制很重要。</p>
 <h3 id="限制root只能在系统控制台登录">限制root只能在系统控制台登录</h3><p>编辑<code>/etc/securetty</code>，确保只有以下行：</p>
 <ul>
@@ -488,524 +336,53 @@ chmod <span class="number">600</span> <span class="regexp">/etc/</span>grub.conf
 <p>仅仅在shell是前台进程时才会自动登录超时。比如，一个<code>vi</code>会话空闲着并不会自动超时登出。</p>
 <p>当通过远程连接时，比如SSH，通过该服务设置超时更加有效。</p>
 <h3 id="配置锁屏">配置锁屏</h3><p>一个是图形界面的锁屏(比如kde的Lock Screen)，一个是控制台(vlock)。</p>
-</span>
-      
-    </div>
 
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/linux/" rel="tag">#linux</a>
-          
-            <a href="/tags/security/" rel="tag">#security</a>
-          
-        </div>
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/linux/2014/11/18/file-permissions-and-masks/" rel="next" title="File Permissions and Masks">
-                <i class="fa fa-chevron-left"></i> File Permissions and Masks
-              </a>
-            
-          </div>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/life/2014/12/24/" rel="prev" title="明天太远，今天太短">
-                明天太远，今天太短 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
-  </article>
-
-
-
-    <div class="post-spread">
-      
-    </div>
-  </div>
-
-
-        </div>
-
-        
-
-
-        
-  <div class="comments" id="comments">
-    
-      <div id="disqus_thread">
-        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      </div>
     
   </div>
+</article>
 
 
-      </div>
 
-      
-        
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
+<section class="disqus-comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
-
-  <aside id="sidebar" class="sidebar">
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview sidebar-panel ">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
-          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
-        </div>
-        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
-        <nav class="site-state motion-element">
-          <div class="site-state-item site-state-posts">
-            <a href="/archives">
-              <span class="site-state-item-count">181</span>
-              <span class="site-state-item-name">日志</span>
-            </a>
-          </div>
-
-          <div class="site-state-item site-state-categories">
-            <a href="/categories">
-              <span class="site-state-item-count">24</span>
-              <span class="site-state-item-name">分类</span>
-              </a>
-          </div>
-
-          <div class="site-state-item site-state-tags">
-            <a href="/tags">
-              <span class="site-state-item-count">66</span>
-              <span class="site-state-item-name">标签</span>
-              </a>
-          </div>
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
-              <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
-
-        <div class="links-of-author motion-element">
-          
-            
-              <span class="links-of-author-item">
-                <a href="https://github.com/reverland" target="_blank">
-                  
-                    <i class="fa fa-github"></i> GitHub
-                  
-                </a>
-              </span>
-            
-          
-        </div>
-
-        
-        
-
-        <div class="links-of-author motion-element">
-          
-            <p class="site-author-name">Links</p>
-            
-              <span class="links-of-author-item">
-                <a href="http://reverland.bitbucket.org/" target="_blank">曾经的的vimwiki</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://liutos.github.com/" target="_blank">Liutos</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://blog.phoenixlzx.com/" target="_blank">凤凰君</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://gndrive.org/" target="_blank">高达数字实验室</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://www.cherrot.com/" target="_blank">Cherrot</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://xwyam.github.com/" target="_blank">xw_y_am</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://ishell.me" target="_blank">小东</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://blog.kochiya.me/" target="_blank">AS酱</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://blog.skydark.info/" target="_blank">skydark</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://thorb.cn/" target="_blank">thorb</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://www.d0u9.xyz/" target="_blank">doug</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://armsword.com/" target="_blank">armsword</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://lilydjwg.is-programmer.com/" target="_blank">仙子</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://lazymind.me/" target="_blank">mapleray</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://gaohaoyang.github.io" target="_blank">HYG</a>
-              </span>
-            
-          
-        </div>
-
-      </section>
-
-      
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc-indicator-top post-toc-indicator">
-            <i class="fa fa-angle-double-up"></i>
-          </div>
-          <div class="post-toc">
-            
-              
-            
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#限制基于密码的登录来保护账户"><span class="nav-number">1.</span> <span class="nav-text">限制基于密码的登录来保护账户</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#限制root只能在系统控制台登录"><span class="nav-number">1.1.</span> <span class="nav-text">限制root只能在系统控制台登录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#限制su到root账户"><span class="nav-number">1.2.</span> <span class="nav-text">限制su到root账户</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置sudo改善对root访问的审计"><span class="nav-number">1.3.</span> <span class="nav-text">配置sudo改善对root访问的审计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#禁止非root系统账户登录和使用shell"><span class="nav-number">1.4.</span> <span class="nav-text">禁止非root系统账户登录和使用shell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#确认密码被适当存储和哈希"><span class="nav-number">1.5.</span> <span class="nav-text">确认密码被适当存储和哈希</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#确保没有账户有空密码"><span class="nav-number">1.5.1.</span> <span class="nav-text">确保没有账户有空密码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#确保所有账户密码哈希都被shadow"><span class="nav-number">1.5.2.</span> <span class="nav-text">确保所有账户密码哈希都被shadow</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#确认没有非root用户的UID为0"><span class="nav-number">1.6.</span> <span class="nav-text">确认没有非root用户的UID为0</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置密码过期参数"><span class="nav-number">1.7.</span> <span class="nav-text">设置密码过期参数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#从libuser-conf移除密码参数"><span class="nav-number">1.7.1.</span> <span class="nav-text">从libuser.conf移除密码参数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#移除密码文件中遗留的+条目"><span class="nav-number">1.8.</span> <span class="nav-text">移除密码文件中遗留的+条目</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通过Unix组来加强安全"><span class="nav-number">2.</span> <span class="nav-text">通过Unix组来加强安全</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为每个账户创建一个唯一默认组"><span class="nav-number">2.1.</span> <span class="nav-text">为每个账户创建一个唯一默认组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建和维护包含所有人类账户的组"><span class="nav-number">2.2.</span> <span class="nav-text">创建和维护包含所有人类账户的组</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通过配置PAM保护帐号"><span class="nav-number">3.</span> <span class="nav-text">通过配置PAM保护帐号</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#设定密码质量要求"><span class="nav-number">3.1.</span> <span class="nav-text">设定密码质量要求</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#如果使用pam_cracklib,设置密码质量需求"><span class="nav-number">3.1.1.</span> <span class="nav-text">如果使用pam_cracklib,设置密码质量需求</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如果使用pam_passwdqc,设置密码质量需求"><span class="nav-number">3.1.2.</span> <span class="nav-text">如果使用pam_passwdqc,设置密码质量需求</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置失败密码尝试锁定"><span class="nav-number">3.2.</span> <span class="nav-text">设置失败密码尝试锁定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用pam_deny-so快速禁止访问服务"><span class="nav-number">3.3.</span> <span class="nav-text">使用pam_deny.so快速禁止访问服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#仅控制台用户执行userhelper"><span class="nav-number">3.4.</span> <span class="nav-text">仅控制台用户执行userhelper</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#升级密码哈希算法到SHA-512"><span class="nav-number">3.5.</span> <span class="nav-text">升级密码哈希算法到SHA-512</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#限制密码重用"><span class="nav-number">3.6.</span> <span class="nav-text">限制密码重用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#尽可能移除pam_crreds包"><span class="nav-number">3.7.</span> <span class="nav-text">尽可能移除pam_crreds包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对登录用户使用安全会话配置文件"><span class="nav-number">4.</span> <span class="nav-text">对登录用户使用安全会话配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#确保Root_PATH不存在危险目录"><span class="nav-number">4.1.</span> <span class="nav-text">确保Root PATH不存在危险目录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#确保Root_PATH不包含相对路径或者空目录"><span class="nav-number">4.1.1.</span> <span class="nav-text">确保Root PATH不包含相对路径或者空目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#确保ROOT路径不包含全局可写或组可写的目录"><span class="nav-number">4.1.2.</span> <span class="nav-text">确保ROOT路径不包含全局可写或组可写的目录</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#确保用户家目录不是组可写或者全局可读的"><span class="nav-number">4.2.</span> <span class="nav-text">确保用户家目录不是组可写或者全局可读的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#确保用户dot文件不是全局可写"><span class="nav-number">4.3.</span> <span class="nav-text">确保用户dot文件不是全局可写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#确保用户有合理的umask值"><span class="nav-number">4.4.</span> <span class="nav-text">确保用户有合理的umask值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#确保用户没有-netrc文件"><span class="nav-number">4.5.</span> <span class="nav-text">确保用户没有.netrc文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#保护物理控制台访问"><span class="nav-number">5.</span> <span class="nav-text">保护物理控制台访问</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#设置BIOS密码"><span class="nav-number">5.1.</span> <span class="nav-text">设置BIOS密码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置Boot_Loader密码"><span class="nav-number">5.2.</span> <span class="nav-text">设置Boot Loader密码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#要求单用户模式登录认证"><span class="nav-number">5.3.</span> <span class="nav-text">要求单用户模式登录认证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#禁用交互式启动"><span class="nav-number">5.4.</span> <span class="nav-text">禁用交互式启动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对登录shell实现不活动超时"><span class="nav-number">5.5.</span> <span class="nav-text">对登录shell实现不活动超时</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置锁屏"><span class="nav-number">5.6.</span> <span class="nav-text">配置锁屏</span></a></li></ol></li></ol></div>
-            
-          </div>
-          <div class="post-toc-indicator-bottom post-toc-indicator">
-            <i class="fa fa-angle-double-down"></i>
-          </div>
-        </section>
-      
-
-    </div>
-  </aside>
+</section>
 
 
-      
-    </main>
 
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy;  2011 - 
-  <span itemprop="copyrightYear">2016</span>
-  <span class="with-love">
-    <i class="icon-next-heart fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+
 </div>
 
-<div class="powered-by">
-  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT
-  </a>
-</div>
-
-
-
-      </div>
-    </footer>
-
-    <div class="back-to-top"></div>
-  </div>
-
-  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
-
   
+<script>
+  var disqus_shortname = 'reverlandblog';
   
-
+  var disqus_url = 'http://reverland.org/linux/2014/11/20/account-and-access-control/';
   
-    
-    
-
-  
-
-    <script type="text/javascript">
-      var disqus_shortname = 'reverlandblog';
-      var disqus_identifier = 'linux/2014/11/20/account-and-access-control/';
-      var disqus_title = 'Account and Access Control';
-      var disqus_url = 'http://reverland.org/linux/2014/11/20/account-and-access-control/';
-
-      function run_disqus_script(disqus_script){
-        var dsq = document.createElement('script');
-        dsq.type = 'text/javascript';
-        dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-      }
-
-      run_disqus_script('count.js');
-      
-        run_disqus_script('embed.js');
-      
-    </script>
-  
-
-
-  
-
-  
-  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
-  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
-
-
-  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
-  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
-<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
-
-<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
-
-
-  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  
-<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
-
-
-<script type="text/javascript" id="sidebar.toc.highlight">
-  $(document).ready(function () {
-    var tocSelector = '.post-toc';
-    var $tocSelector = $(tocSelector);
-    var activeCurrentSelector = '.active-current';
-
-    $tocSelector
-      .on('activate.bs.scrollspy', function () {
-        var $currentActiveElement = $(tocSelector + ' .active').last();
-
-        removeCurrentActiveClass();
-        $currentActiveElement.addClass('active-current');
-
-        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
-      })
-      .on('clear.bs.scrollspy', function () {
-        removeCurrentActiveClass();
-      });
-
-    function removeCurrentActiveClass () {
-      $(tocSelector + ' ' + activeCurrentSelector)
-        .removeClass(activeCurrentSelector.substring(1));
-    }
-
-    function processTOC () {
-      getTOCMaxHeight();
-      toggleTOCOverflowIndicators();
-    }
-
-    function getTOCMaxHeight () {
-      var height = $('.sidebar').height() -
-                   $tocSelector.position().top -
-                   $('.post-toc-indicator-bottom').height();
-
-      $tocSelector.css('height', height);
-
-      return height;
-    }
-
-    function toggleTOCOverflowIndicators () {
-      tocOverflowIndicator(
-        '.post-toc-indicator-top',
-        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
-      );
-
-      tocOverflowIndicator(
-        '.post-toc-indicator-bottom',
-        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
-      )
-    }
-
-    $(document).on('sidebar.motion.complete', function () {
-      processTOC();
-    });
-
-    $('body').scrollspy({ target: tocSelector });
-    $(window).on('resize', function () {
-      if ( $('.sidebar').hasClass('sidebar-active') ) {
-        processTOC();
-      }
-    });
-
-    onScroll($tocSelector);
-
-    function onScroll (element) {
-      element.on('mousewheel DOMMouseScroll', function (event) {
-          var oe = event.originalEvent;
-          var delta = oe.wheelDelta || -oe.detail;
-
-          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
-          event.preventDefault();
-
-          toggleTOCOverflowIndicators();
-      });
-    }
-
-    function tocOverflowIndicator (indicator, action) {
-      var $indicator = $(indicator);
-      var opacity = action === 'show' ? 1 : 0;
-      $indicator.velocity ?
-        $indicator.velocity('stop').velocity({
-          opacity: opacity
-        }, { duration: 100 }) :
-        $indicator.stop().animate({
-          opacity: opacity
-        }, 100);
-    }
-
-  });
-</script>
-
-<script type="text/javascript" id="sidebar.nav">
-  $(document).ready(function () {
-    var html = $('html');
-    var TAB_ANIMATE_DURATION = 200;
-    var hasVelocity = $.isFunction(html.velocity);
-
-    $('.sidebar-nav li').on('click', function () {
-      var item = $(this);
-      var activeTabClassName = 'sidebar-nav-active';
-      var activePanelClassName = 'sidebar-panel-active';
-      if (item.hasClass(activeTabClassName)) {
-        return;
-      }
-
-      var currentTarget = $('.' + activePanelClassName);
-      var target = $('.' + item.data('target'));
-
-      hasVelocity ?
-        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
-          target
-            .velocity('stop')
-            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
-            .addClass(activePanelClassName);
-        }) :
-        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
-          currentTarget.hide();
-          target
-            .stop()
-            .css({'opacity': 0, 'display': 'block'})
-            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
-              currentTarget.removeClass(activePanelClassName);
-              target.addClass(activePanelClassName);
-            });
-        });
-
-      item.siblings().removeClass(activeTabClassName);
-      item.addClass(activeTabClassName);
-    });
-
-    $('.post-toc a').on('click', function (e) {
-      e.preventDefault();
-      var targetSelector = escapeSelector(this.getAttribute('href'));
-      var offset = $(targetSelector).offset().top;
-      hasVelocity ?
-        html.velocity('stop').velocity('scroll', {
-          offset: offset  + 'px',
-          mobileHA: false
-        }) :
-        $('html, body').stop().animate({
-          scrollTop: offset
-        }, 500);
-    });
-
-    // Expand sidebar on post detail page by default, when post has a toc.
-    motionMiddleWares.sidebar = function () {
-      var $tocContent = $('.post-toc-content');
-      if (CONFIG.sidebar === 'post') {
-        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
-          displaySidebar();
-        }
-      }
-    };
-  });
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
 </script>
 
 
-
-  <script type="text/javascript" src="/js/bootstrap.js"></script>
-
-  
-  
-  <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-      }
-    });
-  </script>
-
-  <script type="text/x-mathjax-config">
-    MathJax.Hub.Queue(function() {
-      var all = MathJax.Hub.getAllJax(), i;
-      for (i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';
-      }
-    });
-  </script>
-
-  
-    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
-    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
-  
-
-
-  
-  
+  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"undefined"};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0]
+   || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+<!-- 多说公共JS代码 end -->
 
 </body>
 </html>

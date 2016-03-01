@@ -1,61 +1,17 @@
-<!doctype html>
-<html class="theme-next   use-motion ">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <meta charset="utf-8">
+  
+  <title>Matplotlib Tutorial(译) | Reverland的行知阁</title>
 
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
-
-
-
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   
-    <link href='//fonts.lug.ustc.edu.cn/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <meta name="keywords" content="matplotlib,python," />
   
 
-
-
-<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
-
-
-  <meta name="keywords" content="matplotlib,python," />
-
-
-
-
-
-  <link rel="alternate" href="/atom.xml" title="Reverland的行知阁" type="application/atom+xml" />
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/images/default_avatar.jpg?v=0.4.5.2" />
-
-
-
-
-
-
-<meta name="description" content="Matplotlib Tutorial(译)翻译自:Matplotlib tutorialNicolas P. Rougier - Euroscipy 2012
+  <meta name="description" content="Matplotlib Tutorial(译)翻译自:Matplotlib tutorialNicolas P. Rougier - Euroscipy 2012
 
 toc{: toc}
 
@@ -119,212 +75,104 @@ toc{: toc}
 源代码可从这里获得。图像在figures文件夹内，所有的脚本位于scripts文件夹。
 所有的代码和材料以Creati">
 
+  
 
+  
+    <link rel="icon" href="/favicon.ico">
+  
 
-<script type="text/javascript" id="hexo.configuration">
-  var CONFIG = {
-    scheme: '',
-    sidebar: 'post',
-    motion: true
-  };
-</script>
+  <link rel="stylesheet" href="/css/styles.css" type="text/css">
 
-  <title> Matplotlib Tutorial(译) | Reverland的行知阁 </title>
+  
+
+  
+
+  
+
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
-
-  <!--[if lte IE 8]>
-  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
-    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
-      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
-           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
-           style='margin-left:auto;margin-right:auto;display: block;'/>
-    </a>
-  </div>
-<![endif]-->
-  
-
-
-
-
-
-
-  <div class="container one-column page-post-detail">
-    <div class="headband"></div>
-
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-meta ">
-  
-
-  <div class="custom-logo-site-title">
-    <a href="/"  class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <span class="site-title">Reverland的行知阁</span>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-  </div>
-  <p class="site-subtitle">开放、分享、自由与进步</p>
-</div>
-
-<div class="site-nav-toggle">
-  <button>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-  </button>
-</div>
-
-<nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu ">
+<body>
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <div class="toolbox-entry">盒子</div>
+    <ul class="list-toolbox">
       
         
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
-            
-            首页
-          </a>
-        </li>
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/archives/">博客</a>
+          </li>
+        
       
         
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
-            
-              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
-            
-            分类
-          </a>
-        </li>
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/category/">分类</a>
+          </li>
+        
       
         
-        <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
-            
-              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
-            
-            归档
-          </a>
-        </li>
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/tag/">标签</a>
+          </li>
+        
       
         
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
-            
-            标签
-          </a>
-        </li>
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/link/">友链</a>
+          </li>
+        
       
         
-        <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
-            
-              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
-            
-            关于
-          </a>
-        </li>
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/about/">关于</a>
+          </li>
+        
       
-
-      
+        
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/atom.xml">RSS</a>
+          </li>
+        
       
     </ul>
-  
-
-  
-</nav>
-
- </div>
-    </header>
-
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div id="content" class="content">
-          
-
-  <div id="posts" class="posts-expand">
-    
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                Matplotlib Tutorial(译)
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            发表于
-            <time itemprop="dateCreated" datetime="2012-09-07T00:00:00+08:00" content="2012-09-07">
-              2012-09-07
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分类于
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/python/2012/09/07/matplotlib-tutorial/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="python/2012/09/07/matplotlib-tutorial/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
+  </div>
 
 
-    <div class="post-body">
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Matplotlib_Tutorial(译)"><span class="toc-text">Matplotlib Tutorial(译)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-text">引言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Ipython_和_pylab模式"><span class="toc-text">Ipython 和 pylab模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pylab"><span class="toc-text">pylab</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#简单绘图"><span class="toc-text">简单绘图</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用默认"><span class="toc-text">使用默认</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#示例默认"><span class="toc-text">示例默认</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#更改色彩和线宽"><span class="toc-text">更改色彩和线宽</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置边界"><span class="toc-text">设置边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置刻度"><span class="toc-text">设置刻度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置刻度标签"><span class="toc-text">设置刻度标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#移动轴线(spine)"><span class="toc-text">移动轴线(spine)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#添加图例"><span class="toc-text">添加图例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#注解某些点"><span class="toc-text">注解某些点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#魔鬼在于细节"><span class="toc-text">魔鬼在于细节</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#图像，子区，子图，刻度(Figures,Subplots,Axes,Ticks)"><span class="toc-text">图像，子区，子图，刻度(Figures,Subplots,Axes,Ticks)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#图像(Figure)"><span class="toc-text">图像(Figure)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#子区(subplots)"><span class="toc-text">子区(subplots)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#子图(axes)"><span class="toc-text">子图(axes)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#刻度(ticks)"><span class="toc-text">刻度(ticks)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#刻度定位器(Tick_Locator)"><span class="toc-text">刻度定位器(Tick Locator)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其它种类绘图"><span class="toc-text">其它种类绘图</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#常规绘图"><span class="toc-text">常规绘图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#散点图(scatter_plots)"><span class="toc-text">散点图(scatter plots)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#条形图(bar_plots)"><span class="toc-text">条形图(bar plots)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#等高线图(contour_plots)"><span class="toc-text">等高线图(contour plots)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Imshow"><span class="toc-text">Imshow</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#饼图(Pie_charts)"><span class="toc-text">饼图(Pie charts)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#矢量图(quiver_plots)"><span class="toc-text">矢量图(quiver plots)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#网格(grids)"><span class="toc-text">网格(grids)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多图绘制"><span class="toc-text">多图绘制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#极轴图"><span class="toc-text">极轴图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三维绘图"><span class="toc-text">三维绘图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#绘制文本"><span class="toc-text">绘制文本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#此教程之外"><span class="toc-text">此教程之外</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#教程"><span class="toc-text">教程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#matplotlib文档"><span class="toc-text">matplotlib文档</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码文档"><span class="toc-text">代码文档</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#画廊(Galleries)"><span class="toc-text">画廊(Galleries)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#邮件列表"><span class="toc-text">邮件列表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#快速参考"><span class="toc-text">快速参考</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#线条属性"><span class="toc-text">线条属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#线型"><span class="toc-text">线型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#标记"><span class="toc-text">标记</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#色彩表"><span class="toc-text">色彩表</span></a></li></ol></li></ol></li></ol>
+  </div>
+
+
+<div class="content-post CENTER">
+   <article id="post-matplotlib-tutorial" class="article article-type-post" itemscope itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Matplotlib Tutorial(译)</h1>
+
+    <div class="article-meta">
+      <span>2012-09-07</span>
+
+      <span> | </span>
+
+      <span class="article-author">Liu Yuyang</span>
+
+      <span> | </span>
 
       
-      
+  <span class="article-category">
+    <a class="article-category-link" href="/categories/python/">python</a>
+  </span>
 
-      
-        <span itemprop="articleBody"><h1 id="Matplotlib_Tutorial(译)">Matplotlib Tutorial(译)</h1><p>翻译自:<a href="http://www.loria.fr/~rougier/teaching/matplotlib/" target="_blank" rel="external">Matplotlib tutorial</a>Nicolas P. Rougier - Euroscipy 2012</p>
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h1 id="Matplotlib_Tutorial(译)">Matplotlib Tutorial(译)</h1><p>翻译自:<a href="http://www.loria.fr/~rougier/teaching/matplotlib/" target="_blank" rel="external">Matplotlib tutorial</a>Nicolas P. Rougier - Euroscipy 2012</p>
 <ul>
 <li>toc<br>{: toc}</li>
 </ul>
@@ -776,524 +624,53 @@ plot(*args, **kwargs)
 <h3 id="邮件列表">邮件列表</h3><p>最后，这里有一个<a href="https://lists.sourceforge.net/lists/listinfo/matplotlib-users" target="_blank" rel="external">用户邮件列表</a>，那里你可以寻求帮助。一个<a href="https://lists.sourceforge.net/lists/listinfo/matplotlib-devel" target="_blank" rel="external">开发者邮件列表</a>是更加技术性的。</p>
 <h2 id="快速参考">快速参考</h2><p>没什么好翻译的，看原文吧……<a href="http://www.loria.fr/~rougier/teaching/matplotlib/#quick-references" target="_blank" rel="external">传送门</a></p>
 <h3 id="线条属性">线条属性</h3><h3 id="线型">线型</h3><h3 id="标记">标记</h3><h3 id="色彩表">色彩表</h3><hr>
-</span>
-      
-    </div>
 
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/matplotlib/" rel="tag">#matplotlib</a>
-          
-            <a href="/tags/python/" rel="tag">#python</a>
-          
-        </div>
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/python/2012/08/30/sympy-tutorial/" rel="next" title="SymPy Tutorial(译)">
-                <i class="fa fa-chevron-left"></i> SymPy Tutorial(译)
-              </a>
-            
-          </div>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/python/2012/09/12/" rel="prev" title="科学计算工具和工作流">
-                科学计算工具和工作流 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
-  </article>
-
-
-
-    <div class="post-spread">
-      
-    </div>
-  </div>
-
-
-        </div>
-
-        
-
-
-        
-  <div class="comments" id="comments">
-    
-      <div id="disqus_thread">
-        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      </div>
     
   </div>
+</article>
 
 
-      </div>
 
-      
-        
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
+<section class="disqus-comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
-
-  <aside id="sidebar" class="sidebar">
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview sidebar-panel ">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Liu Yuyang" itemprop="image"/>
-          <p class="site-author-name" itemprop="name">Liu Yuyang</p>
-        </div>
-        <p class="site-description motion-element" itemprop="description">我希望生活是诗的，是画的，是无数动听的音符。我希望我是自由的，摇滚的，有一颗黑客的心。</p>
-        <nav class="site-state motion-element">
-          <div class="site-state-item site-state-posts">
-            <a href="/archives">
-              <span class="site-state-item-count">181</span>
-              <span class="site-state-item-name">日志</span>
-            </a>
-          </div>
-
-          <div class="site-state-item site-state-categories">
-            <a href="/categories">
-              <span class="site-state-item-count">24</span>
-              <span class="site-state-item-name">分类</span>
-              </a>
-          </div>
-
-          <div class="site-state-item site-state-tags">
-            <a href="/tags">
-              <span class="site-state-item-count">66</span>
-              <span class="site-state-item-name">标签</span>
-              </a>
-          </div>
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
-              <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
-
-        <div class="links-of-author motion-element">
-          
-            
-              <span class="links-of-author-item">
-                <a href="https://github.com/reverland" target="_blank">
-                  
-                    <i class="fa fa-github"></i> GitHub
-                  
-                </a>
-              </span>
-            
-          
-        </div>
-
-        
-        
-
-        <div class="links-of-author motion-element">
-          
-            <p class="site-author-name">Links</p>
-            
-              <span class="links-of-author-item">
-                <a href="http://reverland.bitbucket.org/" target="_blank">曾经的的vimwiki</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://liutos.github.com/" target="_blank">Liutos</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://blog.phoenixlzx.com/" target="_blank">凤凰君</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://gndrive.org/" target="_blank">高达数字实验室</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://www.cherrot.com/" target="_blank">Cherrot</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://xwyam.github.com/" target="_blank">xw_y_am</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://ishell.me" target="_blank">小东</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://blog.kochiya.me/" target="_blank">AS酱</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://blog.skydark.info/" target="_blank">skydark</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://thorb.cn/" target="_blank">thorb</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://www.d0u9.xyz/" target="_blank">doug</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://armsword.com/" target="_blank">armsword</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://lilydjwg.is-programmer.com/" target="_blank">仙子</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://lazymind.me/" target="_blank">mapleray</a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="http://gaohaoyang.github.io" target="_blank">HYG</a>
-              </span>
-            
-          
-        </div>
-
-      </section>
-
-      
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc-indicator-top post-toc-indicator">
-            <i class="fa fa-angle-double-up"></i>
-          </div>
-          <div class="post-toc">
-            
-              
-            
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Matplotlib_Tutorial(译)"><span class="nav-number">1.</span> <span class="nav-text">Matplotlib Tutorial(译)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#引言"><span class="nav-number">1.1.</span> <span class="nav-text">引言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Ipython_和_pylab模式"><span class="nav-number">1.1.1.</span> <span class="nav-text">Ipython 和 pylab模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pylab"><span class="nav-number">1.1.2.</span> <span class="nav-text">pylab</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简单绘图"><span class="nav-number">1.2.</span> <span class="nav-text">简单绘图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用默认"><span class="nav-number">1.2.1.</span> <span class="nav-text">使用默认</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例默认"><span class="nav-number">1.2.2.</span> <span class="nav-text">示例默认</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更改色彩和线宽"><span class="nav-number">1.2.3.</span> <span class="nav-text">更改色彩和线宽</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置边界"><span class="nav-number">1.2.4.</span> <span class="nav-text">设置边界</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置刻度"><span class="nav-number">1.2.5.</span> <span class="nav-text">设置刻度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置刻度标签"><span class="nav-number">1.2.6.</span> <span class="nav-text">设置刻度标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#移动轴线(spine)"><span class="nav-number">1.2.7.</span> <span class="nav-text">移动轴线(spine)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加图例"><span class="nav-number">1.2.8.</span> <span class="nav-text">添加图例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注解某些点"><span class="nav-number">1.2.9.</span> <span class="nav-text">注解某些点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#魔鬼在于细节"><span class="nav-number">1.3.</span> <span class="nav-text">魔鬼在于细节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#图像，子区，子图，刻度(Figures,Subplots,Axes,Ticks)"><span class="nav-number">1.4.</span> <span class="nav-text">图像，子区，子图，刻度(Figures,Subplots,Axes,Ticks)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#图像(Figure)"><span class="nav-number">1.4.1.</span> <span class="nav-text">图像(Figure)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#子区(subplots)"><span class="nav-number">1.4.2.</span> <span class="nav-text">子区(subplots)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#子图(axes)"><span class="nav-number">1.4.3.</span> <span class="nav-text">子图(axes)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#刻度(ticks)"><span class="nav-number">1.4.4.</span> <span class="nav-text">刻度(ticks)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#刻度定位器(Tick_Locator)"><span class="nav-number">1.4.4.1.</span> <span class="nav-text">刻度定位器(Tick Locator)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它种类绘图"><span class="nav-number">1.5.</span> <span class="nav-text">其它种类绘图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#常规绘图"><span class="nav-number">1.5.1.</span> <span class="nav-text">常规绘图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#散点图(scatter_plots)"><span class="nav-number">1.5.2.</span> <span class="nav-text">散点图(scatter plots)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#条形图(bar_plots)"><span class="nav-number">1.5.3.</span> <span class="nav-text">条形图(bar plots)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#等高线图(contour_plots)"><span class="nav-number">1.5.4.</span> <span class="nav-text">等高线图(contour plots)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Imshow"><span class="nav-number">1.5.5.</span> <span class="nav-text">Imshow</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#饼图(Pie_charts)"><span class="nav-number">1.5.6.</span> <span class="nav-text">饼图(Pie charts)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#矢量图(quiver_plots)"><span class="nav-number">1.5.7.</span> <span class="nav-text">矢量图(quiver plots)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网格(grids)"><span class="nav-number">1.5.8.</span> <span class="nav-text">网格(grids)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多图绘制"><span class="nav-number">1.5.9.</span> <span class="nav-text">多图绘制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#极轴图"><span class="nav-number">1.5.10.</span> <span class="nav-text">极轴图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三维绘图"><span class="nav-number">1.5.11.</span> <span class="nav-text">三维绘图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#绘制文本"><span class="nav-number">1.5.12.</span> <span class="nav-text">绘制文本</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#此教程之外"><span class="nav-number">1.6.</span> <span class="nav-text">此教程之外</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#教程"><span class="nav-number">1.6.1.</span> <span class="nav-text">教程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#matplotlib文档"><span class="nav-number">1.6.2.</span> <span class="nav-text">matplotlib文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码文档"><span class="nav-number">1.6.3.</span> <span class="nav-text">代码文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#画廊(Galleries)"><span class="nav-number">1.6.4.</span> <span class="nav-text">画廊(Galleries)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#邮件列表"><span class="nav-number">1.6.5.</span> <span class="nav-text">邮件列表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#快速参考"><span class="nav-number">1.7.</span> <span class="nav-text">快速参考</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线条属性"><span class="nav-number">1.7.1.</span> <span class="nav-text">线条属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线型"><span class="nav-number">1.7.2.</span> <span class="nav-text">线型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#标记"><span class="nav-number">1.7.3.</span> <span class="nav-text">标记</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#色彩表"><span class="nav-number">1.7.4.</span> <span class="nav-text">色彩表</span></a></li></ol></li></ol></li></ol></div>
-            
-          </div>
-          <div class="post-toc-indicator-bottom post-toc-indicator">
-            <i class="fa fa-angle-double-down"></i>
-          </div>
-        </section>
-      
-
-    </div>
-  </aside>
+</section>
 
 
-      
-    </main>
 
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy;  2011 - 
-  <span itemprop="copyrightYear">2016</span>
-  <span class="with-love">
-    <i class="icon-next-heart fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Liu Yuyang</span>
+
 </div>
 
-<div class="powered-by">
-  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT
-  </a>
-</div>
-
-
-
-      </div>
-    </footer>
-
-    <div class="back-to-top"></div>
-  </div>
-
-  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
-
   
+<script>
+  var disqus_shortname = 'reverlandblog';
   
-
+  var disqus_url = 'http://reverland.org/python/2012/09/07/matplotlib-tutorial/';
   
-    
-    
-
-  
-
-    <script type="text/javascript">
-      var disqus_shortname = 'reverlandblog';
-      var disqus_identifier = 'python/2012/09/07/matplotlib-tutorial/';
-      var disqus_title = 'Matplotlib Tutorial(译)';
-      var disqus_url = 'http://reverland.org/python/2012/09/07/matplotlib-tutorial/';
-
-      function run_disqus_script(disqus_script){
-        var dsq = document.createElement('script');
-        dsq.type = 'text/javascript';
-        dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-      }
-
-      run_disqus_script('count.js');
-      
-        run_disqus_script('embed.js');
-      
-    </script>
-  
-
-
-  
-
-  
-  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
-  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
-
-
-  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
-  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
-<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
-
-<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
-
-
-  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  
-<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
-
-
-<script type="text/javascript" id="sidebar.toc.highlight">
-  $(document).ready(function () {
-    var tocSelector = '.post-toc';
-    var $tocSelector = $(tocSelector);
-    var activeCurrentSelector = '.active-current';
-
-    $tocSelector
-      .on('activate.bs.scrollspy', function () {
-        var $currentActiveElement = $(tocSelector + ' .active').last();
-
-        removeCurrentActiveClass();
-        $currentActiveElement.addClass('active-current');
-
-        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
-      })
-      .on('clear.bs.scrollspy', function () {
-        removeCurrentActiveClass();
-      });
-
-    function removeCurrentActiveClass () {
-      $(tocSelector + ' ' + activeCurrentSelector)
-        .removeClass(activeCurrentSelector.substring(1));
-    }
-
-    function processTOC () {
-      getTOCMaxHeight();
-      toggleTOCOverflowIndicators();
-    }
-
-    function getTOCMaxHeight () {
-      var height = $('.sidebar').height() -
-                   $tocSelector.position().top -
-                   $('.post-toc-indicator-bottom').height();
-
-      $tocSelector.css('height', height);
-
-      return height;
-    }
-
-    function toggleTOCOverflowIndicators () {
-      tocOverflowIndicator(
-        '.post-toc-indicator-top',
-        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
-      );
-
-      tocOverflowIndicator(
-        '.post-toc-indicator-bottom',
-        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
-      )
-    }
-
-    $(document).on('sidebar.motion.complete', function () {
-      processTOC();
-    });
-
-    $('body').scrollspy({ target: tocSelector });
-    $(window).on('resize', function () {
-      if ( $('.sidebar').hasClass('sidebar-active') ) {
-        processTOC();
-      }
-    });
-
-    onScroll($tocSelector);
-
-    function onScroll (element) {
-      element.on('mousewheel DOMMouseScroll', function (event) {
-          var oe = event.originalEvent;
-          var delta = oe.wheelDelta || -oe.detail;
-
-          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
-          event.preventDefault();
-
-          toggleTOCOverflowIndicators();
-      });
-    }
-
-    function tocOverflowIndicator (indicator, action) {
-      var $indicator = $(indicator);
-      var opacity = action === 'show' ? 1 : 0;
-      $indicator.velocity ?
-        $indicator.velocity('stop').velocity({
-          opacity: opacity
-        }, { duration: 100 }) :
-        $indicator.stop().animate({
-          opacity: opacity
-        }, 100);
-    }
-
-  });
-</script>
-
-<script type="text/javascript" id="sidebar.nav">
-  $(document).ready(function () {
-    var html = $('html');
-    var TAB_ANIMATE_DURATION = 200;
-    var hasVelocity = $.isFunction(html.velocity);
-
-    $('.sidebar-nav li').on('click', function () {
-      var item = $(this);
-      var activeTabClassName = 'sidebar-nav-active';
-      var activePanelClassName = 'sidebar-panel-active';
-      if (item.hasClass(activeTabClassName)) {
-        return;
-      }
-
-      var currentTarget = $('.' + activePanelClassName);
-      var target = $('.' + item.data('target'));
-
-      hasVelocity ?
-        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
-          target
-            .velocity('stop')
-            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
-            .addClass(activePanelClassName);
-        }) :
-        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
-          currentTarget.hide();
-          target
-            .stop()
-            .css({'opacity': 0, 'display': 'block'})
-            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
-              currentTarget.removeClass(activePanelClassName);
-              target.addClass(activePanelClassName);
-            });
-        });
-
-      item.siblings().removeClass(activeTabClassName);
-      item.addClass(activeTabClassName);
-    });
-
-    $('.post-toc a').on('click', function (e) {
-      e.preventDefault();
-      var targetSelector = escapeSelector(this.getAttribute('href'));
-      var offset = $(targetSelector).offset().top;
-      hasVelocity ?
-        html.velocity('stop').velocity('scroll', {
-          offset: offset  + 'px',
-          mobileHA: false
-        }) :
-        $('html, body').stop().animate({
-          scrollTop: offset
-        }, 500);
-    });
-
-    // Expand sidebar on post detail page by default, when post has a toc.
-    motionMiddleWares.sidebar = function () {
-      var $tocContent = $('.post-toc-content');
-      if (CONFIG.sidebar === 'post') {
-        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
-          displaySidebar();
-        }
-      }
-    };
-  });
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
 </script>
 
 
-
-  <script type="text/javascript" src="/js/bootstrap.js"></script>
-
-  
-  
-  <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-      }
-    });
-  </script>
-
-  <script type="text/x-mathjax-config">
-    MathJax.Hub.Queue(function() {
-      var all = MathJax.Hub.getAllJax(), i;
-      for (i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';
-      }
-    });
-  </script>
-
-  
-    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
-    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
-  
-
-
-  
-  
+  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"undefined"};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0]
+   || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+<!-- 多说公共JS代码 end -->
 
 </body>
 </html>
