@@ -54,44 +54,71 @@
   <div class="post-header CENTER">
    
   <div class="toolbox">
-    <div class="toolbox-entry">盒子</div>
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-home"></i>
+    </a>
     <ul class="list-toolbox">
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/archives/">博客</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/category/">分类</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/tag/">标签</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/link/">友链</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/about/">关于</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/atom.xml">RSS</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/atom.xml"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
       
     </ul>
   </div>
@@ -104,6 +131,11 @@
     <strong class="toc-title">文章目录</strong>
     <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#模型"><span class="toc-text">模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#数据块(Chunk)"><span class="toc-text">数据块(Chunk)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#读取流(Readable_Streams)"><span class="toc-text">读取流(Readable Streams)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#写入流(Writable_Streams)"><span class="toc-text">写入流(Writable Streams)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#转换流(Transform_Streams)"><span class="toc-text">转换流(Transform Streams)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#管道(Pipe)链(Chains)和反压(Backpressure)"><span class="toc-text">管道(Pipe)链(Chains)和反压(Backpressure)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内部队列和队列策略"><span class="toc-text">内部队列和队列策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#锁定(Locking)"><span class="toc-text">锁定(Locking)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stream_in_NodeJS"><span class="toc-text">Stream in NodeJS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#好处"><span class="toc-text">好处</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Classes"><span class="toc-text">Classes</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Readable实现"><span class="toc-text">Readable实现</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#_read(size)"><span class="toc-text">_read(size)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#readable_options"><span class="toc-text">readable options</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#使用_Readable_流"><span class="toc-text">使用 Readable 流</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writable"><span class="toc-text">Writable</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#实现_Writable"><span class="toc-text">实现 Writable</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#_write(chunk,_encoding,_callback)"><span class="toc-text">_write(chunk, encoding, callback)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Writable_Options"><span class="toc-text">Writable Options</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#使用Writable"><span class="toc-text">使用Writable</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Duplex"><span class="toc-text">Duplex</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#实现"><span class="toc-text">实现</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#options"><span class="toc-text">options</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#使用"><span class="toc-text">使用</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Transform"><span class="toc-text">Transform</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#实现-1"><span class="toc-text">实现</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#_transform(chunk,_encoding,_callback)方法"><span class="toc-text">_transform(chunk, encoding, callback)方法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#_flush(callback)"><span class="toc-text">_flush(callback)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#transform_options"><span class="toc-text">transform options</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#使用transform流"><span class="toc-text">使用transform流</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Passthrough"><span class="toc-text">Passthrough</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Buffering"><span class="toc-text">Buffering</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#readable_buffering"><span class="toc-text">readable buffering</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#写缓冲"><span class="toc-text">写缓冲</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stream-read(0)"><span class="toc-text">stream.read(0)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stream-push(‘’)或者stream-push(null)"><span class="toc-text">stream.push(‘’)或者stream.push(null)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#错误处理"><span class="toc-text">错误处理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#传递错误"><span class="toc-text">传递错误</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#历史"><span class="toc-text">历史</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Stream_1"><span class="toc-text">Stream 1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Stream_2"><span class="toc-text">Stream 2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Stream_3"><span class="toc-text">Stream 3</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码"><span class="toc-text">代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文献"><span class="toc-text">参考文献</span></a></li></ol>
   </div>
+
+
+<a class="back-top" href="#">
+  <i class="icon-angle-up"></i>
+</a>
 
 
 <div class="content-post CENTER">
@@ -366,48 +398,41 @@
   </div>
 </article>
 
-
-
-<section class="disqus-comments">
-  <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  </div>
-</section>
-
-
-
-
 </div>
 
+
   
-<script>
-  var disqus_shortname = 'reverlandblog';
-  
-  var disqus_url = 'http://reverland.org/javascript/2015/12/20/stream-in-nodejs/';
-  
-  (function(){
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'reverlandblog';
+    
+    var disqus_url = 'http://reverland.org/javascript/2015/12/20/stream-in-nodejs/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
 
 
-  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"undefined"};
-(function() {
-  var ds = document.createElement('script');
-  ds.type = 'text/javascript';ds.async = true;
-  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-  ds.charset = 'UTF-8';
-  (document.getElementsByTagName('head')[0]
-   || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();
-</script>
-<!-- 多说公共JS代码 end -->
+    
+
+
+
+
+  </div>
+
+  
 
 </body>
 </html>

@@ -45,44 +45,71 @@
   <div class="post-header CENTER">
    
   <div class="toolbox">
-    <div class="toolbox-entry">盒子</div>
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-home"></i>
+    </a>
     <ul class="list-toolbox">
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/archives/">博客</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/category/">分类</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/tag/">标签</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/link/">友链</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/about/">关于</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/atom.xml">RSS</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/atom.xml"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
       
     </ul>
   </div>
@@ -95,6 +122,11 @@
     <strong class="toc-title">文章目录</strong>
     <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#限制基于密码的登录来保护账户"><span class="toc-text">限制基于密码的登录来保护账户</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#限制root只能在系统控制台登录"><span class="toc-text">限制root只能在系统控制台登录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#限制su到root账户"><span class="toc-text">限制su到root账户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置sudo改善对root访问的审计"><span class="toc-text">配置sudo改善对root访问的审计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#禁止非root系统账户登录和使用shell"><span class="toc-text">禁止非root系统账户登录和使用shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确认密码被适当存储和哈希"><span class="toc-text">确认密码被适当存储和哈希</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#确保没有账户有空密码"><span class="toc-text">确保没有账户有空密码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#确保所有账户密码哈希都被shadow"><span class="toc-text">确保所有账户密码哈希都被shadow</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确认没有非root用户的UID为0"><span class="toc-text">确认没有非root用户的UID为0</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置密码过期参数"><span class="toc-text">设置密码过期参数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#从libuser-conf移除密码参数"><span class="toc-text">从libuser.conf移除密码参数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#移除密码文件中遗留的+条目"><span class="toc-text">移除密码文件中遗留的+条目</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通过Unix组来加强安全"><span class="toc-text">通过Unix组来加强安全</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#为每个账户创建一个唯一默认组"><span class="toc-text">为每个账户创建一个唯一默认组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建和维护包含所有人类账户的组"><span class="toc-text">创建和维护包含所有人类账户的组</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通过配置PAM保护帐号"><span class="toc-text">通过配置PAM保护帐号</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#设定密码质量要求"><span class="toc-text">设定密码质量要求</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#如果使用pam_cracklib,设置密码质量需求"><span class="toc-text">如果使用pam_cracklib,设置密码质量需求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#如果使用pam_passwdqc,设置密码质量需求"><span class="toc-text">如果使用pam_passwdqc,设置密码质量需求</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置失败密码尝试锁定"><span class="toc-text">设置失败密码尝试锁定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用pam_deny-so快速禁止访问服务"><span class="toc-text">使用pam_deny.so快速禁止访问服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#仅控制台用户执行userhelper"><span class="toc-text">仅控制台用户执行userhelper</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#升级密码哈希算法到SHA-512"><span class="toc-text">升级密码哈希算法到SHA-512</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#限制密码重用"><span class="toc-text">限制密码重用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#尽可能移除pam_crreds包"><span class="toc-text">尽可能移除pam_crreds包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#对登录用户使用安全会话配置文件"><span class="toc-text">对登录用户使用安全会话配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#确保Root_PATH不存在危险目录"><span class="toc-text">确保Root PATH不存在危险目录</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#确保Root_PATH不包含相对路径或者空目录"><span class="toc-text">确保Root PATH不包含相对路径或者空目录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#确保ROOT路径不包含全局可写或组可写的目录"><span class="toc-text">确保ROOT路径不包含全局可写或组可写的目录</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确保用户家目录不是组可写或者全局可读的"><span class="toc-text">确保用户家目录不是组可写或者全局可读的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确保用户dot文件不是全局可写"><span class="toc-text">确保用户dot文件不是全局可写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确保用户有合理的umask值"><span class="toc-text">确保用户有合理的umask值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确保用户没有-netrc文件"><span class="toc-text">确保用户没有.netrc文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#保护物理控制台访问"><span class="toc-text">保护物理控制台访问</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#设置BIOS密码"><span class="toc-text">设置BIOS密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置Boot_Loader密码"><span class="toc-text">设置Boot Loader密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#要求单用户模式登录认证"><span class="toc-text">要求单用户模式登录认证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#禁用交互式启动"><span class="toc-text">禁用交互式启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#对登录shell实现不活动超时"><span class="toc-text">对登录shell实现不活动超时</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置锁屏"><span class="toc-text">配置锁屏</span></a></li></ol></li></ol>
   </div>
+
+
+<a class="back-top" href="#">
+  <i class="icon-angle-up"></i>
+</a>
 
 
 <div class="content-post CENTER">
@@ -341,48 +373,41 @@ chmod <span class="number">600</span> <span class="regexp">/etc/</span>grub.conf
   </div>
 </article>
 
-
-
-<section class="disqus-comments">
-  <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  </div>
-</section>
-
-
-
-
 </div>
 
+
   
-<script>
-  var disqus_shortname = 'reverlandblog';
-  
-  var disqus_url = 'http://reverland.org/linux/2014/11/20/account-and-access-control/';
-  
-  (function(){
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'reverlandblog';
+    
+    var disqus_url = 'http://reverland.org/linux/2014/11/20/account-and-access-control/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
 
 
-  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"undefined"};
-(function() {
-  var ds = document.createElement('script');
-  ds.type = 'text/javascript';ds.async = true;
-  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-  ds.charset = 'UTF-8';
-  (document.getElementsByTagName('head')[0]
-   || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();
-</script>
-<!-- 多说公共JS代码 end -->
+    
+
+
+
+
+  </div>
+
+  
 
 </body>
 </html>

@@ -50,44 +50,71 @@ https://login.weixin.qq.com/jslogin?appid=wx782c26e4c19acffb&amp;amp;redirect_ur
   <div class="post-header CENTER">
    
   <div class="toolbox">
-    <div class="toolbox-entry">盒子</div>
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-home"></i>
+    </a>
     <ul class="list-toolbox">
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/archives/">博客</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/category/">分类</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/tag/">标签</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/link/">友链</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/about/">关于</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/atom.xml">RSS</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/atom.xml"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
       
     </ul>
   </div>
@@ -100,6 +127,11 @@ https://login.weixin.qq.com/jslogin?appid=wx782c26e4c19acffb&amp;amp;redirect_ur
     <strong class="toc-title">文章目录</strong>
     <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#协议分析"><span class="toc-text">协议分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#登录"><span class="toc-text">登录</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#获取uuid"><span class="toc-text">获取uuid</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#获取uuid对应的二维码图片"><span class="toc-text">获取uuid对应的二维码图片</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#检查二维码扫描状态"><span class="toc-text">检查二维码扫描状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#webwxnewloginpage"><span class="toc-text">webwxnewloginpage</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本信息获取"><span class="toc-text">基本信息获取</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#webwxinit"><span class="toc-text">webwxinit</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#webwxgetcontact"><span class="toc-text">webwxgetcontact</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#batchgetcontact"><span class="toc-text">batchgetcontact</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#webwxgeticon和webwxgetheadimg"><span class="toc-text">webwxgeticon和webwxgetheadimg</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#信息收发"><span class="toc-text">信息收发</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#syncheck与webwxsync(长连接和消息更新)"><span class="toc-text">syncheck与webwxsync(长连接和消息更新)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#消息发送"><span class="toc-text">消息发送</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#消息接收实例"><span class="toc-text">消息接收实例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结:一图胜千言"><span class="toc-text">总结:一图胜千言</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现：又一个机器人——wechat-user-bot"><span class="toc-text">实现：又一个机器人——wechat-user-bot</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#流程控制"><span class="toc-text">流程控制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#流程概要"><span class="toc-text">流程概要</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Javascript中的流程控制"><span class="toc-text">Javascript中的流程控制</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#回调地狱(Callback_Hell)"><span class="toc-text">回调地狱(Callback Hell)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#超简Promise实现"><span class="toc-text">超简Promise实现</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#超简Promise+Generator"><span class="toc-text">超简Promise+Generator</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Async/Await"><span class="toc-text">Async/Await</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WechatUserBot"><span class="toc-text">WechatUserBot</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#入口程序"><span class="toc-text">入口程序</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#web微信请求相关函数"><span class="toc-text">web微信请求相关函数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#消息记录函数"><span class="toc-text">消息记录函数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#消息回复函数"><span class="toc-text">消息回复函数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#对话引擎"><span class="toc-text">对话引擎</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#更新本地缓存信息函数"><span class="toc-text">更新本地缓存信息函数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#其它"><span class="toc-text">其它</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#总结-1"><span class="toc-text">总结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现微信机器人FAQ"><span class="toc-text">实现微信机器人FAQ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#附录"><span class="toc-text">附录</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#AngularJS_web微信客户端"><span class="toc-text">AngularJS web微信客户端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#API一览"><span class="toc-text">API一览</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#消息类型"><span class="toc-text">消息类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#不同的web微信域名"><span class="toc-text">不同的web微信域名</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol>
   </div>
+
+
+<a class="back-top" href="#">
+  <i class="icon-angle-up"></i>
+</a>
 
 
 <div class="content-post CENTER">
@@ -724,48 +756,41 @@ https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgeticon?seq=0&amp;username=@<span cla
   </div>
 </article>
 
-
-
-<section class="disqus-comments">
-  <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  </div>
-</section>
-
-
-
-
 </div>
 
+
   
-<script>
-  var disqus_shortname = 'reverlandblog';
-  
-  var disqus_url = 'http://reverland.org/javascript/2016/01/15/webchat-user-bot/';
-  
-  (function(){
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'reverlandblog';
+    
+    var disqus_url = 'http://reverland.org/javascript/2016/01/15/webchat-user-bot/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
 
 
-  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"undefined"};
-(function() {
-  var ds = document.createElement('script');
-  ds.type = 'text/javascript';ds.async = true;
-  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-  ds.charset = 'UTF-8';
-  (document.getElementsByTagName('head')[0]
-   || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();
-</script>
-<!-- 多说公共JS代码 end -->
+    
+
+
+
+
+  </div>
+
+  
 
 </body>
 </html>

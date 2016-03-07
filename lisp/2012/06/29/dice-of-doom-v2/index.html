@@ -45,44 +45,71 @@
   <div class="post-header CENTER">
    
   <div class="toolbox">
-    <div class="toolbox-entry">盒子</div>
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-home"></i>
+    </a>
     <ul class="list-toolbox">
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/archives/">博客</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/category/">分类</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/tag/">标签</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/link/">友链</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/about/">关于</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/atom.xml">RSS</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/atom.xml"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
       
     </ul>
   </div>
@@ -95,6 +122,11 @@
     <strong class="toc-title">文章目录</strong>
     <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Dice_of_Doom_v2"><span class="toc-text">Dice of Doom v2</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#记不起之前的游戏树什么样了，我又懒得回头去看。是不是某种决策树？"><span class="toc-text">记不起之前的游戏树什么样了，我又懒得回头去看。是不是某种决策树？</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#不停的函数接着函数扩展看起来很方便，但又要求你时刻记得之前实现的细节，以实现正确的改进"><span class="toc-text">不停的函数接着函数扩展看起来很方便，但又要求你时刻记得之前实现的细节，以实现正确的改进</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#作者的编程风格，以后还是按htdp里说的玩去吧，起码不会像现在这样晕。"><span class="toc-text">作者的编程风格，以后还是按htdp里说的玩去吧，起码不会像现在这样晕。</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#英语还是障碍啊，有时候看完一大段文字后不知道在讲什么，囧了。"><span class="toc-text">英语还是障碍啊，有时候看完一大段文字后不知道在讲什么，囧了。</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Dice_of_Doom_v2-1"><span class="toc-text">Dice of Doom v2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#让AI运行在更大的游戏区域"><span class="toc-text">让AI运行在更大的游戏区域</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#启发算法[3]"><span class="toc-text">启发算法[3]</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#alpha-beta_算法[4]"><span class="toc-text">alpha-beta 算法[4]</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Footnotes"><span class="toc-text">Footnotes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#废话"><span class="toc-text">废话</span></a></li></ol></li></ol>
   </div>
+
+
+<a class="back-top" href="#">
+  <i class="icon-angle-up"></i>
+</a>
 
 
 <div class="content-post CENTER">
@@ -183,48 +215,41 @@
   </div>
 </article>
 
-
-
-<section class="disqus-comments">
-  <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  </div>
-</section>
-
-
-
-
 </div>
 
+
   
-<script>
-  var disqus_shortname = 'reverlandblog';
-  
-  var disqus_url = 'http://reverland.org/lisp/2012/06/29/dice-of-doom-v2/';
-  
-  (function(){
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'reverlandblog';
+    
+    var disqus_url = 'http://reverland.org/lisp/2012/06/29/dice-of-doom-v2/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
 
 
-  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"undefined"};
-(function() {
-  var ds = document.createElement('script');
-  ds.type = 'text/javascript';ds.async = true;
-  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-  ds.charset = 'UTF-8';
-  (document.getElementsByTagName('head')[0]
-   || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();
-</script>
-<!-- 多说公共JS代码 end -->
+    
+
+
+
+
+  </div>
+
+  
 
 </body>
 </html>

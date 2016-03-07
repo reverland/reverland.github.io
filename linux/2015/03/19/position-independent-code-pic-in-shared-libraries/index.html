@@ -69,44 +69,71 @@ PIC背后的思想很简单，为代码中的全局数据和函数引用外加�
   <div class="post-header CENTER">
    
   <div class="toolbox">
-    <div class="toolbox-entry">盒子</div>
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-home"></i>
+    </a>
     <ul class="list-toolbox">
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/archives/">博客</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/category/">分类</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/tag/">标签</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/link/">友链</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/about/">关于</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/atom.xml">RSS</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/atom.xml"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
       
     </ul>
   </div>
@@ -119,6 +146,11 @@ PIC背后的思想很简单，为代码中的全局数据和函数引用外加�
     <strong class="toc-title">文章目录</strong>
     <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#洞见1：text和data段之间的偏移"><span class="toc-text">洞见1：text和data段之间的偏移</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#洞见2：基于程序指针的取址"><span class="toc-text">洞见2：基于程序指针的取址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据索引"><span class="toc-text">数据索引</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#全局偏移表(GOT)"><span class="toc-text">全局偏移表(GOT)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一个例子"><span class="toc-text">一个例子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#函数调用"><span class="toc-text">函数调用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#惰性绑定优化"><span class="toc-text">惰性绑定优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#过程链接表(PLT)"><span class="toc-text">过程链接表(PLT)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一次"><span class="toc-text">第一次</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第二次"><span class="toc-text">第二次</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过PLT和GOT实现的PIC函数调用——实例"><span class="toc-text">通过PLT和GOT实现的PIC函数调用——实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通过环境变量控制载入解析"><span class="toc-text">通过环境变量控制载入解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PIC的代价"><span class="toc-text">PIC的代价</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结论"><span class="toc-text">结论</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Footnotes"><span class="toc-text">Footnotes</span></a></li></ol>
   </div>
+
+
+<a class="back-top" href="#">
+  <i class="icon-angle-up"></i>
+</a>
 
 
 <div class="content-post CENTER">
@@ -452,48 +484,41 @@ $<span class="number">1</span> = (<span class="keyword">int</span> (*)(<span cla
   </div>
 </article>
 
-
-
-<section class="disqus-comments">
-  <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  </div>
-</section>
-
-
-
-
 </div>
 
+
   
-<script>
-  var disqus_shortname = 'reverlandblog';
-  
-  var disqus_url = 'http://reverland.org/linux/2015/03/19/position-independent-code-pic-in-shared-libraries/';
-  
-  (function(){
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'reverlandblog';
+    
+    var disqus_url = 'http://reverland.org/linux/2015/03/19/position-independent-code-pic-in-shared-libraries/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
 
 
-  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"undefined"};
-(function() {
-  var ds = document.createElement('script');
-  ds.type = 'text/javascript';ds.async = true;
-  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-  ds.charset = 'UTF-8';
-  (document.getElementsByTagName('head')[0]
-   || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();
-</script>
-<!-- 多说公共JS代码 end -->
+    
+
+
+
+
+  </div>
+
+  
 
 </body>
 </html>

@@ -66,44 +66,71 @@ IP">
   <div class="post-header CENTER">
    
   <div class="toolbox">
-    <div class="toolbox-entry">盒子</div>
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-home"></i>
+    </a>
     <ul class="list-toolbox">
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/archives/">博客</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/category/">分类</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/tag/">标签</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/link/">友链</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/about/">关于</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/atom.xml">RSS</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/atom.xml"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
       
     </ul>
   </div>
@@ -116,6 +143,11 @@ IP">
     <strong class="toc-title">文章目录</strong>
     <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Scikit_Learn:_在python中机器学习"><span class="toc-text">Scikit Learn: 在python中机器学习</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#载入示例数据"><span class="toc-text">载入示例数据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#一个改变数据集大小的示例：数码数据集(digits_datasets)"><span class="toc-text">一个改变数据集大小的示例：数码数据集(digits datasets)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#学习和预测"><span class="toc-text">学习和预测</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分类"><span class="toc-text">分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#K最近邻(KNN)分类器"><span class="toc-text">K最近邻(KNN)分类器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#训练集和测试集"><span class="toc-text">训练集和测试集</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分类支持向量机(SVMs)"><span class="toc-text">分类支持向量机(SVMs)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#线性支持向量机"><span class="toc-text">线性支持向量机</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#使用核"><span class="toc-text">使用核</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#聚类：将观测值聚合"><span class="toc-text">聚类：将观测值聚合</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#k均值聚类"><span class="toc-text">k均值聚类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#应用到图像压缩"><span class="toc-text">应用到图像压缩</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用主成分分析降维"><span class="toc-text">用主成分分析降维</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#将一切放在一起：人脸识别"><span class="toc-text">将一切放在一起：人脸识别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#线性模型：从回归到稀疏"><span class="toc-text">线性模型：从回归到稀疏</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#稀疏模型"><span class="toc-text">稀疏模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#同一问题的不同算法"><span class="toc-text">同一问题的不同算法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模型选择：选择估计器和它们的参数"><span class="toc-text">模型选择：选择估计器和它们的参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#格点搜索和交叉验证估计器"><span class="toc-text">格点搜索和交叉验证估计器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#格点搜索"><span class="toc-text">格点搜索</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#交叉验证估计器"><span class="toc-text">交叉验证估计器</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Footnotes"><span class="toc-text">Footnotes</span></a></li></ol></li></ol>
   </div>
+
+
+<a class="back-top" href="#">
+  <i class="icon-angle-up"></i>
+</a>
 
 
 <div class="content-post CENTER">
@@ -496,48 +528,41 @@ LassoCV(alphas=<span class="keyword">array</span>([ <span class="number">2.14804
   </div>
 </article>
 
-
-
-<section class="disqus-comments">
-  <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  </div>
-</section>
-
-
-
-
 </div>
 
+
   
-<script>
-  var disqus_shortname = 'reverlandblog';
-  
-  var disqus_url = 'http://reverland.org/python/2012/10/14/scikit-learn-machine-learning-in-python/';
-  
-  (function(){
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'reverlandblog';
+    
+    var disqus_url = 'http://reverland.org/python/2012/10/14/scikit-learn-machine-learning-in-python/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
 
 
-  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"undefined"};
-(function() {
-  var ds = document.createElement('script');
-  ds.type = 'text/javascript';ds.async = true;
-  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-  ds.charset = 'UTF-8';
-  (document.getElementsByTagName('head')[0]
-   || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();
-</script>
-<!-- 多说公共JS代码 end -->
+    
+
+
+
+
+  </div>
+
+  
 
 </body>
 </html>

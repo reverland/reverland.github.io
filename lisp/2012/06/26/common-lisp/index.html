@@ -48,44 +48,71 @@
   <div class="post-header CENTER">
    
   <div class="toolbox">
-    <div class="toolbox-entry">盒子</div>
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-home"></i>
+    </a>
     <ul class="list-toolbox">
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/archives/">博客</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/category/">分类</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/tag/">标签</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/link/">友链</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/about/">关于</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/atom.xml">RSS</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/atom.xml"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
       
     </ul>
   </div>
@@ -98,6 +125,11 @@
     <strong class="toc-title">文章目录</strong>
     <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Common_Lisp菜鸟指南"><span class="toc-text">Common Lisp菜鸟指南</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#理解Common_Lisp"><span class="toc-text">理解Common Lisp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#了解你的工具"><span class="toc-text">了解你的工具</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Emacs[^1]"><span class="toc-text">Emacs[^1]</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Steel_Bank_Common_Lisp"><span class="toc-text">Steel Bank Common Lisp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Quicklisp"><span class="toc-text">Quicklisp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CL-Project"><span class="toc-text">CL-Project</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Buildapp"><span class="toc-text">Buildapp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ASDF"><span class="toc-text">ASDF</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建你的第一个应用程序"><span class="toc-text">创建你的第一个应用程序</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#安装Quicklisp和SLIME"><span class="toc-text">安装Quicklisp和SLIME</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建应用程序"><span class="toc-text">创建应用程序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#重启Emacs后加载你的应用^3"><span class="toc-text">重启Emacs后加载你的应用^3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建可执行文件"><span class="toc-text">创建可执行文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#下一步是什么？"><span class="toc-text">下一步是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Footnotes"><span class="toc-text">Footnotes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Changelog"><span class="toc-text">Changelog</span></a></li></ol></li></ol>
   </div>
+
+
+<a class="back-top" href="#">
+  <i class="icon-angle-up"></i>
+</a>
 
 
 <div class="content-post CENTER">
@@ -184,48 +216,41 @@
   </div>
 </article>
 
-
-
-<section class="disqus-comments">
-  <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  </div>
-</section>
-
-
-
-
 </div>
 
+
   
-<script>
-  var disqus_shortname = 'reverlandblog';
-  
-  var disqus_url = 'http://reverland.org/lisp/2012/06/26/common-lisp/';
-  
-  (function(){
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'reverlandblog';
+    
+    var disqus_url = 'http://reverland.org/lisp/2012/06/26/common-lisp/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
 
 
-  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"undefined"};
-(function() {
-  var ds = document.createElement('script');
-  ds.type = 'text/javascript';ds.async = true;
-  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-  ds.charset = 'UTF-8';
-  (document.getElementsByTagName('head')[0]
-   || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();
-</script>
-<!-- 多说公共JS代码 end -->
+    
+
+
+
+
+  </div>
+
+  
 
 </body>
 </html>

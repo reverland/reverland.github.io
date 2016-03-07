@@ -48,44 +48,71 @@
   <div class="post-header CENTER">
    
   <div class="toolbox">
-    <div class="toolbox-entry">盒子</div>
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-home"></i>
+    </a>
     <ul class="list-toolbox">
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/archives/">博客</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/category/">分类</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/tag/">标签</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/link/">友链</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/about/">关于</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/atom.xml">RSS</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/atom.xml"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
       
     </ul>
   </div>
@@ -98,6 +125,11 @@
     <strong class="toc-title">文章目录</strong>
     <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#限制分区挂载参数"><span class="toc-text">限制分区挂载参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#想非Root分区添加nodev选项"><span class="toc-text">想非Root分区添加nodev选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#向可以出存储分区添加nodev，nosuid和noexec选项"><span class="toc-text">向可以出存储分区添加nodev，nosuid和noexec选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#向临时存储分区添加nodev，nosuid和noexec参数"><span class="toc-text">向临时存储分区添加nodev，nosuid和noexec参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#绑定挂载/var/tmp到/tmp"><span class="toc-text">绑定挂载/var/tmp到/tmp</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#限制动态挂载和卸载文件系统"><span class="toc-text">限制动态挂载和卸载文件系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#限制控制台设备接入"><span class="toc-text">限制控制台设备接入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#禁用USB设备支持"><span class="toc-text">禁用USB设备支持</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#禁止内核加载USB存储驱动"><span class="toc-text">禁止内核加载USB存储驱动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#移除USB存储驱动"><span class="toc-text">移除USB存储驱动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#在启动时禁用对USB的内核支持"><span class="toc-text">在启动时禁用对USB的内核支持</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#禁止从USB设备启动"><span class="toc-text">禁止从USB设备启动</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#尽量禁用自动挂载"><span class="toc-text">尽量禁用自动挂载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#尽量禁用gnome自动挂载"><span class="toc-text">尽量禁用gnome自动挂载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#禁止挂载不常见文件系统类型"><span class="toc-text">禁止挂载不常见文件系统类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#尽可能禁用所有Gnome缩略图"><span class="toc-text">尽可能禁用所有Gnome缩略图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#确认重要文件和目录权限"><span class="toc-text">确认重要文件和目录权限</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#确认passwd，shadow，group和gshadow文件的权限"><span class="toc-text">确认passwd，shadow，group和gshadow文件的权限</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确认所有全局可写的目录设置sticky位"><span class="toc-text">确认所有全局可写的目录设置sticky位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#发现为授权的全局可写文件"><span class="toc-text">发现为授权的全局可写文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#找到未授权的SUID/SGID系统可执行文件"><span class="toc-text">找到未授权的SUID/SGID系统可执行文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#找到和修复无主文件"><span class="toc-text">找到和修复无主文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确保所全局可写目录有合适的权限"><span class="toc-text">确保所全局可写目录有合适的权限</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#限制以危险模式运行的程序"><span class="toc-text">限制以危险模式运行的程序</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#设置daemon_umask"><span class="toc-text">设置daemon umask</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#禁用吐核"><span class="toc-text">禁用吐核</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#确保禁止suid吐核"><span class="toc-text">确保禁止suid吐核</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#开启ExecShield"><span class="toc-text">开启ExecShield</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#确保ExecShield已经启用"><span class="toc-text">确保ExecShield已经启用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启用32位系统的Execute_Disable(XD)或者No_Execute(NX)支持"><span class="toc-text">启用32位系统的Execute Disable(XD)或者No Execute(NX)支持</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#检查是否处理器支持"><span class="toc-text">检查是否处理器支持</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#在x86系统安装新内核"><span class="toc-text">在x86系统安装新内核</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#在BIOS中开启NX或XD支持"><span class="toc-text">在BIOS中开启NX或XD支持</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置prelink"><span class="toc-text">配置prelink</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#禁用prelink"><span class="toc-text">禁用prelink</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#取消已经存在的预链接"><span class="toc-text">取消已经存在的预链接</span></a></li></ol></li></ol></li></ol>
   </div>
+
+
+<a class="back-top" href="#">
+  <i class="icon-angle-up"></i>
+</a>
 
 
 <div class="content-post CENTER">
@@ -254,48 +286,41 @@ kernel<span class="class">.randomize_va_space</span> = <span class="number">2</s
   </div>
 </article>
 
-
-
-<section class="disqus-comments">
-  <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  </div>
-</section>
-
-
-
-
 </div>
 
+
   
-<script>
-  var disqus_shortname = 'reverlandblog';
-  
-  var disqus_url = 'http://reverland.org/linux/2014/11/18/file-permissions-and-masks/';
-  
-  (function(){
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'reverlandblog';
+    
+    var disqus_url = 'http://reverland.org/linux/2014/11/18/file-permissions-and-masks/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
 
 
-  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"undefined"};
-(function() {
-  var ds = document.createElement('script');
-  ds.type = 'text/javascript';ds.async = true;
-  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-  ds.charset = 'UTF-8';
-  (document.getElementsByTagName('head')[0]
-   || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();
-</script>
-<!-- 多说公共JS代码 end -->
+    
+
+
+
+
+  </div>
+
+  
 
 </body>
 </html>

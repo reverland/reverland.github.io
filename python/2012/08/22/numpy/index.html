@@ -84,44 +84,71 @@ ipython是一个净强化的交互Py">
   <div class="post-header CENTER">
    
   <div class="toolbox">
-    <div class="toolbox-entry">盒子</div>
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-home"></i>
+    </a>
     <ul class="list-toolbox">
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/archives/">博客</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/category/">分类</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/tag/">标签</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/link/">友链</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/about/">关于</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/atom.xml">RSS</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/atom.xml"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
       
     </ul>
   </div>
@@ -134,6 +161,11 @@ ipython是一个净强化的交互Py">
     <strong class="toc-title">文章目录</strong>
     <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#试验性的Numpy教程"><span class="toc-text">试验性的Numpy教程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#先决条件"><span class="toc-text">先决条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础篇"><span class="toc-text">基础篇</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一个例子^1"><span class="toc-text">一个例子^1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建数组"><span class="toc-text">创建数组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#打印数组"><span class="toc-text">打印数组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本运算"><span class="toc-text">基本运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通用函数(ufunc)"><span class="toc-text">通用函数(ufunc)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#索引，切片和迭代"><span class="toc-text">索引，切片和迭代</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#形状操作"><span class="toc-text">形状操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#更改数组的形状"><span class="toc-text">更改数组的形状</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合(stack)不同的数组"><span class="toc-text">组合(stack)不同的数组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#将一个数组分割(split)成几个小数组"><span class="toc-text">将一个数组分割(split)成几个小数组</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复制和视图"><span class="toc-text">复制和视图</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#完全不拷贝"><span class="toc-text">完全不拷贝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#视图(view)和浅复制"><span class="toc-text">视图(view)和浅复制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#深复制"><span class="toc-text">深复制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#函数和方法(method)总览"><span class="toc-text">函数和方法(method)总览</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进阶"><span class="toc-text">进阶</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#广播法则(rule)"><span class="toc-text">广播法则(rule)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#花哨的索引和索引技巧"><span class="toc-text">花哨的索引和索引技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#通过数组索引"><span class="toc-text">通过数组索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过布尔数组索引"><span class="toc-text">通过布尔数组索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ix_()函数"><span class="toc-text">ix_()函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用字符串索引"><span class="toc-text">用字符串索引</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#线性代数"><span class="toc-text">线性代数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#简单数组运算"><span class="toc-text">简单数组运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#矩阵类"><span class="toc-text">矩阵类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#索引：比较矩阵和二维数组"><span class="toc-text">索引：比较矩阵和二维数组</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#技巧和提示"><span class="toc-text">技巧和提示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#“自动”改变形状"><span class="toc-text">“自动”改变形状</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#向量组合(stacking)"><span class="toc-text">向量组合(stacking)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#直方图(histogram)"><span class="toc-text">直方图(histogram)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文献"><span class="toc-text">参考文献</span></a></li></ol></li></ol>
   </div>
+
+
+<a class="back-top" href="#">
+  <i class="icon-angle-up"></i>
+</a>
 
 
 <div class="content-post CENTER">
@@ -1089,48 +1121,41 @@ pylab.show()
   </div>
 </article>
 
-
-
-<section class="disqus-comments">
-  <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  </div>
-</section>
-
-
-
-
 </div>
 
+
   
-<script>
-  var disqus_shortname = 'reverlandblog';
-  
-  var disqus_url = 'http://reverland.org/python/2012/08/22/numpy/';
-  
-  (function(){
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'reverlandblog';
+    
+    var disqus_url = 'http://reverland.org/python/2012/08/22/numpy/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
 
 
-  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"undefined"};
-(function() {
-  var ds = document.createElement('script');
-  ds.type = 'text/javascript';ds.async = true;
-  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-  ds.charset = 'UTF-8';
-  (document.getElementsByTagName('head')[0]
-   || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();
-</script>
-<!-- 多说公共JS代码 end -->
+    
+
+
+
+
+  </div>
+
+  
 
 </body>
 </html>

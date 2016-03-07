@@ -48,44 +48,71 @@ rhel提供了安全审计服务audit，默认情况下，该服务审计SELinux 
   <div class="post-header CENTER">
    
   <div class="toolbox">
-    <div class="toolbox-entry">盒子</div>
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-home"></i>
+    </a>
     <ul class="list-toolbox">
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/archives/">博客</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/category/">分类</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/tag/">标签</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/link/">友链</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/about/">关于</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
       
-        
-          <li class="item-toolbox">
-            <a class="CIRCLE" href="/atom.xml">RSS</a>
-          </li>
-        
+        <li class="item-toolbox">
+          <a 
+            class="CIRCLE" 
+            href="/atom.xml"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
       
     </ul>
   </div>
@@ -98,6 +125,11 @@ rhel提供了安全审计服务audit，默认情况下，该服务审计SELinux 
     <strong class="toc-title">文章目录</strong>
     <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#开启auditd服务"><span class="toc-text">开启auditd服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置auditd数据存储"><span class="toc-text">配置auditd数据存储</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置使先于audit守护进程启动的进程生效"><span class="toc-text">配置使先于audit守护进程启动的进程生效</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置全面的审计规则"><span class="toc-text">配置全面的审计规则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#记录更改日期和时间信息的事件"><span class="toc-text">记录更改日期和时间信息的事件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#记录更改用户/组信息的事件"><span class="toc-text">记录更改用户/组信息的事件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#记录更改系统网络环境的事件"><span class="toc-text">记录更改系统网络环境的事件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#记录更改系统强制访问存取(MAC)策略的事件"><span class="toc-text">记录更改系统强制访问存取(MAC)策略的事件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#记录登入注销变更事件的尝试"><span class="toc-text">记录登入注销变更事件的尝试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#记录更改进程和会话初始化信息的尝试"><span class="toc-text">记录更改进程和会话初始化信息的尝试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#确保auditd收集任意存取控制权限更改事件"><span class="toc-text">确保auditd收集任意存取控制权限更改事件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用auditd收集未认证的文件访问尝试(失败)"><span class="toc-text">使用auditd收集未认证的文件访问尝试(失败)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#确保auditd收集权限命令使用的信息"><span class="toc-text">确保auditd收集权限命令使用的信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#确保auditd搜集导出到介质上的信息(成功)"><span class="toc-text">确保auditd搜集导出到介质上的信息(成功)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#确保auditd搜集用户的文件删除事件(成功与失败)"><span class="toc-text">确保auditd搜集用户的文件删除事件(成功与失败)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#确保auditd收集系统管理行为"><span class="toc-text">确保auditd收集系统管理行为</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#确保auditd收集内核加载卸载信息"><span class="toc-text">确保auditd收集内核加载卸载信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#确保auditd配置不可更改"><span class="toc-text">确保auditd配置不可更改</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通过aureport总结和查看审计日志"><span class="toc-text">通过aureport总结和查看审计日志</span></a></li></ol>
   </div>
+
+
+<a class="back-top" href="#">
+  <i class="icon-angle-up"></i>
+</a>
 
 
 <div class="content-post CENTER">
@@ -265,48 +297,41 @@ rhel提供了安全审计服务audit，默认情况下，该服务审计SELinux 
   </div>
 </article>
 
-
-
-<section class="disqus-comments">
-  <div id="disqus_thread">
-    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-  </div>
-</section>
-
-
-
-
 </div>
 
+
   
-<script>
-  var disqus_shortname = 'reverlandblog';
-  
-  var disqus_url = 'http://reverland.org/linux/2014/11/17/linux-audit/';
-  
-  (function(){
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'reverlandblog';
+    
+    var disqus_url = 'http://reverland.org/linux/2014/11/17/linux-audit/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
 
 
-  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"undefined"};
-(function() {
-  var ds = document.createElement('script');
-  ds.type = 'text/javascript';ds.async = true;
-  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-  ds.charset = 'UTF-8';
-  (document.getElementsByTagName('head')[0]
-   || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();
-</script>
-<!-- 多说公共JS代码 end -->
+    
+
+
+
+
+  </div>
+
+  
 
 </body>
 </html>
