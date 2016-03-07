@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>神经网络101 | Reverland的行知阁</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="javascript,neural network," />
+  
+
+  <meta name="description" content="我被这个一群鱼迷住了
+意译自https://github.com/cazala/synaptic/wiki/Neural-Networks-101
+一个不怎么关乎公式的简单神经网络介绍。
+神经元(Neuron)神经网络的基本单位。本质上，神经元有树突(输入)、细胞体(处理器)和轴突(输出)。
+自然界中，激活过程大概这样：当神经元的累积加权输入超过特定阈值，轴突激发信号。
+神经元最重要的特性是： 学">
+<meta property="og:type" content="article">
+<meta property="og:title" content="神经网络101">
+<meta property="og:url" content="http://reverland.org/machine-learning/2016/03/07/neural-network-101/index.html">
+<meta property="og:site_name" content="Reverland的行知阁">
+<meta property="og:description" content="我被这个一群鱼迷住了
+意译自https://github.com/cazala/synaptic/wiki/Neural-Networks-101
+一个不怎么关乎公式的简单神经网络介绍。
+神经元(Neuron)神经网络的基本单位。本质上，神经元有树突(输入)、细胞体(处理器)和轴突(输出)。
+自然界中，激活过程大概这样：当神经元的累积加权输入超过特定阈值，轴突激发信号。
+神经元最重要的特性是： 学">
+<meta property="og:image" content="https://camo.githubusercontent.com/8b87e593fb9382c16a81cc059d994adec259a1c4/687474703a2f2f692e696d6775722e636f6d2f643654374b39332e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/0bd79e6fd612e898fda2e04caa797648b8c0bed5/687474703a2f2f75706c6f61642e77696b696d656469612e6f72672f77696b6970656469612f636f6d6d6f6e732f7468756d622f382f38382f4c6f6769737469632d63757276652e7376672f33323070782d4c6f6769737469632d63757276652e7376672e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/0699ff876dbb371e894dec939c719287f5729aa9/687474703a2f2f692e696d6775722e636f6d2f3375394f52616c2e6a70673f31">
+<meta property="og:image" content="https://camo.githubusercontent.com/e6a0e02bd080acc585a622d2c03ca6e44a9e9adc/687474703a2f2f692e696d6775722e636f6d2f36565a6542706e2e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/eb2584182e5a40170553e668aa52cebb8a28c486/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f736c6f7065253230253344253230253543667261632537422535437061727469616c253230452537442537422535437061727469616c253230775f695f6a253744">
+<meta property="og:image" content="https://camo.githubusercontent.com/4710fab5a0e844de6d1f1724c1b88b8c787baf08/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f455f2535435468657461253230253344253230742532302d253230795f2535435468657461">
+<meta property="og:image" content="https://camo.githubusercontent.com/3b840b789a63f6b24b0bfa7fb988661af225ffc7/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f25354364656c74612532305f2535435468657461253230253344253230455f25354354686574612532302e66253237253238735f2535435468657461253230253239">
+<meta property="og:image" content="https://camo.githubusercontent.com/52802a14da3a104ba1c5a615c4549723a9d8857f/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f455f6a25323025334425323025354373756d25323025354364656c74612532305f6b253230775f6b5f6a">
+<meta property="og:image" content="https://camo.githubusercontent.com/cb17a45676307f2e0d93da911284ce4a9d99a172/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f25354364656c74615f6a253230253344253230455f6a2e66253237253238535f6a253239">
+<meta property="og:image" content="https://camo.githubusercontent.com/8cc240df2a9475c2a0b1efd25fc20da49c9d10a4/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f253543667261632537422535437061727469616c253230455f6a2537442537422535437061727469616c253230775f695f6a25374425323025334425323025354364656c74615f6a2532302e253230795f69">
+<meta property="og:image" content="https://camo.githubusercontent.com/052920e4d54e7c529bc571ef6c7c9a38f5c0e74a/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f25354344656c7461253230775f695f6a253230253344253230253543766172657073696c6f6e253230253543667261632537422535437061727469616c253230455f6a2537442537422535437061727469616c253230775f695f6a253744">
+<meta property="og:image" content="https://camo.githubusercontent.com/a60c701dea057ea0ac5634b09713b3d3e4867ec8/687474703a2f2f75706c6f61642e77696b696d656469612e6f72672f77696b6970656469612f636f6d6d6f6e732f642f64642f526563757272656e744c617965724e657572616c4e6574776f726b2e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/62372f7a1977651a77ffe961f1d23fb86b5472af/687474703a2f2f7777772e77696c6c616d657474652e6564752f253745676f72722f636c61737365732f63733434392f666967732f6c73746d2e676966">
+<meta property="og:image" content="https://camo.githubusercontent.com/90fd23066ab0110cd317bfb580a13544f46b9ec9/687474703a2f2f692e696d6775722e636f6d2f4a7046363577632e706e67">
+<meta property="og:updated_time" content="2016-03-07T04:19:00.890Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="神经网络101">
+<meta name="twitter:description" content="我被这个一群鱼迷住了
+意译自https://github.com/cazala/synaptic/wiki/Neural-Networks-101
+一个不怎么关乎公式的简单神经网络介绍。
+神经元(Neuron)神经网络的基本单位。本质上，神经元有树突(输入)、细胞体(处理器)和轴突(输出)。
+自然界中，激活过程大概这样：当神经元的累积加权输入超过特定阈值，轴突激发信号。
+神经元最重要的特性是： 学">
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+  
+
+  <link rel="stylesheet" href="/css/styles.css" type="text/css">
+
+  
+
+  
+
+  
+
+</head>
+
+<body>
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <div class="toolbox-entry">盒子</div>
+    <ul class="list-toolbox">
+      
+        
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/archives/">博客</a>
+          </li>
+        
+      
+        
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/category/">分类</a>
+          </li>
+        
+      
+        
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/tag/">标签</a>
+          </li>
+        
+      
+        
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/link/">友链</a>
+          </li>
+        
+      
+        
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/about/">关于</a>
+          </li>
+        
+      
+        
+          <li class="item-toolbox">
+            <a class="CIRCLE" href="/atom.xml">RSS</a>
+          </li>
+        
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#神经元(Neuron)"><span class="toc-text">神经元(Neuron)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#激活函数"><span class="toc-text">激活函数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#前向传播网络(Feed-forward_Network)"><span class="toc-text">前向传播网络(Feed-forward Network)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#神经网络如何学习"><span class="toc-text">神经网络如何学习</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#但是，反向传播如何工作？"><span class="toc-text">但是，反向传播如何工作？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#增量法则"><span class="toc-text">增量法则</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#时间递归神经网络(Recurrent_Neural_Networks)"><span class="toc-text">时间递归神经网络(Recurrent Neural Networks)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Constant_Error_Carousel"><span class="toc-text">Constant Error Carousel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Gates"><span class="toc-text">Gates</span></a></li></ol></li></ol>
+  </div>
+
+
+<div class="content-post CENTER">
+   <article id="posts-neural-network-101" class="article article-type-posts" itemscope itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">神经网络101</h1>
+
+    <div class="article-meta">
+      <span>2016-03-07</span>
+
+      <span> | </span>
+
+      <span class="article-author">Liu Yuyang</span>
+
+      <span> | </span>
+
+      
+  <span class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine learning</a>
+  </span>
+
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <p>我被这个<a href="http://synaptic.juancazala.com/#/" target="_blank" rel="external">一群鱼</a>迷住了</p>
+<p>意译自<a href="https://github.com/cazala/synaptic/wiki/Neural-Networks-101" target="_blank" rel="external">https://github.com/cazala/synaptic/wiki/Neural-Networks-101</a></p>
+<p>一个不怎么关乎公式的简单神经网络介绍。</p>
+<h2 id="神经元(Neuron)">神经元(Neuron)</h2><p>神经网络的基本单位。本质上，神经元有树突(输入)、细胞体(处理器)和轴突(输出)。</p>
+<p>自然界中，激活过程大概这样：当神经元的累积加权输入超过特定阈值，轴突激发信号。</p>
+<p>神经元最重要的特性是： 学习。</p>
+<p>人工神经元是这样的：</p>
+<p><img src="https://camo.githubusercontent.com/8b87e593fb9382c16a81cc059d994adec259a1c4/687474703a2f2f692e696d6775722e636f6d2f643654374b39332e706e67" alt="人工神经元"></p>
+<p>它有几个输入，每个输入对应有权重(特定连接的重要性)。当要激活神经元的时候，<br>通过累加加权输入计算它的状态。但是神经元总有一个为1的额外的输入，叫偏差(bias)。</p>
+<p>这确保既是所有输入都是0， 神经元仍然有输入。</p>
+<p>$$<br>s_j = \sum<em>iw</em>{ij}y_i<br>$$</p>
+<p>计算神经元状态(state)之后，神经元将值传递给激活函数(activation function)。<br>该函数将结果正则化(normalize)(到0-1)</p>
+<p>$$<br>y_j = f_j(s_j)<br>$$</p>
+<h3 id="激活函数">激活函数</h3><p>激活函数通常是sigmoid函数，不是<a href="https://en.wikipedia.org/wiki/Logistic_function" target="_blank" rel="external">Logistic</a>()就是<a href="http://mathworld.wolfram.com/HyperbolicTangent.html" target="_blank" rel="external">Hyperbolic Tangent</a>(双曲正切).</p>
+<p><img src="https://camo.githubusercontent.com/0bd79e6fd612e898fda2e04caa797648b8c0bed5/687474703a2f2f75706c6f61642e77696b696d656469612e6f72672f77696b6970656469612f636f6d6d6f6e732f7468756d622f382f38382f4c6f6769737469632d63757276652e7376672f33323070782d4c6f6769737469632d63757276652e7376672e706e67" alt="logistic"></p>
+<h2 id="前向传播网络(Feed-forward_Network)">前向传播网络(Feed-forward Network)</h2><p>这是最简单的架构，神经元保存在层中，上一层的神经元连接所有下一层的神经元，<br>每一层的输出又是下一层的输入。</p>
+<p><img src="https://camo.githubusercontent.com/0699ff876dbb371e894dec939c719287f5729aa9/687474703a2f2f692e696d6775722e636f6d2f3375394f52616c2e6a70673f31" alt="feed-forward network"></p>
+<p>第一层(输入层)从环境接受输入，激活，它的输出作为下一层的输入，直到抵达最终层(输出层)。</p>
+<h3 id="神经网络如何学习">神经网络如何学习</h3><p>通过训练。用来做这个算法叫做反向传播(backpropagation)。在给定网络输入后，<br>将产生输出。</p>
+<p>接着，告诉网络该输入的理想输出。</p>
+<p>下次，网络将采取这个理想输出并调整权重来产生更精确的输出，</p>
+<p>从输出层反向调整直到输入层。</p>
+<p>那么，下一次接受同样输入输出层将输出更接近的值，这个过程迭代多次，</p>
+<p>直到网络输出和理想输出差距足够小。</p>
+<h3 id="但是，反向传播如何工作？">但是，反向传播如何工作？</h3><p>算法通过<a href="http://en.wikipedia.org/wiki/Gradient_descent" target="_blank" rel="external">梯度下降</a>(Gradient Descent)来计算调整权重</p>
+<p>比如如下图表示一个特定权重和误差(网络输出和理想输出差距)的关系。</p>
+<p><img src="https://camo.githubusercontent.com/e6a0e02bd080acc585a622d2c03ca6e44a9e9adc/687474703a2f2f692e696d6775722e636f6d2f36565a6542706e2e706e67" alt="error vs weight"></p>
+<p>该算法计算实际权重位置的梯度，也叫瞬时斜率(instant slope)(图中箭头)</p>
+<p>它将向减小误差的方向移动，</p>
+<p>这个过程将对网络中每个权重重复。</p>
+<p><img src="https://camo.githubusercontent.com/eb2584182e5a40170553e668aa52cebb8a28c486/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f736c6f7065253230253344253230253543667261632537422535437061727469616c253230452537442537422535437061727469616c253230775f695f6a253744" alt=""></p>
+<p>为了计算梯度和调整权重，我们使用增量(δ)法则</p>
+<h3 id="增量法则">增量法则</h3><p>输出层θ的增量使用注入误差(injected error)(网络输出和理想输出的差距)<br>来计算。</p>
+<p><img src="https://camo.githubusercontent.com/4710fab5a0e844de6d1f1724c1b88b8c787baf08/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f455f2535435468657461253230253344253230742532302d253230795f2535435468657461" alt=""><br><img src="https://camo.githubusercontent.com/3b840b789a63f6b24b0bfa7fb988661af225ffc7/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f25354364656c74612532305f2535435468657461253230253344253230455f25354354686574612532302e66253237253238735f2535435468657461253230253239" alt=""></p>
+<p>f’是激活函数的导函数。’</p>
+<p>这个误差反向传播到输入层，每一层都使用上一层的δs来计算本层的δ</p>
+<p><img src="https://camo.githubusercontent.com/52802a14da3a104ba1c5a615c4549723a9d8857f/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f455f6a25323025334425323025354373756d25323025354364656c74612532305f6b253230775f6b5f6a" alt=""><br><img src="https://camo.githubusercontent.com/cb17a45676307f2e0d93da911284ce4a9d99a172/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f25354364656c74615f6a253230253344253230455f6a2e66253237253238535f6a253239" alt=""></p>
+<p>我们使用delta来计算每个权重的梯度：</p>
+<p><img src="https://camo.githubusercontent.com/8cc240df2a9475c2a0b1efd25fc20da49c9d10a4/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f253543667261632537422535437061727469616c253230455f6a2537442537422535437061727469616c253230775f695f6a25374425323025334425323025354364656c74615f6a2532302e253230795f69" alt=""></p>
+<p>现在根据反向传播更新权重：</p>
+<p><img src="https://camo.githubusercontent.com/052920e4d54e7c529bc571ef6c7c9a38f5c0e74a/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f25354344656c7461253230775f695f6a253230253344253230253543766172657073696c6f6e253230253543667261632537422535437061727469616c253230455f6a2537442537422535437061727469616c253230775f695f6a253744" alt=""></p>
+<p>这里ε是学习率(learning rate).</p>
+<p>译注: 推导见<a href="https://en.wikipedia.org/wiki/Backpropagation#Derivation" target="_blank" rel="external">维基百科</a></p>
+<h2 id="时间递归神经网络(Recurrent_Neural_Networks)">时间递归神经网络(Recurrent Neural Networks)</h2><p>这个网络中的神经元自连接(固定权重1)，这让它们有某种短期记忆。</p>
+<p><img src="https://camo.githubusercontent.com/a60c701dea057ea0ac5634b09713b3d3e4867ec8/687474703a2f2f75706c6f61642e77696b696d656469612e6f72672f77696b6970656469612f636f6d6d6f6e732f642f64642f526563757272656e744c617965724e657572616c4e6574776f726b2e706e67" alt=""></p>
+<p>过去激励的额外输入使网络有某种上下文信息，有助于特定任务产生更好的输出。</p>
+<p>在序列预测任务上，这种神经网络非常有效，但是它们不能记得过去太多步的相关信息</p>
+<h3 id="Constant_Error_Carousel">Constant Error Carousel</h3><p>CEC包含自连接的神经元，我们称为记忆细胞，一个线性激励函数(linear activation)。</p>
+<p>这使误差保持更长时间，修复了时间递归神经网络的梯度退化问题–RNN缩放每个激励的误差<br>因为squashing function的导数，当它在时空上往回传播,误差会指数消失或分叉(diverge，就是震荡)。听起来真他妈的酷!</p>
+<p>译注：问题在于误差会因为和squashing function(比如logistic激励函数)的导数相乘，还和自连接权重相乘(所以规定为1)，<br>如果squashing function是线性的，那么其导数也为1，则，误差就不会消失或分叉。</p>
+<h3 id="Gates">Gates</h3><p>有的结构不仅将神经元连接，而且调控流过这些连接的信息，这些结构叫做二阶神经网络(second order neural networks)</p>
+<p>译注：因为gate是和连接相乘，则成为二阶了。</p>
+<p>一种保护记忆细胞远离噪音输入和注入误差的方式是使用gates来缩放(scale，调控意)记忆细胞和输入输出层之间的连接。</p>
+<p><img src="https://camo.githubusercontent.com/62372f7a1977651a77ffe961f1d23fb86b5472af/687474703a2f2f7777772e77696c6c616d657474652e6564752f253745676f72722f636c61737365732f63733434392f666967732f6c73746d2e676966" alt=""></p>
+<p>这就是<a href="http://en.wikipedia.org/wiki/Long_short_term_memory" target="_blank" rel="external">Long Short-Term Memory</a>的起源。LSTM是一种适合分类、处理和<br>预测时间序列的结构，特别是当关键事件中有许多非常长且未知的时间延迟。</p>
+<p>自从它的概念被第三个gate提升，叫做Forget Gate，这个管理记忆细胞的自连接，决定有多少<br>误差应该被记住，并且何时忘记。通过在每个time-step后scaling来自细胞状态的反馈实现。<br>这保护了状态不至于分叉(diverging, 同上)和崩塌(collapsing，消失)。</p>
+<p>LSTM通过来自记忆细胞到所有它的其他gates的窥视孔(peephole)连接，改善它们的性能。<br>因为它们有有关它们保护细胞的信息。实际的LSTM结构看起来像这样。</p>
+<p><img src="https://camo.githubusercontent.com/90fd23066ab0110cd317bfb580a13544f46b9ec9/687474703a2f2f692e696d6775722e636f6d2f4a7046363577632e706e67" alt=""></p>
+<p>时间递归和二阶神经网络(Recurrent and Second Order Neural Networks)比前向传播神经网络相比复杂。数学细节可以参考<a href="http://www.overcomplete.net/papers/nn2012.pdf" target="_blank" rel="external">Derek Monner的论文</a></p>
+<p>译者注：关于LSTM，<a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/" target="_blank" rel="external">colah的文章</a>讲的很清晰易懂。</p>
+<p>有了这些基础知识，现在你可以好好玩神经网络了。</p>
+
+    
+  </div>
+</article>
+
+
+
+<section class="disqus-comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+
+
+
+</div>
+
+  
+<script>
+  var disqus_shortname = 'reverlandblog';
+  
+  var disqus_url = 'http://reverland.org/machine-learning/2016/03/07/neural-network-101/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"undefined"};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0]
+   || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+<!-- 多说公共JS代码 end -->
+
+</body>
+</html>
