@@ -28,6 +28,8 @@
 自然界中，激活过程大概这样：当神经元的累积加权输入超过特定阈值，轴突激发信号。
 神经元最重要的特性是： 学">
 <meta property="og:image" content="https://camo.githubusercontent.com/8b87e593fb9382c16a81cc059d994adec259a1c4/687474703a2f2f692e696d6775722e636f6d2f643654374b39332e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/875a8f9cef6889b90dcd82752d12569456f385f0/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f735f6a25323025334425323025354373756d5f25374269253744253230775f253742696a2537442e795f25374269253744">
+<meta property="og:image" content="https://camo.githubusercontent.com/198be5a2e3b4b1e57758d46e4c324ac2c22671bd/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f795f6a253230253344253230665f6a253238535f6a253239">
 <meta property="og:image" content="https://camo.githubusercontent.com/0bd79e6fd612e898fda2e04caa797648b8c0bed5/687474703a2f2f75706c6f61642e77696b696d656469612e6f72672f77696b6970656469612f636f6d6d6f6e732f7468756d622f382f38382f4c6f6769737469632d63757276652e7376672f33323070782d4c6f6769737469632d63757276652e7376672e706e67">
 <meta property="og:image" content="https://camo.githubusercontent.com/0699ff876dbb371e894dec939c719287f5729aa9/687474703a2f2f692e696d6775722e636f6d2f3375394f52616c2e6a70673f31">
 <meta property="og:image" content="https://camo.githubusercontent.com/e6a0e02bd080acc585a622d2c03ca6e44a9e9adc/687474703a2f2f692e696d6775722e636f6d2f36565a6542706e2e706e67">
@@ -41,7 +43,7 @@
 <meta property="og:image" content="https://camo.githubusercontent.com/a60c701dea057ea0ac5634b09713b3d3e4867ec8/687474703a2f2f75706c6f61642e77696b696d656469612e6f72672f77696b6970656469612f636f6d6d6f6e732f642f64642f526563757272656e744c617965724e657572616c4e6574776f726b2e706e67">
 <meta property="og:image" content="https://camo.githubusercontent.com/62372f7a1977651a77ffe961f1d23fb86b5472af/687474703a2f2f7777772e77696c6c616d657474652e6564752f253745676f72722f636c61737365732f63733434392f666967732f6c73746d2e676966">
 <meta property="og:image" content="https://camo.githubusercontent.com/90fd23066ab0110cd317bfb580a13544f46b9ec9/687474703a2f2f692e696d6775722e636f6d2f4a7046363577632e706e67">
-<meta property="og:updated_time" content="2016-03-07T08:22:23.526Z">
+<meta property="og:updated_time" content="2016-03-07T12:17:05.748Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="神经网络101">
 <meta name="twitter:description" content="我被这个一群鱼迷住了
@@ -190,9 +192,9 @@
 <p><img src="https://camo.githubusercontent.com/8b87e593fb9382c16a81cc059d994adec259a1c4/687474703a2f2f692e696d6775722e636f6d2f643654374b39332e706e67" alt="人工神经元"></p>
 <p>它有几个输入，每个输入对应有权重(特定连接的重要性)。当要激活神经元的时候，<br>通过累加加权输入计算它的状态。但是神经元总有一个为1的额外的输入，叫偏差(bias)。</p>
 <p>这确保既是所有输入都是0， 神经元仍然有输入。</p>
-<p>$$<br>s_j = \sum<em>iw</em>{ij}y_i<br>$$</p>
+<p><img src="https://camo.githubusercontent.com/875a8f9cef6889b90dcd82752d12569456f385f0/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f735f6a25323025334425323025354373756d5f25374269253744253230775f253742696a2537442e795f25374269253744" alt=""></p>
 <p>计算神经元状态(state)之后，神经元将值传递给激活函数(activation function)。<br>该函数将结果正则化(normalize)(到0-1)</p>
-<p>$$<br>y_j = f_j(s_j)<br>$$</p>
+<p><img src="https://camo.githubusercontent.com/198be5a2e3b4b1e57758d46e4c324ac2c22671bd/687474703a2f2f6c617465782e636f6465636f67732e636f6d2f6769662e6c617465783f795f6a253230253344253230665f6a253238535f6a253239" alt=""></p>
 <h3 id="激活函数">激活函数</h3><p>激活函数通常是sigmoid函数，不是<a href="https://en.wikipedia.org/wiki/Logistic_function" target="_blank" rel="external">Logistic</a>()就是<a href="http://mathworld.wolfram.com/HyperbolicTangent.html" target="_blank" rel="external">Hyperbolic Tangent</a>(双曲正切).</p>
 <p><img src="https://camo.githubusercontent.com/0bd79e6fd612e898fda2e04caa797648b8c0bed5/687474703a2f2f75706c6f61642e77696b696d656469612e6f72672f77696b6970656469612f636f6d6d6f6e732f7468756d622f382f38382f4c6f6769737469632d63757276652e7376672f33323070782d4c6f6769737469632d63757276652e7376672e706e67" alt="logistic"></p>
 <h2 id="前向传播网络(Feed-forward_Network)">前向传播网络(Feed-forward Network)</h2><p>这是最简单的架构，神经元保存在层中，上一层的神经元连接所有下一层的神经元，<br>每一层的输出又是下一层的输入。</p>
