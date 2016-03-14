@@ -70,9 +70,9 @@ ipython是一个净强化的交互Py">
     <link rel="icon" href="/images/favicon.ico">
   
 
-  <link rel="stylesheet" href="/css/styles.css" type="text/css">
-
   
+
+  <link href="/css/styles.css?v=ed12202f" rel="stylesheet">
 
   
 
@@ -81,6 +81,11 @@ ipython是一个净强化的交互Py">
 </head>
 
 <body>
+
+  
+    <a href="#modal-one" class="toolbox-mobile">盒子</a>
+  
+
   <div class="post-header CENTER">
    
   <div class="toolbox">
@@ -163,12 +168,8 @@ ipython是一个净强化的交互Py">
   </div>
 
 
-<a class="back-top" href="#">
-  <i class="icon-angle-up"></i>
-</a>
 
-
-<div class="content-post CENTER">
+<div class="content content-post CENTER">
    <article id="post-numpy" class="article article-type-post" itemscope itemprop="blogPost">
   <header class="article-header">
     <h1 class="post-title">试验性NumPy教程(译)</h1>
@@ -1124,6 +1125,90 @@ pylab.show()
 </div>
 
 
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal-one" aria-hidden="true">
+  <a href="#close" class="cover" aria-hidden="true"></a>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <a href="#close" class="btn-close" aria-hidden="true">关闭</a>
+    </div>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/atom.xml"
+              target="_blank"
+              >
+              RSS
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
   
       <div class="fexo-comments comments-post">
     
@@ -1156,6 +1241,38 @@ pylab.show()
   </div>
 
   
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/fastclick.js', function() {
+      loadScript('/js/app.js', function() {
+        // load success
+      });
+    });
+  }
+</script>
 
 </body>
 </html>
