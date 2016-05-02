@@ -4,7 +4,7 @@
   <subtitle><![CDATA[开放、分享、自由与进步]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://reverland.org/"/>
-  <updated>2016-04-20T13:17:42.858Z</updated>
+  <updated>2016-05-02T16:20:35.567Z</updated>
   <id>http://reverland.org/</id>
   
   <author>
@@ -13,6 +13,68 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[The Quieter You Become, the More You Are Able to Hear]]></title>
+    <link href="http://reverland.org/life/2016/05/02/the-quieter-you-become-the-more-you-are-able-to-hear/"/>
+    <id>http://reverland.org/life/2016/05/02/the-quieter-you-become-the-more-you-are-able-to-hear/</id>
+    <published>2016-05-02T14:51:11.000Z</published>
+    <updated>2016-05-02T16:20:35.567Z</updated>
+    <content type="html"><![CDATA[<p>一早很晚才起，恍惚中昨天一点才回去躺下。</p>
+<p>恍恍惚惚，看到公司微信群里有人的头像有句话</p>
+<blockquote>
+<p>the quieter you become，the more you are able to hear.</p>
+</blockquote>
+<p>我不说话，这是最好的。</p>
+<p>然而我什么也不说也不好。</p>
+<p>就像某只正在我司发春的猫一样无法遏制。</p>
+<h2 id="柔软世界里混沌的我">柔软世界里混沌的我</h2><p>万物负阴而抱阳。</p>
+<p>如果时光倒转，故事重新来过，你还会成为现在这样的人吗？</p>
+<p>我是说，你眼里的，你心里的，你希望的</p>
+<p>如果说这些年有什么变化，我变得柔软了。</p>
+<p>如果说我眼里的世界有什么变化，它变得模糊了。</p>
+<p>然而世界就是我，我就是世界，它残酷而血腥，不管怎样我们已经在面对它了。</p>
+<p>在那一刻它是有区别的，下一刻它是混沌的。</p>
+<p>于是我说了就和没说一样，</p>
+<p>没说却胜过千言万语</p>
+<h2 id="醲肥辛甘非真味">醲肥辛甘非真味</h2><p>自己做饭时，爱清炒各种菜，不放各种调料</p>
+<p>有人就觉得奇怪，那样好吃么？</p>
+<p>自己做饭时，买菜洗菜炒菜做饭收拾打扫等等非常麻烦。</p>
+<p>有人就好奇，那样多浪费时间，为什么不订个外卖</p>
+<p>有时候，我就蒸半碗米</p>
+<p>有人说，你这个也不省钱啊，电费都不够</p>
+<p>所以，世界上每个人都是一面镜子，镜子里却是他们眼里的你</p>
+<p>他们眼里你的生活，他们眼里你的想法</p>
+<p>你自己呢，你为什么做这些不做那些？</p>
+<p>你肯定有自己的判断，你也是一面镜子</p>
+<p>镜子里映着自己，</p>
+<p>一个更接近真实的自己</p>
+<p>醲肥辛甘非真味吗？</p>
+<h2 id="此心光明，亦复何言">此心光明，亦复何言</h2><p>终于这篇文章和我本来想写下的完全不一样，</p>
+<p>把寒假没补完的诗补完：春节小雨与韩将军再临龟山俯瞰信阳城</p>
+<blockquote>
+<p>龟山寻故道，微雨润新城。云游江河走，葳蕤又一春。</p>
+</blockquote>
+<p>今天也下雨了，干脆也写点什么好了。好久没见北京下雨了。</p>
+<blockquote>
+<p>喜淋风吹雨，哪怕云压低，破鞋旧伞照穿行，哪管头湿与脚湿，淅淅沥沥淅淅。</p>
+<p>人生能有几，连雨可心晴，随它人流退与进，谁知左顾还右去，熙熙攘攘熙熙。</p>
+<p>–5月3日阴雨独循学院南路、魏公村与交大</p>
+</blockquote>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>一早很晚才起，恍惚中昨天一点才回去躺下。</p>
+<p>恍恍惚惚，看到公司微信群里有人的头像有句话</p>
+<blockquote>
+<p>the quieter you become，the more you are able to hear.</p>
+</blockqu]]>
+    </summary>
+    
+      <category term="life" scheme="http://reverland.org/tags/life/"/>
+    
+      <category term="life" scheme="http://reverland.org/categories/life/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[十点钟的记忆]]></title>
@@ -2221,113 +2283,6 @@ shuru               |&lt;---输入提示(已经输入的内容)
       <category term="web" scheme="http://reverland.org/tags/web/"/>
     
       <category term="web" scheme="http://reverland.org/categories/web/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[GreaseMonkey Userscript 开发的难与易]]></title>
-    <link href="http://reverland.org/javascript/2015/11/17/greasemonkey-userscript/"/>
-    <id>http://reverland.org/javascript/2015/11/17/greasemonkey-userscript/</id>
-    <published>2015-11-17T14:21:25.000Z</published>
-    <updated>2015-11-24T16:42:08.801Z</updated>
-    <content type="html"><![CDATA[<p>这两天，写了一个简单的基于有道在线翻译的GreaseMonkey屏幕取词脚本。</p>
-<p><a href="https://greasyfork.org/en/scripts/12758-youdaodict" target="_blank" rel="external">点我查看GreaseFork</a></p>
-<p><img src="http://img.vim-cn.com/6d/513d2b37bf298b4ae77bc663c597260e5a115e.gif" alt="有道取词Userscript"></p>
-<p>我想做这件事很久了，从我还不是一个前端开发者的时候，就一直想做这么一个轻量的浏览器脚本，方便自己查看英文的文档和文章。没想到想了这么久，真正没做多久。</p>
-<p>作为一个Ubuntu Linux用户，浏览器取词我有几个选择：</p>
-<ol>
-<li><p>尝试安装有道词典Linux版本、openyoudao或者其他stardict或者goldendict这种本地词典。但我并不觉得我需要桌面软件。</p>
-</li>
-<li><p>有人做了个Google translate tooltip的GreaseMonkey脚本实现这个，非常棒。但谷歌的服务在国内的服务非常不稳定，取词功能经常不能正常使用。</p>
-</li>
-<li><p>有道提供了<a href="http://fanyi.youdao.com/web2/?keyfrom=fanyiweb" target="_blank" rel="external">网页翻译2.0</a>，通过书签执行一段代码把取词功能注入当前页面。然而，首先随着浏览器安全特性的加强，该书签不能正常使用，其次每次都要先点书签才能取词(也许是快捷键)。</p>
-</li>
-</ol>
-<h2 id="选择是难">选择是难</h2><p>很多网站，包括cnblog发现都提供了取词版本。我面临的选择是：</p>
-<ol>
-<li>在这些已有的浏览器取词脚本基础上学习修改。</li>
-<li>凭借着自己的感觉从新设计</li>
-</ol>
-<p>选择上花了很多时间。</p>
-<p>方案一的优点有：</p>
-<ol>
-<li>成熟美观。</li>
-<li>能学习到很多东西</li>
-</ol>
-<p>方案一问题在于：</p>
-<ol>
-<li>源码难理解。代码量较大，都是压缩甚至混淆变量过的。</li>
-<li>有些和当前页面的样式或者脚本搅和在一起。不易分离</li>
-<li>被浏览器或网站安全设置废掉，未必能使用</li>
-</ol>
-<p>终于，由于我的智商被有道在线翻译那个脚本所碾压，我想还是看看功能自己设计下，做个简单版本。</p>
-<p>想的很简单</p>
-<h2 id="设计是易">设计是易</h2><p>想法很简单。</p>
-<ol>
-<li>鼠标选词</li>
-<li>向第三方发起请求，比如bing的翻译或者有道的</li>
-<li>读取返回，弹出tooltip，格式化数据</li>
-<li>其他辅助功能比如发音、单词本等等</li>
-</ol>
-<p>设计是最简单的一环，后面你会看到时间都花到哪里了。</p>
-<h2 id="知易行难">知易行难</h2><p>通过谷歌，很容易完成第一步，在脚本中得到选中的文字。</p>
-<p>第二步就开始面临问题。作为前信息安全专业从业者，很清楚ajax这种东西跨域是受限制的。稍微翻阅scriptish文档发现GM_xmlhttpRequest可以满足我的需求。</p>
-<p>除却和  <code>XMLHttpRequest</code>这种东西并不太一样的api造成的各种细节错误，之后碰到的问题是我整个开发过程最棘手、花费时间最长的问题。</p>
-<p>无论onload、onerror还是onreadystate的回调中，<code>GM_log</code>都没有打印出任何信息。</p>
-<p>firebug和火狐内置调试器也没有显示任何通信。这和我在网络上看到的GreaseMonkey相关信息并不太相符。</p>
-<p>经检查脚本元数据<code>@grant</code>，觉得已经授权这个跨域函数也没什么问题。</p>
-<p>折腾一阵，确认API调用和细节都无法确认问题后，采取曲线调试方案。</p>
-<p>更改请求地址到本地，确认请求确实发出了。那么，它有返回吗？</p>
-<p>在本地用netcat模拟返回数据，仍然没有打印任何信息。我开始怀疑难道GM_xmlhttpRequest是会对返回结果做验证？必须报头正确？</p>
-<p>第一天就这么过去了。</p>
-<p>第二天我决定尝试代理来看来往的通信是否正常。</p>
-<p>方便起见，先用nc充当了下代理，检查了下相互通信，未见有什么不对的。</p>
-<p>为严谨起见，用burpsuite来设置一个透明本地代理，让浏览器指向那个代理。经过检验，完全没看出通信有什么问题。但onload和其他回调也不会被触发。</p>
-<p>谷歌搜索得到一些stackoverflow、github issue和greasewiki上的信息，但问题仍不能确认和解决。</p>
-<p>只是昨天晚上baidu时心心念念，发现firefox贴吧里有人吐槽scriptish不稳定的一些地方，今天又看到一些讨论，决定换回GreaseMonkey试试，事实证明这是明智的。</p>
-<p>然而，一换发现什么都打印不出来了。后来反复尝试，发现GM_log不能用，我简直震惊了，wiki上写着玩的么，还是有什么变化。反正我发现console.log可以使用，那就继续开发下去了。</p>
-<p>最难的部分就这么糊里糊涂过去了。</p>
-<h2 id="数据请求顺风顺水">数据请求顺风顺水</h2><p>一旦请求完成，解析json数据，按需展示就是水到渠成的事情。</p>
-<p>然而，并不是那么简单。</p>
-<h2 id="JS异步与回调之难">JS异步与回调之难</h2><p>JS的异步特性带来了这些不符合人类直观思维方式的流程控制风格。</p>
-<p>按理说我应该很习惯javascript的异步操作流程控制的种种问题，但还是踩了次坑。</p>
-<p>弹出和渲染tooltip的函数没有读到返回数据！</p>
-<p>好在对javascript程序员debug这种问题比之前的问题简单太多。一看想起来GM_xmlhttpRequest是异步过程，而不是同步，我这里却要待异步过程返回结果再执行下一个函数。</p>
-<p>想想promise应该不用，虽然firefox41肯定原生支持ES6 promise了。但，就这点函数干脆。。。还是回调“地狱”吧。</p>
-<h2 id="JS难中有易">JS难中有易</h2><p>说到ES6，ES6提供了很多方便javascript编程的好东西，通过<code>let</code>和<code>=&gt;</code>实现更好的this和作用域一致，通过<code>Template</code>方便字符串操作等等。</p>
-<p>很庆幸，GreaseMonkey的话我只考虑firefox用户，反正好早的时候这些ES6特性浏览器都支持了。</p>
-<h2 id="JS易中又难">JS易中又难</h2><p>JS让人非常难过的一个地方，是DOM操作和各种webAPI。只能说丧心病狂。你记得清楚如何获得viewport区域大小么？知道如何获得鼠标相对viewport位置么？知道为啥获取区域高度或宽度并没有获得么？看到clientWidth、offsetWidth、availWidth…有没有想砍人？</p>
-<p>为了让脚本能正确在屏幕边缘让tooltip出现在viewport内，在各种边界条件数学计算题这里又纠结了好久。</p>
-<p>GreaseMonkey相比Scriptish少了一个比较方便的特性： <code>@css</code>。虽然可以在head标签中通过<code>GM_addStyle()</code>来注入样式，我总觉得会不合时宜的覆盖不该覆盖的东西，我对Google Translate Tooltip在阮一峰大大的网站上奇葩的样式表现印象深刻。所以，还是选择在DOM中注入的样式。</p>
-<p>这是体力活，你说体力活难不难呢？</p>
-<h2 id="最难的部分">最难的部分</h2><p>安全是最难以面对的一个问题。之所以，很多标签、脚本在页面上失效，都是由于近年来浏览器越来越严格的安全策略。我在开发这个脚本时碰到了两点：</p>
-<ol>
-<li>在https网站页面中无法加载http的资源。在调试工具中可以看到<a href="https://developer.mozilla.org/en/docs/Security/MixedContent" target="_blank" rel="external">mixed content</a>的字样。</li>
-<li>如果网站报头中有CSP限制。调试工具中也能看到提示。</li>
-</ol>
-<p>问题一，可以通过GM_xmlhttpRequest方法实现混合协议内容，如果外部资源也支持https请求也行。当我开发发音功能时就发现有道的语音api可以用https访问。</p>
-<p>问题二，只能通过各种CORS技术实现(参见附录)。<del>我还没开始做。</del>但看到<a href="http://stackoverflow.com/questions/28554022/how-can-i-play-sound-with-a-greasemonkey-script-in-firefox-when-theres-a-conte" target="_blank" rel="external">Stackoverflow上有个示例</a></p>
-<blockquote>
-<p>你确定要通过打开<code>about:config</code>禁用firefox对CSP的支持吗？</p>
-</blockquote>
-<p>不！！</p>
-<p>通过<code>GM_xmlhttpRequest</code>完成异步请求，将数据用浏览器播放出来实现跨域资源引用。这样，在一定程度上并不降低浏览器安全性，却能够实现需求，完成功能。</p>
-<p>Cheers！</p>
-<h2 id="附录">附录</h2><ul>
-<li><a href="https://bugzilla.mozilla.org/show_bug.cgi?id=866522" target="_blank" rel="external">https://bugzilla.mozilla.org/show_bug.cgi?id=866522</a></li>
-<li><a href="https://github.com/greasemonkey/greasemonkey/issues/2046" target="_blank" rel="external">https://github.com/greasemonkey/greasemonkey/issues/2046</a></li>
-<li><a href="http://forums.mozillazine.org/viewtopic.php?f=38&amp;t=2958293" target="_blank" rel="external">http://forums.mozillazine.org/viewtopic.php?f=38&amp;t=2958293</a></li>
-<li><a href="http://stackoverflow.com/questions/28554022/how-can-i-play-sound-with-a-greasemonkey-script-in-firefox-when-theres-a-conte" target="_blank" rel="external">http://stackoverflow.com/questions/28554022/how-can-i-play-sound-with-a-greasemonkey-script-in-firefox-when-theres-a-conte</a></li>
-</ul>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>这两天，写了一个简单的基于有道在线翻译的GreaseMonkey屏幕取词脚本。</p>
-<p><a href="https://greasyfork.org/en/scripts/12758-youdaodict" target="_blank" rel="external]]>
-    </summary>
-    
-      <category term="javascript" scheme="http://reverland.org/tags/javascript/"/>
-    
-      <category term="javascript" scheme="http://reverland.org/categories/javascript/"/>
     
   </entry>
   
