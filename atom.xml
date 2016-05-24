@@ -4,7 +4,7 @@
   <subtitle><![CDATA[开放、分享、自由与进步]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://reverland.org/"/>
-  <updated>2016-05-02T16:20:35.567Z</updated>
+  <updated>2016-05-24T16:50:52.940Z</updated>
   <id>http://reverland.org/</id>
   
   <author>
@@ -13,6 +13,47 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[为自由而生]]></title>
+    <link href="http://reverland.org/life/2016/05/25/for-freedom/"/>
+    <id>http://reverland.org/life/2016/05/25/for-freedom/</id>
+    <published>2016-05-24T16:18:43.000Z</published>
+    <updated>2016-05-24T16:50:52.940Z</updated>
+    <content type="html"><![CDATA[<p>大知若愚，大巧若拙。</p>
+<p>如果人生真有什么境界，</p>
+<p>凡历千万种种烟柳繁华，</p>
+<p>此世短暂冥顽过客</p>
+<p>愿光照此心</p>
+<p>于一瞬见永恒</p>
+<p>于柔弱见刚强</p>
+<p>于宁静见力量</p>
+<p>在绝望中寻信心</p>
+<p>历恐怖而求无畏</p>
+<p>缘木以求鱼，</p>
+<p>骛虚极，求静笃</p>
+<p>缘一切世界</p>
+<p>写十方万物</p>
+<p>可怜笔下千秋，只一人知之</p>
+<p>谁案前风起，也心绪万千</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>大知若愚，大巧若拙。</p>
+<p>如果人生真有什么境界，</p>
+<p>凡历千万种种烟柳繁华，</p>
+<p>此世短暂冥顽过客</p>
+<p>愿光照此心</p>
+<p>于一瞬见永恒</p>
+<p>于柔弱见刚强</p>
+<p>于宁静见力量</p>
+<p>在绝望中寻信心</p]]>
+    </summary>
+    
+      <category term="life" scheme="http://reverland.org/tags/life/"/>
+    
+      <category term="life" scheme="http://reverland.org/categories/life/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[The Quieter You Become, the More You Are Able to Hear]]></title>
@@ -2202,87 +2243,6 @@ shuru               |&lt;---输入提示(已经输入的内容)
       <category term="javascript" scheme="http://reverland.org/tags/javascript/"/>
     
       <category term="javascript" scheme="http://reverland.org/categories/javascript/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[从Jekyll迁移到Hexo]]></title>
-    <link href="http://reverland.org/web/2015/11/18/notes-on-migrating-from-jeykll-to-hexo/"/>
-    <id>http://reverland.org/web/2015/11/18/notes-on-migrating-from-jeykll-to-hexo/</id>
-    <published>2015-11-17T16:00:00.000Z</published>
-    <updated>2015-11-18T15:23:54.682Z</updated>
-    <content type="html"><![CDATA[<p>上周，我将博客从jekyll平台迁移到hexo下。</p>
-<h2 id="缘起">缘起</h2><p>不为什么。本来不想换，奈何不能成功在ubuntu 14.10上用rvm成功编译<code>ruby 2.1+</code>，连续几次过热自动关机后，就默默装上了基于node的hexo。</p>
-<h2 id="迁移记录">迁移记录</h2><p>对jekyll，日志源文件都在<code>_posts/</code>目录下。而hexo则在<code>sources/_posts/</code>下。两者支持的都是带metadata的markdown文件。(当然，我还有一些用textile标记的文件。)简单来说，只要把相应的markdown文件迁移到hexo对应的位置就行。</p>
-<p>但在迁移碰到了几个问题：</p>
-<ol>
-<li>修正permalink</li>
-<li>语法高亮部分修改</li>
-<li>特殊字符escape</li>
-<li>textile文件</li>
-</ol>
-<h3 id="与jekyll之前配置一致的url结构和文件命名方式">与jekyll之前配置一致的url结构和文件命名方式</h3><p>以前，我用jeykll时，每个文件名字如下：</p>
-<pre><code><span class="number">2012</span>-<span class="number">11</span>-<span class="number">19</span>-<span class="keyword">this</span>-is-a-post.md
-</code></pre><p>对应的url为</p>
-<pre><code><span class="string">http:</span><span class="comment">//reverland.org/2012/11/19/this-is-a-post/</span>
-</code></pre><p>或者可以是</p>
-<pre><code><span class="string">http:</span><span class="comment">//reverland.org/2012/11/19/this-is-a-post</span>
-<span class="string">http:</span><span class="comment">//reverland.org/2012/11/19/this-is-a-post/index.html</span>
-</code></pre><p>首先，要把hexo也改成这样的，在<code>_config.yml</code>中：</p>
-<pre><code><span class="symbol">new_post_name:</span> <span class="symbol">:year-</span><span class="symbol">:month-</span><span class="symbol">:day-</span><span class="symbol">:title</span>.md <span class="comment"># File name of new posts</span>
-<span class="symbol">permalink:</span> <span class="symbol">:category/</span><span class="symbol">:year/</span><span class="symbol">:month/</span><span class="symbol">:day/</span><span class="symbol">:title/</span>
-</code></pre><p>但，还是有问题，具体可以参照<a href="https://github.com/hexojs/hexo/issues/1589" target="_blank" rel="external">我提的issue</a>，hexo如果看你的文件名是这样：</p>
-<pre><code><span class="number">2014</span>-<span class="number">06</span>-<span class="number">12</span>-.md
-</code></pre><p>会生成这样的url</p>
-<pre><code><span class="number">2015</span>/<span class="number">11</span>/<span class="number">13</span>/<span class="number">2014</span>-<span class="number">06</span>-<span class="number">12.</span>html
-</code></pre><p>显然这不是我们想要的。</p>
-<p>我们通过将<a href="https://github.com/hexojs/hexo-util/blob/cb685f19ecb5ba9ee48109049b21a21cd3da7dee/lib/permalink.js#L28" target="_blank" rel="external"><code>node_modules/hexo-util/lib/permalink.js</code>第28行</a>由</p>
-<pre><code><span class="keyword">return</span> <span class="string">'(.+?)'</span>;
-</code></pre><p>更改为</p>
-<pre><code><span class="keyword">return</span> <span class="string">'(.*?)'</span>;
-</code></pre><p>可以实现以前的jekyll风格。</p>
-<p>如果你现在用的是hexo版本<code>3.1.0</code>，如果文件是：</p>
-<p>可能会遇到生成这种url链接：</p>
-<pre><code><span class="label">http:</span>//reverland<span class="preprocessor">.org</span>/<span class="number">2014</span>/<span class="number">06</span>/<span class="number">12</span>//index.html
-<span class="label">http:</span>//reverland<span class="preprocessor">.org</span>/<span class="number">2014</span>/<span class="number">06</span>/<span class="number">12</span>//
-</code></pre><p>在github中hexo已经不会有这个问题了，可以参见 <a href="https://github.com/hexojs/hexo/blob/d035d19ccd221f6815634c2d6d2aaa59b959839f/lib/plugins/helper/url_for.js#L30" target="_blank" rel="external">hexo/helper/url_for</a>的</p>
-<pre><code><span class="function"><span class="keyword">return</span> path.<span class="title">replace</span><span class="params">(/\/{<span class="number">2</span>,}/g, <span class="string">'/'</span>)</span></span>;
-</code></pre><p>来进行修改，如果你用的不是git版本的hexo。</p>
-<p>我之后还碰到个问题，hexo中的分类是大小写敏感的，jekyll也是，但jekyll在url中会统一变成小写而hexo则不会，这竟然造成了我迁移后的一些链接失效。修正方法也很简单，通过<code>sed</code>将所有大写的<code>category</code>项都替换成对应的小写版本。</p>
-<pre><code><span class="title">sed</span> -i <span class="string">'s/^category: Life/category: life/g'</span> source/_posts/<span class="regexp">*.md</span>  <span class="comment"># 我只有Life分类莫名写成了大写</span>
-</code></pre><p>这样，确保了和jekyll之前所有链接一致，然而，发现还是有disqus的评论消失了，检查链接并没有差异，暂时不知为什么。如果有谁能指教下请告诉我。</p>
-<h3 id="语法高亮修改">语法高亮修改</h3><p>jekyll中，除了我用四个空格作为编码块区域缩进设定，还广泛使用了jekyll所特有的记法进行代码高亮。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;% highlight python %&#125;</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sum</span><span class="params">(a, b)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#123;% endhighlight %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% highlight cl%&#125;</span><br><span class="line">(cdr,</span><br><span class="line">  (add,</span><br><span class="line">    <span class="number">1</span>, <span class="number">1</span>))</span><br><span class="line">&#123;% endhighlight %&#125;</span><br></pre></td></tr></table></figure>
-<p>另外，我的每个文件里还有些jekyll特定命令来加入统计和评论什么的。这是当年从<a href="http://blog.skydark.info/" target="_blank" rel="external">Skydark</a>那里画虎不成留下的各种dirty　hack的结果。</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% include JB/setup %&#125;</span><br></pre></td></tr></table></figure>
-<p>可以这样转换掉</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]highlight[[:space:]]\(.*\)[[:space:]]*%\&#125;/```\1/g'</span> <span class="built_in">source</span>/_posts/*.md  <span class="comment"># 注意有空格和没空格</span></span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]endhighlight[[:space:]]%\&#125;/```/g'</span> <span class="built_in">source</span>/_posts/*.md</span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]include JB\/setup[[:space:]]%\&#125;//g source/_posts/*.md'</span></span><br></pre></td></tr></table></figure>
-<h3 id="特殊字符escape">特殊字符escape</h3><p>接着有些特殊的文件会解析报错，因为hexo<a href="https://hexo.io/docs/troubleshooting.html#Escape_Contents" target="_blank" rel="external">用nunjunks来渲染</a>，如果文本中有<code>{&#123; }}</code>或者<code>{&#37; %}</code>会出错。我发现如果是缩进四格的代码标记或者<code>&#96;</code>会出错，但如果用另一种标记法<code> &#96;&#96;&#96;</code>则没关系。</p>
-<p>实在不行，我们可以用<a href="http://www.ascii.cl/htmlcodes.htm" target="_blank" rel="external">html实体编码</a>。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#60;code&#62;&#38;#97;&#38;#98;&#38;#99;&#60;/code&#62;</span><br></pre></td></tr></table></figure>
-<h3 id="textile文件">textile文件</h3><p>我试着用pandoc转换了下，发现几个问题：</p>
-<ol>
-<li>会将metadata错误地转换</li>
-<li>莫名的在行或特殊符号后面加反斜杠</li>
-<li>不能很好处理jekyll的代码高亮标记法</li>
-</ol>
-<p>我写了些脚本辅助手工更改为markdown格式。话说这些sed代码还都是之前尝试往pelican上迁移时写的辅助脚本，虽然从来没有迁移到pelican平台上。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 删除和转换jeykll特定标记</span></span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]include JB\/setup[[:space:]]%\&#125;//g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]highlight[[:space:]]\(.*\)[[:space:]]*%\&#125;/```\1/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/&#123;%[[:space:]]endhighlight[[:space:]]%\&#125;/```/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line"></span><br><span class="line"><span class="comment"># textile标记到markdown的转换</span></span><br><span class="line"><span class="comment"># 列表</span></span><br><span class="line">sed -i <span class="string">'s/^* /- /g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^# /- /g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line"><span class="comment"># 标题</span></span><br><span class="line">sed -i <span class="string">'s/^h1./#/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^h2./##/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^h3./###/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^h4./####/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line">sed -i <span class="string">'s/^h5./#####/g'</span> <span class="built_in">source</span>/_posts/*.textile</span><br><span class="line"><span class="comment"># 脚注</span></span><br><span class="line">sed -i <span class="string">'s/^fn\([[:digit:]]\)\./[\^\1]:/g'</span> <span class="built_in">source</span>/*.textile</span><br><span class="line">sed -i <span class="string">'s/\[\([[:digit:]]*\)\]/[\^\1]/g'</span> <span class="built_in">source</span>/*.textile</span><br><span class="line"><span class="comment"># 默认的markdown解析并不支持脚注</span></span><br><span class="line"><span class="comment"># 如果需要，参考这里替换默认markdown解析，https://github.com/celsomiranda/hexo-renderer-markdown-it　</span></span><br><span class="line"><span class="comment"># 可惜这个引擎中，```块就不能正常解析&#123;&#123; &#125;&#125;这种东西了</span></span><br><span class="line"><span class="comment"># 不知道那个pandoc后端的怎样。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接</span></span><br><span class="line">sed -i <span class="string">'s/"\([^"]*\)"\([h|\/].*\)/[\1](\2)/g'</span> <span class="built_in">source</span>/*.textile</span><br><span class="line">sed -i <span class="string">'s/"\([^"]*\)"\([^h\/].*\)/[\1][\2]/g'</span> <span class="built_in">source</span>/*.textile</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 最后把后缀改了，hexo不会处理后缀是textile的文件</span></span><br><span class="line"><span class="keyword">for</span> file <span class="keyword">in</span> <span class="built_in">source</span>/_posts/*.textile; <span class="keyword">do</span></span><br><span class="line">cp <span class="variable">$file</span> <span class="built_in">source</span>/_posts/`basename <span class="variable">$file</span> .textile`.md</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-<p>当然，最好脚本辅助，手工确认。</p>
-<p>另外，有这么个东西<a href="https://github.com/wzpan/hexo-renderer-pandoc" target="_blank" rel="external">hexo render pandoc</a>来替换hexo的渲染引擎，就能顺便支持textile。值得一试和研究，也许里头就用到对文档元数据或者跳过指定行数的转换吧。没有细看。话说，还看到<a href="http://codefalling.com/2015/11/15/new-version-of-hexo-renderer-org/" target="_blank" rel="external">@CodeFalling</a>使用emacs来做org渲染后端，hexo的灵活性可见一斑。</p>
-<h2 id="feed">feed</h2><p>默认的hexo竟然不像jekyll一样有feed生成支持！不过有<a href="https://github.com/hexojs/hexo-generator-feed" target="_blank" rel="external">hexo-generator-feed</a>这个插件来实现。具体参照文档就好。</p>
-<h2 id="添加友情链接、分类页、标签页">添加友情链接、分类页、标签页</h2><p>根据<a href="http://theme-next.iissnan.com/theme-settings.html" target="_blank" rel="external">根据Next主题的文档来就好</a>。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>上周，我将博客从jekyll平台迁移到hexo下。</p>
-<h2 id="缘起">缘起</h2><p>不为什么。本来不想换，奈何不能成功在ubuntu 14.10上用rvm成功编译<code>ruby 2.1+</code>，连续几次过热自动关机后，就默默装上了基于nod]]>
-    </summary>
-    
-      <category term="hexo" scheme="http://reverland.org/tags/hexo/"/>
-    
-      <category term="web" scheme="http://reverland.org/tags/web/"/>
-    
-      <category term="web" scheme="http://reverland.org/categories/web/"/>
     
   </entry>
   
