@@ -4,7 +4,7 @@
   <subtitle><![CDATA[开放、分享、自由与进步]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://reverland.org/"/>
-  <updated>2016-06-21T16:57:34.381Z</updated>
+  <updated>2016-06-21T17:05:21.193Z</updated>
   <id>http://reverland.org/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://reverland.org/work/2016/06/21/some-thoughts-on-work-as-a-front-end-dev/"/>
     <id>http://reverland.org/work/2016/06/21/some-thoughts-on-work-as-a-front-end-dev/</id>
     <published>2016-06-21T14:42:15.000Z</published>
-    <updated>2016-06-21T16:57:34.381Z</updated>
+    <updated>2016-06-21T17:05:21.193Z</updated>
     <content type="html"><![CDATA[<p>工作进入第三个月，恍惚间就已经三个月，一个季度，四分之一年。</p>
 <p>我不是什么聪明人，只有些愚笨的记录于此。</p>
 <p>毕业前几天，因为Armsword的介绍，仰仗zt推荐，ztrix给了工作机会，我就糊里糊涂地去了。回顾这三个月，该说啥呢？</p>
@@ -104,7 +104,7 @@
 <li>方便自动化常用任务管理</li>
 <li>与全世界共享你的作品</li>
 </ol>
-<h2 id="D3-js:_超越想象力">D3.js: 超越想象力</h2><p>可能大家更喜欢echarts, chartjs, highcharts等等等等。相比而言，工作上，<br>人们看重的可能更是生产力和工作效率。还有对较成熟产品的信赖。</p>
+<h3 id="D3-js:_超越想象力">D3.js: 超越想象力</h3><p>可能大家更喜欢echarts, chartjs, highcharts等等等等。相比而言，工作上，<br>人们看重的可能更是生产力和工作效率。还有对较成熟产品的信赖。</p>
 <p>我唯独喜欢d3，喜欢的无以复加。webpack可以没有，npm可以没有，jquery可以没有，<br>但，d3如果没有，工作生活一定少了亮丽的风景线。</p>
 <p>那是我见过最优秀的前端类库之一，几乎没有之一。</p>
 <p>它只做了它该做的事情，它好像什么也没做。</p>
@@ -149,7 +149,7 @@
 <li>想要在组件内注入样式比较难过，没什么人用css in js方案，没all in jsx的一致感</li>
 <li>和现有类库的配合并不天生契合。</li>
 </ol>
-<h3 id="最后:关于自己">最后:关于自己</h3><p>几点愿望：</p>
+<h2 id="最后:关于自己">最后:关于自己</h2><p>几点愿望：</p>
 <ol>
 <li>注意身体，穿插工作与休息，保证锻炼时间。保证生活规律。</li>
 <li>调整心态，保持平和冷静。</li>
@@ -160,15 +160,15 @@
 <style>
 .rain {
   background: #1a1a1a;
-  width: 60vh;
-  height: 60vh;
+  width: 80vh;
+  height: 80vh;
   perspective: 600px;
 }
 
 .rain ul {
   position: absolute;
-  width: 60vh;
-  height: 60vh;
+  width: 40vh;
+  height: 40vh;
   border-radius: 50%;
   top: 50%;
   left: 50%;
