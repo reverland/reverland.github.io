@@ -4,7 +4,7 @@
   <subtitle><![CDATA[开放、分享、自由与进步]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://reverland.org/"/>
-  <updated>2016-06-11T16:28:52.865Z</updated>
+  <updated>2016-06-21T16:57:34.381Z</updated>
   <id>http://reverland.org/</id>
   
   <author>
@@ -13,6 +13,311 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[前端开发的工作思考]]></title>
+    <link href="http://reverland.org/work/2016/06/21/some-thoughts-on-work-as-a-front-end-dev/"/>
+    <id>http://reverland.org/work/2016/06/21/some-thoughts-on-work-as-a-front-end-dev/</id>
+    <published>2016-06-21T14:42:15.000Z</published>
+    <updated>2016-06-21T16:57:34.381Z</updated>
+    <content type="html"><![CDATA[<p>工作进入第三个月，恍惚间就已经三个月，一个季度，四分之一年。</p>
+<p>我不是什么聪明人，只有些愚笨的记录于此。</p>
+<p>毕业前几天，因为Armsword的介绍，仰仗zt推荐，ztrix给了工作机会，我就糊里糊涂地去了。回顾这三个月，该说啥呢？</p>
+<p>惭愧，时间匆匆过去，却没能做什么有贡献的事情，不知道ztrix有没有失望呢？</p>
+<p>将一些慌乱人生里留下的混乱想法，记在这里吧。</p>
+<p>先说工作性质的感受。</p>
+<h2 id="活在过去现在与未来的Web前端开发者">活在过去现在与未来的Web前端开发者</h2><p>我觉得我生活在三个维度上，</p>
+<p>一个蛮荒而古老的web</p>
+<p>古老通信协议</p>
+<p>可能比我还古老的标记语言</p>
+<p>胡乱设计的编程语言，</p>
+<p>层层叠叠的样式表</p>
+<p>花式表单</p>
+<p>冗长的文档对象模型树操作</p>
+<p>受限的内存空间和运行效率</p>
+<p>不一致的实现和各行其是</p>
+<p>这一切都散发着陈旧的气息</p>
+<p>一个现代的web</p>
+<p>各种各样的框架如雨后春笋</p>
+<p>层出不穷</p>
+<p>替我们完成各种各样复杂冗长的任务抽象</p>
+<p>为我们解决各种浏览器奇葩的兼容问题</p>
+<p>为我们自动化整个工作流</p>
+<p>提高工作流中每部分的工作效率</p>
+<p>为我们提供包管理</p>
+<p>为我们提供自动构建</p>
+<p>终于，</p>
+<p>为我们打开了未来的大门，</p>
+<p>把我们推向了未来的世界</p>
+<p>未来的标准投射到现在的工作流之中</p>
+<p>我们开始使用来自未来的技术构建世界</p>
+<p>我们可以用浏览器没实现的标准</p>
+<p>我们可以试验没有定稿还在探讨的标准</p>
+<p>我们可以让机器为我们做的更多</p>
+<p>我们可以更好的保证软件质量</p>
+<p>提供更好的服务</p>
+<p>创造更优秀可靠的用户界面</p>
+<p>我们站在未来。</p>
+<p>这未来不完全也不完美</p>
+<p>却仍然足够令人激动</p>
+<p>这也是我为啥会选择web前端作为工作。</p>
+<p>下面，是站在程序员产品设计策划与用户面前的前端开发者</p>
+<h2 id="鄙视链底端的程序员">鄙视链底端的程序员</h2><p>有一种程序员，他要写这样的程序：</p>
+<ol>
+<li>兼容n种平台各个屏幕大小n种软件的主要版本的程序</li>
+<li>需要有严谨的逻辑来完美处理复杂的UI、数据和业务流程</li>
+<li>需要和现有技术的局限做斗争</li>
+<li>需要在低配置、低存储空间、低传输速度的环境下运行</li>
+<li>要讨好所有人的眼睛的大脑</li>
+<li>要不断面对快速迭代需求飞速变化的项目开发进度</li>
+</ol>
+<p>有一种程序员，他是这样的人：</p>
+<ol>
+<li>他使用人类有史以来最复杂最强大的软件之一作为主要开发工具</li>
+<li>他需要有严谨清晰的思维逻辑，扎实稳定的算法基础</li>
+<li>他能对项目前后端的整体理解把握，对业务流程每个细节设计了然于心</li>
+<li>他能对美有深刻感受，他在用户体验的细节上孜孜不倦。他也是设计师、美工、用户、产品。</li>
+<li>他需要擅长与各方沟通交流</li>
+<li>他知道如何能将复杂的问题化为简单的问题解决</li>
+<li>他知道如何处理大量并发事件，每一个前端开发者都是天生异步的</li>
+<li>他知道如何调整工作节奏保持平和冷静和生产力</li>
+<li>他在提升生产力维护代码和产品质量上孜孜不倦</li>
+<li>他也争取在团队中做一个不可或缺的一部分</li>
+<li>他的心里，他是个艺术家，他用手中的技术作为表达的方式</li>
+</ol>
+<p>然而听说他还默默站在某个鄙视链的最底端，准备用某个胡乱设计的语言接管世界= =</p>
+<h2 id="前端开发者的军火库">前端开发者的军火库</h2><p>自从进入公司，开始接触和使用一些好使的工具。有一些只能说非常喜欢：</p>
+<h3 id="Webpack:_All_in_JS">Webpack: All in JS</h3><p>自从有了webpack，恨不得什么都让javascript来接管。webpack赋予了前端开发者一种，<br>使用javascript管理一切静态资源及其依赖关系的能力，极大减少了重复无益的体力劳动<br>和出错的可能。</p>
+<p>有很多好处：</p>
+<ol>
+<li>资源按需求引入和导出，想怎样就怎样</li>
+<li>开发环境和生产环境几乎一键切换，</li>
+<li>前后端分离，自动代理</li>
+<li>热更新</li>
+<li>各种预处理很方便加入工作流</li>
+</ol>
+<h3 id="NPM:_Manage_Your_World">NPM: Manage Your World</h3><p>难道现在前端使用到的库的安装不都是使用包管理器(NPM软件管家)来安装和维护更新吗？<br>然而，NPM也可以用作简单的任务管理器来跑测试和启动开发环境服务器。</p>
+<p>我听说有些爱折腾的小伙伴构建了一个使用npm作为包管理器的linux发行版= =</p>
+<p>好处不用多说：</p>
+<ol>
+<li>方便下载和管理和更新依赖的前端类库</li>
+<li>方便自动化常用任务管理</li>
+<li>与全世界共享你的作品</li>
+</ol>
+<h2 id="D3-js:_超越想象力">D3.js: 超越想象力</h2><p>可能大家更喜欢echarts, chartjs, highcharts等等等等。相比而言，工作上，<br>人们看重的可能更是生产力和工作效率。还有对较成熟产品的信赖。</p>
+<p>我唯独喜欢d3，喜欢的无以复加。webpack可以没有，npm可以没有，jquery可以没有，<br>但，d3如果没有，工作生活一定少了亮丽的风景线。</p>
+<p>那是我见过最优秀的前端类库之一，几乎没有之一。</p>
+<p>它只做了它该做的事情，它好像什么也没做。</p>
+<p>它把复杂底层的事情又抽象出来了，它却没限制你的想象力</p>
+<p>它是艺术家和数据可视化工作者无可比拟的工具</p>
+<p>它的稳定、灵活和自然而然的设计，</p>
+<p>是一个痴迷数据可视化痴迷绘图的人梦寐以求的东西。</p>
+<p>不过我还是被吐槽了，因为，照设计稿画出来大家不满意。</p>
+<p>所以: </p>
+<p>pros:</p>
+<ol>
+<li>可靠。最流行的数据可视化前端类库</li>
+<li>灵活。超强的定制性，因为，它几乎没做什么</li>
+<li>数据驱动。将数据映射到DOM结构上，一个先进的思想和设计</li>
+<li>工具库。很多现成的东西来帮助完成冗杂的事情，方便完成数据到图像映射</li>
+<li>解耦好。d3各个模块是可以分开使用的，解耦非常好。</li>
+</ol>
+<p>cons:</p>
+<ol>
+<li>不是图表库偏底层。人们会觉得你用现成的图表库能画得更好更快，虽然我不完全这么认为。</li>
+<li>命令式地操作。这种jquery风格也算优点，但和同样数据驱动的Vue结合就比较难过</li>
+<li>整体看并不小。d3整个是149kb, echarts2 372kb这种，echarts3 171kb, chartjs 31kb</li>
+</ol>
+<p>so, 你的选择是什么呢？</p>
+<p>我选择d3,我觉得这是不可多得的好东西。我可以用把数据映射到html,svg,canvas,webGL和能<br>想到的，js能操作的任何地方。相比限制到某个小圈子里调整给定的参数，d3属于自由灵性的艺术家。</p>
+<p>当然，砖还是要搬的。</p>
+<h3 id="Vue-js:_爱恨交加">Vue.js: 爱恨交加</h3><p>在heavily use vue.js in our nearly every products web UI 后，我司成为某Vue的赞助商了。</p>
+<p>说下体验：</p>
+<p>pro:</p>
+<ol>
+<li>组件化开发方式，seperation of concern</li>
+<li>活跃的开发维护和活跃的社区</li>
+<li>公司在支持该项目</li>
+<li>数据驱动</li>
+<li>方便的指令系统、数据绑定支持</li>
+<li>现代而完善的前端开发测试工具支持</li>
+</ol>
+<p>cons:</p>
+<ol>
+<li>组件化并不完美。要理解其工作原理</li>
+<li>依赖关系复杂到一定程度难以调试。这说得好像其它解决方案很好似的</li>
+<li>想要在组件内注入样式比较难过，没什么人用css in js方案，没all in jsx的一致感</li>
+<li>和现有类库的配合并不天生契合。</li>
+</ol>
+<h3 id="最后:关于自己">最后:关于自己</h3><p>几点愿望：</p>
+<ol>
+<li>注意身体，穿插工作与休息，保证锻炼时间。保证生活规律。</li>
+<li>调整心态，保持平和冷静。</li>
+<li>提高沟通效率</li>
+<li>提高工作效率</li>
+</ol>
+<p>然后，我睡觉了</p>
+<style>
+.rain {
+  background: #1a1a1a;
+  width: 60vh;
+  height: 60vh;
+  perspective: 600px;
+}
+
+.rain ul {
+  position: absolute;
+  width: 60vh;
+  height: 60vh;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotateX(65deg);
+  transform-style: preserve-3d;
+}
+.rain ul li {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 50%;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+}
+.rain ul li span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+}
+.rain ul li span.raindrop {
+  width: 5px;
+  height: 5px;
+  background: #cccccc;
+  animation: raindrop 8s ease-in infinite;
+  animation-fill-mode: backwards;
+}
+.rain ul li span.ripple {
+  width: 100%;
+  height: 100%;
+  border: 2px solid #cccccc;
+  animation: ripple 8s ease-out infinite;
+  animation-fill-mode: backwards;
+}
+
+.rain li:nth-child(1) {
+  transform-origin: 50% 100%;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.rain li:nth-child(1) span.raindrop,
+.rain li:nth-child(1) span.ripple {
+  animation-delay: 0s;
+}
+
+.rain li:nth-child(2) {
+  transform-origin: 50% 100%;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+.rain li:nth-child(2) span.raindrop,
+.rain li:nth-child(2) span.ripple {
+  animation-delay: 1s;
+}
+
+.rain li:nth-child(3) {
+  transform-origin: 50% 100%;
+  transform: translate(-50%, -50%) rotate(135deg);
+}
+.rain li:nth-child(3) span.raindrop,
+.rain li:nth-child(3) span.ripple {
+  animation-delay: 2s;
+}
+
+.rain li:nth-child(4) {
+  transform-origin: 50% 100%;
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+.rain li:nth-child(4) span.raindrop,
+.rain li:nth-child(4) span.ripple {
+  animation-delay: 3s;
+}
+
+.rain li:nth-child(5) {
+  transform-origin: 50% 100%;
+  transform: translate(-50%, -50%) rotate(225deg);
+}
+.rain li:nth-child(5) span.raindrop,
+.rain li:nth-child(5) span.ripple {
+  animation-delay: 4s;
+}
+
+.rain li:nth-child(6) {
+  transform-origin: 50% 100%;
+  transform: translate(-50%, -50%) rotate(270deg);
+}
+.rain li:nth-child(6) span.raindrop,
+li:nth-child(6) span.ripple {
+  animation-delay: 5s;
+}
+
+.rain li:nth-child(7) {
+  transform-origin: 50% 100%;
+  transform: translate(-50%, -50%) rotate(315deg);
+}
+.rain li:nth-child(7) span.raindrop,
+.rain li:nth-child(7) span.ripple {
+  animation-delay: 6s;
+}
+
+.rain li:nth-child(8) {
+  transform-origin: 50% 100%;
+  transform: translate(-50%, -50%) rotate(360deg);
+}
+.rain li:nth-child(8) span.raindrop,
+.rain li:nth-child(8) span.ripple {
+  animation-delay: 7s;
+}
+
+@keyframes raindrop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateZ(200px);
+  }
+  1%, 9% {
+    opacity: 1;
+  }
+  10%, 100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateZ(0px);
+  }
+}
+@keyframes ripple {
+  0%, 10% {
+    transform: translate(-50%, -50%) scale(0);
+  }
+  40% {
+    opacity: 1;
+  }
+  80%, 100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+</style>
+
+<div class="rain"><br><ul><br><li><span class="raindrop"></span><span class="ripple"></span></li><br><li><span class="raindrop"></span><span class="ripple"></span></li><br><li><span class="raindrop"></span><span class="ripple"></span></li><br><li><span class="raindrop"></span><span class="ripple"></span></li><br><li><span class="raindrop"></span><span class="ripple"></span></li><br><li><span class="raindrop"></span><span class="ripple"></span></li><br><li><span class="raindrop"></span><span class="ripple"></span></li><br><li><span class="raindrop"></span><span class="ripple"></span></li><br></ul><br></div>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>工作进入第三个月，恍惚间就已经三个月，一个季度，四分之一年。</p>
+<p>我不是什么聪明人，只有些愚笨的记录于此。</p>
+<p>毕业前几天，因为Armsword的介绍，仰仗zt推荐，ztrix给了工作机会，我就糊里糊涂地去了。回顾这三个月，该说啥呢？</p>
+<p>惭愧]]>
+    </summary>
+    
+      <category term="work" scheme="http://reverland.org/tags/work/"/>
+    
+      <category term="work" scheme="http://reverland.org/categories/work/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[写一些有用的东西]]></title>
@@ -2228,49 +2533,6 @@ shuru               |&lt;---输入提示(已经输入的内容)
       <category term="javascript" scheme="http://reverland.org/tags/javascript/"/>
     
       <category term="javascript" scheme="http://reverland.org/categories/javascript/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[在linux下使用科技论文在线TeX模板]]></title>
-    <link href="http://reverland.org/linux/2015/11/23/linux-tex/"/>
-    <id>http://reverland.org/linux/2015/11/23/linux-tex/</id>
-    <published>2015-11-23T14:50:01.000Z</published>
-    <updated>2015-11-24T16:47:57.417Z</updated>
-    <content type="html"><![CDATA[<p>原文2015.10.14 14:56 <a href="http://www.jianshu.com/p/1d4c06470960" target="_blank" rel="external">首发简书</a>。</p>
-<p>我看到有tex模板。我用ubuntu 14.04LTS，并不用Office</p>
-<p>下载下来是一个zip文件，解压。Readme.txt乱码</p>
-<p><img src="http://img.vim-cn.com/bb/627c475c9a3ec5d544ec9f5fce25f09fa98fce.png" alt="科技论文在线Tex模板README中文乱码"></p>
-<p>抱着试试看的心理用 <code>iconv</code>转换</p>
-<pre><code>iconv <span class="operator">-f</span> gbk -t utf8 Readme.txt
-</code></pre><p>看到</p>
-<p><img src="http://img.vim-cn.com/e1/d7daa7e58a0d5703e45f9fe40e64f917f43bba.png" alt="Readme里信息"></p>
-<p>基于ctex宏包开发，可以用pdflatex或者xelatex。我一直用xelatex，但不想装了。</p>
-<pre><code>sudo apt-get <span class="operator"><span class="keyword">install</span> texlive-lang-cjk sudo apt-<span class="keyword">get</span> <span class="keyword">install</span> texlive-bibtex-extra</span>
-</code></pre><p>首先，你得装<code>simsun.ttc</code>这个宋体Truetype字体了。还要改配置，不然找不到字体</p>
-<pre><code>!pdfTeX <span class="keyword">error</span>: pdflatex (<span class="keyword">file</span> simsun.ttc): cannot <span class="keyword">open</span> TrueType font <span class="keyword">file</span> <span class="keyword">for</span> reading
-</code></pre><p>配置<code>/etc/texmf/texmf.d/01csofont.cnf</code>，添加如下行(因为我的宋体安装在<code>~/.fonts</code>这里)</p>
-<pre><code><span class="attribute">OSFONTDIR</span>=<span class="string">~/.fonts</span>
-</code></pre><p>更新配置文件</p>
-<pre><code><span class="title">sudo</span> update-texmf
-</code></pre><p>编译</p>
-<pre><code><span class="tag">pdflatex</span> <span class="tag">csosampleUTF8</span><span class="class">.tex</span>
-</code></pre><h2 id="附记">附记</h2><p>如果你选择xelatex，就是官方推荐，注意也要更改配置文件。当然，xelatex是要安装的。</p>
-<p>参考<a href="https://wiki.archlinux.org/index.php/TeX_Live_%28%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%29#.E4.B8.AD.E6.96.87.E5.8C.96" target="_blank" rel="external">Archlinux维基关于TexLive中文化</a>。这部分还是我写的哈哈哈。</p>
-<p>我要写论文了，have fun</p>
-<h2 id="提交时的补记">提交时的补记</h2><p>今天在科技论文在线提交时，发现科技论文在线的标题关键字基金等提取有bug。如果标题或关键字等后面有注释比如<code>% some comments</code>，就不能提取出tex文件中对应内容。</p>
-<p>如果发现提交不上去tex源文件，可以检查下是不是有多余的注释。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>原文2015.10.14 14:56 <a href="http://www.jianshu.com/p/1d4c06470960" target="_blank" rel="external">首发简书</a>。</p>
-<p>我看到有tex模板。我用ubuntu 14.]]>
-    </summary>
-    
-      <category term="linux" scheme="http://reverland.org/tags/linux/"/>
-    
-      <category term="tex" scheme="http://reverland.org/tags/tex/"/>
-    
-      <category term="linux" scheme="http://reverland.org/categories/linux/"/>
     
   </entry>
   
